@@ -1,1 +1,0 @@
-# st-joseph-legacy-project
