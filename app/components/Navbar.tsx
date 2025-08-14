@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import bellIcon from "@/public/icons/noti-icon.svg";
+// import bellIcon from "@/public/icons/noti-icon.svg";
 import awardsIcon from "@/public/icons/awards-icon.svg";
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -115,7 +115,7 @@ export default function Navbar() {
                 </div>
               {/* </Link> */}
             </div>
-              <Image src={awardsIcon} alt="Loading..." width={34} height={34} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
+              <Image src="/icons/awards-icon.svg" alt="Loading..." width={34} height={34} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
             </div>
             <div className='relative'>
               <div className='absolute top-[-7px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
@@ -125,7 +125,7 @@ export default function Navbar() {
                 </div>
               {/* </Link> */}
             </div>
-              <Image src={bellIcon} alt="Loading..." width={35} height={35} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
+              <Image src="/icons/noti-icon.svg" alt="Loading..." width={35} height={35} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
             </div>
             
             <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[0px]'>
@@ -223,7 +223,7 @@ export default function Navbar() {
                   </div>
                 {/* </Link> */}
               </div>
-                <Image src={awardsIcon} alt="Loading..." width={34} height={34} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
+                <Image src="/icons/awards-icon.svg" alt="Loading..." width={34} height={34} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
               </div>
               <div className='relative'>
                 <div className='absolute top-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
@@ -233,7 +233,7 @@ export default function Navbar() {
                   </div>
                 {/* </Link> */}
               </div>
-                <Image src={bellIcon} alt="Loading..." width={35} height={35} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
+                <Image src="/icons/noti-icon.svg" alt="Loading..." width={35} height={35} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
               </div>
               
               <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>

@@ -312,8 +312,8 @@ export default function Home() {
             <div>
               {/* <h4 className='font-semibold mt-4 mb-2'>Supported By</h4> */}
               <div className='flex items-center gap-4 mt-3'>
-                <a href="#" className='text-blue-300 hover:text-white'><Image src={igIcon} alt="" height={35} width={35}/></a>
-                <a href="#" className='text-blue-300 hover:text-white'><Image src={fbIcon} alt="" height={30} width={30}/></a>
+                <a href="#" className='text-blue-300 hover:text-white'><Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/></a>
+                <a href="#" className='text-blue-300 hover:text-white'><Image src="/icons/facebook-icon.svg" alt="" height={30} width={30}/></a>
               </div>
             </div>
           </div>
@@ -341,7 +341,7 @@ export default function Home() {
                   <span className='text-white text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
                     Contribute
                   </span>
-                  <Image src={heartIcon} alt="Loading..." width={18} height={18} className='invert' />
+                  <Image src="/icons/heart-icon.svg" alt="Loading..." width={18} height={18} className='invert' />
                 </div>
               </a>
             </button>
