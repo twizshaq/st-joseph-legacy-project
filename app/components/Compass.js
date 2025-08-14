@@ -6,8 +6,9 @@ import React, { forwardRef } from 'react';
 // Wrap in forwardRef to accept a ref from the parent
 const Compass = forwardRef(({ directionLetter }, ref) => {
   return (
+    // <div className='absolute top-[20px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+    //   <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
     <div className="w-[45px] h-[45px] flex items-center justify-center">
-
       {/* 
         The rotating dial. 
         - It now gets its ref from the parent.
@@ -23,7 +24,7 @@ const Compass = forwardRef(({ directionLetter }, ref) => {
             <line key={i} x1="50" y1="8" x2="50" y2={i % 3 === 0 ? "16" : "17"} stroke="#BDC3C7" strokeWidth={i % 3 === 0 ? "3" : "2"} transform={`rotate(${i * 30}, 50, 50)`} />
           ))}
           {/* Pointers */}
-          <polygon points="46,16 54,16 50,4" fill="#EF4444" />
+          <polygon points="46,16 54,16 50,4" fill="#FF0F53"/>
           <polygon points="46,16 54,16 50,4" fill="#BDC3C7" transform="rotate(90, 50, 50)" />
           <polygon points="46,16 54,16 50,4" fill="#BDC3C7" transform="rotate(180, 50, 50)" />
           <polygon points="46,16 54,16 50,4" fill="#BDC3C7" transform="rotate(270, 50, 50)" />
@@ -34,7 +35,7 @@ const Compass = forwardRef(({ directionLetter }, ref) => {
       <div className="relative text-white font-bold text-[1.3rem] z-10">
         {directionLetter}
       </div>
-
+      
     </div>
   );
 });

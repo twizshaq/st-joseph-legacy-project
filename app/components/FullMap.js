@@ -1,10 +1,12 @@
-// components/Map.js
+// components/MapFull.js
 "use client";
 
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import mapboxgl from 'mapbox-gl';
+import Image from 'next/image';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
+import searchIcon from '@/public/icons/search-icon.svg';
 import Compass from './Compass';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
@@ -17,7 +19,7 @@ const getDirectionLetter = (bearing) => {
     return 'N';
 };
 
-const Map = forwardRef((props, ref) => {
+const MapFull = forwardRef((props, ref) => {
     const mapContainer = useRef(null);
     const map = useRef(null);
     const compassDialRef = useRef(null);
@@ -141,16 +143,16 @@ const Map = forwardRef((props, ref) => {
     return (
         <div className='h-full w-full relative'>
             <div ref={mapContainer} className='h-full w-full' />
-            <div className='absolute top-[130px] left-[18px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
-            <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                <button onClick={handleResetNorth} className="rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg w-[48px] h-[48px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
-                    <Compass ref={compassDialRef} directionLetter={directionLetter} />
-                </button>
-            </div>
-        </div>
+                <div className='absolute bottom-[130px] max-sm:top-[80px] right-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+                    <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                        <button onClick={handleResetNorth} className="rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg w-[48px] h-[48px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
+                            <Compass ref={compassDialRef} directionLetter={directionLetter} />
+                        </button>
+                    </div>
+                </div>
         </div>
     );
 });
 
-Map.displayName = 'Map';
-export default Map;
+MapFull.displayName = 'MapFull';
+export default MapFull;

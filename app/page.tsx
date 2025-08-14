@@ -1,7 +1,7 @@
 "use client";
 
 import React  from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import test from '@/public/test1.png'
 import loadingIcon from '@/public/loading-icon.png'
@@ -11,6 +11,7 @@ import alertIcon from '@/public/icons/alert-icon.svg'
 import enlargeIcon from '@/public/icons/enlarge-icon.svg'
 import heartIcon from '@/public/icons/heart-icon.svg'
 import Map from '@/app/components/Map';
+import Link from 'next/link';
 import { useRef } from 'react';
 import compass from "@/public/icons/compass-icon.svg";
 
@@ -18,6 +19,8 @@ import compass from "@/public/icons/compass-icon.svg";
 export default function Home() {
 
   const mapRef = useRef<any>(null);
+  const mapContainerRef = useRef<any>(null); // Ref for the map's container div
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const handleZoomIn = () => {
     mapRef.current.zoomIn();
@@ -26,6 +29,34 @@ export default function Home() {
   const handleZoomOut = () => {
     mapRef.current.zoomOut();
   };
+
+  const handleFullScreenToggle = () => {
+    const elem = mapContainerRef.current;
+    if (!elem) return;
+  
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      elem.requestFullscreen().catch((err: any) => {
+        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const onFullScreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+  
+    document.addEventListener('fullscreenchange', onFullScreenChange);
+  
+    // Cleanup the event listener when the component unmounts
+    return () => document.removeEventListener('fullscreenchange', onFullScreenChange);
+  }, []);
 
   const [email, setEmail] = useState("");
   const [showConfetti, setShowConfetti] = useState(false);
@@ -71,39 +102,37 @@ export default function Home() {
   };
 
   return (
-    <div className='flex flex-col items-center min-h-[100dvh] text-black'>
-      {/* Header Section */}
-      <div className='flex flex-col justify-center items-center max-w-[2000px] w-full h-[60vh] bg-blue-900 text-white gap-[20px]'>
-        <p className='font-black text-[3rem] text-center leading-15'>Discover the Untold Stories <br /> of St. Joseph</p>
-        <p className='text-center'>A community project to document and protect our cultural heritage</p>
-        {/* <div className='absolute top-[53vh] bg-gradient-to-t from-white to-transparent w-full h-[70px]'></div> */}
-      </div>
+    <div className='flex flex-col items-center min-h-[100dvh] text-black bg-[#fff]'>
+      <div className="relative flex flex-col justify-center items-center max-w-[2000px] w-full h-[70vh] text-white gap-[20px] overflow-hidden">
+
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover"
+      >
+        <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
+      </video>
+
+      {/* Dark Overlay (optional for text readability) */}
+      <div className="absolute top-0 left-0 w-full h-full bg-black/40" />
+
+      {/* Foreground Content */}
+      <p className="font-black text-[3rem] text-center leading-[1.2] z-10">
+        Discover the Untold Stories <br /> of St. Joseph
+      </p>
+      <p className="text-center z-10">
+        A community project to document and protect our cultural heritage
+      </p>
+
+    </div>
 
 
 
       {/* Responsive Navigation Bar */}
-      <div className='
-        font-bold text-black bg-[#eaeaea]/80 rounded-full
-        absolute top-[56.5vh] left-1/2 -translate-x-1/2
-        
-        flex justify-around sm:justify-around
-        py-3 md:py-0 px-4 backdrop-blur-[10px]
-        // md:h-[57px] md:pl-[30px] md:pr-[3px] max-sm:w-[90vw] sm:gap-[25px]
-        border-[2.7px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.1)] items-center
-      '>
-        <button className='cursor-pointer whitespace-nowrap'>Home</button>
-        <button className='cursor-pointer whitespace-nowrap'>Virtual Map</button>
-        <button className='cursor-pointer whitespace-nowrap'>View Sites</button>
-        <button className='cursor-pointer whitespace-nowrap rounded-full p-[2px] md:px-[2.7px] md:h-[87%] md:py-[0px] bg-[linear-gradient(to_right,#ff977e,#feb47b)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] max-md:absolute max-md:mt-[150px]'>
-          <a href="/guided-tour">
-            <div className='bg-[linear-gradient(to_left,#ff7e5f,#feb47b)] rounded-full px-[20px] md:px-[15px] md:py-[8.4px] py-[12px]'>
-              <span className='text-white bg-clip-text bg-[linear-gradient(to_right,#ff7e5f,#feb47b)]'>
-                Guided Tour
-              </span>
-            </div>
-          </a>
-        </button>
-      </div> 
+      
 
 
 
@@ -146,41 +175,58 @@ export default function Home() {
         <p className='font-bold text-[2rem] text-center'>Virtual Map of St. Joseph</p>
         <p className='max-w-[700px] text-center'>consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         
-        <div className='relative h-[500px] max-sm:h-[400px] w-[1000px] max-w-[90vw] rounded-[60px] mt-[50px] overflow-hidden shadow-[4px_4px_10px_rgba(0,0,0,0.1)] border-4 border-white'>
+        <div ref={mapContainerRef} className='relative h-[500px] max-sm:h-[400px] w-[1000px] max-w-[90vw] rounded-[60px] mt-[50px] overflow-hidden shadow-[0px_0px_15px_rgba(0,0,0,0.1)] border-4 border-white'>
           
           {/* The Map Component with the ref */}
           <Map ref={mapRef} />
 
           {/* Your Custom Controls */}
-          <div className='rounded-full bg-black/40 backdrop-blur-[5px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] absolute top-[25px] left-[25px] flex flex-col gap-0 p-[0px] py-[0px] max-sm:top-[20px] max-sm:left-[20px] w-[45px] overflow-hidden'>
-            <button 
-              onClick={handleZoomIn}
-              className='rounded-[0px] px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'
-            >
-              <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
-              <div className='absolute bg-white h-[3px] w-[50%] rounded-full rotate-[90deg]'></div>
-            </button>
-            <button 
-              onClick={handleZoomOut}
-              className='rounded-[0px] px-[12px] py-[20px] pb-[23px] active:bg-white/10'
-            >
-              <div className='bg-white h-[3px] w-[100%] rounded-full'></div>
-            </button>
-            {/* <button 
-              onClick={handleResetNorth}
-              className='rounded-full p-[5px]'
-            >
-              <Image src={compass} alt="" height={25} width={25}/>
-            </button> */}
+          <div className='absolute top-[20px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+            <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+              <div className='rounded-full bg-black/40 backdrop-blur-[5px] flex flex-col gap-0 p-[0px] py-[0px] w-[45px] overflow-hidden z-[40]'>
+                <button 
+                  onClick={handleZoomIn}
+                  className='rounded-[0px] px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'
+                >
+                  <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
+                  <div className='absolute bg-white h-[3px] w-[50%] rounded-full rotate-[90deg]'></div>
+                </button>
+                <button 
+                  onClick={handleZoomOut}
+                  className='rounded-[0px] px-[12px] py-[20px] pb-[23px] active:bg-white/10'
+                >
+                  <div className='bg-white h-[3px] w-[100%] rounded-full'></div>
+                </button>
+              </div>
+            </div>
           </div>
+          
 
           {/* Your Overlay Buttons */}
-          <button className='absolute bottom-[25px] right-[25px] max-sm:bottom-[20px] max-sm:right-[20px] rounded-full active:bg-black/30 bg-black/40 backdrop-blur-[5px] flex flex-row text-white  font-bold px-[10px] py-[10px] gap-[10px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
-            <Image src={alertIcon} alt="" height={25} width={25}/>
-          </button>
-          <button className='absolute top-[25px] right-[25px] max-sm:top-[20px] max-sm:right-[20px] rounded-full active:bg-black/30 bg-black/40 backdrop-blur-[5px] p-[10px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
-            <Image src={enlargeIcon} alt="" height={25} width={25}/>
-          </button>
+          <div className='absolute bottom-[20px] right-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+            <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+              <button className='rounded-full active:bg-black/30 bg-black/40 backdrop-blur-[5px] flex flex-row text-white font-bold px-[15px] py-[10px] gap-[10px] z-[40]'>
+              <Image src={alertIcon} alt="" height={25} width={25}/>
+              <p className=''>Feedback</p>
+            </button>
+            </div>
+          </div>
+
+        <Link 
+              href="/virtual-map"
+              target="_blank" // This is what opens it in a new tab
+              rel="noopener noreferrer" // Security best practice for new tabs
+            >
+          <div className='absolute top-[20px] right-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+            <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+              <div className='rounded-full active:bg-black/30 bg-black/40 backdrop-blur-[5px] p-[8px] z-[40] '>
+                <Image src={enlargeIcon} alt="Open map in new tab" height={30} width={30}/>
+              </div>
+            {/* </Link> */}
+            </div>
+          </div>
+        </Link>
+        
         </div>
       </div>
 
@@ -189,7 +235,7 @@ export default function Home() {
       {/* Sites */}
       <div className="bg-green-500/0 max-w-[1500px] w-full mt-[100px] flex flex-col">
       <div className="bg-red-500/0 px-[5vw]">
-          <p className="font-bold text-[2rem]">View Sites</p>
+          <p className="font-bold text-[2rem]">Popular Sites</p>
           <p className="max-w-[700px]">
               consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </p>
@@ -252,35 +298,33 @@ export default function Home() {
 
       {/* Footer */}
       <footer className='bg-blue-900 text-white w-full mt-[100px] py-12 px-[4vw]'>
-        <div className='max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10'>
+        <div className='max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10'>
 
           {/* Column 1: Identity & Contact (Theme-aligned text) */}
           <div className='flex flex-col gap-4'>
-            <h3 className='font-bold text-xl'>St. Joseph: Unveiling Our Legacy</h3>
-            <p className='text-blue-200 text-sm'>A Digital Enhancement & Outreach (DEO) Project.</p>
+            <h3 className='font-bold text-xl'>Unveiling Our Legacy</h3>
+            <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
             <div>
               <h4 className='font-semibold mb-2'>Contact Us</h4>
               <p className='text-blue-200 text-sm'>stjoseph.legacy@deo.gov.bb</p>
               <p className='text-blue-200 text-sm'>(246) 123-4567</p>
             </div>
             <div>
-              <h4 className='font-semibold mt-4 mb-2'>Supported By</h4>
-              <div className='flex items-center gap-4'>
-                {/* Placeholder for partner logos */}
-                <div className='bg-blue-800 h-10 w-10 rounded-full'></div>
-                <div className='bg-blue-800 h-10 w-10 rounded-full'></div>
+              {/* <h4 className='font-semibold mt-4 mb-2'>Supported By</h4> */}
+              <div className='flex items-center gap-4 mt-3'>
+                <a href="#" className='text-blue-300 hover:text-white'><Image src={igIcon} alt="" height={35} width={35}/></a>
+                <a href="#" className='text-blue-300 hover:text-white'><Image src={fbIcon} alt="" height={30} width={30}/></a>
               </div>
             </div>
           </div>
 
 
           {/* Column 3: Get Involved (Theme-aligned button) */}
+        <div className='flex flex-col-reverse items-center gap-[40px] ml-[60px]'>
           <div className='flex flex-col gap-4 bg-red-500/0'>
-            <h3 className='font-bold text-xl'>Get Involved</h3>
-            <ul className='space-y-2 text-blue-200'>
+            <h3 className='font-bold text-xl text-center'>Get Involved</h3>
+            <ul className='space-y-2 text-blue-200 text-center'>
               <li><a href="/volunteer" className='hover:text-[#feb47b] transition-colors'>Volunteer Sign-up</a></li>
-              <li><a href="/partner" className='hover:text-[#feb47b] transition-colors'>Become a Business Partner</a></li>
-              <li><a href="/database-intake" className='hover:text-[#feb47b] transition-colors'>Community Database Form</a></li>
             </ul>
             {/* <a 
               href="/donate" 
@@ -288,25 +332,25 @@ export default function Home() {
             >
               Donate Now
             </a> */}
-            <button className='relative cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[200px] py-[3px] bg-[linear-gradient(to_right,#ff977e,#feb47b)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+            <button className='relative cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
               <a
                 href="/donate" 
                 className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
               >
-                <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#ff7e5f,#feb47b)] rounded-full px-[15px] py-[12px]'>
-                  <span className='text-white bg-clip-text bg-[linear-gradient(to_right,#ff7e5f,#feb47b)]'>
-                    Donate Now
+                <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
+                  <span className='text-white text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
+                    Contribute
                   </span>
-                  <Image src={heartIcon} alt="Loading..." width={15} height={15} className='invert' />
+                  <Image src={heartIcon} alt="Loading..." width={18} height={18} className='invert' />
                 </div>
               </a>
             </button>
           </div>
 
           {/* Column 4: Stay Connected (Theme-aligned form) */}
-          <div className='flex flex-col gap-4'>
+          <div className='flex flex-col gap-4 items-center'>
             <h3 className='font-bold text-xl'>Stay Connected</h3>
-            <p className='text-blue-200 text-sm'>Subscribe to our newsletter for project updates and email blasts.</p>
+            <p className='text-blue-200 text-sm text-center'>Subscribe to our newsletter for project updates and email blasts.</p>
             <div className="h-hit w-fit flex items-center justify-end relative mb-[0px]">
                       <input
                         type="email"
@@ -325,7 +369,7 @@ export default function Home() {
                           ${isSubmitting
                             ? 'bg-transparent' // When loading, make background transparent
                             : isValid
-                              ? 'bg-[#EE1280] hover:bg-pink-700 text-white filter shadow-[0_0_7px_rgba(238,18,128,0.5)]'
+                              ? 'bg-[#007BFF] hover:[#002347] text-white filter shadow-[0_0_7px_rgba(0,123,255,0.5)]'
                               : 'bg-[#777]/30 text-white/30'
                           }
                           ${isSubmitting || !isValid ? "cursor-not-allowed" : "cursor-pointer"}
@@ -344,14 +388,11 @@ export default function Home() {
                         </span>
                       </button>
                     </div>
-            <div className='flex items-center gap-4 mt-3'>
-              <a href="#" className='text-blue-300 hover:text-white'><Image src={igIcon} alt="" height={35} width={35}/></a>
-              <a href="#" className='text-blue-300 hover:text-white'><Image src={fbIcon} alt="" height={30} width={30}/></a>
-            </div>
           </div>
+        </div>
 
           {/* Column 2: Navigation (Theme-aligned hover states) */}
-          <div className='flex flex-col gap-4 bg-green-500/0 md:pl-[60px]'>
+          <div className='flex flex-col gap-4 bg-green-500/0 text-right'>
             <h3 className='font-bold text-xl'>Navigate</h3>
             <ul className='space-y-2 text-blue-200'>
               <li><a href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</a></li>
