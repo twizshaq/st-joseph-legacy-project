@@ -52,12 +52,12 @@ export default function Navbar() {
       {/* =================================================================
         DESKTOP NAVIGATION (Visible on medium screens and up)
       ================================================================= */}
-      <div className="fixed rounded-full top-[36px] left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-[3px] w-[648px] h-[70px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] z-[49] max-md:w-[0px] max-md:h-[0px]"></div>
+      <div className='fixed top-[40px] left-1/2 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
+          <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
       <nav
       className="
         hidden md:flex
-        font-bold text-black bg-[#000]/30 rounded-full
-        fixed top-[40px] left-1/2 -translate-x-1/2
+        font-bold text-black bg-[#000]/40 rounded-full
         justify-around items-center
         py-0 px-4 backdrop-blur-[10px]
         h-[62px] pl-[30px] pr-[10px] gap-[25px]
@@ -151,21 +151,26 @@ export default function Navbar() {
           </div>
         )}
       </nav>
+    </div>
+  </div>
 
       {/* =================================================================
         MOBILE-ONLY ELEMENTS (Burger button and Drawer Menu)
       ================================================================= */}
       <div className="md:hidden"> {/* This container is hidden on desktop */}
         {/* --- Burger Menu Button --- */}
-        <div className="fixed rounded-full top-[16px] left-[16px] bg-white/10 backdrop-blur-[3px] w-[59px] h-[59px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] z-[49]"></div>
-        <button
-          onClick={toggleMenu}
-          className="fixed top-5 left-5 z-50 p-[11px] rounded-full bg-black/40 backdrop-blur-sm text-black"
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
-          {/* <div className='absolute -z-[60] bg-red-500 rounded-full p-[10px]'></div> */}
-        </button>
+        <div className='fixed top-[16px] left-[10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
+          <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+            <button
+              onClick={toggleMenu}
+              className="z-50 p-[11px] rounded-full bg-black/40 backdrop-blur-sm text-black"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
+              {/* <div className='absolute -z-[60] bg-red-500 rounded-full p-[10px]'></div> */}
+            </button>
+          </div>
+        </div>
 
         {/* --- Mobile Menu Panel (The "Drawer") --- */}
         <div className={`
@@ -207,58 +212,57 @@ export default function Navbar() {
           )}
         </div>
 
-        {isLoggedIn ? (
-          <div className="fixed rounded-full top-[16.6px] right-[16px] bg-white/10 backdrop-blur-[3px] w-[191px] h-[58px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] z-[49]"></div>
-        ) : (
-          <div className="fixed rounded-full top-[16.6px] right-[16px] bg-white/10 backdrop-blur-[3px] w-[199.5px] h-[60px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] z-[49]"></div>
-          )}
-        <div className='fixed right-5 top-5 bg-black/40 backdrop-blur-sm rounded-full px-[7px] pl-[13px] py-[5px] z-[50]'>
-          {isLoggedIn ? (
-            <div className="flex items-center gap-[27px]">
-              <div className='relative'>
-                <div className='absolute bottom-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#FF9D00,#FFC766)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
-                {/* <Link href="/sign-up"> */}
-                  <div className='flex justify-center items-center bg-[linear-gradient(to_left,#FF9D00,#FFC766)] rounded-full w-[23px] h-[16px]'>
-                    <span className='text-white text-[.8rem] text-shadow-[0px_0px_4px_rgba(0,0,0,0.3)] font-bold'>36</span>
+      <div className='fixed right-[13px] top-[15px] cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
+          <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+            <div className='bg-black/40 backdrop-blur-sm rounded-full px-[7px] pl-[13px] py-[5px] z-[50]'>
+              {isLoggedIn ? (
+                <div className="flex items-center gap-[27px]">
+                  <div className='relative'>
+                    <div className='absolute bottom-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#FF9D00,#FFC766)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+                    {/* <Link href="/sign-up"> */}
+                      <div className='flex justify-center items-center bg-[linear-gradient(to_left,#FF9D00,#FFC766)] rounded-full w-[23px] h-[16px]'>
+                        <span className='text-white text-[.8rem] text-shadow-[0px_0px_4px_rgba(0,0,0,0.3)] font-bold'>36</span>
+                      </div>
+                    {/* </Link> */}
                   </div>
-                {/* </Link> */}
-              </div>
-                <Image src="/icons/awards-icon.svg" alt="Loading..." width={34} height={34} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
-              </div>
-              <div className='relative'>
-                <div className='absolute top-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
-                {/* <Link href="/sign-up"> */}
-                  <div className='flex justify-center items-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full w-[23px] h-[16px]'>
-                    <span className='text-white text-[.8rem] text-shadow-[0px_0px_4px_rgba(0,0,0,0.3)] font-bold'>10</span>
+                    <Image src="/icons/awards-icon.svg" alt="Loading..." width={34} height={34} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
                   </div>
-                {/* </Link> */}
-              </div>
-                <Image src="/icons/noti-icon.svg" alt="Loading..." width={35} height={35} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
-              </div>
-              
-              <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
-                <Link href="/account">
-                  {/* <div className='flex flex-row items-center gap-[7px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full p-[2px]'> */}
-                    <div className='rounded-full h-[35px] w-[35px] bg-white'></div>
-                    {/* <span className='text-white'>{userName}</span> */}
-                  {/* </div> */}
-                </Link>
-              </div>
+                  <div className='relative'>
+                    <div className='absolute top-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+                    {/* <Link href="/sign-up"> */}
+                      <div className='flex justify-center items-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full w-[23px] h-[16px]'>
+                        <span className='text-white text-[.8rem] text-shadow-[0px_0px_4px_rgba(0,0,0,0.3)] font-bold'>10</span>
+                      </div>
+                    {/* </Link> */}
+                  </div>
+                    <Image src="/icons/noti-icon.svg" alt="Loading..." width={35} height={35} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
+                  </div>
+                  
+                  <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+                    <Link href="/account">
+                      {/* <div className='flex flex-row items-center gap-[7px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full p-[2px]'> */}
+                        <div className='rounded-full h-[35px] w-[35px] bg-white'></div>
+                        {/* <span className='text-white'>{userName}</span> */}
+                      {/* </div> */}
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-5">
+                  <button onClick={handleLogin} className='cursor-pointer whitespace-nowrap hover:text-gray-600 transition-colors pl-[13px] font-bold'>
+                    Login
+                  </button>
+                  <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[2px]'>
+                    <Link href="/sign-up">
+                      <div className='bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[6.4px]'>
+                        <span className='text-white font-bold'>Sign Up</span>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex items-center gap-5">
-              <button onClick={handleLogin} className='cursor-pointer whitespace-nowrap hover:text-gray-600 transition-colors pl-[13px] font-bold'>
-                Login
-              </button>
-              <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[2px]'>
-                <Link href="/sign-up">
-                  <div className='bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[6.4px]'>
-                    <span className='text-white font-bold'>Sign Up</span>
-                  </div>
-                </Link>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </>

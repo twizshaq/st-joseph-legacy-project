@@ -8,6 +8,7 @@ import compass from "@/public/icons/compass-icon.svg";
 import MapPanel from '@/app/components/MapPanel';
 import searchIcon from '@/public/icons/search-icon.svg';
 import Image from 'next/image';
+type Zoomable = { zoomIn: () => void; zoomOut: () => void };
 
 const historicSites = [
   { id: 1, name: 'Chalky Mount Potteries', description: 'Historic pottery village known for its unique clay.' },
@@ -21,10 +22,10 @@ const historicSites = [
 ];
 
 export default function FullScreenMapPage() {
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<Zoomable | null>(null);
 
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [mobileSearchReady, setMobileSearchReady] = useState(false); // when false, input is readOnly (no keyboard)
+  const [mobileSearchReady, setMobileSearchReady] = useState(false);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
 
   const desktopSearchRef = useRef<HTMLDivElement>(null);

@@ -14,38 +14,39 @@ import Map from '@/app/components/Map';
 import Link from 'next/link';
 import { useRef } from 'react';
 import compass from "@/public/icons/compass-icon.svg";
+type Zoomable = { zoomIn: () => void; zoomOut: () => void };
 
 
 export default function Home() {
 
-  const mapRef = useRef<any>(null);
-  const mapContainerRef = useRef<any>(null); // Ref for the map's container div
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  const mapRef = useRef<Zoomable | null>(null);
+const mapContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the map's container div
+const [isFullScreen, setIsFullScreen] = useState(false);
 
-  const handleZoomIn = () => {
-    mapRef.current.zoomIn();
-  };
+const handleZoomIn = () => {
+  mapRef.current?.zoomIn();
+};
 
-  const handleZoomOut = () => {
-    mapRef.current.zoomOut();
-  };
+const handleZoomOut = () => {
+  mapRef.current?.zoomOut();
+};
 
-  const handleFullScreenToggle = () => {
-    const elem = mapContainerRef.current;
-    if (!elem) return;
-  
-    if (!document.fullscreenElement) {
-      // Enter fullscreen
-      elem.requestFullscreen().catch((err: any) => {
-        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-      });
-    } else {
-      // Exit fullscreen
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-  };
+const handleFullScreenToggle = () => {
+  const elem = mapContainerRef.current;
+  if (!elem) return;
+
+  if (!document.fullscreenElement) {
+    // Enter fullscreen
+    elem.requestFullscreen().catch((err: unknown) => {
+      const message =
+        err instanceof Error ? `${err.message} (${err.name})` : String(err);
+      alert(`Error attempting to enable full-screen mode: ${message}`);
+    });
+  } else {
+    // Exit fullscreen
+    document.exitFullscreen?.();
+  }
+};
 
   useEffect(() => {
     const onFullScreenChange = () => {
@@ -156,7 +157,7 @@ export default function Home() {
         <br />
         - Andromeda Gardens, 
         <br />
-        -  Hunte's Gardens, 
+        -  Hunte&apos;s Gardens, 
         <br />
         -  Cotton Tower Signal Station 
         </p>

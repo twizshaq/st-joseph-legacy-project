@@ -89,7 +89,7 @@ export default function ScannerPage() {
           <div className="flex flex-col items-center text-white p-8 pt-24 pb-24">
             <h1 className="text-3xl font-bold mb-4">St Joseph Experience</h1>
             <p className="text-center max-w-md mb-8">
-              This is the about page. Switch back to the "Experience" tab to reactivate the camera view.
+              This is the about page. Switch back to the &quot;Experience&quot; tab to reactivate the camera view.
             </p>
             <div className="max-w-md space-y-4 text-left text-gray-300">
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>

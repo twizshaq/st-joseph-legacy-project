@@ -93,15 +93,15 @@ export default function MapPanel({ sites }: { sites: Site[] }) {
     };
   }, [isSheetOpen]); // Rerun this effect when the sheet's open state changes.
 
-  const onDragEnd = (_: any, info: { velocity: { y: any } }) => {
-    setIsDragging(false);
-    const currentY = y.get();
-    const velocity = info.velocity.y;
-    const velocityThreshold = 200;
+  const onDragEnd = (_: unknown, info: { velocity: { y: number } }) => {
+  setIsDragging(false);
+  const currentY = y.get();          // y should be a MotionValue<number>
+  const velocity = info.velocity.y;  // velocity is now typed as number
+  const velocityThreshold = 200;
 
-    const closestSnapPoint = snapPoints.reduce((prev, curr) =>
-      Math.abs(curr - currentY) < Math.abs(prev - currentY) ? curr : prev
-    );
+  const closestSnapPoint = snapPoints.reduce((prev, curr) =>
+    Math.abs(curr - currentY) < Math.abs(prev - currentY) ? curr : prev
+  );
 
     let targetSnapPoint = closestSnapPoint;
 
@@ -155,7 +155,7 @@ export default function MapPanel({ sites }: { sites: Site[] }) {
       {/* --- MOBILE BOTTOM SHEET --- */}
       <motion.div
         ref={sheetRef}
-        className="md:hidden fixed left-0 right-0 w-full bg-black/65 backdrop-blur-[15px] shadow-2xl z-20 flex flex-col"
+        className="md:hidden fixed left-0 right-0 w-[100vw] bg-black/65 backdrop-blur-[15px] shadow-2xl z-20 flex flex-col"
         style={{ y, height: window.innerHeight, touchAction: 'none' }}
         drag="y"
         dragConstraints={{ top: snapPoints[0], bottom: snapPoints[2] }}
