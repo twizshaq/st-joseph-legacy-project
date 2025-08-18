@@ -3,6 +3,7 @@
 
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import mapboxgl from 'mapbox-gl';
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 import Image from 'next/image';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
