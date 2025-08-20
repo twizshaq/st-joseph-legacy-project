@@ -321,7 +321,7 @@ const handleFullScreenToggle = () => {
 
 
           {/* Column 3: Get Involved (Theme-aligned button) */}
-        <div className='flex flex-col-reverse items-center max-sm:items-left gap-[40px] ml-[60px] max-sm:ml-[0px] bg-green-500/0'>
+        <div className='flex flex-col-reverse items-center max-sm:items-left gap-[40px] ml-[25px] max-sm:ml-[0px] bg-green-500/0'>
           <div className='flex flex-col gap-4 bg-red-500/0 max-sm:w-[100%]'>
             <h3 className='font-bold text-xl text-center max-sm:text-left'>Get Involved</h3>
             <ul className='space-y-2 text-blue-200 text-center max-sm:text-left'>
@@ -352,7 +352,7 @@ const handleFullScreenToggle = () => {
           <div className='flex flex-col gap-4 items-center max-sm:items-left'>
             <h3 className='font-bold text-xl max-sm:w-[100%]'>Stay Connected</h3>
             <p className='text-blue-200 text-sm text-center max-sm:text-left'>Subscribe to our newsletter for project updates and email blasts.</p>
-            <div className="h-hit w-fit flex self-start items-center justify-end relative mb-[0px]">
+            <div className="h-hit w-fit flex max-sm:self-start items-center justify-end relative mb-[0px]">
                       <input
                         type="email"
                         className="border-[2px] border-white/10 backdrop-blur-[5px] text-white font-semibold rounded-[30px] py-[15px] pl-[20px] pr-[130px] max-w-[80vw] w-[350px] outline-none bg-black/20"

@@ -1,0 +1,29 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-59.5254, 13.2145] },
+      "properties": {
+        "id": 1,
+        "name": "Bathsheba Rock"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-59.55, 13.22] },
+      "properties": {
+        "id": 2,
+        "name": "Flower Forest Botanical Gardens"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-59.54, 13.19] },
+      "properties": {
+        "id": 3,
+        "name": "Hunte's Gardens"
+      }
+    }
+  ]
+}

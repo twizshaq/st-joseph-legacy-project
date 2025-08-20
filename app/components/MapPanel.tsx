@@ -22,6 +22,15 @@ export default function MapPanel({ sites }: { sites: Site[] }) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   
+  const [query, setQuery] = useState("");
+  const [selectedSite, setSelectedSite] = useState<Site | null>(null);
+  const filteredSites = (sites ?? []).filter((s) => {
+    const q = query.toLowerCase();
+    const name = (s.name ?? "").toLowerCase();
+    const desc = (s.description ?? "").toLowerCase();
+    return name.includes(q) || desc.includes(q);
+  });
+
   const touchStartRef = useRef({ y: 0 });
 
   useEffect(() => {
@@ -124,32 +133,55 @@ export default function MapPanel({ sites }: { sites: Site[] }) {
 
   return (
     <>
-      {/* --- DESKTOP SIDEBAR (Unchanged) --- */}
-      <div className="hidden md:block absolute top-0 left-0 w-80 lg:w-96 h-full bg-black/60 backdrop-blur-[20px] shadow-lg p-6">
+      {/* --- DESKTOP SIDEBAR --- */}
+      <div className="hidden md:flex absolute top-0 left-0 w-80 lg:w-96 h-full bg-black/60 backdrop-blur-[20px] shadow-lg p-6 flex-col min-h-0 z-30">
         <h1 className="text-3xl font-bold text-white mb-4">Explore St. Joseph</h1>
-        <div className="relative mb-6">
-            <Image src={searchIcon} alt="Search" className="absolute top-1/2 left-3 -translate-y-1/2 w-5 h-5 opacity-50" />
-            <input
+        <div className="relative mb-4 sticky top-0">
+          <Image src={searchIcon} alt="Search" className="absolute top-1/2 left-3 -translate-y-1/2 w-5 h-5 opacity-50" />
+          <input
             type="text"
             placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-black/40 font-semibold shadow-[4px_4px_10px_rgba(0,0,0,0.2)] rounded-full pl-10 pr-4 py-3 text-white placeholder-white/50 focus:outline-none"
-            />
+          />
         </div>
         <div className='bg-red-500/0 w-[100%] flex flex-row justify-between mb-[10px]'>
-            <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[20px] border-3 border-white/10'></div>
-            <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[20px] border-3 border-white/10'></div>
-            <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[20px] border-3 border-white/10'></div>
+          <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[22px] border-3 border-white/10'></div>
+          <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[22px] border-3 border-white/10'></div>
+          <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[22px] border-3 border-white/10'></div>
         </div>
-        <ul className="space-y-2">
-            {sites.map((site) => (
-              <li key={site.id}>
-                <button className="w-full text-left p-2 rounded-lg hover:bg-white/10">
-                  <h3 className="font-semibold text-white">{site.name}</h3>
-                  <p className="text-sm text-gray-400">{site.description}</p>
-                </button>
-              </li>
-            ))}
-        </ul>
+        {/* Scrollable area */}
+        <div className="flex-1 overflow-y-auto pr-2">
+          {selectedSite ? (
+            <div className="space-y-3">
+              <button
+                onClick={() => setSelectedSite(null)}
+                className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-white"
+              >
+                <span aria-hidden>←</span>
+                <span>Back</span>
+              </button>
+              <h3 className="text-2xl font-semibold text-white">{selectedSite.name}</h3>
+              <p className="text-white/80 leading-relaxed">{selectedSite.description}</p>
+            </div>
+          ) : filteredSites.length === 0 ? (
+            <div className="text-white/70 text-sm p-2">
+              No sites to show. Try clearing the search or ensure the `sites` prop is populated.
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {filteredSites.map((site) => (
+                <li key={site.id}>
+                  <button onClick={() => setSelectedSite(site)} className="w-full text-left p-2 rounded-lg hover:bg_white/10 hover:bg-white/10">
+                    <h3 className="font-semibold text_white text-white">{site.name}</h3>
+                    <p className="text-sm text-gray-400">{site.description}</p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       {/* --- MOBILE BOTTOM SHEET --- */}
@@ -171,15 +203,17 @@ export default function MapPanel({ sites }: { sites: Site[] }) {
             <div className="relative mb-5">
                 <Image src={searchIcon} alt="Search" className="absolute top-1/2 left-3 -translate-y-1/2 w-5 h-5 opacity-50" />
                 <input
-                type="text"
-                placeholder="Search"
-                className="w-full bg-black/40 font-semibold shadow-[4px_4px_10px_rgba(0,0,0,0.2)] rounded-[20px] pl-10 pr-4 py-3 text-white placeholder-white/50 focus:outline-none"
+                  type="text"
+                  placeholder="Search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="w-full bg-black/40 font-semibold shadow-[4px_4px_10px_rgba(0,0,0,0.2)] rounded-[20px] pl-10 pr-4 py-3 text-white placeholder-white/50 focus:outline-none"
                 />
             </div>
             <div className='bg-red-500/0 w-[100%] flex flex-row justify-between mb-[10px]'>
-                <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[20px] border-3 border-white/10'></div>
-                <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[20px] border-3 border-white/10'></div>
-                <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[20px] border-3 border-white/10'></div>
+                <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[22px] border-3 border-white/10'></div>
+                <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[22px] border-3 border-white/10'></div>
+                <div className='bg-blue-500 min-h-[70px] min-w-[100px] rounded-[22px] border-3 border-white/10'></div>
             </div>
         </div>
 
@@ -188,18 +222,39 @@ export default function MapPanel({ sites }: { sites: Site[] }) {
           className="flex-grow text-white px-4 overflow-y-auto"
           style={{ touchAction: 'pan-y' }}
         >
-          <ul>
-            {sites.map((site) => (
-              <li key={site.id} className="border-t border-white/10 first:border-none">
-                <button className="w-full text-left py-4">
-                  <h3 className="font-semibold">{site.name}</h3>
-                  <p className="text-sm text-gray-400">{site.description}</p>
-                </button>
-              </li>
-            ))}
-            {/* Add padding to the bottom to ensure the last items can be scrolled up */}
-            <div className="h-40"></div>
-          </ul>
+          {selectedSite ? (
+            <div className="pt-2">
+              <button
+                onClick={() => setSelectedSite(null)}
+                className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-white mb-2"
+              >
+                <span aria-hidden>←</span>
+                <span>Back</span>
+              </button>
+              <h3 className="text-2xl font-semibold">{selectedSite.name}</h3>
+              <p className="text-sm text-gray-200 mt-2 leading-relaxed">{selectedSite.description}</p>
+              <div className="h-40"></div>
+            </div>
+          ) : (
+            filteredSites.length === 0 ? (
+              <div className="text-white/70 text-sm p-2">
+                No sites to show. Try clearing the search or ensure the list is loaded.
+              </div>
+            ) : (
+              <ul>
+                {filteredSites.map((site) => (
+                  <li key={site.id} className="border-t border-white/10 first:border-none">
+                    <button onClick={() => setSelectedSite(site)} className="w-full text-left py-4">
+                      <h3 className="font-semibold">{site.name}</h3>
+                      <p className="text-sm text-gray-400">{site.description}</p>
+                    </button>
+                  </li>
+                ))}
+                <div className="h-40"></div>
+              </ul>
+            )
+          )
+          }
         </div>
       </motion.div>
     </>

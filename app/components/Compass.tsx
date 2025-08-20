@@ -1,22 +1,27 @@
-// components/Compass.js
+// components/Compass.tsx
 "use client";
 
 import React, { forwardRef } from 'react';
 
-// Wrap in forwardRef to accept a ref from the parent
-const Compass = forwardRef(({ directionLetter }, ref) => {
+// 1. Define the type for the props this component will receive.
+type CompassProps = {
+  directionLetter: string;
+};
+
+// 2. Apply the types to forwardRef.
+//    - The first generic, `HTMLDivElement`, is the type of the element the ref will be attached to.
+//    - The second generic, `CompassProps`, is the type of the props.
+const Compass = forwardRef<HTMLDivElement, CompassProps>(({ directionLetter }, ref) => {
   return (
-    // <div className='absolute top-[20px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
-    //   <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
     <div className="w-[45px] h-[45px] flex items-center justify-center">
       {/* 
         The rotating dial. 
-        - It now gets its ref from the parent.
-        - The inline style and transition class are removed.
+        - The `ref` is passed from the parent component (MapFull.tsx)
+          and is now correctly typed.
       */}
       <div
         ref={ref}
-        className="absolute w-full h-full"
+        className="absolute w-full h-full transition-transform duration-300 ease-in-out" // Added transition for smooth rotation
       >
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           {/* Ticks */}
@@ -31,7 +36,7 @@ const Compass = forwardRef(({ directionLetter }, ref) => {
         </svg>
       </div>
 
-      {/* The non-rotating letter (no change) */}
+      {/* The non-rotating letter. This prop is now correctly typed. */}
       <div className="relative text-white font-bold text-[1.3rem] z-10">
         {directionLetter}
       </div>
@@ -40,5 +45,5 @@ const Compass = forwardRef(({ directionLetter }, ref) => {
   );
 });
 
-Compass.displayName = 'Compass'; // for better debugging
+Compass.displayName = 'Compass';
 export default Compass;
