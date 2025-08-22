@@ -435,9 +435,10 @@ export default function FullScreenMapPage() {
       </div>
 
       {/* Mobile-only stacked controls */}
-      <div className='absolute bottom-[20px] right-[15px] sm:hidden flex flex-col items-end gap-[12px] w-[calc(100vw-25px)]'>
-        <div className={`cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px] transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100'}`}>
-          <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+      <div className='absolute bg-red-400/0 bottom-[20px] right-[15px] sm:hidden flex flex-col items-end gap-[0px] w-[calc(100vw-25px)]'>
+        <div className={`absolute right-1 bottom-[0px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px] transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'opacity-0 pointer-events-none translate-y-0' : 'opacity-100'}`}>
+
+          <div className='absolute bottom-[80px] right-0 bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
             <div className='rounded-full bg-black/45 backdrop-blur-[5px] flex flex-col gap-0 w-[45px] overflow-hidden z-[40]'>
               <button onClick={handleZoomIn} className='px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'>
                 <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
@@ -448,6 +449,7 @@ export default function FullScreenMapPage() {
               </button>
             </div>
           </div>
+
         </div>
         
         {/* Mobile Search Panel */}
