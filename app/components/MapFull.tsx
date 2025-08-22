@@ -7,9 +7,15 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
 import Compass from './Compass';
 import ThreeDToggle from './ThreeDToggle';
-import { Feature, Point, FeatureCollection } from 'geojson';
+import { Feature, Point, FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
+
+// --- TYPE DEFINITIONS ---
+interface ParishProperties {
+    name: string;
+    // Add other properties as needed based on your GeoJSON data
+}
 
 // --- TYPE DEFINITIONS ---
 type Zoomable = { zoomIn: () => void; zoomOut: () => void };
@@ -64,10 +70,11 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                 // Step 1: Fetch GeoJSON data BEFORE creating the map
                 const response = await fetch('/data/barbados_parishes.geojson');
                 if (!response.ok) throw new Error("Failed to fetch GeoJSON");
-                const parishData = await response.json();
+                const parishData: FeatureCollection<Polygon | MultiPolygon, ParishProperties> = await response.json();
+
+                const stJosephFeature = parishData.features.find(f => f.properties.name === 'Saint Joseph');
                 
                 // Find the 'Saint Joseph' feature
-                let stJosephFeature = parishData.features.find((f: any) => f.properties.name === 'Saint Joseph');
 
                 if (!stJosephFeature) {
                     console.error("Could not find 'Saint Joseph' in GeoJSON.");
