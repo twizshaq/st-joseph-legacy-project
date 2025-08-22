@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { flushSync } from 'react-dom';
 // CORRECTED IMPORT PATH: Changed 'FullMap' to 'MapFull'
 import MapFull from '@/app/components/MapFull';
@@ -8,6 +9,7 @@ import searchIcon from '@/public/icons/search-icon.svg';
 import Image from 'next/image';
 import { Feature, Point, FeatureCollection } from 'geojson';
 import arrowIcon from "@/public/icons/arrow-icon.svg"
+import linkIcon from "@/public/icons/link-icon.svg"
 
 // --- TYPE DEFINITIONS ---
 
@@ -16,9 +18,11 @@ type Zoomable = { zoomIn: () => void; zoomOut: () => void };
 export type Site = {
   id: number;
   name: string;
+  category: string;
   description: string;
   coordinates: [number, number]; // [longitude, latitude]
   imageUrl: string;
+  colorhex: string;
 };
 
 // --- SEARCH RESULTS COMPONENT ---
@@ -40,6 +44,32 @@ function SearchResults({
   handleMobileSearchTap: () => void;
   mobileSearchOpen: boolean;
 }) {
+  // NEW: State to track if the content is scrolled
+  const [isScrolled, setIsScrolled] = useState(false);
+  // NEW: Ref for the scrollable container
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+  // If no site is selected (i.e., the detail view is closed)
+  if (!selectedSite) {
+    // Reset the scrolled state
+    setIsScrolled(false);
+    
+    // Also reset the actual scroll position of the container
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }
+}, [selectedSite]);
+
+  // NEW: Update isScrolled based on scroll position
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollTop } = scrollContainerRef.current;
+      setIsScrolled(scrollTop > 0);
+    }
+  };
+
   const handleHeaderClick = () => {
     if (!mobileSearchOpen) {
       handleMobileSearchTap();
@@ -70,17 +100,17 @@ function SearchResults({
                 <li key={site.id}>
                   <button
                     onClick={() => setSelectedSite(site)}
-                    className='flex flex-col w-full text-left rounded-[35px] bg-black/50 hover:bg-black/40 transition-colors duration-150 px-4 py-4 gap-3 mb-2'
+                    className='flex flex-col w-full text-left rounded-[33px] bg-black/40 hover:bg-black/40 transition-colors duration-150 px-4 py-4 gap-3 mb-2'
                   >
                     <div className='flex-1'>
-                      <div className='font-semibold text-white leading-tight text-[1rem]'>{site.name}</div>
-                      <div className='text-sm text-[#E0E0E0]/80 line-clamp-2'>{site.description}</div>
+                      <div className='font-semibold text-white leading-tight text-[1.2rem]'>{site.name}</div>
+                      <div className='text-sm text-[#E0E0E0]/80 line-clamp-2 pr-4 text-wrap'>{site.description}</div>
                     </div>
                     <div className='relative flex flex-row gap-2'>
                       {/* Placeholder images */}
-                      <div className='min-w-[60px] min-h-[60px] overflow-hidden rounded-[17px] bg-black/30'></div>
-                      <div className='min-w-[60px] min-h-[60px] overflow-hidden rounded-[17px] bg-black/30'></div>
-                      <div className='min-w-[60px] min-h-[60px] overflow-hidden rounded-[17px] bg-black/30'></div>
+                      <div className='min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2'></div>
+                      <div className='absolute ml-[45px] min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2 shadow-[0px_0px_15px_rgba(0,0,0,0.3)]'></div>
+                      <div className='absolute ml-[90px] min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2 shadow-[0px_0px_15px_rgba(0,0,0,0.3)]'></div>
                     </div>
                   </button>
                 </li>
@@ -91,26 +121,152 @@ function SearchResults({
       </div>
 
       {/* VIEW 2: The Detail View */}
-      <div className={`absolute inset-0 flex flex-col h-full py-[6px] transition-opacity duration-300 ${selectedSite ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`absolute inset-0 flex flex-col h-full transition-opacity duration-400 ${selectedSite ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         {selectedSite && (
           <>
-            <div onClick={handleHeaderClick} className={`sticky z-10 flex items-center px-[10px] justify-between transition-all duration-400 rounded-full ${mobileSearchOpen ? 'bg-black/0 py-[7.5px] w-[100%] px-[15px]' : 'bg-black/40 mt-[-6px] py-[7.5px] w-[100%]'}`}>
-              <button onClick={() => setSelectedSite(null)} className='inline-flex items-center gap-2 text-white/90 hover:text-white active:opacity-80'>
+            <div onClick={handleHeaderClick} className={`absolute  z-10 flex items-start px-[10px] justify-between transition-all duration-400 rounded-full ${mobileSearchOpen ? 'bg-black/0 pt-[7.5px] pb-[0px] w-[100%] px-[15px]' : 'bg-black/0 mt-[0px] py-[7.5px] w-[100%]'}`}>
+
+              <button onClick={() => setSelectedSite(null)} className={`inline-flex items-center gap-2 text-white/90 hover:text-white active:opacity-80 ${mobileSearchOpen ? 'mt-[5px]' : 'mt-[0px]'}`}>
+
                 <span className='rotate-[-90deg]'><Image src={arrowIcon} alt='Back Icon' height={35} /></span>
               </button>
-              <h2 className='font-bold text-white truncate text-lg pr-2 text-shadow-[0px_0px_10px_rgba(0,0,0,0.3)]'>
-                {selectedSite.name}
-              </h2>
+              <div className='flex flex-col text-right pr-3 pt-1'>
+                <h2 className={`font-bold text-white text-[1.23rem] text-shadow-[0px_0px_10px_rgba(0,0,0,0.5)] transition-all duration-400 ${mobileSearchOpen ? 'mt-[0px]' : 'mt-[-10px]'}`}>
+                  {selectedSite.name}
+                </h2>
+                {mobileSearchOpen ? (
+                  <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.5)]'>{selectedSite.category}</p>
+                ) : (
+                  <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.5)]'>{selectedSite.category}</p>
+                )}
+              </div>
             </div>
-            <div className='overflow-y-auto flex-1 p-4 space-y-4'>
+            <>
+              <div
+                style={{ '--bg-color': selectedSite?.colorhex || '#fff' } as React.CSSProperties}
+                className={`
+                  bg-[var(--bg-color)]/30
+                  absolute w-full
+                  transition-all duration-400 ease-in-out backdrop-blur-[15px]
+                  ${isScrolled ? 'backdrop-blur-[15px] [mask-image:linear-gradient(to_bottom,black_30%,transparent)] opacity-100' : 'backdrop-blur-[15px] [mask-image:linear-gradient(to_bottom,black_0%,transparent)] opacity-0'}
+                  ${mobileSearchOpen ? 'h-[130px]' : 'h-0 opacity-0'}
+                `}
+              ></div>
+
+              <div
+                className={`
+                  absolute w-full bg-transparent
+                  transition-all duration-400 ease-in-out backdrop-blur-[20px] [mask-image:linear-gradient(to_bottom,black_20%,transparent)]
+                  ${isScrolled ? 'backdrop-blur-[20px] opacity-100' : 'backdrop-blur-0 opacity-0'}
+                  ${mobileSearchOpen ? 'h-[50px]' : 'h-0 opacity-0'}
+                `}
+              ></div>
+
+              <div
+                className={`
+                  absolute w-full bg-transparent
+                  transition-all duration-400 ease-in-out [mask-image:linear-gradient(to_bottom,black_10%,transparent)]
+                  ${isScrolled ? 'backdrop-blur-[5px] opacity-100' : 'backdrop-blur-0 opacity-0'}
+                  ${mobileSearchOpen ? 'h-[20px]' : 'h-0 opacity-0'}
+                `}
+              ></div>
+            </>
+           <div
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
+              className={`
+                overflow-y-auto flex-1 p-0 space-y-4 
+                transition-opacity duration-300 ease-in-out
+                ${mobileSearchOpen ? 'opacity-100 delay-150' : 'opacity-0'}
+              `}
+            >
               {/* Example detail card */}
-              <div className='rounded-[16px] overflow-hidden bg-white/5 p-4'>
-                <h3 className='text-white text-lg font-bold mb-1'>{selectedSite.name}</h3>
-                <p className='text-[#E0E0E0] mb-3'>{selectedSite.description}</p>
-                <div className='flex flex-wrap gap-2 text-sm text-[#E0E0E0]'>
-                  <span className='bg-white/10 rounded-full px-2 py-1'>Lon: {selectedSite.coordinates[0]}</span>
-                  <span className='bg-white/10 rounded-full px-2 py-1'>Lat: {selectedSite.coordinates[1]}</span>
+              <div className='flex flex-col rounded-[16px] overflow-hidden pb-3 gap-10'>
+                <div className='px-4'>
+                  {/* <h3 className='text-white text-lg font-bold mb-1'>{selectedSite.name}</h3> */}
+                  <div className='flex gap-2 text-sm text-[#E0E0E0] justify-around mt-[100px]'>
+                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer w-[30%] whitespace-nowrap rounded-[20px] p-[2px] bg-black/40'>
+                      <Link href="/sign-up">
+                          <p className='text-white font-bold text-[.9rem]'>Distance</p>
+                          <p>13km</p>
+                      </Link>
+                    </div>
+                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer w-[30%] whitespace-nowrap rounded-[20px] p-[2px] bg-black/40'>
+                      <Link href="/sign-up">
+                          <p className='text-white font-bold text-[.9rem]'>Hours</p>
+                          <p className='text-green-500'>Open</p>
+                      </Link>
+                    </div>
+                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer w-[30%] whitespace-nowrap rounded-[20px] p-[2px] bg-black/40'>
+                      <Link href="/sign-up">
+                          <p className='text-white font-bold text-[.9rem]'>Distance</p>
+                          <p>13km</p>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
+                <div className='flex flex-col gap-2 text-sm text-[#E0E0E0] bg-blue-500/0 mt-[0px]'>
+                  <p className='font-bold text-[1.2rem] px-4'>Photo Gallery</p>
+                  <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] bg-green-500/0 hide-scrollbar'>
+                    <div className='bg-red-400 min-h-[120px] min-w-[150px] rounded-[30px]'></div>
+                    <div className='flex flex-col gap-2'>
+                      <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
+                      <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
+                    </div>
+                      <div className='bg-red-400 min-h-[120px] min-w-[150px] rounded-[30px]'></div>
+                    <div className='flex flex-col gap-2'>
+                      <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
+                      <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
+                    </div>
+                    <button className='cursor-pointer flex justify-center items-center bg-red-400 min-h-[120px] min-w-[150px] rounded-[30px]'>
+                      <p>View All Photos</p>
+                    </button>
+                  </div>
+                </div>
+                <div className='px-4'>
+                  <p className='font-bold text-[1.2rem]'>Details</p>
+                  <div className='flex flex-col gap-3'>
+                    <div className='flex flex-col'>
+                      <p className='text-[#fff] font-bold'>Hours</p>
+                      <div className='flex flex-row gap-9'>
+                        <p>Mon - friday <br /> 6:00 am - 6:00 pm</p>
+                        <p>Saturday <br /> 9:00 am - 3:00 pm</p>
+                      </div>
+                    </div>
+                    <div className='bg-white/5 h-[2px] w-[95%] self-center'></div>
+                    <div className='flex flex-col'>
+                      <p className='font-bold'>Website</p>
+                      <div className='flex gap-1'>
+                        <p>www.example.com</p>
+                        <Image src={linkIcon} alt='Back Icon' height={15} />
+                      </div>
+                    </div>
+                    <div className='bg-white/5 h-[2px] w-[95%] self-center'></div>
+                    <div className='flex flex-col'>
+                      <p className='font-bold'>Contact</p>
+                      <p>1(246)823-5885</p>
+                      <p>shaquxn@gmail.com</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className='flex flex-col gap-[15px] mb-[17px]'>
+                <div className='bg-white/5 h-[2px] w-[65%] self-center'></div>
+                  <div className='self-center cursor-pointer whitespace-nowrap rounded-full p-[2.4px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0)] -mr-[2px]'>
+                    <Link href="/sign-up">
+                      <div className='flex flex-col text-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[6.4px]'>
+                        <span className='text-white font-bold'>Availible Tours</span>
+                      </div>
+                    </Link>
+                  </div>
+                  <div className='self-center cursor-pointer whitespace-nowrap rounded-full p-[2.4px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0)] -mr-[2px]'>
+                    <Link href="/sign-up">
+                      <div className='flex flex-col text-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[6.4px]'>
+                        <span className='text-white font-bold'>Add to Self Guided Tour</span>
+                      </div>
+                    </Link>
+                  </div>
               </div>
               {/* Add more detail cards as needed */}
             </div>
@@ -158,9 +314,11 @@ export default function FullScreenMapPage() {
           return {
             id: parseInt(entry.id, 10) || 0,
             name: entry.name || 'Unnamed Site',
+            category: entry.category || '',
             description: entry.description || '',
             coordinates: [parseFloat(entry.longitude) || 0, parseFloat(entry.latitude) || 0] as [number, number],
             imageUrl: entry.imageUrl || '',
+            colorhex: entry.colorhex || '#fff',
           };
         }).filter(site => site.id && site.coordinates[0] && site.coordinates[1]); // Ensure essential data is present
 
@@ -269,8 +427,8 @@ export default function FullScreenMapPage() {
 
       {/* Desktop Search Panel */}
       <div className='absolute bottom-[20px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[400px] hidden sm:block'>
-        <div ref={desktopSearchRef} className={`bg-white/10 backdrop-blur-[15px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-400 ease-in-out rounded-[47px]`}>
-          <div className={`bg-black/45 relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[55vh] rounded-[45px]' : 'h-[58px] rounded-[47px] p-[4px]'}`}>
+        <div ref={desktopSearchRef} className={`bg-white/10 backdrop-blur-[20px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-400 ease-in-out rounded-[43px]`}>
+          <div className={`bg-black/45 relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[55vh] rounded-[40px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
             <SearchResults sites={sites} selectedSite={selectedSite} setSelectedSite={setSelectedSite} mobileSearchInputRef={mobileSearchInputRef} mobileSearchReady={mobileSearchReady} handleMobileSearchTap={handleMobileSearchTap} mobileSearchOpen={mobileSearchOpen} />
           </div>
         </div>
@@ -294,8 +452,8 @@ export default function FullScreenMapPage() {
         
         {/* Mobile Search Panel */}
         <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] w-full'>
-          <div ref={mobileSearchRef} className={`bg-white/10 backdrop-blur-[7px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-400 ease-in-out rounded-[47px]`}>
-            <div className={`bg-black/45 relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[60vh] rounded-[45px]' : 'h-[58px] rounded-[47px] p-[4px]'}`}>
+          <div ref={mobileSearchRef} className={`bg-white/10 backdrop-blur-[20px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-400 ease-in-out rounded-[43px]`}>
+            <div className={`bg-black/45 relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[60vh] rounded-[40px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
               <SearchResults sites={sites} selectedSite={selectedSite} setSelectedSite={setSelectedSite} mobileSearchInputRef={mobileSearchInputRef} mobileSearchReady={mobileSearchReady} handleMobileSearchTap={handleMobileSearchTap} mobileSearchOpen={mobileSearchOpen} />
             </div>
           </div>

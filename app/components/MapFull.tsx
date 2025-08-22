@@ -1,10 +1,10 @@
+// components/MapFull.js
 "use client";
 
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
-// CORRECTED IMPORT: The path now correctly resolves to Compass.tsx
 import Compass from './Compass';
 import ThreeDToggle from './ThreeDToggle';
 import { Feature, Point, FeatureCollection } from 'geojson';
@@ -55,40 +55,109 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
 
     // Effect for map initialization (runs only once)
     useEffect(() => {
+        // Prevent re-initialization
         if (map.current || !mapContainer.current) return;
 
-        map.current = new mapboxgl.Map({
-            container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/streets-v12',
-            center: [-59.55, 13.2],
-            zoom: 11,
-            attributionControl: false,
-        });
+        // Create an async function to fetch data FIRST, then initialize the map.
+        const initializeMap = async () => {
+            try {
+                // Step 1: Fetch GeoJSON data BEFORE creating the map
+                const response = await fetch('/data/barbados_parishes.geojson');
+                if (!response.ok) throw new Error("Failed to fetch GeoJSON");
+                const parishData = await response.json();
+                
+                // Find the 'Saint Joseph' feature
+                let stJosephFeature = parishData.features.find((f: any) => f.properties.name === 'Saint Joseph');
 
-        map.current.on('load', () => {
-            map.current!.addSource('mapbox-dem', { 'type': 'raster-dem', 'url': 'mapbox://mapbox.mapbox-terrain-dem-v1', 'tileSize': 512, 'maxzoom': 14 });
-            map.current!.addLayer({ id: 'sky', type: 'sky', paint: { 'sky-type': 'atmosphere', 'sky-atmosphere-sun': [0.0, 0.0], 'sky-atmosphere-sun-intensity': 15 } });
-            map.current!.addLayer({ 'id': '3d-buildings', 'source': 'composite', 'source-layer': 'building', 'filter': ['==', 'extrude', 'true'], 'type': 'fill-extrusion', 'minzoom': 14, 'paint': { 'fill-extrusion-color': '#aaa', 'fill-extrusion-height': ['get', 'height'], 'fill-extrusion-base': ['get', 'min_height'], 'fill-extrusion-opacity': 0.6 } });
-        });
+                if (!stJosephFeature) {
+                    console.error("Could not find 'Saint Joseph' in GeoJSON.");
+                    return;
+                }
 
-        map.current.on('rotate', () => {
-            const newBearing = map.current!.getBearing();
-            if (compassDialRef.current) compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
-            setDirectionLetter(getDirectionLetter(newBearing));
-        });
+                // --- START OF MASK SHIFT LOGIC ---
+                // Define how much to shift the mask
+                const shiftDistance = 0.5; // distance in kilometers (adjust as needed)
+                const shiftBearing = 135;  // bearing in degrees: 135 degrees = Southeast
 
-        map.current.on('click', (e) => {
-            if (!(e.originalEvent.target as HTMLElement).closest('.custom-marker')) {
-                onMarkerClick(null);
+                // Apply the shift to create a *new* shifted feature for the mask
+                const shiftedStJosephFeature = turf.transformTranslate(
+                    stJosephFeature,
+                    shiftDistance,
+                    shiftBearing,
+                    { units: 'kilometers' }
+                );
+                // --- END OF MASK SHIFT LOGIC ---
+
+
+                // Step 2: Calculate the bounds for the map.
+                // CRITICAL FIX: Use the SHIFTED feature to calculate map bounds and maxBounds.
+                // This ensures the map's viewport moves with the intended mask location.
+                const bbox = turf.bbox(shiftedStJosephFeature); 
+                const mapBounds: [number, number, number, number] = [bbox[0], bbox[1], bbox[2], bbox[3]];
+
+                // Step 3: Create the map instance WITH the adjusted bounds
+                map.current = new mapboxgl.Map({
+                    container: mapContainer.current!,
+                    style: 'mapbox://styles/mapbox/streets-v12',
+                    bounds: mapBounds, // Set the initial view to fit the SHIFTED bounds
+                    fitBoundsOptions: { padding: 20, duration: 0 }, // Options for the initial fit
+                    maxBounds: mapBounds, // CRITICAL: Constrain the map to these SHIFTED bounds
+                    minZoom: 10,
+                    attributionControl: false,
+                });
+
+                // Step 4: Add layers and event listeners after the map is created
+                map.current.on('load', () => {
+                    // Create the visual mask
+                    const worldCoords = [[-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]];
+                    
+                    // Use the SHIFTED feature's coordinates to define the hole in the mask
+                    const stJosephHole = shiftedStJosephFeature.geometry.coordinates[0].slice().reverse();
+                    // const maskFeature = {
+                    //     type: 'Feature',
+                    //     geometry: { type: 'Polygon', coordinates: [worldCoords, stJosephHole] },
+                    // };
+                    // map.current!.addSource('mask', { type: 'geojson', data: maskFeature as any });
+                    // map.current!.addLayer({
+                    //     id: 'mask-layer',
+                    //     type: 'fill',
+                    //     source: 'mask',
+                    //     paint: { 'fill-color': 'rgba(200, 200, 200, 0.5)' },
+                    // });
+
+                    // Add 3D and sky layers
+                    // map.current!.addSource('mapbox-dem', { 'type': 'raster-dem', 'url': 'mapbox://mapbox.mapbox-terrain-dem-v1', 'tileSize': 512, 'maxzoom': 14 });
+                    // map.current!.addLayer({ id: 'sky', type: 'sky', paint: { 'sky-type': 'atmosphere', 'sky-atmosphere-sun': [0.0, 0.0], 'sky-atmosphere-sun-intensity': 15 } });
+                    // map.current!.addLayer({ 'id': '3d-buildings', 'source': 'composite', 'source-layer': 'building', 'filter': ['==', 'extrude', 'true'], 'type': 'fill-extrusion', 'minzoom': 14, 'paint': { 'fill-extrusion-color': '#aaa', 'fill-extrusion-height': ['get', 'height'], 'fill-extrusion-base': ['get', 'min_height'], 'fill-extrusion-opacity': 0.6 } });
+                });
+
+                // Attach other event listeners
+                map.current.on('rotate', () => {
+                    const newBearing = map.current!.getBearing();
+                    if (compassDialRef.current) compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
+                    setDirectionLetter(getDirectionLetter(newBearing));
+                });
+
+                map.current.on('click', (e) => {
+                    if (!(e.originalEvent.target as HTMLElement).closest('.custom-marker')) {
+                        onMarkerClick(null);
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing map:", error);
             }
-        });
+        };
 
+        initializeMap();
+
+        // Cleanup function
         return () => {
             map.current?.remove();
             map.current = null;
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, []); // Empty dependency array ensures this effect runs only once on mount
 
     // Effect to update markers when geojsonData changes
     useEffect(() => {

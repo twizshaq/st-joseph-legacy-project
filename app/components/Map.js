@@ -143,12 +143,12 @@ const Map = forwardRef((props, ref) => {
         <div className='h-full w-full relative'>
             <div ref={mapContainer} className='h-full w-full' />
             <div className='absolute top-[130px] left-[18px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
-            <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                <button onClick={handleResetNorth} className="rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg w-[48px] h-[48px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
-                    <Compass ref={compassDialRef} directionLetter={directionLetter} />
-                </button>
+                <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                    <button onClick={handleResetNorth} className="rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg w-[48px] h-[48px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
+                        <Compass ref={compassDialRef} directionLetter={directionLetter} />
+                    </button>
+                </div>
             </div>
-        </div>
         </div>
     );
 });

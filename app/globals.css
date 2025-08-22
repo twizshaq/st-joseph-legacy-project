@@ -51,6 +51,23 @@ body {
   /* Firefox */
 }
 
+/* Optional entrance anim for the sheet */
+@keyframes sheet-in {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-sheet-in {
+  animation: sheet-in 240ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
 /* Hide the Mapbox logo */
 .mapboxgl-ctrl-logo {
   display: none !important;
