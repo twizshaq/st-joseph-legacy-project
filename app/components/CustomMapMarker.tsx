@@ -13,6 +13,8 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
   color = 'rgb(80, 86, 102)',
   isTextMode = false,
 }) => {
+  // DEBUG: Log the props to the browser's developer console
+  console.log(`Marker "${name}" received pointimage:`, pointimage);
   if (isTextMode) {
     return (
       <div
@@ -29,8 +31,11 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
   }
 
   const circleStyle: React.CSSProperties = {
-    backgroundImage: pointimage ? `url(${pointimage})` : 'none',
-    backgroundColor: !pointimage ? color : 'transparent',
+    backgroundImage: pointimage ? `url('${pointimage}')` : 'none',
+    backgroundColor: pointimage ? 'transparent' : color,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
   };
 
   return (
@@ -38,7 +43,7 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
       className="w-[48px] h-[58px] flex flex-col items-center cursor-pointer"
       style={{ transform: 'translateY(15px)' }}
     >
-      <div className="bg-white/10 backdrop-blur-[3px] rounded-full p-[4px] max-sm:p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)]">
+      <div className="bg-white/30 backdrop-blur-[3px] rounded-full p-[4px] max-sm:p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)]">
         <div
           style={circleStyle}
           className="w-[35px] h-[35px] rounded-full bg-cover bg-center backdrop-blur-[10px] z-20"  // Removed /50; add bg-opacity-50 if needed

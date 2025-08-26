@@ -16,8 +16,8 @@ const ZOOM_THRESHOLD = 15;
 
 interface MarkerProperties {
     name: string;
-    pointimage?: string; // Optional property
-    colorhex?: string;   // Optional property
+    imageUrl?: string;
+    colorhex?: string;
 }
 
 interface ParishProperties {
@@ -51,7 +51,6 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         colorhex?: string;
     }[]>([]);
     
-    // Use a ref to hold the latest onMarkerClick callback to avoid re-running effects
     const onMarkerClickRef = useRef(onMarkerClick);
     useEffect(() => {
         onMarkerClickRef.current = onMarkerClick;
@@ -102,7 +101,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     maxBounds: mapBounds,
                     minZoom: 10,
                     attributionControl: false,
-                    pitch: 0, 
+                    pitch: 0,
                 });
 
                 const updateThreshold = () => {
@@ -111,6 +110,32 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                 };
                 
                 map.current.on('load', () => {
+                    map.current!.addSource('mapbox-dem', {
+                        'type': 'raster-dem',
+                        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                        'tileSize': 512,
+                        'maxzoom': 14
+                    });
+
+                    map.current!.addLayer({
+                        'id': '3d-buildings',
+                        'source': 'composite',
+                        'source-layer': 'building',
+                        'filter': ['==', 'extrude', 'true'],
+                        'type': 'fill-extrusion',
+                        'minzoom': 14,
+                        // CHANGE 1: Make the layer invisible by default.
+                        'layout': {
+                            'visibility': 'none'
+                        },
+                        'paint': {
+                            'fill-extrusion-color': '#aaa',
+                            'fill-extrusion-height': ['get', 'height'],
+                            'fill-extrusion-base': ['get', 'min_height'],
+                            'fill-extrusion-opacity': 0.8
+                        }
+                    });
+
                     updateThreshold();
                     map.current!.on('click', (e) => {
                        if (!e.defaultPrevented) onMarkerClickRef.current(null);
@@ -136,15 +161,12 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             map.current?.remove();
             map.current = null;
         };
-    }, []); // Empty dependency array ensures this runs only once
+    }, []);
 
-    // *** FIXED: Effect for CREATING and DESTROYING markers ***
-    // This effect runs only when geojsonData changes.
     useEffect(() => {
         if (!mapLoaded || !geojsonData) return;
         const mapInstance = map.current!;
 
-        // Clear existing markers before adding new ones
         markerDataRef.current.forEach(({ marker, root }) => {
             marker.remove();
             root.unmount();
@@ -153,12 +175,11 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
 
         for (const feature of geojsonData.features) {
             const { coordinates } = feature.geometry as Point;
-            const { pointimage, colorhex, name } = feature.properties as MarkerProperties;
+            const { imageUrl: pointimage, colorhex, name } = feature.properties as MarkerProperties;
 
             const markerEl = document.createElement('div');
             const root = createRoot(markerEl);
             
-            // The initial render will use the current state of isAboveThreshold
             root.render(
                 <CustomMapMarker 
                     name={name}
@@ -174,7 +195,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             
             const handleClick = (e: MouseEvent) => {
                 e.stopPropagation();
-                onMarkerClickRef.current(feature); // Use the ref to call the latest callback
+                onMarkerClickRef.current(feature);
                 mapInstance.flyTo({
                     center: coordinates as [number, number],
                     zoom: 15,
@@ -194,10 +215,8 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             });
             markerDataRef.current = [];
         };
-    }, [geojsonData, mapLoaded]); // This now only depends on the data
+    }, [geojsonData, mapLoaded]);
 
-    // *** FIXED: Effect for UPDATING markers on zoom change ***
-    // This effect only re-renders the marker content, it doesn't create or destroy them.
     useEffect(() => {
         markerDataRef.current.forEach(({ root, name, pointimage, colorhex }) => {
             root.render(
@@ -211,15 +230,23 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         });
     }, [isAboveThreshold]);
 
+    // CHANGE 2: This useEffect now controls terrain and building visibility.
     useEffect(() => {
-        if (!map.current?.isStyleLoaded()) return;
+        if (!mapLoaded) return; // Wait for the map and its layers to be ready
+        
         const duration = 1200;
         if (is3D) {
-            map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
+            // ENABLE 3D
+            map.current!.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+            map.current!.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+            map.current!.flyTo({ pitch: 60, bearing: map.current!.getBearing(), duration });
         } else {
-            map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
+            // DISABLE 3D
+            map.current!.setTerrain(null);
+            map.current!.setLayoutProperty('3d-buildings', 'visibility', 'none');
+            map.current!.flyTo({ pitch: 0, bearing: map.current!.getBearing(), duration });
         }
-    }, [is3D]);
+    }, [is3D, mapLoaded]); // Depend on mapLoaded to ensure this runs correctly
 
     return (
         <div className='h-full w-full relative'>
