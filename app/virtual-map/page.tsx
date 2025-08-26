@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { flushSync } from 'react-dom';
 // CORRECTED IMPORT PATH: Changed 'FullMap' to 'MapFull'
@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { Feature, Point, FeatureCollection } from 'geojson';
 import arrowIcon from "@/public/icons/arrow-icon.svg"
 import linkIcon from "@/public/icons/link-icon.svg"
+import { createClient } from '@supabase/supabase-js';
 
 // --- TYPE DEFINITIONS ---
 
@@ -131,13 +132,13 @@ function SearchResults({
                 <span className='rotate-[-90deg]'><Image src={arrowIcon} alt='Back Icon' height={35} /></span>
               </button>
               <div className='flex flex-col text-right pr-3 pt-1'>
-                <h2 className={`font-bold text-white text-[1.23rem] text-shadow-[0px_0px_10px_rgba(0,0,0,0.5)] transition-all duration-400 ${mobileSearchOpen ? 'mt-[0px]' : 'mt-[-10px]'}`}>
+                <h2 className={`font-bold text-white text-[1.23rem] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)] transition-all duration-400 ${mobileSearchOpen ? 'mt-[0px]' : 'mt-[-10px]'}`}>
                   {selectedSite.name}
                 </h2>
                 {mobileSearchOpen ? (
-                  <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.5)]'>{selectedSite.category}</p>
+                  <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>{selectedSite.category}</p>
                 ) : (
-                  <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.5)]'>{selectedSite.category}</p>
+                  <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>{selectedSite.category}</p>
                 )}
               </div>
             </div>
@@ -181,28 +182,28 @@ function SearchResults({
               `}
             >
               {/* Example detail card */}
-              <div className='flex flex-col rounded-[16px] overflow-hidden pb-3 gap-10'>
+              <div className='flex flex-col rounded-[16px] overflow-hidden pb-3 gap-5'>
                 <div className='px-4'>
                   {/* <h3 className='text-white text-lg font-bold mb-1'>{selectedSite.name}</h3> */}
-                  <div className='flex gap-2 text-sm text-[#E0E0E0] justify-around mt-[100px]'>
-                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer w-[30%] whitespace-nowrap rounded-[20px] p-[2px] bg-black/40'>
+                  <div className='flex gap-4 text-sm text-[#E0E0E0] mt-[100px]'>
+                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer whitespace-nowrap rounded-[20px] p-[2px] bg-black/0'>
                       <Link href="/sign-up">
                           <p className='text-white font-bold text-[.9rem]'>Distance</p>
                           <p>13km</p>
                       </Link>
                     </div>
-                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer w-[30%] whitespace-nowrap rounded-[20px] p-[2px] bg-black/40'>
+                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer whitespace-nowrap rounded-[20px] p-[2px] bg-black/0'>
                       <Link href="/sign-up">
-                          <p className='text-white font-bold text-[.9rem]'>Hours</p>
-                          <p className='text-green-500'>Open</p>
+                          <p className='text-white font-bold text-[.8rem]'>Hours</p>
+                          <p className='text-green-500 font-bold '>Open</p>
                       </Link>
                     </div>
-                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer w-[30%] whitespace-nowrap rounded-[20px] p-[2px] bg-black/40'>
+                    {/* <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer whitespace-nowrap rounded-[20px] p-[2px] bg-black/0'>
                       <Link href="/sign-up">
                           <p className='text-white font-bold text-[.9rem]'>Distance</p>
                           <p>13km</p>
                       </Link>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <div className='flex flex-col gap-2 text-sm text-[#E0E0E0] bg-blue-500/0 mt-[0px]'>
@@ -223,7 +224,7 @@ function SearchResults({
                     </button>
                   </div>
                 </div>
-                <div className='px-4'>
+                <div className='px-4 mt-[40px]'>
                   <p className='font-bold text-[1.2rem]'>Details</p>
                   <div className='flex flex-col gap-3'>
                     <div className='flex flex-col'>
@@ -291,49 +292,54 @@ export default function FullScreenMapPage() {
 
   // --- DATA FETCHING ---
   useEffect(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    // Ensure the environment variables are set
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("Supabase URL or Anon Key is missing. Please check your .env.local file.");
+      return;
+    }
+    
+    // Initialize the Supabase client
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
     const fetchSites = async () => {
-      // !!! IMPORTANT: PASTE YOUR PUBLISHED GOOGLE SHEET CSV URL HERE !!!
-      // It MUST end with /pub?output=csv
-      const GOOGLE_SHEET_URL = process.env.NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL;
-
       try {
-        const response = await fetch(GOOGLE_SHEET_URL || "");
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const csvText = await response.text();
-        const rows = csvText.split('\n').map(row => row.trim()).filter(row => row); // filter empty rows
-        const headers = rows[0].split(',').map(h => h.trim());
-        
-        const siteData: Site[] = rows.slice(1).map(row => {
-          const values = row.split(',');
-          const entry = headers.reduce((obj, header, index) => {
-            obj[header] = values[index]?.trim().replace(/"/g, '') || ''; // Clean up quotes
-            return obj;
-          }, {} as Record<string, string>);
+        // Fetch the data from your 'sites' table
+        const { data, error } = await supabase
+          .from('sites') // <-- Your table name here
+          .select('*');
 
-          return {
-            id: parseInt(entry.id, 10) || 0,
-            name: entry.name || 'Unnamed Site',
-            category: entry.category || '',
-            description: entry.description || '',
-            coordinates: [parseFloat(entry.longitude) || 0, parseFloat(entry.latitude) || 0] as [number, number],
-            imageUrl: entry.imageUrl || '',
-            colorhex: entry.colorhex || '#fff',
-          };
-        }).filter(site => site.id && site.coordinates[0] && site.coordinates[1]); // Ensure essential data is present
+        if (error) {
+          // This will catch any errors from the Supabase query
+          throw error;
+        }
+        
+        // Map the Supabase data to your application's 'Site' type
+        const siteData: Site[] = data.map((entry: any) => ({
+          id: entry.id,
+          name: entry.name || 'Unnamed Site',
+          category: entry.category || '',
+          description: entry.description || '',
+          // Combine longitude and latitude from your table into the coordinates array
+        coordinates: [parseFloat(entry.longitude) || 0, parseFloat(entry.latitude) || 0],
+          imageUrl: entry.imageUrl || '',
+          colorhex: entry.colorhex || '#fff',
+        })).filter((site): site is Site => site.id !== null && site.coordinates.length === 2); // Ensure essential data is present
 
         setSites(siteData);
+
       } catch (error) {
-        console.error("Failed to fetch or parse site data from Google Sheet:", error);
+        console.error("Failed to fetch or parse site data from Supabase:", error);
       }
     };
-
+    
     fetchSites();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   // --- DATA TRANSFORMATION ---
   const geojsonData = useMemo((): FeatureCollection<Point> | null => {
-    if (sites.length === 0) return null;
 
     const features: Feature<Point>[] = sites.map(site => ({
       type: 'Feature',
@@ -349,22 +355,21 @@ export default function FullScreenMapPage() {
 
   // --- HANDLERS ---
   // AFTER THE FIX
-    const handleMarkerClick = (feature: Feature<Point> | null) => {
-      if (!feature || !feature.properties) {
-        setSelectedSite(null);
-        // We don't need to change mobileSearchOpen when closing
-        return;
-      }
+    const handleMarkerClick = useCallback((feature: Feature<Point> | null) => {
+    if (!feature || !feature.properties) {
+      setSelectedSite(null);
+      return;
+    }
 
-      const site = sites.find(s => s.id === feature.properties?.id);
+    const site = sites.find(s => s.id === feature.properties?.id);
 
-      if (site) {
-        setSelectedSite(site);
-        setMobileSearchOpen(true); // This is the line that fixes it!
-      } else {
-        setSelectedSite(null);
-      }
-    };
+    if (site) {
+      setSelectedSite(site);
+      setMobileSearchOpen(true);
+    } else {
+      setSelectedSite(null);
+    }
+  }, [sites]);
 
   const closeSearchPanels = () => {
     setMobileSearchOpen(false);
@@ -407,7 +412,7 @@ export default function FullScreenMapPage() {
   return (
     <div className="h-[100dvh] overflow-hidden">
       <div className="absolute inset-0">
-        <MapFull ref={mapRef} onMarkerClick={handleMarkerClick} geojsonData={geojsonData} />
+        <MapFull ref={mapRef} onMarkerClick={handleMarkerClick} geojsonData={geojsonData} /> 
       </div>
 
       {/* Desktop Zoom Controls */}

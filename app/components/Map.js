@@ -115,21 +115,23 @@ const Map = forwardRef((props, ref) => {
         map.current.on('load', setupMapFeatures);
         map.current.addControl(new mapboxgl.AttributionControl(), 'top-right');
 
-        // Compass logic
-        map.current.on('rotate', () => {
+        // Updated compass logic with immediate update and higher-frequency event
+        const updateBearing = () => {
+            if (!map.current) return;
             const newBearing = map.current.getBearing();
             const newLetter = getDirectionLetter(newBearing);
             if (compassDialRef.current) {
+                // Negative bearing so the dial counter-rotates with the map
                 compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
             }
-            setDirectionLetter(prev => newLetter !== prev ? newLetter : prev);
-        });
-        map.current.on('rotateend', () => {
-            if (map.current.getBearing() === 0) {
-                if (compassDialRef.current) compassDialRef.current.style.transform = 'rotate(0deg)';
-                setDirectionLetter('N');
-            }
-        });
+            setDirectionLetter(prev => (newLetter !== prev ? newLetter : prev));
+        };
+
+        // Fire on every camera movement (pan/zoom/rotate), which updates every frame during interaction
+        map.current.on('move', updateBearing);
+
+        // Ensure correct initial orientation
+        updateBearing();
 
         return () => {
             if (map.current) {

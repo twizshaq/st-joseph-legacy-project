@@ -174,7 +174,7 @@ export default function Navbar() {
 
         {/* --- Mobile Menu Panel (The "Drawer") --- */}
         <div className={`
-          fixed inset-0 bg-white/95 backdrop-blur-md z-40
+          fixed inset-0 bg-white/90 backdrop-blur-md z-40
           flex flex-col items-center justify-center gap-8
           text-2xl font-bold text-black
           transition-transform duration-300 ease-in-out

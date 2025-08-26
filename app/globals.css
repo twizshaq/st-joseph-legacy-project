@@ -82,8 +82,9 @@ body {
 /* Add this to your globals.css or equivalent stylesheet */
 
 .custom-marker {
+  position: relative;           /* for the curved pointer */
   /* Core styling */
-  background-color: rgba(29, 36, 47, 0.6);
+  background-color: var(--marker-bg, rgb(80, 86, 102));
   /* Semi-transparent dark background */
   color: #ffffff;
   padding: 6px 12px;
@@ -100,7 +101,7 @@ body {
   /* For Safari */
 
   /* A subtle border and shadow for depth */
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, .4);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
   /* Interactivity */
@@ -108,7 +109,75 @@ body {
   transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
+.custom-marker::after {
+  content: '';
+  /* Pseudo-elements must have a content property */
+  position: absolute;
+  /* Position it relative to the .custom-marker */
+
+  /* Create a rotated square */
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  /* Make it the same color/material as the parent */
+
+  /* Position it at the bottom-center */
+  bottom: -6px;
+  /* Pull it down so it sticks out */
+  left: 50%;
+
+  /* The magic: center it, rotate it, and curve the corners */
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 3px;
+
+  /* A subtle border to match the parent if it had one */
+  border-bottom: 1px solid rgba(255, 255, 255, .4);
+  border-right: 1px solid rgba(255, 255, 255, .4);
+
+  /* Make sure it's behind the parent's content */
+  z-index: -1;
+}
+
+.custom-marker:hover::after {
+  background: rgb(129, 129, 129);
+}
+
 .custom-marker:hover {
   transform: scale(1.1);
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgb(129, 129, 129);
+}
+
+
+
+
+
+/* --- knobs --- */
+.pin {
+  --size: 40px;            /* overall size */
+  --stroke: 8px;           /* ring thickness (was commented out) */
+  color: rgb(80, 86, 102); /* ring color */
+  cursor: pointer;
+
+  width: var(--size);
+  aspect-ratio: 1;
+  position: relative;
+  display: inline-block;
+
+  /* teardrop shape */
+  background: currentColor;
+  border: 1px solid rgba(255, 255, 255, .4);
+  border-radius: 50% 50% 50% 10%;
+  /* circle with one sharp corner */
+  transform: rotate(-45deg);
+  /* point downwards */
+}
+
+/* inner cutout to make the outline */
+.pin::after {
+  content: "";
+  position: absolute;
+  inset: var(--stroke);
+  background: var(--hole);
+  /* set to transparent for a see-through center */
+  border-radius: inherit;
 }

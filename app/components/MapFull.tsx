@@ -1,23 +1,23 @@
-// components/MapFull.js
 "use client";
 
-import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, useCallback } from 'react';
+import { createRoot, Root } from 'react-dom/client';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
 import Compass from './Compass';
 import ThreeDToggle from './ThreeDToggle';
 import { Feature, Point, FeatureCollection, Polygon, MultiPolygon } from 'geojson';
+import CustomMapMarker from './CustomMapMarker';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
-// --- TYPE DEFINITIONS ---
+const ZOOM_THRESHOLD = 15;
+
 interface ParishProperties {
     name: string;
-    // Add other properties as needed based on your GeoJSON data
 }
 
-// --- TYPE DEFINITIONS ---
 type Zoomable = { zoomIn: () => void; zoomOut: () => void };
 
 type MapFullProps = {
@@ -25,7 +25,6 @@ type MapFullProps = {
     geojsonData: FeatureCollection<Point> | null;
 };
 
-// --- HELPER FUNCTION ---
 const getDirectionLetter = (bearing: number): string => {
     if (bearing > -45 && bearing <= 45) return 'N';
     if (bearing > 45 && bearing <= 135) return 'E';
@@ -34,14 +33,29 @@ const getDirectionLetter = (bearing: number): string => {
     return 'N';
 };
 
-// --- COMPONENT DEFINITION ---
 const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, geojsonData }, ref) => {
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const map = useRef<mapboxgl.Map | null>(null);
+
+    const markerDataRef = useRef<{
+        marker: mapboxgl.Marker;
+        root: Root;
+        name: string;
+        pointimage?: string;
+        colorhex?: string;
+    }[]>([]);
+    
+    // Use a ref to hold the latest onMarkerClick callback to avoid re-running effects
+    const onMarkerClickRef = useRef(onMarkerClick);
+    useEffect(() => {
+        onMarkerClickRef.current = onMarkerClick;
+    }, [onMarkerClick]);
+
     const compassDialRef = useRef<HTMLDivElement | null>(null);
     const [directionLetter, setDirectionLetter] = useState<string>('N');
     const [is3D, setIs3D] = useState<boolean>(false);
-    const markersRef = useRef<mapboxgl.Marker[]>([]);
+    const [isAboveThreshold, setIsAboveThreshold] = useState<boolean>(false);
+    const [mapLoaded, setMapLoaded] = useState(false);
 
     useImperativeHandle(ref, () => ({
         zoomIn: () => map.current?.zoomIn({ duration: 300 }),
@@ -52,103 +66,57 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
     
     const handleResetNorth = () => {
         if (!map.current) return;
-        if (is3D) {
-            map.current.flyTo({ bearing: 0, pitch: 60, duration: 1000 });
-        } else {
-            map.current.resetNorth({ duration: 500 });
-        }
+        map.current.flyTo({ bearing: 0, pitch: is3D ? 60 : 0, duration: is3D ? 1000 : 500 });
     };
 
-    // Effect for map initialization (runs only once)
     useEffect(() => {
-        // Prevent re-initialization
         if (map.current || !mapContainer.current) return;
 
-        // Create an async function to fetch data FIRST, then initialize the map.
         const initializeMap = async () => {
             try {
-                // Step 1: Fetch GeoJSON data BEFORE creating the map
                 const response = await fetch('/data/barbados_parishes.geojson');
                 if (!response.ok) throw new Error("Failed to fetch GeoJSON");
                 const parishData: FeatureCollection<Polygon | MultiPolygon, ParishProperties> = await response.json();
-
                 const stJosephFeature = parishData.features.find(f => f.properties.name === 'Saint Joseph');
                 
-                // Find the 'Saint Joseph' feature
-
                 if (!stJosephFeature) {
                     console.error("Could not find 'Saint Joseph' in GeoJSON.");
                     return;
                 }
-
-                // --- START OF MASK SHIFT LOGIC ---
-                // Define how much to shift the mask
-                const shiftDistance = 0.5; // distance in kilometers (adjust as needed)
-                const shiftBearing = 135;  // bearing in degrees: 135 degrees = Southeast
-
-                // Apply the shift to create a *new* shifted feature for the mask
-                const shiftedStJosephFeature = turf.transformTranslate(
-                    stJosephFeature,
-                    shiftDistance,
-                    shiftBearing,
-                    { units: 'kilometers' }
-                );
-                // --- END OF MASK SHIFT LOGIC ---
-
-
-                // Step 2: Calculate the bounds for the map.
-                // CRITICAL FIX: Use the SHIFTED feature to calculate map bounds and maxBounds.
-                // This ensures the map's viewport moves with the intended mask location.
+                
+                const shiftedStJosephFeature = turf.transformTranslate(stJosephFeature, 0.5, 135, { units: 'kilometers' });
                 const bbox = turf.bbox(shiftedStJosephFeature); 
                 const mapBounds: [number, number, number, number] = [bbox[0], bbox[1], bbox[2], bbox[3]];
 
-                // Step 3: Create the map instance WITH the adjusted bounds
                 map.current = new mapboxgl.Map({
                     container: mapContainer.current!,
                     style: 'mapbox://styles/mapbox/streets-v12',
-                    bounds: mapBounds, // Set the initial view to fit the SHIFTED bounds
-                    fitBoundsOptions: { padding: 20, duration: 0 }, // Options for the initial fit
-                    maxBounds: mapBounds, // CRITICAL: Constrain the map to these SHIFTED bounds
+                    bounds: mapBounds,
+                    fitBoundsOptions: { padding: 20, duration: 0 },
+                    maxBounds: mapBounds,
                     minZoom: 10,
                     attributionControl: false,
+                    pitch: 0, 
                 });
 
-                // Step 4: Add layers and event listeners after the map is created
+                const updateThreshold = () => {
+                    const z = map.current!.getZoom();
+                    setIsAboveThreshold(z >= ZOOM_THRESHOLD);
+                };
+                
                 map.current.on('load', () => {
-                    // Create the visual mask
-                    const worldCoords = [[-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]];
-                    
-                    // Use the SHIFTED feature's coordinates to define the hole in the mask
-                    const stJosephHole = shiftedStJosephFeature.geometry.coordinates[0].slice().reverse();
-                    // const maskFeature = {
-                    //     type: 'Feature',
-                    //     geometry: { type: 'Polygon', coordinates: [worldCoords, stJosephHole] },
-                    // };
-                    // map.current!.addSource('mask', { type: 'geojson', data: maskFeature as any });
-                    // map.current!.addLayer({
-                    //     id: 'mask-layer',
-                    //     type: 'fill',
-                    //     source: 'mask',
-                    //     paint: { 'fill-color': 'rgba(200, 200, 200, 0.5)' },
-                    // });
-
-                    // Add 3D and sky layers
-                    // map.current!.addSource('mapbox-dem', { 'type': 'raster-dem', 'url': 'mapbox://mapbox.mapbox-terrain-dem-v1', 'tileSize': 512, 'maxzoom': 14 });
-                    // map.current!.addLayer({ id: 'sky', type: 'sky', paint: { 'sky-type': 'atmosphere', 'sky-atmosphere-sun': [0.0, 0.0], 'sky-atmosphere-sun-intensity': 15 } });
-                    // map.current!.addLayer({ 'id': '3d-buildings', 'source': 'composite', 'source-layer': 'building', 'filter': ['==', 'extrude', 'true'], 'type': 'fill-extrusion', 'minzoom': 14, 'paint': { 'fill-extrusion-color': '#aaa', 'fill-extrusion-height': ['get', 'height'], 'fill-extrusion-base': ['get', 'min_height'], 'fill-extrusion-opacity': 0.6 } });
+                    updateThreshold();
+                    map.current!.on('click', (e) => {
+                       if (!e.defaultPrevented) onMarkerClickRef.current(null);
+                    });
+                    setMapLoaded(true);
                 });
+                map.current.on('zoom', updateThreshold);
 
-                // Attach other event listeners
                 map.current.on('rotate', () => {
                     const newBearing = map.current!.getBearing();
                     if (compassDialRef.current) compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
                     setDirectionLetter(getDirectionLetter(newBearing));
-                });
-
-                map.current.on('click', (e) => {
-                    if (!(e.originalEvent.target as HTMLElement).closest('.custom-marker')) {
-                        onMarkerClick(null);
-                    }
                 });
 
             } catch (error) {
@@ -158,61 +126,99 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
 
         initializeMap();
 
-        // Cleanup function
         return () => {
             map.current?.remove();
             map.current = null;
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Empty dependency array ensures this effect runs only once on mount
+    }, []); // Empty dependency array ensures this runs only once
 
-    // Effect to update markers when geojsonData changes
+    // *** FIXED: Effect for CREATING and DESTROYING markers ***
+    // This effect runs only when geojsonData changes.
     useEffect(() => {
-        if (!map.current || !map.current.isStyleLoaded()) return;
+        if (!mapLoaded || !geojsonData) return;
+        const mapInstance = map.current!;
 
-        markersRef.current.forEach(marker => marker.remove());
-        markersRef.current = [];
+        // Clear existing markers before adding new ones
+        markerDataRef.current.forEach(({ marker, root }) => {
+            marker.remove();
+            root.unmount();
+        });
+        markerDataRef.current = [];
 
-        if (geojsonData) {
-            const newMarkers = geojsonData.features.map(feature => {
-                const el = document.createElement('div');
-                el.className = 'custom-marker';
-                el.innerText = feature.properties?.name || '';
+        for (const feature of geojsonData.features) {
+            const { coordinates } = feature.geometry as Point;
+            const { pointimage, colorhex, name } = feature.properties as any;
 
-                el.addEventListener('click', () => {
-                    onMarkerClick(feature);
-                    map.current!.flyTo({ center: feature.geometry.coordinates as [number, number], zoom: 15, essential: true });
+            const markerEl = document.createElement('div');
+            const root = createRoot(markerEl);
+            
+            // The initial render will use the current state of isAboveThreshold
+            root.render(
+                <CustomMapMarker 
+                    name={name}
+                    pointimage={pointimage} 
+                    color={colorhex}
+                    isTextMode={mapInstance.getZoom() >= ZOOM_THRESHOLD}
+                />
+            );
+
+            const marker = new mapboxgl.Marker({ element: markerEl, anchor: 'bottom' })
+                .setLngLat(coordinates as [number, number])
+                .addTo(mapInstance);
+            
+            const handleClick = (e: MouseEvent) => {
+                e.stopPropagation();
+                onMarkerClickRef.current(feature); // Use the ref to call the latest callback
+                mapInstance.flyTo({
+                    center: coordinates as [number, number],
+                    zoom: 15,
+                    essential: true
                 });
+            };
+            
+            marker.getElement().addEventListener('click', handleClick);
 
-                return new mapboxgl.Marker(el)
-                    .setLngLat(feature.geometry.coordinates as [number, number])
-                    .addTo(map.current!);
-            });
-            markersRef.current = newMarkers;
+            markerDataRef.current.push({ marker, root, name, pointimage: pointimage, colorhex });
         }
-    }, [geojsonData, onMarkerClick]);
 
-    // Effect to handle 3D/2D transitions
+        return () => {
+            markerDataRef.current.forEach(({ marker, root }) => {
+                marker.remove();
+                root.unmount();
+            });
+            markerDataRef.current = [];
+        };
+    }, [geojsonData, mapLoaded]); // This now only depends on the data
+
+    // *** FIXED: Effect for UPDATING markers on zoom change ***
+    // This effect only re-renders the marker content, it doesn't create or destroy them.
     useEffect(() => {
-        if (!map.current || !map.current.isStyleLoaded()) return;
+        markerDataRef.current.forEach(({ root, name, pointimage, colorhex }) => {
+            root.render(
+                <CustomMapMarker 
+                    name={name}
+                    pointimage={pointimage}
+                    color={colorhex}
+                    isTextMode={isAboveThreshold}
+                />
+            );
+        });
+    }, [isAboveThreshold]);
+
+    useEffect(() => {
+        if (!map.current?.isStyleLoaded()) return;
         const duration = 1200;
         if (is3D) {
-            map.current.flyTo({ pitch: 60, bearing: -17.6, duration });
-            map.current.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-            map.current.setLayoutProperty('sky', 'visibility', 'visible');
-            map.current.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+            map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
         } else {
-            map.current.flyTo({ pitch: 0, bearing: 0, duration });
-            map.current.setTerrain(null);
-            map.current.setLayoutProperty('sky', 'visibility', 'none');
-            map.current.setLayoutProperty('3d-buildings', 'visibility', 'none');
+            map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
         }
     }, [is3D]);
 
     return (
         <div className='h-full w-full relative'>
             <div ref={mapContainer} className='h-full w-full' />
-            <div className='fixed bottom-[130px] max-sm:bottom-auto max-sm:top-[80px] flex flex-col max-sm:flex-row max-sm:right-[14px] right-[21px] items-end gap-[5px]'>
+            <div className='fixed bottom-[130px] max-sm:bottom-auto max-sm:top-[85px] flex flex-col max-sm:flex-row max-sm:right-[14px] right-[21px] max-sm:items-center items-end gap-[5px]'>
                 <ThreeDToggle is3D={is3D} onToggle={handleToggle3D} />
                 <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
                     <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>

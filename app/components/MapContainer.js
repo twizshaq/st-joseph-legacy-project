@@ -1,5 +1,3 @@
-// Create this new file, e.g., in `app/components/MapContainer.js`
-
 "use client";
 
 import { useState, useEffect } from 'react';
