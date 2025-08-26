@@ -26,6 +26,17 @@ export type Site = {
   colorhex: string;
 };
 
+interface SupabaseSiteData {
+  id: number;
+  name: string | null;
+  category: string | null;
+  description: string | null;
+  longitude: string | null;
+  latitude: string | null;
+  pointimage: string | null;
+  colorhex: string | null;
+}
+
 // --- SEARCH RESULTS COMPONENT ---
 
 function SearchResults({
@@ -317,14 +328,14 @@ export default function FullScreenMapPage() {
         }
         
         // Map the Supabase data to your application's 'Site' type
-        const siteData: Site[] = data.map((entry: any) => ({
+        const siteData: Site[] = data.map((entry: SupabaseSiteData) => ({
           id: entry.id,
           name: entry.name || 'Unnamed Site',
           category: entry.category || '',
           description: entry.description || '',
           // Combine longitude and latitude from your table into the coordinates array
-        coordinates: [parseFloat(entry.longitude) || 0, parseFloat(entry.latitude) || 0],
-          imageUrl: entry.imageUrl || '',
+        coordinates: [parseFloat(entry.longitude || '') || 0, parseFloat(entry.latitude || '') || 0],
+          imageUrl: entry.pointimage || '',
           colorhex: entry.colorhex || '#fff',
         })).filter((site): site is Site => site.id !== null && site.coordinates.length === 2); // Ensure essential data is present
 

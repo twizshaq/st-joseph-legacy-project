@@ -5,15 +5,11 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import test from '@/public/test1.png'
 import loadingIcon from '@/public/loading-icon.png'
-import igIcon from '@/public/icons/instagram-icon.svg'
-import fbIcon from '@/public/icons/facebook-icon.svg'
 import alertIcon from '@/public/icons/alert-icon.svg'
 import enlargeIcon from '@/public/icons/enlarge-icon.svg'
-import heartIcon from '@/public/icons/heart-icon.svg'
 import Map from '@/app/components/Map';
 import Link from 'next/link';
 import { useRef } from 'react';
-import compass from "@/public/icons/compass-icon.svg";
 type Zoomable = { zoomIn: () => void; zoomOut: () => void };
 
 
@@ -21,7 +17,6 @@ export default function Home() {
 
   const mapRef = useRef<Zoomable | null>(null);
 const mapContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the map's container div
-const [isFullScreen, setIsFullScreen] = useState(false);
 
 const handleZoomIn = () => {
   mapRef.current?.zoomIn();
@@ -31,33 +26,6 @@ const handleZoomOut = () => {
   mapRef.current?.zoomOut();
 };
 
-const handleFullScreenToggle = () => {
-  const elem = mapContainerRef.current;
-  if (!elem) return;
-
-  if (!document.fullscreenElement) {
-    // Enter fullscreen
-    elem.requestFullscreen().catch((err: unknown) => {
-      const message =
-        err instanceof Error ? `${err.message} (${err.name})` : String(err);
-      alert(`Error attempting to enable full-screen mode: ${message}`);
-    });
-  } else {
-    // Exit fullscreen
-    document.exitFullscreen?.();
-  }
-};
-
-  useEffect(() => {
-    const onFullScreenChange = () => {
-      setIsFullScreen(!!document.fullscreenElement);
-    };
-  
-    document.addEventListener('fullscreenchange', onFullScreenChange);
-  
-    // Cleanup the event listener when the component unmounts
-    return () => document.removeEventListener('fullscreenchange', onFullScreenChange);
-  }, []);
 
   const [email, setEmail] = useState("");
   const [showConfetti, setShowConfetti] = useState(false);

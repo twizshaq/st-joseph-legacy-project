@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 // import bellIcon from "@/public/icons/noti-icon.svg";
-import awardsIcon from "@/public/icons/awards-icon.svg";
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 

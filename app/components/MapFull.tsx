@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, useCallback } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -13,6 +13,12 @@ import CustomMapMarker from './CustomMapMarker';
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const ZOOM_THRESHOLD = 15;
+
+interface MarkerProperties {
+    name: string;
+    pointimage?: string; // Optional property
+    colorhex?: string;   // Optional property
+}
 
 interface ParishProperties {
     name: string;
@@ -147,7 +153,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
 
         for (const feature of geojsonData.features) {
             const { coordinates } = feature.geometry as Point;
-            const { pointimage, colorhex, name } = feature.properties as any;
+            const { pointimage, colorhex, name } = feature.properties as MarkerProperties;
 
             const markerEl = document.createElement('div');
             const root = createRoot(markerEl);
