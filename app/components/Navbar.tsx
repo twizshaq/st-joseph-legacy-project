@@ -107,7 +107,7 @@ export default function Navbar() {
         {isLoggedIn ? (
           <div className="flex items-center gap-6">
             <div className='relative'>
-              <div className='absolute bottom-[-7px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#FF9D00,#FFC766)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+              <div className='absolute bottom-[-7px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[1.5px] bg-[linear-gradient(to_right,#FF9D00,#FFC766)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
               {/* <Link href="/sign-up"> */}
                 <div className='flex justify-center items-center bg-[linear-gradient(to_left,#FF9D00,#FFC766)] rounded-full w-[23px] h-[18px]'>
                   <span className='text-white text-[.8rem] text-shadow-[0px_0px_4px_rgba(0,0,0,0.3)]'>36</span>
@@ -117,7 +117,7 @@ export default function Navbar() {
               <Image src="/icons/awards-icon.svg" alt="Loading..." width={34} height={34} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
             </div>
             <div className='relative'>
-              <div className='absolute top-[-7px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+              <div className='absolute top-[-7px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[1.5px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
               {/* <Link href="/sign-up"> */}
                 <div className='flex justify-center items-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full w-[23px] h-[18px]'>
                   <span className='text-white text-[.8rem] text-shadow-[0px_0px_4px_rgba(0,0,0,0.3)] text-[#]'>10</span>
@@ -173,41 +173,52 @@ export default function Navbar() {
 
         {/* --- Mobile Menu Panel (The "Drawer") --- */}
         <div className={`
-          fixed inset-0 bg-white/90 backdrop-blur-md z-40
+          fixed inset-0 bg-white/80 backdrop-blur-md z-40
           flex flex-col items-center justify-center gap-8
           text-2xl font-bold text-black
           transition-transform duration-300 ease-in-out
           ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}
         `}>
           {/* --- Main Navigation Links --- */}
-          <Link href="/" onClick={closeMenu}>Home</Link>
-          <Link href="/virtual-map" onClick={closeMenu}>Virtual Map</Link>
-          <Link href="/all-sites" onClick={closeMenu}>View Sites</Link>
-          <Link href="/guided-tours" onClick={closeMenu}>Guided Tours</Link>
+          <Link
+            href="/"
+            onClick={closeMenu}
+            className={`${pathname === '/' ? 'text-[#007BFF]' : ''}`}
+          >
+            Home
+          </Link>
+          <Link
+            href="/virtual-map"
+            onClick={closeMenu}
+            className={`${pathname === '/virtual-map' ? 'text-[#007BFF]' : ''}`}
+          >
+            Virtual Map
+          </Link>
+          <Link
+            href="/all-sites"
+            onClick={closeMenu}
+            className={`${pathname === '/all-sites' ? 'text-[#007BFF]' : ''}`}
+          >
+            View Sites
+          </Link>
+          <Link
+            href="/guided-tours"
+            onClick={closeMenu}
+            className={`${pathname === '/guided-tours' ? 'text-[#007BFF]' : ''}`}
+          >
+            Guided Tours
+          </Link>
           
-          <hr className="w-2/3 border-gray-300 my-4" />
-
-          {/* --- Conditional Authentication Section --- */}
-          {isLoggedIn ? (
-            <div className="flex flex-col items-center gap-6">
-              <Link href="/account" onClick={closeMenu} className="text-blue-600">{userName}</Link>
-              <button onClick={handleLogout} className="text-red-500">
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-6">
-              <button onClick={handleLogin} className='hover:text-gray-600 transition-colors'>
-                Login
-              </button>
-              <Link href="/sign-up" onClick={closeMenu}>
-                <div className='rounded-full p-[2px] bg-[linear-gradient(to_right,#ff977e,#feb47b)] shadow-lg'>
-                  <div className='bg-[linear-gradient(to_left,#ff7e5f,#feb47b)] rounded-full px-8 py-3'>
-                    <span className='text-white text-xl'>Sign Up</span>
-                  </div>
-                </div>
-              </Link>
-            </div>
+          {isLoggedIn && (
+            <>
+              <hr className="w-2/3 border-gray-300 my-4" />
+              <div className="flex flex-col items-center gap-6">
+                <Link href="/account" onClick={closeMenu} className="text-blue-600">{userName}</Link>
+                <button onClick={handleLogout} className="text-red-500">
+                  Logout
+                </button>
+              </div>
+            </>
           )}
         </div>
 
@@ -217,7 +228,7 @@ export default function Navbar() {
               {isLoggedIn ? (
                 <div className="flex items-center gap-[27px]">
                   <div className='relative'>
-                    <div className='absolute bottom-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#FF9D00,#FFC766)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+                    <div className='absolute bottom-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[1.5px] bg-[linear-gradient(to_right,#FF9D00,#FFC766)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
                     {/* <Link href="/sign-up"> */}
                       <div className='flex justify-center items-center bg-[linear-gradient(to_left,#FF9D00,#FFC766)] rounded-full w-[23px] h-[16px]'>
                         <span className='text-white text-[.8rem] text-shadow-[0px_0px_4px_rgba(0,0,0,0.3)] font-bold'>36</span>
@@ -227,7 +238,7 @@ export default function Navbar() {
                     <Image src="/icons/awards-icon.svg" alt="Loading..." width={34} height={34} className="w-[34px] h-[34px] min-w-[34px] min-h-[34px]"/>
                   </div>
                   <div className='relative'>
-                    <div className='absolute top-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+                    <div className='absolute top-[-4px] right-[-10px] cursor-pointer whitespace-nowrap rounded-full p-[1.5px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
                     {/* <Link href="/sign-up"> */}
                       <div className='flex justify-center items-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full w-[23px] h-[16px]'>
                         <span className='text-white text-[.8rem] text-shadow-[0px_0px_4px_rgba(0,0,0,0.3)] font-bold'>10</span>

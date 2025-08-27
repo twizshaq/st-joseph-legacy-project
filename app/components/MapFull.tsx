@@ -44,7 +44,6 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
     const map = useRef<mapboxgl.Map | null>(null);
 
     const markerDataRef = useRef<{
-        marker: mapboxgl.Marker;
         root: Root;
         name: string;
         pointimage?: string;
@@ -110,31 +109,36 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                 };
                 
                 map.current.on('load', () => {
-                    map.current!.addSource('mapbox-dem', {
-                        'type': 'raster-dem',
-                        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-                        'tileSize': 512,
-                        'maxzoom': 14
-                    });
+                    // FIX 1: Check if source exists before adding to prevent crash in Strict Mode.
+                    if (!map.current!.getSource('mapbox-dem')) {
+                        map.current!.addSource('mapbox-dem', {
+                            'type': 'raster-dem',
+                            'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                            'tileSize': 512,
+                            'maxzoom': 14
+                        });
+                    }
 
-                    map.current!.addLayer({
-                        'id': '3d-buildings',
-                        'source': 'composite',
-                        'source-layer': 'building',
-                        'filter': ['==', 'extrude', 'true'],
-                        'type': 'fill-extrusion',
-                        'minzoom': 14,
-                        // CHANGE 1: Make the layer invisible by default.
-                        'layout': {
-                            'visibility': 'none'
-                        },
-                        'paint': {
-                            'fill-extrusion-color': '#aaa',
-                            'fill-extrusion-height': ['get', 'height'],
-                            'fill-extrusion-base': ['get', 'min_height'],
-                            'fill-extrusion-opacity': 0.8
-                        }
-                    });
+                    // FIX 1: Check if layer exists before adding.
+                    if (!map.current!.getLayer('3d-buildings')) {
+                        map.current!.addLayer({
+                            'id': '3d-buildings',
+                            'source': 'composite',
+                            'source-layer': 'building',
+                            'filter': ['==', 'extrude', 'true'],
+                            'type': 'fill-extrusion',
+                            'minzoom': 14,
+                            'layout': {
+                                'visibility': 'none'
+                            },
+                            'paint': {
+                                'fill-extrusion-color': '#aaa',
+                                'fill-extrusion-height': ['get', 'height'],
+                                'fill-extrusion-base': ['get', 'min_height'],
+                                'fill-extrusion-opacity': 0.8
+                            }
+                        });
+                    }
 
                     updateThreshold();
                     map.current!.on('click', (e) => {
@@ -164,14 +168,17 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
     }, []);
 
     useEffect(() => {
-        if (!mapLoaded || !geojsonData) return;
-        const mapInstance = map.current!;
+        if (!mapLoaded || !geojsonData || !map.current) return;
+        const mapInstance = map.current;
 
-        markerDataRef.current.forEach(({ marker, root }) => {
-            marker.remove();
-            root.unmount();
-        });
-        markerDataRef.current = [];
+        const newMarkers: {
+            marker: mapboxgl.Marker;
+            root: Root;
+            name: string;
+            pointimage?: string;
+            colorhex?: string;
+            handleClick: (e: MouseEvent) => void;
+        }[] = [];
 
         for (const feature of geojsonData.features) {
             const { coordinates } = feature.geometry as Point;
@@ -205,19 +212,29 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             
             marker.getElement().addEventListener('click', handleClick);
 
-            markerDataRef.current.push({ marker, root, name, pointimage: pointimage, colorhex });
+            newMarkers.push({ marker, root, name, pointimage, colorhex, handleClick });
         }
+        
+        // Update the ref used by the isAboveThreshold effect
+        markerDataRef.current = newMarkers.map(({ root, name, pointimage, colorhex }) => ({
+             root, name, pointimage, colorhex
+        }));
 
+        // FIX 2: Return a single, robust cleanup function.
         return () => {
-            markerDataRef.current.forEach(({ marker, root }) => {
+            newMarkers.forEach(({ marker, root, handleClick }) => {
+                // Remove event listener to prevent memory leaks
+                marker.getElement().removeEventListener('click', handleClick);
                 marker.remove();
-                root.unmount();
+                // Defer unmount to prevent race condition with React's render cycle
+                setTimeout(() => root.unmount(), 0);
             });
             markerDataRef.current = [];
         };
     }, [geojsonData, mapLoaded]);
 
     useEffect(() => {
+        if (!map.current) return;
         markerDataRef.current.forEach(({ root, name, pointimage, colorhex }) => {
             root.render(
                 <CustomMapMarker 
@@ -230,23 +247,20 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         });
     }, [isAboveThreshold]);
 
-    // CHANGE 2: This useEffect now controls terrain and building visibility.
     useEffect(() => {
-        if (!mapLoaded) return; // Wait for the map and its layers to be ready
+        if (!mapLoaded) return;
         
         const duration = 1200;
         if (is3D) {
-            // ENABLE 3D
             map.current!.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
             map.current!.setLayoutProperty('3d-buildings', 'visibility', 'visible');
             map.current!.flyTo({ pitch: 60, bearing: map.current!.getBearing(), duration });
         } else {
-            // DISABLE 3D
             map.current!.setTerrain(null);
             map.current!.setLayoutProperty('3d-buildings', 'visibility', 'none');
             map.current!.flyTo({ pitch: 0, bearing: map.current!.getBearing(), duration });
         }
-    }, [is3D, mapLoaded]); // Depend on mapLoaded to ensure this runs correctly
+    }, [is3D, mapLoaded]);
 
     return (
         <div className='h-full w-full relative'>

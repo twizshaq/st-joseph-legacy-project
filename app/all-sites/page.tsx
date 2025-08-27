@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import searchIcon from '@/public/icons/search-icon.svg'
+import sortIcon from '@/public/icons/sort-icon.svg'
 
 
 const AllSites = () => {
@@ -29,12 +30,13 @@ const AllSites = () => {
 
 
 
-        <div className='absolute bottom-[-30px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px] w-[450px] max-w-[90vw]'>
+        <div className='absolute bottom-[-34px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px] w-[450px] max-w-[90vw]'>
           <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
             <span className='absolute z-10 mt-[15px] ml-[15px] fill-[#E0E0E0]'>
               <Image src={searchIcon} alt="" height={25} className=''/>
             </span>
-            <input type="text" name="" id="" placeholder='Search St Joseph' className='bg-black/50 backdrop-blur-[100px] rounded-full h-[57px] w-full text-[#E0E0E0] placeholder-[#E0E0E0] p-3 font-bold pl-[50px] outline-none'/>
+            <input type="text" name="" id="" placeholder='Search St Joseph' className='bg-black/50 backdrop-blur-[100px] rounded-full h-[57px] w-full text-[#E0E0E0] placeholder-[#E0E0E0] p-3 font-bold pl-[50px] outline-none pr-[95px]'/>
+            <button className='bg-red-500/0 flex gap-[10px] items-center justify-center absolute font-bold right-[20px] mt-[-40px] text-[#E0E0E0]'>Sort<Image src={sortIcon} alt="" height={23} className=''/></button>
           </div>
         </div>
 
