@@ -89,10 +89,10 @@ const handleZoomOut = () => {
       <div className="absolute top-0 left-0 w-full h-full bg-black/40" />
 
       {/* Foreground Content */}
-      <p className="font-black text-[3rem] text-center leading-[1.2] z-10">
+      <p className="font-black text-[3rem] text-center leading-[1.2] z-10 max-w-[90vw]">
         Discover the Untold Stories <br /> of St. Joseph
       </p>
-      <p className="text-center z-10">
+      <p className="text-center z-10 max-w-[90vw]">
         A community project to document and protect our cultural heritage
       </p>
 
@@ -100,22 +100,18 @@ const handleZoomOut = () => {
 
 
 
-      {/* Responsive Navigation Bar */}
-      
-
-
 
                   {/* Section 1 */}
       <div className="w-[90vw] max-w-[1500px] mx-auto mt-[70px] max-sm:mt-[-50px] flex flex-col lg:flex-row items-start justify-between gap-12">
         {/* LEFT: Copy */}
-        <div className="flex-1 max-w-[700px] max-sm:mt-[100px]">
+        <div className="flex-1 max-w-[700px] max-sm:mt-[100px] flex flex-col">
           <h2 className="font-bold text-[2rem] max-sm:text-[1.5rem] mb-[14px] mt-[]">Preserving Our Legacy</h2>
           <p className="text-black/80">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </p>
 
           {/* Mobile-Only Collage: Appears here on smaller screens */}
-          <div className="block lg:hidden relative w-full max-w-[560px] bg-red-500/0 aspect-[14/13]  self-center my-12 right-[10px]">
+          <div className="block lg:hidden relative max-w-[90vw] w-[560px] bg-red-500/0 aspect-[14/13] self-center my-12 max-sm:right-[14px]">
             {/* Colorful Gradient Glow blobs */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute w-[50%] h-[54%] top-[-5%] right-[5%] rounded-full bg-gradient-to-br from-[#2780F5]/30 to-[#F527B4]/50 blur-[80px]" />
@@ -313,9 +309,8 @@ const handleZoomOut = () => {
 
       {/* Footer */}
       <footer className='bg-blue-900 text-white w-full mt-[100px] py-12 px-[4vw]'>
-        <div className='max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10'>
-
-          {/* Column 1: Identity & Contact (Theme-aligned text) */}
+        <div className='max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10'>
+          {/* Column 1: Identity & Contact */}
           <div className='flex flex-col gap-4'>
             <h3 className='font-bold text-xl'>Unveiling Our Legacy</h3>
             <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
@@ -325,7 +320,6 @@ const handleZoomOut = () => {
               <p className='text-blue-200 text-sm'>(246) 123-4567</p>
             </div>
             <div>
-              {/* <h4 className='font-semibold mt-4 mb-2'>Supported By</h4> */}
               <div className='flex items-center gap-4 mt-3'>
                 <a href="#" className='text-blue-300 hover:text-white'><Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/></a>
                 <a href="#" className='text-blue-300 hover:text-white'><Image src="/icons/facebook-icon.svg" alt="" height={30} width={30}/></a>
@@ -333,22 +327,16 @@ const handleZoomOut = () => {
             </div>
           </div>
 
-
-          {/* Column 3: Get Involved (Theme-aligned button) */}
-        <div className='flex flex-col-reverse items-center max-sm:items-left gap-[40px] ml-[25px] max-sm:ml-[0px] bg-green-500/0'>
-          <div className='flex flex-col gap-4 bg-red-500/0 max-sm:w-[100%]'>
-            <h3 className='font-bold text-xl text-center max-sm:text-left'>Get Involved</h3>
-            <ul className='space-y-2 text-blue-200 text-center max-sm:text-left'>
-              <li><a href="/volunteer" className='hover:text-[#feb47b] transition-colors'>Volunteer Sign-up</a></li>
-            </ul>
-            {/* <a 
-              href="/donate" 
-              className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 w-[250px] rounded-full text-center shadow-lg'
-            >
-              Donate Now
-            </a> */}
-            <button className='relative cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
-              <a
+          {/* Column 3: Get Involved + Stay Connected */}
+          <div className='flex flex-col-reverse items-start lg:items-center gap-[40px] lg:ml-[25px] ml-0'>
+            {/* Get Involved */}
+            <div className='flex flex-col gap-4 w-full'>
+              <h3 className='font-bold text-xl lg:text-center'>Get Involved</h3>
+              <ul className='space-y-2 text-blue-200 lg:text-center'>
+                <li><a href="/volunteer" className='hover:text-[#feb47b] transition-colors'>Volunteer Sign-up</a></li>
+              </ul>
+              <button className='relative lg:self-center cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
+                <a
                 href="/donate" 
                 className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
               >
@@ -359,55 +347,52 @@ const handleZoomOut = () => {
                   <Image src="/icons/heart-icon.svg" alt="Loading..." width={18} height={18} className='invert' />
                 </div>
               </a>
-            </button>
-          </div>
+              </button>
+            </div>
 
-          {/* Column 4: Stay Connected (Theme-aligned form) */}
-          <div className='flex flex-col gap-4 items-center max-sm:items-left'>
-            <h3 className='font-bold text-xl max-sm:w-[100%]'>Stay Connected</h3>
-            <p className='text-blue-200 text-sm text-center max-sm:text-left'>Subscribe to our newsletter for project updates and email blasts.</p>
-            <div className="h-hit w-fit flex max-sm:self-start items-center justify-end relative mb-[0px]">
-                      <input
-                        type="email"
-                        className="border-[2px] border-white/10 backdrop-blur-[5px] text-white font-semibold rounded-[30px] py-[15px] pl-[20px] pr-[130px] max-w-[80vw] w-[350px] outline-none bg-black/20"
-                        placeholder="Your Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={isSubmitting}
-                      />
-                      <button
-                        onClick={handleJoinClick}
-                        disabled={isSubmitting || !isValid}
-                        className={`
-                          absolute rounded-full py-[10px] px-[22px] mr-[7px] font-semibold
-                          transition-colors
-                          ${isSubmitting
-                            ? 'bg-transparent' // When loading, make background transparent
-                            : isValid
-                              ? 'bg-[#007BFF] hover:[#002347] text-white filter shadow-[0_0_7px_rgba(0,123,255,0.5)]'
-                              : 'bg-[#777]/30 text-white/30'
-                          }
-                          ${isSubmitting || !isValid ? "cursor-not-allowed" : "cursor-pointer"}
-                        `}
-                      >
-                        {/* Loader is positioned on top, only visible when submitting */}
-                        {isSubmitting && (
-                          <div className="absolute inset-0 flex justify-end items-center right-[10px]">
-                            <Image src={loadingIcon} alt="Loading..." className="animation" width={26} height={26} />
-                          </div>
-                        )}
-
-                        {/* The "Join" text provides the button's size but becomes invisible during submission */}
-                        <span className={isSubmitting ? 'invisible' : 'visible'}>
-                          Subscribe
-                        </span>
-                      </button>
+            {/* Stay Connected */}
+            <div className='flex flex-col gap-4 items-start lg:items-center w-full'>
+              <h3 className='font-bold text-xl'>Stay Connected</h3>
+              <p className='text-blue-200 text-sm lg:text-center'>Subscribe to our newsletter for project updates and email blasts.</p>
+              <div className="h-hit w-fit flex items-center justify-end relative mb-[0px]">
+                <input
+                  type="email"
+                  className="border-[2px] border-white/10 backdrop-blur-[5px] text-white font-semibold rounded-[30px] py-[15px] pl-[20px] pr-[130px] max-w-[80vw] w-[350px] outline-none bg-black/20"
+                  placeholder="Your Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubmitting}
+                />
+                <button
+                  onClick={handleJoinClick}
+                  disabled={isSubmitting || !isValid}
+                  className={`
+                    absolute rounded-full py-[10px] px-[22px] mr-[7px] font-semibold
+                    transition-colors
+                    ${isSubmitting
+                      ? 'bg-transparent'
+                      : isValid
+                        ? 'bg-[#007BFF] hover:[#002347] text-white filter shadow-[0_0_7px_rgba(0,123,255,0.5)]'
+                        : 'bg-[#777]/30 text-white/30'
+                    }
+                    ${isSubmitting || !isValid ? "cursor-not-allowed" : "cursor-pointer"}
+                  `}
+                >
+                  {isSubmitting && (
+                    <div className="absolute inset-0 flex justify-end items-center right-[10px]">
+                      <Image src={loadingIcon} alt="Loading..." className="animation" width={26} height={26} />
                     </div>
+                  )}
+                  <span className={isSubmitting ? 'invisible' : 'visible'}>
+                    Subscribe
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
 
-          {/* Column 2: Navigation (Theme-aligned hover states) */}
-          <div className='flex flex-col gap-4 bg-green-500/0 text-right max-sm:text-left'>
+          {/* Column 2: Navigation */}
+          <div className='flex flex-col gap-4 text-left lg:text-right'>
             <h3 className='font-bold text-xl'>Navigate</h3>
             <ul className='space-y-2 text-blue-200'>
               <li><a href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</a></li>
@@ -419,10 +404,10 @@ const handleZoomOut = () => {
           </div>
         </div>
 
-        {/* Bottom Bar (Theme-aligned) */}
-        <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col sm:flex-row justify-between items-center text-sm text-blue-300'>
+        {/* Bottom Bar */}
+        <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center text-sm text-blue-300'>
           <p>© 2025 DEO Project. All Rights Reserved.</p>
-          <div className='flex gap-4 mt-4 sm:mt-0'>
+          <div className='flex gap-4 mt-4 lg:mt-0'>
             <a href="/privacy" className='hover:text-white transition-colors'>Privacy Policy</a>
             <a href="/terms" className='hover:text-white transition-colors'>Terms of Service</a>
           </div>
