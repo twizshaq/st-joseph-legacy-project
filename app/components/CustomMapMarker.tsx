@@ -18,7 +18,7 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
   if (isTextMode) {
     return (
       <div
-        className="flex flex-col items-center cursor-pointer"
+        className="flex flex-col items-center cursor-pointer text-white"
       >
         <div className="w-auto bg-white/10 backdrop-blur-[3px] p-[3px] rounded-full shadow-[0px_0px_10px_rgba(0,0,0,0.1)]">
           <div className="bg-black/45 rounded-full font-bold px-[12px] py-[5px]">

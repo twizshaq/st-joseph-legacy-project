@@ -1,74 +1,185 @@
 "use client";
 
-import React  from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
-import test from '@/public/test1.png'
-import loadingIcon from '@/public/loading-icon.png'
-import alertIcon from '@/public/icons/alert-icon.svg'
-import enlargeIcon from '@/public/icons/enlarge-icon.svg'
+import alertIcon from '@/public/icons/alert-icon.svg';
+import loadingIcon from '@/public/loading-icon.png';
+import enlargeIcon from '@/public/icons/enlarge-icon.svg';
 import Map from '@/app/components/Map';
+import Compass from '@/app/components/Compass'; // Import the Compass component
 import Link from 'next/link';
-import { useRef } from 'react';
-type Zoomable = { zoomIn: () => void; zoomOut: () => void };
+import { createClient } from '@supabase/supabase-js';
+import { Feature, Point, FeatureCollection } from 'geojson';
+
+// --- TYPE DEFINITIONS ---
+// Updated the ref type to include the new resetNorth method
+type MapControlsHandle = { 
+  zoomIn: () => void; 
+  zoomOut: () => void; 
+  resetNorth: () => void; 
+};
+
+export type SiteCard = {
+  id: number;
+  name: string;
+  description: string;
+  image_url: string;
+  slug: string;
+};
+
+export type Site = {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  coordinates: [number, number];
+  imageUrl: string;
+  colorhex: string;
+};
+
+interface SupabaseSiteData {
+  id: number;
+  name: string | null;
+  category: string | null;
+  description: string | null;
+  longitude: string | null;
+  latitude: string | null;
+  pointimage: string | null;
+  colorhex: string | null;
+}
+
+// Helper function to determine compass direction letter
+const getDirectionLetter = (bearing: number): string => {
+    if (bearing > -45 && bearing <= 45) return 'N';
+    if (bearing > 45 && bearing <= 135) return 'E';
+    if (bearing > 135 || bearing <= -135) return 'S';
+    if (bearing > -135 && bearing <= -45) return 'W';
+    return 'N';
+};
 
 
 export default function Home() {
+  const mapRef = useRef<MapControlsHandle | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const compassDialRef = useRef<HTMLDivElement | null>(null); // Ref for the compass dial
+  const [siteCards, setSiteCards] = useState<SiteCard[]>([]);
 
-  const mapRef = useRef<Zoomable | null>(null);
-const mapContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the map's container div
+  // --- NEW: State for Compass ---
+  const [directionLetter, setDirectionLetter] = useState('N');
 
-const handleZoomIn = () => {
-  mapRef.current?.zoomIn();
-};
+  // --- HANDLERS for Map Controls ---
+  // const handleZoomIn = () => mapRef.current?.zoomIn();
+  // const handleZoomOut = () => mapRef.current?.zoomOut();
+  const handleResetNorth = () => mapRef.current?.resetNorth();
 
-const handleZoomOut = () => {
-  mapRef.current?.zoomOut();
-};
+  // Callback for the map to send rotation updates to the page
+  const handleMapRotate = (newBearing: number) => {
+    if (compassDialRef.current) {
+      compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
+    }
+    setDirectionLetter(getDirectionLetter(newBearing));
+  };
 
+  // Data fetching and other state management...
+  const [sites, setSites] = useState<Site[]>([]);
+  useEffect(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("Supabase URL or Anon Key is missing.");
+      return;
+    }
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const fetchSites = async () => {
+      try {
+        const { data, error } = await supabase.from('sites').select('*');
+        if (error) throw error;
+        const siteData: Site[] = data.map((entry: SupabaseSiteData) => ({
+          id: entry.id,
+          name: entry.name || 'Unnamed Site',
+          category: entry.category || '',
+          description: entry.description || '',
+          coordinates: [parseFloat(entry.longitude || '') || 0, parseFloat(entry.latitude || '') || 0] as [number, number],
+          imageUrl: entry.pointimage || '',
+          colorhex: entry.colorhex || '#fff',
+        })).filter(site => site.id !== null && site.coordinates.length === 2);
+        setSites(siteData);
+      } catch (error) {
+        console.error("Failed to fetch site data from Supabase:", error);
+      }
+    };
+    fetchSites();
+  }, []);
+
+  const geojsonData = useMemo((): FeatureCollection<Point> | null => {
+    const features: Feature<Point>[] = sites.map(site => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: site.coordinates },
+      properties: { ...site },
+    }));
+    return { type: 'FeatureCollection', features };
+  }, [sites]);
+
+  const handleZoomIn = () => {
+    mapRef.current?.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    mapRef.current?.zoomOut();
+  };
 
   const [email, setEmail] = useState("");
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [joined, setJoined] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
-  
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-
 
   const handleJoinClick = async () => {
     if (!isValid) return;
-
     setIsSubmitting(true);
-    setMessage('');
-    setIsError(false);
-
-    try {
-      const response = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setMessage(result.message);
-        setShowConfetti(true);
-        setJoined(true);
-        setTimeout(() => setShowConfetti(false), 4000);
-      } else {
-        setMessage(result.error || 'An unexpected error occurred.');
-        setIsError(true);
-      }
-    } catch (error) {
-      console.error("Failed to submit:", error);
-      setMessage("Could not connect to the server. Please try again.");
-      setIsError(true);
-    }
-    setIsSubmitting(false);
   };
+
+  useEffect(() => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error("Supabase URL or Anon Key is missing.");
+    return;
+  }
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+  // Fetch from the original 'sites' table for the map
+  const fetchSites = async () => {
+    try {
+      const { data, error } = await supabase.from('sites').select('*');
+      if (error) throw error;
+      const siteData: Site[] = data.map((entry: SupabaseSiteData) => ({
+        id: entry.id,
+        name: entry.name || 'Unnamed Site',
+        category: entry.category || '',
+        description: entry.description || '',
+        coordinates: [parseFloat(entry.longitude || '') || 0, parseFloat(entry.latitude || '') || 0] as [number, number],
+        imageUrl: entry.pointimage || '',
+        colorhex: entry.colorhex || '#fff',
+      })).filter(site => site.id !== null && site.coordinates.length === 2);
+      setSites(siteData);
+    } catch (error) {
+      console.error("Failed to fetch site data from Supabase:", error);
+    }
+  };
+
+  // --- NEW: Fetch from the 'site_cards' table ---
+  const fetchSiteCards = async () => {
+    try {
+      const { data, error } = await supabase.from('site_cards').select('*');
+      if (error) throw error;
+      setSiteCards(data || []);
+    } catch (error) {
+      console.error("Failed to fetch site cards from Supabase:", error);
+    }
+  };
+
+  fetchSites();
+  fetchSiteCards(); // Call the new function
+}, []);
 
   return (
     <div className='flex flex-col items-center min-h-[100dvh] text-black bg-[#fff]'>
@@ -106,7 +217,7 @@ const handleZoomOut = () => {
         {/* LEFT: Copy */}
         <div className="flex-1 max-w-[700px] max-sm:mt-[100px] flex flex-col">
           <h2 className="font-bold text-[2rem] max-sm:text-[1.5rem] mb-[14px] mt-[]">Preserving Our Legacy</h2>
-          <p className="text-black/80">
+          <p className="">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </p>
 
@@ -134,10 +245,10 @@ const handleZoomOut = () => {
           </div>
 
           <h3 className="font-bold text-[1.4rem] mt-8 mb-2">About</h3>
-          <p className="text-black/80">
+          <p className="">
             commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </p>
-          <p className="text-black/80 mt-4">
+          <p className="mt-4">
             commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </p>
 
@@ -181,18 +292,18 @@ const handleZoomOut = () => {
 
 
 
-      {/* Mapbox */}
+      {/* Mapbox Section */}
       <div className='bg-pink-500/0 flex flex-col items-center w-[90vw] mt-[100px]'>
         <p className='font-bold text-[2rem] text-center'>Virtual Map of St. Joseph</p>
         <p className='max-w-[700px] text-center'>consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         
         <div ref={mapContainerRef} className='relative h-[500px] max-sm:h-[400px] w-[1000px] max-w-[90vw] rounded-[60px] mt-[50px] overflow-hidden shadow-[0px_0px_15px_rgba(0,0,0,0.1)] border-4 border-white'>
           
-          {/* The Map Component with the ref */}
-          <Map ref={mapRef} />
+          {/* MODIFIED: Pass geojsonData to the Map component */}
+          <Map ref={mapRef} geojsonData={geojsonData} />
 
-          {/* Your Custom Controls */}
-          <div className='absolute top-[20px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+          {/* ... (Your custom controls and overlay buttons remain the same) */}
+           <div className='absolute top-[20px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
             <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
               <div className='rounded-full bg-black/40 backdrop-blur-[5px] flex flex-col gap-0 p-[0px] py-[0px] w-[45px] overflow-hidden z-[40]'>
                 <button 
@@ -211,6 +322,15 @@ const handleZoomOut = () => {
               </div>
             </div>
           </div>
+
+          {/* NEW: Compass Control */}
+            <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
+              <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                <button onClick={handleResetNorth} className="rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg w-[48px] h-[48px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
+                  <Compass ref={compassDialRef} directionLetter={directionLetter} />
+                </button>
+              </div>
+            </div>
           
 
           {/* Your Overlay Buttons */}
@@ -225,15 +345,14 @@ const handleZoomOut = () => {
 
         <Link 
               href="/virtual-map"
-              target="_blank" // This is what opens it in a new tab
-              rel="noopener noreferrer" // Security best practice for new tabs
+              target="_blank"
+              rel="noopener noreferrer"
             >
           <div className='absolute top-[20px] right-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
             <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
               <div className='rounded-full active:bg-black/30 bg-black/40 backdrop-blur-[5px] p-[8px] z-[40] '>
                 <Image src={enlargeIcon} alt="Open map in new tab" height={30} width={30}/>
               </div>
-            {/* </Link> */}
             </div>
           </div>
         </Link>
@@ -243,67 +362,53 @@ const handleZoomOut = () => {
 
 
 
-      {/* Sites */}
+                  {/* Sites */}
       <div className="bg-green-500/0 max-w-[1500px] w-full mt-[100px] flex flex-col">
-      <div className="bg-red-500/0 px-[5vw]">
+        <div className="bg-red-500/0 px-[5vw]">
           <p className="font-bold text-[2rem]">Popular Sites</p>
           <p className="max-w-[700px]">
-              consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </p>
-      </div>
-      <div className='bg-red-500/0 w-fit self-end mr-[5vw] font-bold mb-[-10px] mt-[20px]'><Link href="/all-sites">View All Sites</Link></div>
-      <div className="flex flex-col w-full overflow-x-auto hide-scrollbar">
+        </div>
+        <div className='bg-red-500/0 w-fit self-end mr-[5vw] font-bold mb-[-10px] mt-[20px]'>
+          <Link href="/all-sites">View All Sites</Link>
+        </div>
+        
+        {/* Dynamic Site Cards Section */}
+        <div className="flex flex-col w-full overflow-x-auto hide-scrollbar">
           <div className="mt-[10px] flex flex-row items-center min-h-[450px] gap-[30px] px-[4vw] overflow-y-hidden">
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[40px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                    <a href="/parris-hill-murals">
-                      <p className="text-white font-bold">Explore Site</p>
-                    </a>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            {/* CHANGE THIS: Map over 'siteCards' instead of 'sites' */}
+            {siteCards.length > 0 ? (
+              siteCards.map((card) => ( // Use a new variable name like 'card' to avoid confusion
+                <div 
+                  key={card.id}
+                  className="relative bg-cover bg-center min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[45px] border-[3.5px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end"
+                  // CHANGE THIS: Use card.image_url to match your SiteCard type
+                  style={{ backgroundImage: `url(${card.image_url})` }}
+                >
+                  {/* Dark overlay for text readability */}
+                  <div className="absolute inset-0 bg-black/30 rounded-[42px]"></div>
+                  
+                  <div className="relative z-10">
+                    {/* CHANGE THIS: Now card.slug exists and the error is gone */}
+                    <Link href={`/${card.slug}`} passHref>
+                      <button className="absolute top-[-275px] right-[-5px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15 text-white font-bold">
+                        Explore Site
+                      </button>
+                    </Link>
+                    <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                      <p className="font-bold text-[1.3rem]">{card.name}</p>
+                      <p>{card.description}</p>
+                    </div>
                   </div>
-              </div>
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[40px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                      <p className="text-white font-bold">Explore Site</p>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                  </div>
-              </div>
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[40px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                      <p className="text-white font-bold">Explore Site</p>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                  </div>
-              </div>
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[40px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                      <p className="text-white font-bold">Explore Site</p>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                  </div>
-              </div>
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[40px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                      <p className="text-white font-bold">Explore Site</p>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                  </div>
-              </div>
+                </div>
+              ))
+            ) : (
+              <p className="pl-[4vw]">Loading sites...</p> // Added padding for better alignment
+            )}
           </div>
+        </div>
       </div>
-  </div>
 
 
 

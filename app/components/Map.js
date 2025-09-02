@@ -145,7 +145,7 @@ const Map = forwardRef(({ geojsonData, onMarkerClick = () => {} }, ref) => {
         return () => {
             markerDataRef.current.forEach(({ marker, root }) => {
                 marker.remove();
-                root.unmount();
+                // root.unmount();
             });
             markerDataRef.current = [];
         };
