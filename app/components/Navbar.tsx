@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 // import bellIcon from "@/public/icons/noti-icon.svg";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 // --- SVG Icons for Menu/Close ---
@@ -45,6 +45,56 @@ export default function Navbar() {
   
   // Function to toggle menu open/close
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // --- Lock body scroll when mobile menu is open ---
+  useEffect(() => {
+    const body = document.body;
+    const root = document.documentElement;
+
+    if (isMenuOpen) {
+      // Save current scroll position and lock
+      const scrollY = window.scrollY;
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollY}px`;
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
+      // Prevent background scrolling/bounce on mobile
+      root.style.overflow = 'hidden';
+      body.style.overflow = 'hidden';
+      body.style.overscrollBehavior = 'contain';
+    } else {
+      // Restore scroll and cleanup styles
+      const top = body.style.top;
+      root.style.overflow = '';
+      body.style.overflow = '';
+      body.style.overscrollBehavior = '';
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      if (top) {
+        window.scrollTo(0, -parseInt(top));
+      }
+    }
+
+    // Cleanup if component unmounts while menu is open
+    return () => {
+      const top = body.style.top;
+      root.style.overflow = '';
+      body.style.overflow = '';
+      body.style.overscrollBehavior = '';
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      if (top) {
+        window.scrollTo(0, -parseInt(top));
+      }
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -92,12 +142,12 @@ export default function Navbar() {
       </Link>
 
       <Link
-        href="/guided-tour"
+        href="/tours"
         className={`cursor-pointer whitespace-nowrap ${
-          pathname === '/guided-tour' ? 'text-[#007BFF]' : ''
+          pathname === '/tours' ? 'text-[#007BFF]' : ''
         }`}
       >
-        Guided Tours
+        Tours
       </Link>
         
         {/* --- Separator --- */}
@@ -170,6 +220,8 @@ export default function Navbar() {
             </button>
           </div>
         </div>
+        {isMenuOpen ? <div className='fixed bottom-0 bg-white/80 backdrop-blur-md h-[50px] w-[100vw]'/> : "" }
+        {isMenuOpen ? <div className='fixed top-0 bg-white/80 backdrop-blur-md h-[50px] w-[100vw]'/> : "" }
 
         {/* --- Mobile Menu Panel (The "Drawer") --- */}
         <div className={`
@@ -177,6 +229,7 @@ export default function Navbar() {
           flex flex-col items-center justify-center gap-8
           text-2xl font-bold text-black
           transition-transform duration-300 ease-in-out
+          pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]
           ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}
         `}>
           {/* --- Main Navigation Links --- */}
@@ -202,11 +255,11 @@ export default function Navbar() {
             View Sites
           </Link>
           <Link
-            href="/guided-tours"
+            href="/tours"
             onClick={closeMenu}
-            className={`${pathname === '/guided-tours' ? 'text-[#007BFF]' : ''}`}
+            className={`${pathname === '/tours' ? 'text-[#007BFF]' : ''}`}
           >
-            Guided Tours
+            Tours
           </Link>
           
           {isLoggedIn && (

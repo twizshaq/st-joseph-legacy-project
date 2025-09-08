@@ -9,8 +9,17 @@ module.exports = {
         screens: {
           'sus': '903px', // Your custom breakpoint is correct
         },
+      animation: {
+        'infinite-scroll': 'infinite-scroll 25s linear infinite',
       },
+      keyframes: {
+        'infinite-scroll': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-100%)' },
+        }
+      }
     },
+  },
     plugins: [
         require('tailwind-scrollbar-hide')
     ],

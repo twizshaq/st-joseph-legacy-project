@@ -63,6 +63,7 @@ export default function Home() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const compassDialRef = useRef<HTMLDivElement | null>(null); // Ref for the compass dial
   const [siteCards, setSiteCards] = useState<SiteCard[]>([]);
+  const [siteCardsLoading, setSiteCardsLoading] = useState(true);
 
   // --- NEW: State for Compass ---
   const [directionLetter, setDirectionLetter] = useState('N');
@@ -168,12 +169,15 @@ export default function Home() {
 
   // --- NEW: Fetch from the 'site_cards' table ---
   const fetchSiteCards = async () => {
+    setSiteCardsLoading(true);
     try {
       const { data, error } = await supabase.from('site_cards').select('*');
       if (error) throw error;
       setSiteCards(data || []);
     } catch (error) {
       console.error("Failed to fetch site cards from Supabase:", error);
+    } finally {
+      setSiteCardsLoading(false);
     }
   };
 
@@ -378,39 +382,49 @@ export default function Home() {
         <div className="flex flex-col w-full overflow-x-auto hide-scrollbar">
           <div className="mt-[10px] flex flex-row items-center min-h-[450px] gap-[30px] px-[4vw] overflow-y-hidden">
             {/* CHANGE THIS: Map over 'siteCards' instead of 'sites' */}
-            {siteCards.length > 0 ? (
-              siteCards.map((card) => ( // Use a new variable name like 'card' to avoid confusion
-                <div 
+            {siteCardsLoading ? (
+              <div className="flex items-center justify-center w-full min-h-[370px]">
+                <div
+                  aria-label="Loading"
+                  className="animate-spin w-12 h-12 bg-blue-500 [mask-image:url('/loading-icon.png')] [mask-repeat:no-repeat] [mask-position:center] [mask-size:contain] [-webkit-mask-image:url('/loading-icon.png')] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center] [-webkit-mask-size:contain]"
+                />
+              </div>
+            ) : siteCards.length > 0 ? (
+              siteCards.slice(0, 7).map((card) => (
+                <div
                   key={card.id}
-                  className="relative bg-cover bg-center min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[45px] border-[3.5px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end"
-                  // CHANGE THIS: Use card.image_url to match your SiteCard type
+                  className="relative bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[45px] border-[3.5px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end"
                   style={{ backgroundImage: `url(${card.image_url})` }}
                 >
-                  {/* Dark overlay for text readability */}
-                  <div className="absolute inset-0 bg-black/30 rounded-[42px]"></div>
-                  
-                  <div className="relative z-10">
-                    {/* CHANGE THIS: Now card.slug exists and the error is gone */}
-                    <Link href={`/${card.slug}`} passHref>
-                      <button className="absolute top-[-275px] right-[-5px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15 text-white font-bold">
-                        Explore Site
-                      </button>
-                    </Link>
-                    <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">{card.name}</p>
-                      <p>{card.description}</p>
+                  <Link href={`/${card.slug}`} passHref>
+                    <div className="absolute inset-0 bg-black/30 rounded-[42px]" />
+                    <div className="relative z-10">
+                      <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                        <p className="font-bold text-[1.3rem]">{card.name}</p>
+                        <p>{card.description}</p>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               ))
             ) : (
-              <p className="pl-[4vw]">Loading sites...</p> // Added padding for better alignment
+              <p className="pl-[4vw]">No sites found.</p>
             )}
           </div>
         </div>
       </div>
 
-
+        {/* Sponsers */}
+          <div className='bg-red-500/0 w-[100vw] mt-[50px] flex flex-col items-center'>
+            <div className='flex flex-col items-center'>
+              <p className="font-bold text-[2rem]">Our Sponsors</p>
+              <p>Generous Support provided by</p>
+            </div>
+            <div className='bg-green-500/0 justify-center items-center flex flex-wrap gap-[30px] h-auto max-w-[90vw] w-auto mt-[30px]'>
+              <Image src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/361112479_1004546300898262_4577794897630667019_n.jpg" alt="Loading..." width={110} height={110} className='' />
+              
+            </div>
+          </div>
 
       {/* Footer */}
       <footer className='bg-blue-900 text-white w-full mt-[100px] py-12 px-[4vw]'>
@@ -438,20 +452,29 @@ export default function Home() {
             <div className='flex flex-col gap-4 w-full'>
               <h3 className='font-bold text-xl lg:text-center'>Get Involved</h3>
               <ul className='space-y-2 text-blue-200 lg:text-center'>
-                <li><a href="/volunteer" className='hover:text-[#feb47b] transition-colors'>Volunteer Sign-up</a></li>
+                <li>
+                  <Link
+                    href="https://forms.gle/DKHMGcmQttoztAgr9"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className='hover:text-[#feb47b] transition-colors'
+                  >
+                    Volunteer Sign-up
+                  </Link>
+                </li>
               </ul>
               <button className='relative lg:self-center cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
-                <a
+                {/* <a
                 href="/donate" 
                 className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
-              >
+              > */}
                 <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
                   <span className='text-white text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
                     Contribute
                   </span>
-                  <Image src="/icons/heart-icon.svg" alt="Loading..." width={18} height={18} className='invert' />
+                  <Image src="/icons/handheart-icon.svg" alt="Loading..." width={18} height={18} className='invert' />
                 </div>
-              </a>
+              {/* </a> */}
               </button>
             </div>
 
@@ -502,8 +525,8 @@ export default function Home() {
             <ul className='space-y-2 text-blue-200'>
               <li><a href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</a></li>
               <li><a href="/map" className='hover:text-[#feb47b] transition-colors'>Virtual Map</a></li>
-              <li><a href="/tours" className='hover:text-[#feb47b] transition-colors'>Guided Tours</a></li>
-              <li><a href="/metrics" className='hover:text-[#feb47b] transition-colors'>Project Metrics</a></li>
+              <li><a href="/tours" className='hover:text-[#feb47b] transition-colors'>Tours</a></li>
+              {/* <li><a href="/metrics" className='hover:text-[#feb47b] transition-colors'>Project Metrics</a></li> */}
               <li><a href="/faq" className='hover:text-[#feb47b] transition-colors'>FAQ</a></li>
             </ul>
           </div>
