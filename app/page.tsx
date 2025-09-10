@@ -93,7 +93,7 @@ export default function Home() {
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
     const fetchSites = async () => {
       try {
-        const { data, error } = await supabase.from('sites').select('*');
+        const { data, error } = await supabase.from('location_pins').select('*');
         if (error) throw error;
         const siteData: Site[] = data.map((entry: SupabaseSiteData) => ({
           id: entry.id,
@@ -143,14 +143,15 @@ export default function Home() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error("Supabase URL or Anon Key is missing.");
+    setSiteCardsLoading(false); // Make sure to stop loading on error
     return;
   }
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-  // Fetch from the original 'sites' table for the map
+  // Fetch from the 'sites' table for the map
   const fetchSites = async () => {
     try {
-      const { data, error } = await supabase.from('sites').select('*');
+      const { data, error } = await supabase.from('location_pins').select('*');
       if (error) throw error;
       const siteData: Site[] = data.map((entry: SupabaseSiteData) => ({
         id: entry.id,
@@ -167,22 +168,23 @@ export default function Home() {
     }
   };
 
-  // --- NEW: Fetch from the 'site_cards' table ---
-  const fetchSiteCards = async () => {
+  // --- CORRECTED: Fetch from the 'locations' table for the cards ---
+  const fetchLocations = async () => {
     setSiteCardsLoading(true);
     try {
-      const { data, error } = await supabase.from('site_cards').select('*');
+      // ✅ CORRECT table name
+      const { data, error } = await supabase.from('locations').select('*');
       if (error) throw error;
       setSiteCards(data || []);
     } catch (error) {
-      console.error("Failed to fetch site cards from Supabase:", error);
+      console.error("Failed to fetch locations from Supabase:", error);
     } finally {
       setSiteCardsLoading(false);
     }
   };
 
   fetchSites();
-  fetchSiteCards(); // Call the new function
+  fetchLocations(); // Call the corrected function
 }, []);
 
   return (
@@ -408,7 +410,9 @@ export default function Home() {
                 </div>
               ))
             ) : (
-              <p className="pl-[4vw]">No sites found.</p>
+              <div className='w-[100vw]'>
+                <p className="font-bold self-center text-center">No sites found.</p>
+              </div>
             )}
           </div>
         </div>

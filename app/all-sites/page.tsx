@@ -60,7 +60,7 @@ const AllSites = () => {
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .from('site_cards')
+          .from('locations')
           .select('*')
           .order('id', { ascending: true });
 
@@ -164,7 +164,7 @@ const AllSites = () => {
             </div>
           </div>
         ) : (
-          <p className="text-center">No sites found.</p>
+          <p className="font-bold self-center text-center">No sites found.</p>
         )}
       </div>
 

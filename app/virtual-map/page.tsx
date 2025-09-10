@@ -319,7 +319,7 @@ export default function FullScreenMapPage() {
       try {
         // Fetch the data from your 'sites' table
         const { data, error } = await supabase
-          .from('sites') // <-- Your table name here
+          .from('location_pins') // <-- Your table name here
           .select('*');
 
         if (error) {
