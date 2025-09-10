@@ -435,7 +435,7 @@ export default function Home() {
             <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
             <div>
               <h4 className='font-semibold mb-2'>Contact Us</h4>
-              <p className='text-blue-200 text-sm'>stjoseph.legacy@deo.gov.bb</p>
+              <a href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>stjoseph.legacy@deo.gov.bb</a>
               <p className='text-blue-200 text-sm'>(246) 123-4567</p>
             </div>
             <div>

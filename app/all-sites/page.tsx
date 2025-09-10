@@ -130,36 +130,38 @@ const AllSites = () => {
             />
           </div>
         ) : siteCards.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:gap-8 sm:justify-center">
-            {siteCards.map((card) => (
-              <div key={card.id} className="relative w-[300px] max-sm:w-[175px] h-[350px] max-sm:h-[220px] max-sm:rounded-[35px] rounded-[50px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-3 py-5 flex flex-col justify-end text-white group overflow-hidden">
-                <Link href={`/${card.slug}`} passHref>
-                  <div className="absolute inset-0">
-                    {imageLoadingStates[card.id] && (
-                      <div className="absolute inset-0 bg-gray-500 animate-pulse" />
-                    )}
-                    <Image
-                      src={card.image_url}
-                      alt={card.name}
-                      fill
-                      sizes="(max-width: 640px) 50vw, 300px"
-                      className={`object-cover transition-opacity duration-300 ${imageLoadingStates[card.id] ? 'opacity-0' : 'opacity-100'}`}
-                      onLoad={() => handleImageLoad(card.id)}
-                      unoptimized
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-black/30 rounded-[32px] group-hover:bg-black/50 transition-colors duration-300"></div>
-                  <div className='absolute flex flex-col bottom-[10px] bg-red-500/0 max-sm:left-[15px] left-[20px] w-[90%] z-[20] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                    <p className="font-bold text-[1.3rem] max-sm:text-[1.1rem] text-shadow-[0px_0px_10px_rgba(0,0,0,0)]">{card.name}</p>
-                    <p className="text-sm max-sm:hidden opacity-90 mb-4 max-w-[250px] text-shadow-[0px_0px_10px_rgba(0,0,0,0)]">{card.description}</p>
-                  </div>
-                  <div className="relative z-10">
-                    <div className='flex justify-between items-end'>
+          <div className='flex flex-row items-center justify-center bg-red-500/0 w-[90vw]'>
+            <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:gap-8 sm:justify-start">
+              {siteCards.map((card) => (
+                <div key={card.id} className="relative w-[300px] max-sm:w-[175px] h-[350px] max-sm:h-[220px] max-sm:rounded-[35px] rounded-[50px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-3 py-5 flex flex-col justify-end text-white group overflow-hidden">
+                  <Link href={`/${card.slug}`} passHref>
+                    <div className="absolute inset-0">
+                      {imageLoadingStates[card.id] && (
+                        <div className="absolute inset-0 bg-gray-500 animate-pulse" />
+                      )}
+                      <Image
+                        src={card.image_url}
+                        alt={card.name}
+                        fill
+                        sizes="(max-width: 640px) 50vw, 300px"
+                        className={`object-cover transition-opacity duration-300 ${imageLoadingStates[card.id] ? 'opacity-0' : 'opacity-100'}`}
+                        onLoad={() => handleImageLoad(card.id)}
+                        unoptimized
+                      />
                     </div>
-                  </div>
-                </Link>
-              </div>
-            ))}
+                    <div className="absolute inset-0 bg-black/30 rounded-[32px] group-hover:bg-black/50 transition-colors duration-300"></div>
+                    <div className='absolute flex flex-col bottom-[10px] bg-red-500/0 max-sm:left-[15px] left-[20px] w-[90%] z-[20] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                      <p className="font-bold text-[1.3rem] max-sm:text-[1.1rem] text-shadow-[0px_0px_10px_rgba(0,0,0,0)]">{card.name}</p>
+                      <p className="text-sm max-sm:hidden opacity-90 mb-4 max-w-[250px] text-shadow-[0px_0px_10px_rgba(0,0,0,0)]">{card.description}</p>
+                    </div>
+                    <div className="relative z-10">
+                      <div className='flex justify-between items-end'>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <p className="text-center">No sites found.</p>
