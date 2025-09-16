@@ -187,9 +187,11 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="flex items-center gap-5">
-            <button onClick={handleLogin} className='cursor-pointer whitespace-nowrap hover:text-gray-600 transition-colors'>
-              Login
-            </button>
+            <Link href="/login">
+              <button onClick={handleLogin} className='cursor-pointer whitespace-nowrap hover:text-gray-600 transition-colors'>
+                Login
+              </button>
+            </Link>
             <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
               <Link href="/sign-up">
                 <div className='bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[8.4px]'>
