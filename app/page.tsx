@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import alertIcon from '@/public/icons/alert-icon.svg';
 import loadingIcon from '@/public/loading-icon.png';
+import vrIcon from "@/public/icons/vr-icon.svg"
 import enlargeIcon from '@/public/icons/enlarge-icon.svg';
 import Map from '@/app/components/Map';
-import Compass from '@/app/components/Compass'; // Import the Compass component
+import Compass from '@/app/components/Compass';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { Feature, Point, FeatureCollection } from 'geojson';
 
 // --- TYPE DEFINITIONS ---
-// Updated the ref type to include the new resetNorth method
 type MapControlsHandle = { 
   zoomIn: () => void; 
   zoomOut: () => void; 
@@ -25,6 +25,7 @@ export type SiteCard = {
   description: string;
   image_url: string;
   slug: string;
+  category: string;
 };
 
 export type Site = {
@@ -48,7 +49,6 @@ interface SupabaseSiteData {
   colorhex: string | null;
 }
 
-// Helper function to determine compass direction letter
 const getDirectionLetter = (bearing: number): string => {
     if (bearing > -45 && bearing <= 45) return 'N';
     if (bearing > 45 && bearing <= 135) return 'E';
@@ -57,135 +57,150 @@ const getDirectionLetter = (bearing: number): string => {
     return 'N';
 };
 
-
 export default function Home() {
+  // --- STATE AND REFS ---
   const mapRef = useRef<MapControlsHandle | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const compassDialRef = useRef<HTMLDivElement | null>(null); // Ref for the compass dial
+  const compassDialRef = useRef<HTMLDivElement | null>(null);
+  const animationFrameRef = useRef<number | null>(null); // For throttling updates
+  
   const [siteCards, setSiteCards] = useState<SiteCard[]>([]);
   const [siteCardsLoading, setSiteCardsLoading] = useState(true);
-
-  // --- NEW: State for Compass ---
-  const [directionLetter, setDirectionLetter] = useState('N');
-
-  // --- HANDLERS for Map Controls ---
-  // const handleZoomIn = () => mapRef.current?.zoomIn();
-  // const handleZoomOut = () => mapRef.current?.zoomOut();
-  const handleResetNorth = () => mapRef.current?.resetNorth();
-
-  // Callback for the map to send rotation updates to the page
-  const handleMapRotate = (newBearing: number) => {
-    if (compassDialRef.current) {
-      compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
-    }
-    setDirectionLetter(getDirectionLetter(newBearing));
-  };
-
-  // Data fetching and other state management...
   const [sites, setSites] = useState<Site[]>([]);
+  const [directionLetter, setDirectionLetter] = useState('N');
+  const [email, setEmail] = useState("");
+  const [submissionMessage, setSubmissionMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  // --- SINGLE DATA FETCHING HOOK ---
   useEffect(() => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error("Supabase URL or Anon Key is missing.");
+      setSiteCardsLoading(false);
       return;
     }
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const fetchSites = async () => {
+
+    const fetchAllData = async () => {
+      setSiteCardsLoading(true);
       try {
-        const { data, error } = await supabase.from('location_pins').select('*');
-        if (error) throw error;
-        const siteData: Site[] = data.map((entry: SupabaseSiteData) => ({
+        // Fetch both sets of data concurrently for better performance
+        const [sitesResponse, locationsResponse] = await Promise.all([
+          supabase.from('location_pins').select('*'),
+          supabase.rpc('get_random_locations', { p_limit: 7 })
+        ]);
+
+        // Process sites data (for map)
+        if (sitesResponse.error) throw sitesResponse.error;
+        const siteData: Site[] = sitesResponse.data.map((entry: SupabaseSiteData) => ({
           id: entry.id,
           name: entry.name || 'Unnamed Site',
           category: entry.category || '',
           description: entry.description || '',
-          coordinates: [parseFloat(entry.longitude || '') || 0, parseFloat(entry.latitude || '') || 0] as [number, number],
+          coordinates: [parseFloat(entry.longitude || '0'), parseFloat(entry.latitude || '0')] as [number, number],
           imageUrl: entry.pointimage || '',
           colorhex: entry.colorhex || '#fff',
         })).filter(site => site.id !== null && site.coordinates.length === 2);
         setSites(siteData);
+
+        // Process locations data (for cards)
+        if (locationsResponse.error) throw locationsResponse.error;
+        setSiteCards(locationsResponse.data || []);
+
       } catch (error) {
-        console.error("Failed to fetch site data from Supabase:", error);
+        console.error("Failed to fetch data from Supabase:", error);
+      } finally {
+        setSiteCardsLoading(false);
       }
     };
-    fetchSites();
+
+    fetchAllData();
   }, []);
 
+  // --- MEMOIZED GEOJSON ---
   const geojsonData = useMemo((): FeatureCollection<Point> | null => {
-    const features: Feature<Point>[] = sites.map(site => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: site.coordinates },
-      properties: { ...site },
-    }));
-    return { type: 'FeatureCollection', features };
-  }, [sites]);
+  // Wait until both site cards and the full site list are loaded
+  if (siteCards.length === 0 || sites.length === 0) {
+    return null;
+  }
 
-  const handleZoomIn = () => {
-    mapRef.current?.zoomIn();
-  };
+  // Create a set of the featured site IDs for quick lookups
+  const featuredSiteIds = new Set(siteCards.map(card => card.id));
 
-  const handleZoomOut = () => {
-    mapRef.current?.zoomOut();
-  };
+  // Filter the full list of sites to only include the featured ones
+  const featuredSites = sites.filter(site => featuredSiteIds.has(site.id));
 
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  // Now, create the GeoJSON features from this filtered list
+  const features: Feature<Point>[] = featuredSites.map(site => ({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: site.coordinates },
+    properties: { ...site }, // Pass all site properties to the marker
+  }));
 
+  return { type: 'FeatureCollection', features };
+}, [siteCards, sites]);
+
+  // --- HANDLERS ---
+  const handleZoomIn = () => mapRef.current?.zoomIn();
+  const handleZoomOut = () => mapRef.current?.zoomOut();
+  const handleResetNorth = () => mapRef.current?.resetNorth();
+  const handleMapRotate = useCallback((newBearing: number) => {
+    if (compassDialRef.current) {
+      compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    animationFrameRef.current = requestAnimationFrame(() => {
+      setDirectionLetter(getDirectionLetter(newBearing));
+    });
+  }, []);
   const handleJoinClick = async () => {
     if (!isValid) return;
     setIsSubmitting(true);
-  };
+    setSubmissionMessage("");
 
-  useEffect(() => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error("Supabase URL or Anon Key is missing.");
-    setSiteCardsLoading(false); // Make sure to stop loading on error
-    return;
-  }
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-  // Fetch from the 'sites' table for the map
-  const fetchSites = async () => {
-    try {
-      const { data, error } = await supabase.from('location_pins').select('*');
-      if (error) throw error;
-      const siteData: Site[] = data.map((entry: SupabaseSiteData) => ({
-        id: entry.id,
-        name: entry.name || 'Unnamed Site',
-        category: entry.category || '',
-        description: entry.description || '',
-        coordinates: [parseFloat(entry.longitude || '') || 0, parseFloat(entry.latitude || '') || 0] as [number, number],
-        imageUrl: entry.pointimage || '',
-        colorhex: entry.colorhex || '#fff',
-      })).filter(site => site.id !== null && site.coordinates.length === 2);
-      setSites(siteData);
-    } catch (error) {
-      console.error("Failed to fetch site data from Supabase:", error);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      setSubmissionMessage("Configuration error. Please try again later.");
+      setIsSubmitting(false);
+      return;
     }
-  };
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-  // --- CORRECTED: Fetch from the 'locations' table for the cards ---
-  const fetchLocations = async () => {
-    setSiteCardsLoading(true);
     try {
-      // ✅ CORRECT table name
-      const { data, error } = await supabase.from('locations').select('*');
-      if (error) throw error;
-      setSiteCards(data || []);
-    } catch (error) {
-      console.error("Failed to fetch locations from Supabase:", error);
+      // Attempt to insert the new email
+      const { error } = await supabase
+        .from('subscribers')
+        .insert({ email: email.trim() });
+
+      if (error) {
+        // Throw the error to be caught by the catch block
+        throw error;
+      }
+
+      // Success!
+      setSubmissionMessage("Thank you for subscribing!");
+      setEmail(""); // Clear the input field
+
+    } catch (error: any) {
+      if (error.code === '23505') { // '23505' is the code for a unique constraint violation
+        setSubmissionMessage("This email is already subscribed.");
+      } else {
+        console.error('Subscription error:', error);
+        setSubmissionMessage("An error occurred. Please try again.");
+      }
     } finally {
-      setSiteCardsLoading(false);
+      // This will run whether the submission succeeds or fails
+      setIsSubmitting(false);
     }
   };
 
-  fetchSites();
-  fetchLocations(); // Call the corrected function
-}, []);
+
 
   return (
     <div className='flex flex-col items-center min-h-[100dvh] text-black bg-[#fff]'>
@@ -218,7 +233,7 @@ export default function Home() {
 
 
 
-                  {/* Section 1 */}
+      {/* Section 1 */}
       <div className="w-[90vw] max-w-[1500px] mx-auto mt-[70px] max-sm:mt-[-50px] flex flex-col lg:flex-row items-start justify-between gap-12">
         {/* LEFT: Copy */}
         <div className="flex-1 max-w-[700px] max-sm:mt-[100px] flex flex-col">
@@ -230,7 +245,7 @@ export default function Home() {
           {/* Mobile-Only Collage: Appears here on smaller screens */}
           <div className="block lg:hidden relative max-w-[90vw] w-[560px] bg-red-500/0 aspect-[14/13] self-center my-12 max-sm:right-[14px]">
             {/* Colorful Gradient Glow blobs */}
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none opacity-50">
               <div className="absolute w-[50%] h-[54%] top-[-5%] right-[5%] rounded-full bg-gradient-to-br from-[#2780F5]/30 to-[#F527B4]/50 blur-[80px]" />
               <div className="absolute w-[54%] h-[58%] bottom-[30%] left-[5%] rounded-full bg-gradient-to-tl from-yellow-300/30 to-orange-400/30 blur-[90px]" />
               <div className="absolute w-[50%] h-[54%] top-[50%] right-[5%] rounded-full bg-gradient-to-br from-[#00FF72]/30 to-[#A0F887]/30 blur-[80px]" />
@@ -273,7 +288,7 @@ export default function Home() {
         <div className="hidden lg:block relative flex-1 w-full max-w-[560px] aspect-[14/13] self-center my-12 lg:my-0">
           {/* Colorful Gradient Glow blobs */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none opacity-50">
               <div className="absolute w-[50%] h-[54%] top-[-5%] right-[5%] rounded-full bg-gradient-to-br from-[#2780F5]/30 to-[#F527B4]/50 blur-[80px]" />
               <div className="absolute w-[54%] h-[58%] bottom-[30%] left-[5%] rounded-full bg-gradient-to-tl from-yellow-300/30 to-orange-400/30 blur-[90px]" />
               <div className="absolute w-[50%] h-[54%] top-[50%] right-[5%] rounded-full bg-gradient-to-br from-[#00FF72]/30 to-[#A0F887]/30 blur-[80px]" />
@@ -296,17 +311,159 @@ export default function Home() {
       </div>
 
 
+        {/* Augmented Reality */}
+        <div className='relative flex justify-center items-center max-w-[90vw] w-[1200px] h-[300px] bg-red-400/0 mt-[100px] rounded-[50px]'>
+          <div className='flex flex-col self-start'>
+            <p className='font-bold text-[2rem] text-center'>Augmented Reality</p>
+            <p className='max-w-[700px] text-center'>consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+          </div>
+
+                  {/* main card */}
+                  <div
+                    className="absolute rotate-[0deg] mt-[350px] mr-[0px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-20"
+                    // style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    {/* <Link hre passHref> */}
+                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                          <p className="font-bold text-[1.3rem] mb-[2px]">test</p>
+                          <p className="text-[1rem]">test</p>
+                          <div className='mt-[10px] flex justify-center items-center'>
+                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
+                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
+                                <p className='text-center font-bold text-[.85rem]'>test</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {/* </Link> */}
+                    <div className="rotate-[180deg] self-end">
+                      <div
+                        className={`
+                          bg-blue-500/0
+                          absolute w-[270px]
+                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
+                        `}
+                      ></div>
+                    </div>
+                  </div>
+                  <div
+                    className="absolute rotate-[0deg] mt-[350px] mr-[0px] z-[19] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] shadow-[0px_0px_15px_rgba(0,0,0,.2)]"
+                    // style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    {/* <Link hre passHref> */}
+                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                      </div>
+                  </div>
+
+                  {/* Left Card */}
+                  <div
+                    className="absolute rotate-[10deg] mt-[375px] ml-[400px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10 scale-[.9]"
+                    // style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    {/* <Link hre passHref> */}
+                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                          <p className="font-bold text-[1.3rem] mb-[2px]">test</p>
+                          <p className="text-[1rem]">test</p>
+                          <div className='mt-[10px] flex justify-center items-center'>
+                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
+                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
+                                <p className='text-center font-bold text-[.85rem]'>test</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {/* </Link> */}
+                    <div className="rotate-[180deg] self-end">
+                      <div
+                        className={`
+                          bg-blue-500/0
+                          absolute w-[270px]
+                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
+                        `}
+                      ></div>
+                    </div>
+                  </div>
+                  <div
+                    className="absolute rotate-[10deg] mt-[375px] ml-[400px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[56px] flex flex-col justify-end overflow-hidden scale-x-[.93] scale-y-[.925]"
+                    // style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    {/* <Link hre passHref> */}
+                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                      </div>
+                  </div>
+
+                  {/* Right Card */}
+                  <div
+                    className="absolute rotate-[-10deg] mt-[375px] mr-[400px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10 scale-[.9]"
+                    // style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    {/* <Link hre passHref> */}
+                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                          <p className="font-bold text-[1.3rem] mb-[2px]">test</p>
+                          <p className="text-[1rem]">test</p>
+                          <div className='mt-[10px] flex justify-center items-center'>
+                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
+                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
+                                <p className='text-center font-bold text-[.85rem]'>test</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {/* </Link> */}
+                    <div className="rotate-[180deg] self-end">
+                      <div
+                        className={`
+                          bg-blue-500/0
+                          absolute w-[270px]
+                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
+                        `}
+                      ></div>
+                    </div>
+                  </div>
+                  <div
+                    className="absolute rotate-[-10deg] mt-[375px] mr-[400px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[56px] flex flex-col justify-end overflow-hidden scale-x-[.93] scale-y-[.925]"
+                    // style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    {/* <Link hre passHref> */}
+                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                      </div>
+                  </div>
+
+          {/* scan qr button */}
+          <div className='absolute cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[30] mt-[800px]'>
+                        <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                          <button className="flex items-center py-[13px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg">
+                            <span className='z-10 fill-[#E0E0E0]'>
+                              <Image src={vrIcon} alt="" height={30} className=''/>
+                            </span>
+                            <p className='font-bold text-[#E0E0E0]'>Scan QR Code</p>
+                          </button>
+                        </div>
+                      </div>
+        </div>
 
 
       {/* Mapbox Section */}
-      <div className='bg-pink-500/0 flex flex-col items-center w-[90vw] mt-[100px]'>
+      <div className='bg-pink-500/0 flex flex-col items-center w-[90vw] mt-[500px]'>
         <p className='font-bold text-[2rem] text-center'>Virtual Map of St. Joseph</p>
         <p className='max-w-[700px] text-center'>consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         
         <div ref={mapContainerRef} className='relative h-[500px] max-sm:h-[400px] w-[1000px] max-w-[90vw] rounded-[60px] mt-[50px] overflow-hidden shadow-[0px_0px_15px_rgba(0,0,0,0.1)] border-4 border-white'>
           
           {/* MODIFIED: Pass geojsonData to the Map component */}
-          <Map ref={mapRef} geojsonData={geojsonData} />
+          <Map ref={mapRef} geojsonData={geojsonData} onRotate={handleMapRotate}/>
 
           {/* ... (Your custom controls and overlay buttons remain the same) */}
            <div className='absolute top-[20px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
@@ -330,13 +487,13 @@ export default function Home() {
           </div>
 
           {/* NEW: Compass Control */}
-            <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
-              <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                <button onClick={handleResetNorth} className="rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg w-[48px] h-[48px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
-                  <Compass ref={compassDialRef} directionLetter={directionLetter} />
-                </button>
-              </div>
+            <div className='absolute top-[130px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
+            <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+              <button onClick={handleResetNorth} className="rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg w-[48px] h-[48px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
+                <Compass ref={compassDialRef} directionLetter={directionLetter} />
+              </button>
             </div>
+          </div>
           
 
           {/* Your Overlay Buttons */}
@@ -368,10 +525,10 @@ export default function Home() {
 
 
 
-                  {/* Sites */}
+      {/* Sites */}
       <div className="bg-green-500/0 max-w-[1500px] w-full mt-[100px] flex flex-col">
         <div className="bg-red-500/0 px-[5vw]">
-          <p className="font-bold text-[2rem]">Popular Sites</p>
+          <p className="font-bold text-[2rem]">Featured Sites</p>
           <p className="max-w-[700px]">
             consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </p>
@@ -381,8 +538,8 @@ export default function Home() {
         </div>
         
         {/* Dynamic Site Cards Section */}
-        <div className="flex flex-col w-full overflow-x-auto hide-scrollbar">
-          <div className="mt-[10px] flex flex-row items-center min-h-[450px] gap-[30px] px-[4vw] overflow-y-hidden">
+        <div className="flex flex-col px-[5vw] max-sm:px-[0vw] overflow-x-auto hide-scrollbar" >
+          <div className="mt-[10px] flex flex-row items-center min-h-[450px] gap-[30px] overflow-y-hidden px-[.9vw] max-sm:px-[5vw]">
             {/* CHANGE THIS: Map over 'siteCards' instead of 'sites' */}
             {siteCardsLoading ? (
               <div className="flex items-center justify-center w-full min-h-[370px]">
@@ -393,20 +550,60 @@ export default function Home() {
               </div>
             ) : siteCards.length > 0 ? (
               siteCards.slice(0, 7).map((card) => (
-                <div
-                  key={card.id}
-                  className="relative bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[45px] border-[3.5px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end"
-                  style={{ backgroundImage: `url(${card.image_url})` }}
-                >
-                  <Link href={`/${card.slug}`} passHref>
-                    <div className="absolute inset-0 bg-black/30 rounded-[42px]" />
-                    <div className="relative z-10">
-                      <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                        <p className="font-bold text-[1.3rem]">{card.name}</p>
-                        <p>{card.description}</p>
-                      </div>
+                <div key={card.id} className="relative">
+                  {/* 2. This is the background/shadow div. It no longer needs a key. */}
+                  <div
+                    className="absolute bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[57px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white"
+                    style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    <div className="rotate-[180deg] self-end">
+                      <div
+                        className={`
+                          bg-blue-500/0
+                          absolute w-[270px] top-[70px] rotate-[-180deg]
+                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] opacity-100 h-[270px] 
+                        `}
+                      ></div>
+                      {/* <div
+                        className={`
+                          absolute w-[270px] bg-transparent top-[190px] rotate-[-180deg]
+                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_20%,transparent)] backdrop-blur-[20px] opacity-100 h-[150px]
+                        `}
+                      ></div> */}
                     </div>
-                  </Link>
+                  </div>
+
+                  {/* 3. This is the main card content. It also no longer needs a key. */}
+                  <div
+                    className="relative bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10"
+                    style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    <Link href={`/${card.slug}`} passHref>
+                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                          <p className="font-bold text-[1.3rem] mb-[2px]">{card.name}</p>
+                          <p className="text-[1rem]">{card.description}</p>
+                          <div className='mt-[10px] flex justify-center items-center'>
+                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
+                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
+                                <p className='text-center font-bold text-[.85rem]'>{card.category}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="rotate-[180deg] self-end">
+                      <div
+                        className={`
+                          bg-blue-500/0
+                          absolute w-[270px]
+                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
+                        `}
+                      ></div>
+                    </div>
+                  </div>
                 </div>
               ))
             ) : (
@@ -444,8 +641,12 @@ export default function Home() {
             </div>
             <div>
               <div className='flex items-center gap-4 mt-3'>
-                <a href="#" className='text-blue-300 hover:text-white'><Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/></a>
-                <a href="#" className='text-blue-300 hover:text-white'><Image src="/icons/facebook-icon.svg" alt="" height={30} width={30}/></a>
+                <a href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                  <Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/>
+                </a>
+                <a href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                  <Image src="/icons/facebook-icon.svg" alt="" height={30} width={30}/>
+                </a>
               </div>
             </div>
           </div>
@@ -473,7 +674,7 @@ export default function Home() {
                 className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
               > */}
                 <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
-                  <span className='text-white text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
+                  <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
                     Contribute
                   </span>
                   <Image src="/icons/handheart-icon.svg" alt="Loading..." width={18} height={18} className='invert' />
@@ -520,6 +721,11 @@ export default function Home() {
                   </span>
                 </button>
               </div>
+              {submissionMessage && (
+                <p className={`text-sm mt-2 lg:text-center font-bold w-full ${submissionMessage.includes('Thank you') ? 'text-green-400' : 'text-red-400'}`}>
+                  {submissionMessage}
+                </p>
+              )}
             </div>
           </div>
 

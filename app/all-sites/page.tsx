@@ -13,6 +13,7 @@ export type SiteCard = {
   description: string;
   image_url: string;
   slug: string;
+  category: string;
 };
 
 const AllSites = () => {
@@ -121,7 +122,7 @@ const AllSites = () => {
       <div className='bg-[#ddd]/80 h-[2px] w-[450px] max-w-[70vw] mt-[55px] rounded-full'></div>
 
       {/* --- SITES GRID SECTION (Two cols on mobile, flex on larger screens) --- */}
-      <div className="flex justify-center w-full max-w-[1700px] bg-red-500/0 mx-auto  px-[0vw] py-5  min-h-[500px]">
+      <div className="flex justify-center items-center w-full mt-[15px] max-w-[1700px] bg-red-500/0 mx-auto  px-[0vw] py-5  min-h-[500px]">
         {loading ? (
           <div className="flex items-center justify-center w-full mb-[340px]">
             <div
@@ -131,34 +132,59 @@ const AllSites = () => {
           </div>
         ) : siteCards.length > 0 ? (
           <div className='flex flex-row items-center justify-center bg-red-500/0 w-[90vw]'>
-            <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:gap-8 sm:justify-start">
+            <div className="grid grid-cols-2 gap-4 justify-items-center sm:flex sm:flex-wrap sm:gap-8 sm:justify-center">
               {siteCards.map((card) => (
-                <div key={card.id} className="relative w-[300px] max-sm:w-[175px] h-[350px] max-sm:h-[220px] max-sm:rounded-[35px] rounded-[50px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-3 py-5 flex flex-col justify-end text-white group overflow-hidden">
-                  <Link href={`/${card.slug}`} passHref>
-                    <div className="absolute inset-0">
-                      {imageLoadingStates[card.id] && (
-                        <div className="absolute inset-0 bg-gray-500 animate-pulse" />
-                      )}
-                      <Image
-                        src={card.image_url}
-                        alt={card.name}
-                        fill
-                        sizes="(max-width: 640px) 50vw, 300px"
-                        className={`object-cover transition-opacity duration-300 ${imageLoadingStates[card.id] ? 'opacity-0' : 'opacity-100'}`}
-                        onLoad={() => handleImageLoad(card.id)}
-                        unoptimized
-                      />
+                <div key={card.id} className="relative">
+                  {/* Background / shadow layer (matches home page style) */}
+                  <div
+                    className="absolute bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[57px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white"
+                    style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    <div className="rotate-[180deg] self-end">
+                      <div
+                        className={`
+                          bg-blue-500/0
+                          absolute w-[270px] top-[70px] rotate-[-180deg]
+                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] opacity-100 h-[270px] 
+                        `}
+                      ></div>
                     </div>
-                    <div className="absolute inset-0 bg-black/30 rounded-[32px] group-hover:bg-black/50 transition-colors duration-300"></div>
-                    <div className='absolute flex flex-col bottom-[10px] bg-red-500/0 max-sm:left-[15px] left-[20px] w-[90%] z-[20] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                      <p className="font-bold text-[1.3rem] max-sm:text-[1.1rem] text-shadow-[0px_0px_10px_rgba(0,0,0,0)]">{card.name}</p>
-                      <p className="text-sm max-sm:hidden opacity-90 mb-4 max-w-[250px] text-shadow-[0px_0px_10px_rgba(0,0,0,0)]">{card.description}</p>
-                    </div>
-                    <div className="relative z-10">
-                      <div className='flex justify-between items-end'>
+                  </div>
+
+                  {/* Main card (clickable) */}
+                  <div
+                    className="relative bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10"
+                    style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    <Link href={`/${card.slug}`} passHref>
+                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                          <p className="font-bold text-[1.3rem] mb-[2px]">{card.name}</p>
+                          <p className="text-[1rem]">{card.description}</p>
+                          <div className='mt-[10px] flex justify-center items-center'>
+                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
+                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
+                                <p className='text-center font-bold text-[.85rem]'>
+                                  {card.category}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+                    </Link>
+                    <div className="rotate-[180deg] self-end">
+                      <div
+                        className={
+                          `
+                            bg-blue-500/0
+                            absolute w-[270px]
+                            backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
+                          `}
+                      ></div>
                     </div>
-                  </Link>
+                  </div>
                 </div>
               ))}
             </div>

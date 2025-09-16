@@ -77,7 +77,7 @@ const SoupBowl = () => {
 
       <div className='relative mt-[40px] max-w-[90vw] w-[1400px] flex flex-col overflow-visible isolation-isolate'>
         {/* Blurred color blobs behind Quick Facts */}
-        <div aria-hidden className='pointer-events-none absolute inset-0 -z-10'>
+        <div aria-hidden className='pointer-events-none absolute inset-0 -z-10 opacity-20'>
           <div className='absolute -top-8 left-[5%] w-[260px] h-[260px] rounded-full bg-[#60A5FA]/40 blur-[90px]'></div>
           <div className='absolute top-6 right-[2%] w-[220px] h-[220px] rounded-full bg-[#F472B6]/40 blur-[90px]'></div>
           <div className='absolute -bottom-10 left-1/2 -translate-x-1/2 w-[360px] h-[360px] rounded-full bg-[#34D399]/35 blur-[110px]'></div>
@@ -183,9 +183,9 @@ const SoupBowl = () => {
           {/* Blurred color blobs behind the cards */}
           <div aria-hidden className='pointer-events-none absolute inset-0 z-0'>
             <div className='absolute left-[5%] bottom-[0px] w-[320px] h-[320px] rounded-full bg-[#60A5FA]/40 blur-[90px]'></div>
-            <div className='absolute right-[6%] bottom-[10px] w-[300px] h-[300px] rounded-full bg-[#F472B6]/40 blur-[90px]'></div>
-            <div className='absolute left-1/2 -translate-x-1/2 top-[-10px] w-[360px] h-[360px] rounded-full bg-[#34D399]/35 blur-[100px]'></div>
-            <div className='absolute left-[22%] top-[0px] w-[220px] h-[220px] rounded-full bg-[#F59E0B]/35 blur-[80px]'></div>
+            {/* <div className='absolute right-[6%] bottom-[10px] w-[300px] h-[300px] rounded-full bg-[#F472B6]/40 blur-[90px]'></div> */}
+            {/* <div className='absolute left-1/2 -translate-x-1/2 top-[-10px] w-[360px] h-[360px] rounded-full bg-[#34D399]/35 blur-[100px]'></div> */}
+            {/* <div className='absolute left-[22%] top-[0px] w-[220px] h-[220px] rounded-full bg-[#F59E0B]/35 blur-[80px]'></div> */}
           </div>
 
           {/* Card cluster (scaled down on small screens to keep spacing visually consistent) */}
@@ -198,28 +198,28 @@ const SoupBowl = () => {
           </div>
         </div>
         <div className='relative bg-green-500 flex flex-col justify-center items-center z-30'>
-          <div className=" mb-[-280px] rotate-[180deg] self-end">
+          <div className="w-[100vw] absolute flex justify-center">
                         <div
                           className={`
-                            bg-blue-500/0 ml-[-400px]
-                            absolute w-[1500px]
-                            transition-all duration-400 ease-in-out backdrop-blur-[15px] [mask-image:linear-gradient(to_bottom,black_30%,transparent)] opacity-100 h-[400px]
+                            bg-blue-500/0 bottom-[-100px]
+                            absolute w-[1100px]
+                            backdrop-blur-[15px] [mask-image:linear-gradient(to_top,black_40%,transparent)] opacity-100 h-[500px]
+                          `}
+                        ></div>
+          
+                        {/* <div
+                          className={`
+                            absolute w-[1500px] ml-[-400px] bg-transparent
+                            backdrop-blur-[20px] [mask-image:linear-gradient(to_bottom,black_20%,transparent)] backdrop-blur-[20px] opacity-100 h-[500px]
                           `}
                         ></div>
           
                         <div
                           className={`
                             absolute w-[1500px] ml-[-400px] bg-transparent
-                            transition-all duration-400 ease-in-out backdrop-blur-[20px] [mask-image:linear-gradient(to_bottom,black_20%,transparent)] backdrop-blur-[20px] opacity-100 h-[500px]
+                            [mask-image:linear-gradient(to_bottom,black_10%,transparent)] backdrop-blur-[5px] opacity-100 h-[160px]
                           `}
-                        ></div>
-          
-                        <div
-                          className={`
-                            absolute w-[1500px] ml-[-400px] bg-transparent
-                            transition-all duration-400 ease-in-out [mask-image:linear-gradient(to_bottom,black_10%,transparent)] backdrop-blur-[5px] opacity-100 h-[160px]
-                          `}
-                        ></div>
+                        ></div> */}
                       </div>
             <div className='absolute left-[77px] bottom-[-20px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
               <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
