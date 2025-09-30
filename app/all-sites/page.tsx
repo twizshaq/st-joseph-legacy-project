@@ -6,7 +6,6 @@ import { createClient } from '@supabase/supabase-js';
 import searchIcon from '@/public/icons/search-icon.svg';
 import sortIcon from '@/public/icons/sort-icon.svg';
 
-// Type definition remains the same
 export type SiteCard = {
   id: number;
   name: string;
@@ -16,11 +15,22 @@ export type SiteCard = {
   category: string;
 };
 
+// NEW: Type definition for our grouped sites object
+type GroupedSites = {
+  [category: string]: SiteCard[];
+};
+
 const AllSites = () => {
   const [activeDot, setActiveDot] = useState(0);
   const [siteCards, setSiteCards] = useState<SiteCard[]>([]);
+  
+  // NEW: State to hold the cards grouped by category
+  const [groupedSites, setGroupedSites] = useState<GroupedSites>({});
+  
   const [loading, setLoading] = useState(true);
-  const [imageLoadingStates, setImageLoadingStates] = useState<Record<number, boolean>>({});
+  
+  // You can remove imageLoadingStates if you no longer need individual image loading tracking
+  // const [imageLoadingStates, setImageLoadingStates] = useState<Record<number, boolean>>({});
 
   // Video header logic remains the same
   const videoSources = [
@@ -44,7 +54,7 @@ const AllSites = () => {
     } catch {}
   }, [activeDot]);
 
-  // --- NEW: Fetch **all** site cards (no pagination) ---
+  // Fetch all site cards (no changes here)
   useEffect(() => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -63,16 +73,11 @@ const AllSites = () => {
         const { data, error } = await supabase
           .from('locations')
           .select('*')
+          .order('category', { ascending: true }) // Good idea to order by category in the query
           .order('id', { ascending: true });
 
         if (error) throw error;
-
         setSiteCards(data || []);
-        const initialStates: Record<number, boolean> = {};
-        (data || []).forEach((card: SiteCard) => {
-          initialStates[card.id] = true;
-        });
-        setImageLoadingStates(initialStates);
       } catch (error) {
         console.error("Failed to fetch site cards from Supabase:", error);
       } finally {
@@ -83,7 +88,26 @@ const AllSites = () => {
     fetchSiteCards();
   }, []);
 
-  // Prevent browsers from auto-restoring the last scroll position during state changes
+  // NEW: useEffect to process and group site cards by category
+  useEffect(() => {
+    if (siteCards.length > 0) {
+      const groupedData = siteCards.reduce((acc, card) => {
+        const { category } = card;
+        // If the category doesn't exist as a key in the accumulator, create it
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+        // Push the current card into the correct category array
+        acc[category].push(card);
+        return acc;
+      }, {} as GroupedSites);
+      
+      setGroupedSites(groupedData);
+    }
+  }, [siteCards]); // This effect runs whenever the siteCards data changes
+
+
+  // Prevent browsers from auto-restoring scroll position (no changes)
   useEffect(() => {
     if ('scrollRestoration' in history) {
       const prev = history.scrollRestoration as 'auto' | 'manual';
@@ -91,13 +115,6 @@ const AllSites = () => {
       return () => { history.scrollRestoration = prev; };
     }
   }, []);
-
-  const handleImageLoad = (cardId: number) => {
-    setImageLoadingStates((prevState) => ({
-      ...prevState,
-      [cardId]: false,
-    }));
-  };
 
   return (
     <div className='flex flex-col justify-center items-center text-black'>
@@ -121,8 +138,8 @@ const AllSites = () => {
       </div>
       <div className='bg-[#ddd]/80 h-[2px] w-[450px] max-w-[70vw] mt-[55px] rounded-full'></div>
 
-      {/* --- SITES GRID SECTION (Two cols on mobile, flex on larger screens) --- */}
-      <div className="flex justify-center items-center w-full mt-[15px] max-w-[1700px] bg-red-500/0 mx-auto  px-[0vw] py-5  min-h-[500px]">
+      {/* --- SITES BY CATEGORY SECTION (Completely new logic) --- */}
+      <div className="w-full mt-[15px] max-w-[1700px] mx-auto py-5 min-h-[500px]">
         {loading ? (
           <div className="flex items-center justify-center w-full mb-[340px]">
             <div
@@ -130,73 +147,62 @@ const AllSites = () => {
               className="animate-spin w-12 h-12 bg-blue-500 [mask-image:url('/loading-icon.png')] [mask-repeat:no-repeat] [mask-position:center] [mask-size:contain] [-webkit-mask-image:url('/loading-icon.png')] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center] [-webkit-mask-size:contain]"
             />
           </div>
-        ) : siteCards.length > 0 ? (
-          <div className='flex flex-row items-center justify-center bg-red-500/0 w-[90vw]'>
-            <div className="grid grid-cols-2 gap-4 justify-items-center sm:flex sm:flex-wrap sm:gap-8 sm:justify-center">
-              {siteCards.map((card) => (
-                <div key={card.id} className="relative">
-                  {/* Background / shadow layer (matches home page style) */}
-                  <div
-                    className="absolute bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[57px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white"
-                    style={{ backgroundImage: `url(${card.image_url})` }}
-                  >
-                    <div className="rotate-[180deg] self-end">
+        ) : Object.keys(groupedSites).length > 0 ? (
+          // Main container for all category rows
+          <div className="flex flex-col gap-12">
+            {/* Map over the categories (the keys of the groupedSites object) */}
+            {Object.keys(groupedSites).map((category) => (
+              <div key={category} className="w-full">
+                {/* Category Heading */}
+                <h2 className="text-[1.6rem] font-bold mb-4 px-8 sm:px-[5vw]">{category}</h2>
+                
+                {/* Horizontal Scrolling Container */}
+                <div className="flex flex-row items-start overflow-x-auto bg-red-500/0 py-4 space-x-8 px-8 sm:px-[5vw]">
+                  {/* Map over the cards within this specific category */}
+                  {groupedSites[category].map((card) => (
+                    // Card Wrapper: flex-shrink-0 is crucial for horizontal scrolling
+                    <div key={card.id} className="relative flex-shrink-0">
+                      {/* Background / shadow layer (matches home page style) */}
                       <div
-                        className={`
-                          bg-blue-500/0
-                          absolute w-[270px] top-[70px] rotate-[-180deg]
-                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] opacity-100 h-[270px] 
-                        `}
-                      ></div>
-                    </div>
-                  </div>
-
-                  {/* Main card (clickable) */}
-                  <div
-                    className="relative bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10"
-                    style={{ backgroundImage: `url(${card.image_url})` }}
-                  >
-                    <Link href={`/${card.slug}`} passHref>
-                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
-                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
-                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                          <p className="font-bold text-[1.3rem] mb-[2px]">{card.name}</p>
-                          <p className="text-[1rem]">{card.description}</p>
-                          <div className='mt-[10px] flex justify-center items-center'>
-                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
-                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
-                                <p className='text-center font-bold text-[.85rem]'>
-                                  {card.category}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
+                        className="absolute bg-cover bg-center min-h-[330px] max-h-[330px] min-w-[260px] max-w-[260px] rounded-[57px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white"
+                        style={{ backgroundImage: `url(${card.image_url})` }}
+                      >
+                        <div className="rotate-[180deg] self-end">
+                          <div className="bg-blue-500/0 absolute w-[270px] top-[70px] rotate-[-180deg] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] opacity-100 h-[270px]"></div>
                         </div>
                       </div>
-                    </Link>
-                    <div className="rotate-[180deg] self-end">
+
+                      {/* Main card (clickable) */}
                       <div
-                        className={
-                          `
-                            bg-blue-500/0
-                            absolute w-[270px]
-                            backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
-                          `}
-                      ></div>
+                        className="relative bg-cover bg-center min-h-[330px] max-h-[330px] min-w-[260px] max-w-[260px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10"
+                        style={{ backgroundImage: `url(${card.image_url})` }}
+                      >
+                        <Link href={`/${card.slug}`} passHref>
+                          <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                          <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                            <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                              <p className="font-bold text-[1.3rem] mb-[2px]">{card.name}</p>
+                              <p className="text-[1rem] px-[5px]">{card.description}</p>
+                              {/* --- CATEGORY TAG REMOVED FROM HERE --- */}
+                            </div>
+                          </div>
+                        </Link>
+                        <div className="rotate-[180deg] self-end">
+                          <div className="bg-blue-500/0 absolute w-[270px] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[200px]"></div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         ) : (
           <p className="font-bold self-center text-center">No sites found.</p>
         )}
       </div>
 
-      {/* --- Pagination controls removed entirely --- */}
-
-      {/* Footer (No changes) */}
+      {/* --- Footer (No changes) --- */}
       <footer className='bg-blue-900 text-white w-full mt-[100px] pb-12 pt-0 px-[4vw]'>
         <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center text-sm text-blue-300'>
           <p>© 2025 DEO Project. All Rights Reserved.</p>

@@ -203,7 +203,7 @@ export default function Home() {
 
 
   return (
-    <div className='flex flex-col items-center min-h-[100dvh] text-black bg-[#fff]'>
+    <div className='flex flex-col items-center min-h-[100dvh] text-black bg-[#fff] overflow-x-hidden'>
       <div className="relative flex flex-col justify-center items-center max-w-[2000px] w-full h-[70vh] text-white gap-[20px] overflow-hidden">
 
       {/* Background Video */}

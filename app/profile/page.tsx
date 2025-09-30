@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client'; // Adjust path if needed
+import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
 export default function ProfilePage() {
@@ -18,8 +18,7 @@ export default function ProfilePage() {
             const { data, error } = await supabase.auth.getUser();
             
             if (error || !data.user) {
-                // If no user is logged in, redirect to the login page
-                router.push('/login');
+                router.push('/login'); // Also good to redirect here if not authenticated
             } else {
                 setUser(data.user);
             }
@@ -32,7 +31,7 @@ export default function ProfilePage() {
     // Handle logout
     const handleLogout = async () => {
         await supabase.auth.signOut();
-        router.push('/wack-signup');
+        router.push('/login'); // Redirect to the login page
     };
 
     if (loading) {
@@ -46,8 +45,10 @@ export default function ProfilePage() {
         );
     }
     
-    // The username from Google is stored in user_metadata
-    const userName = user?.user_metadata?.full_name || user?.email;
+    const meta = user?.user_metadata;
+    const userName = meta?.full_name || 
+                   (meta?.first_name && meta?.last_name ? `${meta.first_name} ${meta.last_name}` : null) || 
+                   user?.email;
 
     return (
         <div className="min-h-screen flex items-center justify-center text-black">

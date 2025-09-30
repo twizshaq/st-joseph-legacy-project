@@ -163,11 +163,11 @@ export default function Navbar() {
         ) : (
           // --- USER IS LOGGED OUT ---
           <div className="flex items-center gap-5">
-            <Link href="/wack-signup" className='cursor-pointer whitespace-nowrap hover:text-gray-300 transition-colors'>
+            <Link href="/login" className='cursor-pointer whitespace-nowrap hover:text-gray-300 transition-colors'>
               Login
             </Link>
             <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
-              <Link href="/wack-signup">
+              <Link href="/login?view=signup">
                 <div className='bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[8.4px]'>
                   <span className='text-white'>Sign Up</span>
                 </div>
@@ -239,11 +239,11 @@ export default function Navbar() {
               ) : (
                 // --- USER IS LOGGED OUT (MOBILE BUTTONS) ---
                 <div className="flex items-center gap-5">
-                  <Link href="/wack-signup" className='cursor-pointer whitespace-nowrap text-white hover:text-gray-300 transition-colors pl-[13px] font-bold'>
+                  <Link href="/login" className='cursor-pointer whitespace-nowrap text-white hover:text-gray-300 transition-colors pl-[13px] font-bold'>
                     Login
                   </Link>
                   <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[2px]'>
-                    <Link href="/wack-signup">
+                    <Link href="/login?view=signup">
                       <div className='bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[6.4px]'>
                         <span className='text-white font-bold'>Sign Up</span>
                       </div>
