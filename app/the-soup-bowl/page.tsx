@@ -7,6 +7,9 @@ import camIcon from "@/public/icons/camera-icon.svg"
 import ticketIcon from "@/public/icons/ticket-icon.svg"
 import clockIcon from "@/public/icons/clock-icon.svg"
 import photoIcon from "@/public/icons/photos-icon.svg"
+import quizIcon from "@/public/icons/quiz-icon.svg"
+import { stories } from '@/public/data/stories';
+import { experiences } from '@/public/data/experiences';
 
 const SoupBowl = () => {
   const [isSafetyOpen, setIsSafetyOpen] = useState(true);
@@ -38,12 +41,18 @@ const SoupBowl = () => {
 
 
             <div className='absolute left-[0] bottom-[-80px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
-              <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+              <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] flex flex-row gap-6'>
                 <button className="flex items-center py-[13px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
                   <span className='z-10 fill-[#E0E0E0]'>
                     <Image src={vrIcon} alt="" height={30} className=''/>
                   </span>
                   <p className='font-bold text-[#E0E0E0]'>Explore in AR</p>
+                </button>
+                <button className="flex items-center py-[13px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
+                  <span className='z-10 fill-[#E0E0E0]'>
+                    <Image src={quizIcon} alt="" height={24} className='invert'/>
+                  </span>
+                  <p className='font-bold text-[#E0E0E0]'>Start Quiz</p>
                 </button>
               </div>
             </div>
@@ -173,6 +182,66 @@ const SoupBowl = () => {
           </div>
         </div>
       </div>
+
+      <section className='max-w-[90vw] w-[3400px] gap-[50px] mb-[80px] bg-red-500/0'>
+        <div className='flex flex-col w-full bg-red-500/0'>
+          <p className='font-bold text-[2rem] mb-8'>Local Stories</p>
+          
+          <div className='flex flex-wrap gap-x-20 gap-y-12'>
+            {stories.map((story,index)=>(
+            <div className='flex flex-col gap-5' key={index}>
+              <p className='font-semibold text-xl'>{story.title}</p>
+                <audio controls>
+                  <source src={story.src} type="audio/mpeg"/>
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+            ))}
+          </div>
+        </div>
+        </section>
+
+        <section className='max-w-[90vw] w-[3400px] gap-[50px] mb-[80px] bg-red-500/0'>
+        <div className='flex flex-col w-full bg-red-500/0'>
+          <p className='font-bold text-[2rem] mb-8'>Traveler Experiences</p>
+           <div className='flex flex-wrap gap-x-16 gap-y-12'>
+          {experiences.map((experience,index)=>(
+           
+              <div className='flex flex-col gap-y-2.5 w-[25rem]' key={index}>
+                <p className='text-lg font-semibold md:text-xl'>{experience.title}</p>
+                <div className='flex justify-between'>
+                  <p className='text-base text-neutral-500'>{experience.username}</p>
+                  <p className='text-base text-neutral-500 '>{new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(experience.upload_date)}</p>
+                </div>
+                <p className='text-base'>{experience.description}</p>
+                 <div className='flex justify-start pt-2 gap-x-3'>
+                  {experience.images.map((image,index)=>(
+                    <img src={image.src} alt={image.alt} className='rounded w-24 md:w-32 h-24 md:h-32' key={index}/>
+                  ))}
+              </div>
+              </div>
+        
+          ))}
+            </div>
+             <button className='relative self-center cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[220px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] mt-16'>
+                           {/* <a
+                           href="/donate" 
+                           className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
+                         > */}
+                           <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
+                             <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
+                              View All Experiences
+                             </span>
+                            
+                           </div>
+                         {/* </a> */}
+                         </button>
+        </div>
+        </section>
 
       <div className='mb-[180px]'>
         <div className='flex flex-col text-center mb-[120px]'>
