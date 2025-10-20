@@ -82,7 +82,7 @@ export default function ToursPage() {
       {/* Text and Info Section */}
       <div className="flex flex-col max-w-[600px] relative z-10">
         <div className="flex flex-col">
-          <p className="font-bold text-[4rem] max-sm:text-[2.5rem] max-sm:leading-[60px] leading-[80px]">Discover St. Joseph's Hidden Wonders</p>
+          <p className="font-bold text-[4rem] max-sm:text-[2.5rem] max-sm:leading-[60px] leading-[80px]">Discover St. Joseph&apos;s Hidden Wonders</p>
           <p className="text-gray-700 mt-4 leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In lobortis venenatis ex, ultricies dapibus leo pulvinar sit amet. Praesent pharetra aliquet vehicula. Praesent et diam nunc. Suspendisse et magna et enim facilisis congue quis in nulla. Pellentesque quam nisl, bibendum bibendum vehicula a.</p>
         </div>
         <div className="flex mt-[20px] gap-[10px]">
