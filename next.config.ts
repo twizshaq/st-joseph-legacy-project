@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Add the ESLint configuration here
   eslint: {
-    // This will prevent ESLint from running during the build process on Vercel
     ignoreDuringBuilds: true,
   },
   images: {
