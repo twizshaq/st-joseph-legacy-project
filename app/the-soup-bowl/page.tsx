@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import vrIcon from "@/public/icons/vr-icon.svg"
 import camIcon from "@/public/icons/camera-icon.svg"
@@ -14,8 +15,8 @@ import { experiences } from '@/public/data/experiences';
 const SoupBowl = () => {
   const [isSafetyOpen, setIsSafetyOpen] = useState(true);
   return (
-    <div className='flex flex-col items-center min-h-[100dvh] text-black overflow-x-hidden'>
-      <div className="relative flex flex-col justify-center items-center max-w-[2000px] w-full h-[55vh] text-white gap-[20px]">
+    <div className='flex flex-col items-center self-center min-h-[100dvh] text-black bg-red-500/0 overflow-hidden'>
+      <div className="relative flex flex-col justify-center items-center w-[100vw] max-w-[2000px] w-full h-[55vh] text-white gap-[20px]">
 
       {/* Background Video */}
       <video
@@ -31,7 +32,7 @@ const SoupBowl = () => {
       {/* Dark Overlay (optional for text readability) */}
       <div className="absolute top-0 left-0 w-full h-full bg-black/40" />
 
-      <div className='bg-red-500/0 z-0 absolute w-[1200px] max-w-[90vw] bottom-[45px]'>
+      <div className='bg-pink-500/0 z-0 absolute w-[1400px] max-w-[90vw] bottom-[45px]'>
         <p className="font-black text-[3rem] max-md:text-[2rem] text-start leading-[1.2] z-10 mb-[10px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]">
         Soup Bowl
         </p>
@@ -40,19 +41,13 @@ const SoupBowl = () => {
         </p>
 
 
-            <div className='absolute left-[0] bottom-[-80px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
+            <div className='absolute flex gap-[15px] left-[0] bottom-[-80px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
               <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] flex flex-row gap-6'>
                 <button className="flex items-center py-[13px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
                   <span className='z-10 fill-[#E0E0E0]'>
                     <Image src={vrIcon} alt="" height={30} className=''/>
                   </span>
                   <p className='font-bold text-[#E0E0E0]'>Explore in AR</p>
-                </button>
-                <button className="flex items-center py-[13px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
-                  <span className='z-10 fill-[#E0E0E0]'>
-                    <Image src={quizIcon} alt="" height={24} className='invert'/>
-                  </span>
-                  <p className='font-bold text-[#E0E0E0]'>Start Quiz</p>
                 </button>
               </div>
             </div>
@@ -84,7 +79,7 @@ const SoupBowl = () => {
 
       <div className='bg-[#E0E0E0] w-[691px] max-w-[80vw] h-[1px] mt-[85px] rounded-full'></div>
 
-      <div className='relative mt-[40px] max-w-[90vw] w-[1400px] flex flex-col overflow-visible isolation-isolate'>
+      <div className='relative mt-[40px] w-[1400px] max-w-[90vw] bg-green-500/0 flex flex-col overflow-visible isolation-isolate '>
         {/* Blurred color blobs behind Quick Facts */}
         <div aria-hidden className='pointer-events-none absolute inset-0 -z-10 opacity-20'>
           <div className='absolute -top-8 left-[5%] w-[260px] h-[260px] rounded-full bg-[#60A5FA]/40 blur-[90px]'></div>
@@ -125,7 +120,7 @@ const SoupBowl = () => {
         </div>
       </div>
 
-      <div className='max-w-[90vw] w-[1400px] flex flex-wrap gap-[50px] mt-[80px] mb-[80px] bg-red-500/0'>
+      <div className='flex justify-between w-[1400px] max-w-[90vw] flex-wrap gap-[50px] mt-[80px] mb-[80px] bg-blue-500/0'>
         <div className='flex flex-col max-w-[740px] bg-red-500/0'>
           <p className='font-bold text-[2rem]'>About</p>
           <p>Bathsheba sits along Barbados’ wild Atlantic east coast, framed by dramatic rock formations shaped by centuries of relentless waves and wind. The coastline is famous for its natural rock pools, formed between coral boulders at low tide, creating sheltered pockets of calm amidst the roaring surf. Beyond its striking scenery, Bathsheba is a working fishing community where locals gather for weekend picnics, seaside cricket matches, and casual “liming” under the shade of sea grape trees. On most days, you’ll see brightly painted fishing boats pulled up on the sand, drying nets draped over their sides.</p>
@@ -135,8 +130,11 @@ const SoupBowl = () => {
           <br /><br />
           Bathsheba’s surroundings form part of the Scotland District, a geologically unique area in the Caribbean where ancient sedimentary rock has been uplifted and eroded into steep hillsides. This fragile landscape has inspired local conservation efforts, with the community actively involved in preserving the area’s heritage and natural beauty. Cultural events, art festivals, and surf competitions here celebrate not just sport, but the deep connection between people, land, and sea.</p>
         </div>
-        <div className='self-end w-[450px] max-w-full max-sm:w-full'>
-          <div className='rounded-[40px] border border-[#B8F500] bg-[#F7FFEA] shadow-[0_6px_20px_rgba(0,0,0,0.08)] overflow-hidden'>
+
+
+      <div className='flex flex-col'>
+        <div className='w-[450px] max-w-full max-sm:w-full'>
+          <div className='rounded-[30px] border-[2px] border-[#B8F500] bg-[#F7FFEA] shadow-[0_6px_20px_rgba(0,0,0,0.08)] overflow-hidden'>
             {/* Header button */}
             <button
               type='button'
@@ -163,7 +161,6 @@ const SoupBowl = () => {
                 <ul className='list-disc pl-5 space-y-2 text-[0.98rem]'>
                   <li>Use designated viewpoints for photography and stay off slippery rocks.</li>
                   <li>Park in safe zones away from cliff edges and soft shoulder areas.</li>
-                  <li>In emergencies, call 511 and follow directions from local authorities.</li>
                 </ul>
 
                 <div className='flex items-start gap-2 mt-4 text-[0.95rem]'>
@@ -181,9 +178,23 @@ const SoupBowl = () => {
             </div>
           </div>
         </div>
+
+        <div className='w-[450px] max-w-full max-sm:w-full bg-red-500 mt-[40px] h-[170px] rounded-[40px] flex justify-center items-center'>
+          <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] flex flex-row gap-6'>
+            <button className="flex items-center py-[13px] pl-[15px] pr-[20px] gap-[10px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
+                  <span className='z-10 fill-[#E0E0E0]'>
+                    <Image src={quizIcon} alt="" height={24} className='invert'/>
+                  </span>
+                  <p className='font-bold text-[#E0E0E0]'>Start Quiz</p>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <section className='max-w-[90vw] w-[3400px] gap-[50px] mb-[80px] bg-red-500/0'>
+
+      </div>
+
+      <div className='gap-[50px] mb-[80px] bg-blue-500/0 self-center w-[1400px] max-w-[90vw]'>
         <div className='flex flex-col w-full bg-red-500/0'>
           <p className='font-bold text-[2rem] mb-8'>Local Stories</p>
           
@@ -199,52 +210,12 @@ const SoupBowl = () => {
             ))}
           </div>
         </div>
-        </section>
-
-        <section className='max-w-[90vw] w-[3400px] gap-[50px] mb-[80px] bg-red-500/0'>
-        <div className='flex flex-col w-full bg-red-500/0'>
-          <p className='font-bold text-[2rem] mb-8'>Traveler Experiences</p>
-           <div className='flex flex-wrap gap-x-16 gap-y-12'>
-          {experiences.map((experience,index)=>(
-           
-              <div className='flex flex-col gap-y-2.5 w-[25rem]' key={index}>
-                <p className='text-lg font-semibold md:text-xl'>{experience.title}</p>
-                <div className='flex justify-between'>
-                  <p className='text-base text-neutral-500'>{experience.username}</p>
-                  <p className='text-base text-neutral-500 '>{new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(experience.upload_date)}</p>
-                </div>
-                <p className='text-base'>{experience.description}</p>
-                 <div className='flex justify-start pt-2 gap-x-3'>
-                  {experience.images.map((image,index)=>(
-                    <img src={image.src} alt={image.alt} className='rounded w-24 md:w-32 h-24 md:h-32' key={index}/>
-                  ))}
-              </div>
-              </div>
-        
-          ))}
-            </div>
-             <button className='relative self-center cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[220px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] mt-16'>
-                           {/* <a
-                           href="/donate" 
-                           className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
-                         > */}
-                           <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
-                             <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
-                              View All Experiences
-                             </span>
-                            
-                           </div>
-                         {/* </a> */}
-                         </button>
         </div>
-        </section>
+
+        
 
       <div className='mb-[180px]'>
-        <div className='flex flex-col text-center mb-[120px]'>
+        <div className='flex flex-col text-center mb-[50px]'>
           <p className='font-bold text-[1.75rem]'>Photo & Video Gallery</p>
           <p className='text-[#666]'>A glimpse of the coastline, surf, and tidal pools</p>
         </div>
@@ -303,13 +274,133 @@ const SoupBowl = () => {
           </div>
       </div>
 
-      <div className='max-w-[100vw] w-[1500px]'>
-        <div className='px-[4vw]'>
+      <div className='mb-[80px] bg-green-500/0 max-w-[90vw]'>
+        <p className='font-bold text-[2rem] bg-red-500/0'>Traveler Experiences</p>
+        <div className='flex flex-col bg-green-500/0 overflow-x-scroll bg-pink-500/0 '>
+          {/* <p className='font-bold text-[2rem] max-sm:px-[5vw]'>Traveler Experiences</p> */}
+           <div className='flex  py-[40px] gap-10 bg-red-500/0'>
+          {experiences.map((experience,index)=>(
+           
+              <div className='flex flex-col min-w-[400px] max-w-[350px] max-sm:min-w-[90vw] h-fit bg-[#EDEDED] overflow-hidden p-[20px] border-white border-[2px] rounded-[40px] shadow-[0px_0px_20px_rgba(0,0,0,.1)]' key={index}>
+                <div className='flex justify-between'>
+                  <div className='flex gap-[10px] items-center'>
+                    <Link href="/profile" className='cursor-pointer whitespace-nowrap'>
+                      <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)] -mr-[1px]'>
+                        <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
+                          {/* <Image src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" /> */}
+                          <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          >
+                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
+                          </video>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className='flex flex-col'>
+                      <p className='font-bold text-[#656565] text-[1.05rem]'>{experience.username}</p>
+                      <p className='text-base text-neutral-500 font-[500] text-[.8rem] mt-[-4px]'>{new Intl.DateTimeFormat("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      }).format(experience.upload_date)}</p>
+                    </div>
+                    
+                  </div>
+                  <div className='relative bg-blue-500/0 w-[50px] h-[50px] mt-[-3px]'>
+                    <div className='absolute bg-red-500/0 overflow-hidden border-white border-[1.5px] h-[45px] w-[45px] rounded-[15px] left-[5px] rotate-[15deg] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] z-[1]'>
+                      <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          >
+                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
+                          </video>
+                    </div>
+                    <div className='absolute bg-green-500/0 h-[45px] w-[45px] overflow-hidden border-white border-[1.5px] rounded-[15px] left-[-25px] mt-[0px] rotate-[-10deg] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] z-[1]'>
+                      <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          >
+                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
+                          </video>
+                    </div>
+                    {/* <div className='absolute bg-green-500/0 h-[25px] w-[25px] overflow-hidden border-white border-[1.5px] rounded-[9px] left-[0px] mt-[30px] rotate-[0deg] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] z-[0]'>
+                      <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          >
+                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
+                          </video>
+                    </div> */}
+                    {/* <div className='absolute bg-pink-500 h-[40px] w-[40px] rounded-[10px] ml-[-15px] rotate-[-10deg] mt-[-1px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'></div> */}
+                  </div>
+                  {/* <p className='text-base text-neutral-500 font-[500] text-[.8rem\9]'>{new Intl.DateTimeFormat("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  }).format(experience.upload_date)}</p> */}
+                </div>
+                {/* <p className='text-[1.1rem] mt-[15px] font-semibold'>{experience.title}</p> */}
+                <p className='bg-red-500/0 mt-[10px] font-[400]'>{experience.description}</p>
+                {/* <div className='flex justify-start pt-2 gap-x-3'>
+                  {experience.images.map((image,index)=>(
+                    <img src={image.src} alt={image.alt} className='rounded-[20px] w-20 h-20 border-white border-[1.5px]' key={index}/>
+                  ))}
+                </div> */}
+              </div>
+        
+          ))}
+            </div>
+             {/* <button className='relative self-center cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[220px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] mt-16'>
+                           <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
+                             <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
+                              View All Experiences
+                             </span>
+                            
+                           </div>
+                         </button> */}
+        </div>
+        <div className='flex justify-center gap-[10px] bg-red-500/0'>
+                          <div className='flex justify-center items-center bg-[#007BFF] h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
+                            1
+                          </div>
+                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
+                            2
+                          </div>
+                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
+                            3
+                          </div>
+                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
+                            4
+                          </div>
+                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
+                            5
+                          </div>
+                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
+                            6
+                          </div>
+                        </div>
+        </div>
+
+      <div className='w-[100vw]'>
+        <div className='px-[5.4vw]'>
           <p className='font-bold text-[1.75rem]'>Nearby Sites</p>
           <p className='text-[#666]'>Plan your route across St. Joseph</p>
         </div>
         <div className="flex flex-col w-full overflow-x-auto hide-scrollbar">
-          <div className="mt-[10px] flex flex-row items-center min-h-[450px] gap-[30px] px-[4vw] overflow-y-hidden">
+          <div className="mt-[10px] flex flex-row items-center min-h-[450px] gap-[30px] w-[100vw] overflow-y-hidden px-[5.4vw]">
               <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[45px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
                   <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
                     <a href="/parris-hill-murals">

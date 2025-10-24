@@ -9,6 +9,7 @@ import enlargeIcon from '@/public/icons/enlarge-icon.svg';
 import Map from '@/app/components/Map';
 import Compass from '@/app/components/Compass';
 import Link from 'next/link';
+import FacebookIcon from "@/public/icons/facebook-icon";
 import { createClient } from '@supabase/supabase-js';
 import { Feature, Point, FeatureCollection } from 'geojson';
 
@@ -311,152 +312,8 @@ export default function Home() {
       </div>
 
 
-        {/* Augmented Reality */}
-        <div className='relative flex justify-center items-center max-w-[90vw] w-[1200px] h-[300px] bg-red-400/0 mt-[100px] rounded-[50px]'>
-          <div className='flex flex-col self-start'>
-            <p className='font-bold text-[2rem] text-center'>Augmented Reality</p>
-            <p className='max-w-[700px] text-center'>consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
-          </div>
-
-                  {/* main card */}
-                  <div
-                    className="absolute rotate-[0deg] mt-[350px] mr-[0px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-20"
-                    // style={{ backgroundImage: `url(${card.image_url})` }}
-                  >
-                    {/* <Link hre passHref> */}
-                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
-                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
-                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                          <p className="font-bold text-[1.3rem] mb-[2px]">test</p>
-                          <p className="text-[1rem]">test</p>
-                          <div className='mt-[10px] flex justify-center items-center'>
-                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
-                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
-                                <p className='text-center font-bold text-[.85rem]'>test</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    {/* </Link> */}
-                    <div className="rotate-[180deg] self-end">
-                      <div
-                        className={`
-                          bg-blue-500/0
-                          absolute w-[270px]
-                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
-                        `}
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    className="absolute rotate-[0deg] mt-[350px] mr-[0px] z-[19] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] shadow-[0px_0px_15px_rgba(0,0,0,.2)]"
-                    // style={{ backgroundImage: `url(${card.image_url})` }}
-                  >
-                    {/* <Link hre passHref> */}
-                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
-                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
-                      </div>
-                  </div>
-
-                  {/* Left Card */}
-                  <div
-                    className="absolute rotate-[10deg] mt-[375px] ml-[400px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10 scale-[.9]"
-                    // style={{ backgroundImage: `url(${card.image_url})` }}
-                  >
-                    {/* <Link hre passHref> */}
-                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
-                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
-                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                          <p className="font-bold text-[1.3rem] mb-[2px]">test</p>
-                          <p className="text-[1rem]">test</p>
-                          <div className='mt-[10px] flex justify-center items-center'>
-                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
-                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
-                                <p className='text-center font-bold text-[.85rem]'>test</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    {/* </Link> */}
-                    <div className="rotate-[180deg] self-end">
-                      <div
-                        className={`
-                          bg-blue-500/0
-                          absolute w-[270px]
-                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
-                        `}
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    className="absolute rotate-[10deg] mt-[375px] ml-[400px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[56px] flex flex-col justify-end overflow-hidden scale-x-[.93] scale-y-[.925]"
-                    // style={{ backgroundImage: `url(${card.image_url})` }}
-                  >
-                    {/* <Link hre passHref> */}
-                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
-                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
-                      </div>
-                  </div>
-
-                  {/* Right Card */}
-                  <div
-                    className="absolute rotate-[-10deg] mt-[375px] mr-[400px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10 scale-[.9]"
-                    // style={{ backgroundImage: `url(${card.image_url})` }}
-                  >
-                    {/* <Link hre passHref> */}
-                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
-                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
-                        <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                          <p className="font-bold text-[1.3rem] mb-[2px]">test</p>
-                          <p className="text-[1rem]">test</p>
-                          <div className='mt-[10px] flex justify-center items-center'>
-                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
-                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
-                                <p className='text-center font-bold text-[.85rem]'>test</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    {/* </Link> */}
-                    <div className="rotate-[180deg] self-end">
-                      <div
-                        className={`
-                          bg-blue-500/0
-                          absolute w-[270px]
-                          backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[250px] 
-                        `}
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    className="absolute rotate-[-10deg] mt-[375px] mr-[400px] bg-cover bg-center min-h-[340px] max-h-[340px] min-w-[270px] max-w-[270px] rounded-[56px] flex flex-col justify-end overflow-hidden scale-x-[.93] scale-y-[.925]"
-                    // style={{ backgroundImage: `url(${card.image_url})` }}
-                  >
-                    {/* <Link hre passHref> */}
-                      <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
-                      <div className="relative z-30 text-center mb-[20px] px-[10px]">
-                      </div>
-                  </div>
-
-          {/* scan qr button */}
-          <div className='absolute cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[30] mt-[800px]'>
-                        <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                          <button className="flex items-center py-[13px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg">
-                            <span className='z-10 fill-[#E0E0E0]'>
-                              <Image src={vrIcon} alt="" height={30} className=''/>
-                            </span>
-                            <p className='font-bold text-[#E0E0E0]'>Scan QR Code</p>
-                          </button>
-                        </div>
-                      </div>
-        </div>
-
-
       {/* Mapbox Section */}
-      <div className='bg-pink-500/0 flex flex-col items-center w-[90vw] mt-[500px]'>
+      <div className='bg-pink-500/0 flex flex-col items-center w-[90vw] mt-[200px]'>
         <p className='font-bold text-[2rem] text-center'>Virtual Map of St. Joseph</p>
         <p className='max-w-[700px] text-center'>consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         
@@ -645,7 +502,7 @@ export default function Home() {
                   <Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/>
                 </a>
                 <a href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
-                  <Image src="/icons/facebook-icon.svg" alt="" height={30} width={30}/>
+                  <FacebookIcon color="#FFFFFF" height={30} width={30}/>
                 </a>
               </div>
             </div>

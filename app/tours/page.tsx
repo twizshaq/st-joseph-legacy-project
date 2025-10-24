@@ -1,22 +1,178 @@
-
 'use client'
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { SlidersHorizontal, ArrowRight, Clock, DollarSign, Leaf, Waves, Landmark, Mountain, Trees, MapPin, Sparkles, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { supabase } from '@/lib/supabaseClient'; // Adjust the import path as needed
 import sortIcon from '@/public/icons/sort-icon.svg';
 import searchIcon from '@/public/icons/search-icon.svg';
 import starIcon from '@/public/icons/star-icon.svg';
 import houseIcon from '@/public/icons/house-icon.svg';
 import ArrowIcon from '@/public/icons/arrow-icon';
 import photoIcon from "@/public/icons/photos-icon.svg"
+import FacebookIcon from "@/public/icons/facebook-icon";
 import profileIcon from "@/public/icons/profile-icon.svg"
+import { Star } from "lucide-react"; 
+import { Session } from '@supabase/supabase-js';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { getDay, startOfWeek, format } from "date-fns";
+
+// --- START: TYPE DEFINITIONS ---
+// Define the shape of your data to help TypeScript
+interface Image {
+  id: string;
+  url: string;
+}
+
+interface Stop {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface Review {
+  id: string;
+  reviewer_name: string;
+  rating: number;
+  review_text: string;
+  created_at: string;
+}
+
+interface Tour {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: string;
+  tour_image_url: string;
+  stops: Stop[];
+  images: Image[];
+  reviews: Review[];
+}
+// --- END: TYPE DEFINITIONS ---
 
 
 export default function ToursPage() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const popupRef = useRef<HTMLDivElement>(null);
+  
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const handleDateChange = (date: Date | null) => {
+  // Only update the state if the date is not null
+  if (date) {
+    setSelectedDate(date);
+  }
+};
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewText, setReviewText] = useState('');
+  const [rating, setRating] = useState(0); // 0 means no rating yet
+  const [userSession, setUserSession] = useState<Session | null>(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+      const handleAddReviewClick = () => {
+        if (userSession) {
+          // If user is logged in, open the review form
+          setIsReviewModalOpen(true);
+        } else {
+          // If user is not logged in, open the login prompt
+          setIsLoginModalOpen(true);
+        }
+      };
+
+  const handleReviewSubmit = async () => {
+    // Basic validation
+    if (!reviewText || rating === 0 || !userSession || !displayTour) {
+        alert('Please provide a rating and a review text.');
+        return;
+    }
+
+    const { data, error } = await supabase
+        .from('reviews')
+        .insert({
+            tour_id: displayTour.id,
+            review_text: reviewText,
+            rating: rating,
+            // Use user's email or a name from a profiles table if you have one
+            reviewer_name: userSession.user.email || 'Anonymous', 
+        });
+
+    if (error) {
+        console.error('Error submitting review:', error);
+        alert('Failed to submit review. Please try again.');
+    } else {
+        alert('Thank you for your review!');
+        // Close modal and reset state
+        setIsReviewModalOpen(false);
+        setReviewText('');
+        setRating(0);
+        // You might want to re-fetch the reviews here to show the new one instantly
+    }
+};
+
+// Now, update your modal's submit button's onClick to use this function:
+// onClick={handleReviewSubmit}
+
+
+  
+  // --- MODIFIED STATE HOOKS ---
+  // Apply the types to your state hooks
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  // --- END MODIFIED STATE HOOKS ---
+
+  const popupRef = useRef < HTMLDivElement > (null);
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      // The `data` will now be correctly typed as `Tour[]`
+      const { data, error } = await supabase
+        .from('tours')
+        .select(`
+          id,
+          name,
+          description,
+          price,
+          duration,
+          tour_image_url,
+          stops (*),
+          images (*),
+          reviews (*)
+        `);
+
+      if (error) {
+        console.error('Error fetching tours:', error);
+      } else if (data) {
+        setTours(data);
+        if (data.length > 0) {
+          setSelectedTour(data[0]); // Select the first tour by default
+        }
+      }
+    };
+
+    fetchTours();
+  }, []);
+
+  const handleTourSelect = (tour: Tour) => {
+    setSelectedTour(tour);
+    setIsPopupOpen(false);
+  };
+  
+  const displayTour = selectedTour;
+
 
   return (
     <div className="flex flex-col items-center text-black"
@@ -37,8 +193,8 @@ export default function ToursPage() {
       {/* Video Section */}
       <div className="flex gap-[20px] md:gap-[40px] items-center bg-transparent overflow-visible relative z-10">
   {/* Card 1: Smaller by default, scales up on medium screens */}
-  <div className="bg-gradient-to-br from-white to-gray-100 max-w-[170px] min-w-[170px] h-[240px] md:max-w-[300px] md:min-w-[300px] md:h-[400px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
-    <video
+  <div className="bg-blue-400 max-w-[170px] min-w-[170px] h-[240px] md:max-w-[300px] md:min-w-[300px] md:h-[400px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
+    {/* <video
       autoPlay
       loop
       muted
@@ -46,13 +202,13 @@ export default function ToursPage() {
       className="w-full h-full object-cover"
     >
       <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-    </video>
+    </video> */}
     
   </div>
   {/* Container for the two smaller cards */}
   <div className="flex flex-col gap-[20px] md:gap-[20px]">
     {/* Card 2: Smaller by default */}
-    <div className="relative bg-gradient-to-br from-white to-gray-100 max-w-[150px] min-w-[150px] h-[180px] md:max-w-[250px] md:min-w-[250px] md:h-[300px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
+    <div className="relative bg-blue-400 max-w-[150px] min-w-[150px] h-[180px] md:max-w-[250px] md:min-w-[250px] md:h-[300px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
       {/* <Image src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fblog.portobelloinstitute.com%2Fwhat-are-the-different-types-of-tour-guide&psig=AOvVaw3JG3PXKL2ZAPakOt9_tmQf&ust=1760984237573000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCYg9vvsJADFQAAAAAdAAAAABAE" alt=""/> */}
       {/* <video
         autoPlay
@@ -65,8 +221,8 @@ export default function ToursPage() {
       </video> */}
     </div>
     {/* Card 3: Smaller by default */}
-    <div className="bg-gradient-to-br from-white to-gray-100 max-w-[150px] min-w-[150px] h-[120px] md:max-w-[250px] md:min-w-[250px] md:h-[200px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
-      <video
+    <div className="bg-blue-400 max-w-[150px] min-w-[150px] h-[120px] md:max-w-[250px] md:min-w-[250px] md:h-[200px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
+      {/* <video
         autoPlay
         loop
         muted
@@ -74,7 +230,7 @@ export default function ToursPage() {
         className="w-full h-full object-cover"
       >
         <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-      </video>
+      </video> */}
     </div>
   </div>
 </div>
@@ -112,70 +268,41 @@ export default function ToursPage() {
         {isPopupOpen && (
           <div
             ref={popupRef}
-            className="absolute top-full mt-2 bg-[#fff]/30 rounded-[35px] border-[2px] border-white backdrop-blur-[30px] p-[7px] shadow-[0px_0px_20px_rgba(0,0,0,0.1)] w-[250px] flex flex-wrap z-[40] overflow-hidden"
+            className="absolute top-full mt-2 bg-[#000]/10 rounded-[30px] border-[2px] border-white backdrop-blur-[10px] p-[7px] shadow-[0px_0px_20px_rgba(0,0,0,0.1)] w-[250px] flex flex-wrap z-[40] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 w-[100%]">
+            {tours.map((tour) => (
               <button
-                className="flex items-center gap-[10px] p-2 hover:bg-black/10 cursor-pointer rounded-[25px]"
-                onClick={() => setIsPopupOpen(false)}
+                key={tour.id}
+                className="flex items-center gap-[10px] p-1 hover:bg-black/10 cursor-pointer rounded-[20px]"
+                onClick={() => handleTourSelect(tour)}
               >
-                <div className="overflow-hidden bg-pink-500 min-w-[50px] max-w-[50px] min-h-[50px] max-h-[50px] border-[1.5px] border-white rounded-[17px]">
-                  {/* <video
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          className="w-full h-full object-cover"
-                        >
-                          <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-                        </video> */}
+                <div className="relative overflow-hidden min-w-[50px] max-w-[50px] min-h-[50px] max-h-[50px] border-[1.5px] border-white rounded-[17px]">
+                  {tour.tour_image_url ? (
+                    <Image 
+                      src={tour.tour_image_url} 
+                      alt={tour.name} 
+                      width={50} 
+                      height={50} 
+                      className="object-fit h-full w-ful" 
+                    />
+                  ) : (
+                    // Fallback background if no image exists
+                    <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-500" />
+                  )}
                 </div>
-                {/* <Image src="/path/to/cliffs-image.jpg" alt="Cliffs, Coastlines, & Canopies" width={50} height={50} /> */}
-                <p className="text-wrap text-left font-[500]">Cliffs, Coastlines, & Canopies</p>
+                <p className="text-wrap text-left font-[500]">{tour.name}</p>
               </button>
-              <button
-                className="flex items-center gap-[10px] p-2 hover:bg-black/10 cursor-pointer rounded-[25px]"
-                onClick={() => setIsPopupOpen(false)}
-              >
-                <div className="overflow-hidden bg-pink-500 min-w-[50px] max-w-[50px] min-h-[50px] max-h-[50px] border-[1.5px] border-white rounded-[17px]">
-                  {/* <video
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          className="w-full h-full object-cover"
-                        >
-                          <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-                        </video> */}
-                </div>
-                {/* <Image src="/path/to/gardens-image.jpg" alt="The Gardens of St. Joseph Circuit" width={50} height={50} /> */}
-                <p className="text-wrap text-left font-[500]">The Gardens of St. Joseph Circuit</p>
-              </button>
-              <button
-                className="flex items-center p-2 gap-[10px] hover:bg-black/10 cursor-pointer rounded-[25px] bg-red-500/0"
-                onClick={() => setIsPopupOpen(false)}
-              >
-                <div className="overflow-hidden bg-pink-500 min-w-[50px] max-w-[50px] min-h-[50px] max-h-[50px] border-[1.5px] border-white rounded-[17px]">
-                  {/* <video
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          className="w-full h-full object-cover"
-                        >
-                          <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-                        </video> */}
-                </div>
-                {/* <Image src="/path/to/gardens-image.jpg" alt="The Gardens of St. Joseph Circuit" width={50} height={50} /> */}
-                <p className="text-wrap text-left font-[500]">The Gardens of St. Joseph Circuit</p>
-              </button>
+            ))}
             </div>
           </div>
         )}
       </div>
 
           {/* tour details  */}
+          {/* We now check if displayTour exists before trying to render it */}
+          {displayTour && (
           <div className="bg-white p-[10px] mt-[30px] gap-[20px] max-w-[92vw] flex flex-wrap shadow-[0px_0px_20px_rgba(0,0,0,.1)] rounded-[45px] overflow-hidden">
 
             {/* tour details - IMAGES  */}
@@ -202,20 +329,26 @@ export default function ToursPage() {
 
 
             {/* tour details - INFO  */}
-            <div className="bg-blue-500/0 max-w-[450px] h-full">
+            <div className="bg-blue-500/0 w-[450px] h-full">
               <div className="flex flex-col">
                 <p className="">Tour</p>
-                <p className="font-[700] text-[1.5rem]">Cliffs, Coastlines, & Canopies</p>
+                <p className="font-[700] text-[1.5rem]">{displayTour.name}</p>
+                <div className="flex gap-[5px]">
+                  <p className="px-[15px] py-[3px] font-[500] bg-black/30 rounded-full text-white">{displayTour.duration} Hours</p>
+                  <p className="px-[15px] py-[3px] font-[500] bg-black/30 rounded-full text-white">{displayTour.price} USD</p>
+                </div>
                 <div className=" bg-black/10 w-[80%] mt-[10px] mb-[10px] h-[1px]"/>
               </div>
               <div className="flex flex-col gap-[30px]"> 
                 <div>
                   <p className="text-[1.25rem] font-[700]">Description</p>
-                  <p className="">commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                  <p className="">{displayTour.description}</p>
                 </div>
                 <div>
-                  <p className="text-[1.25rem] font-[700]">Stopss</p>
-                  <p className="">commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                  <p className="text-[1.25rem] font-[700]">Stops</p>
+                  {displayTour.stops.map((stop) => (
+                    <p key={stop.id} className=""><b>{stop.name}:</b> {stop.description}</p>
+                  ))}
                 </div>
               </div>
             </div>
@@ -223,42 +356,36 @@ export default function ToursPage() {
 
             <div className="bg-pink-500/0 overflow-hidden h-full">
             {/* <div className="h-[70%] w-[1px] bg-black/10 absolute "/> */}
-              <button className="cursor-pointer">
-                <div className="flex flex-col items-start">
-                  <p className="flex items-center">Select a date <span className=""><ArrowIcon className="rotate-180" color="#000" /></span></p>
-                  <p className="font-[700] mt-[-5px] text-[1.125rem]">October <span className="text-[#656565] font-[400]">2025</span></p>
-                </div>
-                <div className="bg-red-500/0 flex gap-[20px] mt-[5px]">
-                  <div className="flex flex-col items-center">
-                    <p className="font-[500]">Mon</p>
-                    <p>12</p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <p className="font-[500]">Tues</p>
-                    <p className="bg-[#007BFF] rounded-full py-[1px] pt-[2px] px-[4.5px] text-white">12</p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <p className="font-[500]">Wed</p>
-                    <p>12</p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <p className="font-[500]">Thurs</p>
-                    <p>12</p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <p className="font-[500]">Fri</p>
-                    <p>12</p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <p className="font-[500]">Sat</p>
-                    <p>12</p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <p className="font-[500]">Sun</p>
-                    <p>12</p>
-                  </div>
-                </div>
-              </button>
+              <DatePicker
+                selected={selectedDate}
+                onChange={handleDateChange}
+                customInput={
+                  <button className="cursor-pointer">
+                    <div className="flex flex-col items-start">
+                      <p className="flex items-center">Select a date <span className=""><ArrowIcon className="rotate-180" color="#000" /></span></p>
+                      <p className="font-[700] mt-[-5px] text-[1.125rem]">
+                        {format(selectedDate, 'MMMM')} <span className="text-[#656565] font-[400]">{format(selectedDate, 'yyyy')}</span>
+                      </p>
+                    </div>
+                    <div className="bg-red-500/0 flex gap-[20px] mt-[5px]">
+                      {Array.from({ length: 7 }).map((_, i) => {
+                        const day = startOfWeek(new Date(), { weekStartsOn: 1 }); // weekStartsOn: 1 for Monday
+                        day.setDate(day.getDate() + i);
+                        const isSelected = selectedDate && selectedDate.getDay() === day.getDay();
+                        return (
+                          <div key={i} className="flex flex-col items-center">
+                            <p className="font-[500]">{format(day, 'EEE')}</p>
+                            <p className={isSelected ? "bg-[#007BFF] rounded-full py-[1px] pt-[2px] px-[4.5px] text-white" : ""}>
+                              {format(day, 'd')}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </button>
+                }
+                popperPlacement="bottom-start"
+              />
               <div className="mt-[20px] mb-[10px]">
                 <div className="flex items-center gap-[10px]">
                   <input type="text" className="p-[2px] px-[15px] bg-[#EDEDED] rounded-[20px] h-[50px] w-[261px] outline-none font-[500]" placeholder="Full Name" />
@@ -284,6 +411,7 @@ export default function ToursPage() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Things to know */}
           <div className="w-[1500px] max-w-[90vw] mt-[100px]">
@@ -327,52 +455,134 @@ export default function ToursPage() {
           </div>
 
           {/* Reviews */}
-          <div className="bg-red-500/0 w-[1500px] max-w-[90vw] mt-[100px]">
-            <div className="text-[1.75rem] mb-[30px]">
-              <span className="font-[700]">Reviews - </span>
-              <span className="font-[500] text-[#656565]">Cliffs, Coastlines, & Canopies</span>
-            </div>
-            <div>
-              <div className="bg-[#EDEDED] w-[407px] max-sm:w-[90vw] h-fit border-white border-[2px] rounded-[40px] shadow-[0px_0px_20px_rgba(0,0,0,.1)] p-[15px] overflow-hidden">
-                <div className="flex justify-between items-start mb-[15px]">
-                  <div className="bg-blue-500/0 flex items-center gap-[10px]">
+          {displayTour && (
+            <div className="bg-red-500/0 w-[1500px] max-w-[90vw] mt-[100px]">
+              <div className="flex justify-between items-center mb-[30px]">
+                <div className="text-[1.75rem]">
+                    <span className="font-[700]">Reviews - </span>
+                    <span className="font-[500] text-[#656565]">{displayTour.name}</span>
+                </div>
+                {/* This button only shows for logged-in users */}
+                {userSession && (
+                    <button 
+                      onClick={handleAddReviewClick}
+                      className="px-4 py-2 font-semibold text-white bg-[#007BFF] rounded-full shadow-md hover:bg-blue-600 transition-colors"
+                  >
+                      Add a Review
+                  </button>
+                  )}
+              </div>
+              <div>
+              {displayTour.reviews.map((review) => (
+                <div key={review.id} className="bg-[#EDEDED] w-[407px] max-sm:w-[90vw] h-fit border-white border-[2px] rounded-[40px] shadow-[0px_0px_20px_rgba(0,0,0,.1)] p-[15px] overflow-hidden mb-4">
+                  <div className="flex justify-between items-start mb-[15px]">
+                    <div className="bg-blue-500/0 flex items-center gap-[10px]">
 
-                    <Link href="/profile" className='cursor-pointer whitespace-nowrap'>
-                    <div className='w-11 h-11 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] -mr-[1px]'>
-                      <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
-                        {/* <Image src={avatarUrl} alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" /> */}
-                        <video
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          className="w-full h-full object-cover"
-                        >
-                          <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-                        </video>
+                      <Link href="/profile" className='cursor-pointer whitespace-nowrap'>
+                      <div className='w-11 h-11 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] -mr-[1px]'>
+                        <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
+                          {/* <Image src={avatarUrl} alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" /> */}
+                          <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          >
+                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
+                          </video>
+                        </div>
+                      </div>
+                    </Link>
+
+                      <div>
+                        <p className="font-[600] text-[1.1rem] text-[#656565]">{review.reviewer_name}</p>
+                        <p className="font-[500] text-[.8rem] text-[#656565]">{new Date(review.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
-                  </Link>
-
-                    <div>
-                      <p className="font-[600] text-[1.1rem] text-[#656565]">Twizshaq</p>
-                      <p className="font-[500] text-[.8rem] text-[#656565]">Sep 12, 2025</p>
+                    <div className="flex gap-[0px]">
+                    {[...Array(review.rating)].map((_, i) => (
+                      <Image key={i} src={starIcon} alt="star icon" height={30}/>
+                    ))}
                     </div>
                   </div>
-                  <div className="flex gap-[0px]">
-                    <Image src={starIcon} alt="star icon" height={30}/>
-                    <Image src={starIcon} alt="star icon" height={30}/>
-                    <Image src={starIcon} alt="star icon" height={30}/>
-                    <Image src={starIcon} alt="star icon" height={30}/>
-                    <Image src={starIcon} alt="star icon" height={30}/>
+                  <p>
+                    {review.review_text}
+                  </p>
+                </div>
+                ))}
+              </div>
+              {isReviewModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+                  <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md mx-4">
+                    <h3 className="text-xl font-bold mb-4">Write a review for {displayTour?.name}</h3>
+                    
+                    {/* Star Rating Input */}
+                    <div className="flex items-center gap-2 mb-4">
+                        <p className="font-semibold">Your Rating:</p>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`cursor-pointer transition-colors ${rating >= star ? 'text-yellow-400' : 'text-gray-300'}`}
+                            fill={rating >= star ? 'currentColor' : 'none'}
+                            onClick={() => setRating(star)}
+                          />
+                        ))}
+                    </div>
+
+                    {/* Text Area */}
+                    <textarea
+                      placeholder="Share your experience..."
+                      className="resize-none w-full outline-none h-[120px] font-[500] p-3 bg-[#EDEDED] rounded-lg mb-4"
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                    ></textarea>
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-end gap-3">
+                      <button
+                        className="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                        onClick={() => setIsReviewModalOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="px-4 py-2 font-semibold text-white bg-[#007BFF] rounded-lg hover:bg-blue-600"
+                        onClick={() => {
+                          // Add the handleReviewSubmit function here
+                          alert(`Submitting review: ${reviewText} with rating ${rating}`);
+                          // You will replace the alert with the actual submission logic
+                        }}
+                      >
+                        Submit Review
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                </p>
-              </div>
+              )}
+              {isLoginModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+                  <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm mx-4 text-center">
+                    <h3 className="text-xl font-bold mb-2">Join the Conversation!</h3>
+                    <p className="text-gray-600 mb-6">Please log in or sign up to leave a review.</p>
+                    
+                    <div className="flex flex-col gap-3">
+                      {/* Make sure you have a /login page set up in your app */}
+                      <Link href="/login" className="w-full px-4 py-3 font-semibold text-white bg-[#007BFF] rounded-lg hover:bg-blue-600 transition-all">
+                          Log In or Sign Up
+                      </Link>
+                      <button
+                        className="w-full px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                        onClick={() => setIsLoginModalOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
         
         {/* FOOTER */}
@@ -393,7 +603,7 @@ export default function ToursPage() {
                     <Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/>
                   </a>
                   <a href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
-                    <Image src="/icons/facebook-icon.svg" alt="" height={30} width={30}/>
+                    <FacebookIcon color="#FFFFFF" height={30} width={30}/>
                   </a>
                 </div>
               </div>

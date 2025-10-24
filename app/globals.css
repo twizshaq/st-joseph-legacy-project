@@ -31,6 +31,11 @@ body {
   font-family: var(--font-roboto);
 }
 
+.touch-none {
+  touch-action: none;
+}
+
+
 /* Hide the "Powered by ScanApp" footer from the html5-qrcode library */
 #html5-qrcode-anchor-scan-type-change {
   display: none !important;

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
-import type { Viewport } from 'next'
+import type { Viewport } from 'next';
 
-// Import the Navbar component
-import Navbar from "./components/Navbar";
+// Import the new Client Wrapper component
+import ClientLayoutWrapper from "@/app/components/ClientLayoutWrapper"; // Adjust path if needed
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Initialize Roboto font with specified weights and a CSS variable
 const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -34,7 +33,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-}
+};
 
 export default function RootLayout({
   children,
@@ -46,8 +45,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased relative`}
       >
-        <Navbar /> {/* <-- Add the Navbar here */}
-        <main>{children}</main> {/* It's good practice to wrap children in a <main> tag */}
+        {/* Use the ClientLayoutWrapper to handle all interactive elements */}
+        <ClientLayoutWrapper>
+          {children}
+        </ClientLayoutWrapper>
       </body>
     </html>
   );
