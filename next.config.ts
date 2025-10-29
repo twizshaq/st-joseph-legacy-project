@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    domains: ['i.pinimg.com'],
     remotePatterns: [
       // Your existing pattern for AWS S3
       {

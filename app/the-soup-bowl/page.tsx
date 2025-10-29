@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import ReactDOM from 'react-dom';
 import Image from 'next/image';
 import vrIcon from "@/public/icons/vr-icon.svg"
 import camIcon from "@/public/icons/camera-icon.svg"
@@ -14,6 +15,132 @@ import { experiences } from '@/public/data/experiences';
 
 const SoupBowl = () => {
   const [isSafetyOpen, setIsSafetyOpen] = useState(true);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  // Sample images (replace with your actual ones)
+  const galleryImages = [
+    'https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg',
+    'https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg',
+    'https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg',
+    'https://i.pinimg.com/736x/b2/1a/4e/b21a4edd98d5deeae826a459aeeb1b26.jpg',
+    'https://i.pinimg.com/736x/a5/71/41/a57141ad568104a6b1e49acedddd1eca.jpg',
+    'https://i.pinimg.com/736x/d8/51/26/d85126e7178f37e0f8cb5a73d495707d.jpg',
+    'https://i.pinimg.com/736x/3f/82/ac/3f82ac4cde04c3143ed4f2580d64820c.jpg',
+    'https://i.pinimg.com/736x/4c/20/00/4c20006b09ffc0b4f31278d3009f7390.jpg',
+    'https://i.pinimg.com/736x/ee/f1/ed/eef1ed5ee44a821046bcd209a3e1fbcc.jpg',
+  ];
+
+  useEffect(() => {
+    if (galleryOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    // Cleanup function to restore scrolling when the component unmounts
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [galleryOpen]);
+
+  const goToNext = useCallback(() => {
+    setSelectedIndex((prevIndex) => (prevIndex + 1) % galleryImages.length);
+  }, [galleryImages.length]);
+
+  const goToPrevious = useCallback(() => {
+    setSelectedIndex((prevIndex) => (prevIndex - 1 + galleryImages.length) % galleryImages.length);
+  }, [galleryImages.length]);
+
+  const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  // Effect for Keyboard Navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight') {
+        goToNext();
+      } else if (event.key === 'ArrowLeft') {
+        goToPrevious();
+      } else if (event.key === 'Escape') {
+        setGalleryOpen(false);
+      }
+    };
+
+    if (galleryOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [galleryOpen, goToNext, goToPrevious]);
+
+  useEffect(() => {
+    if (galleryOpen && thumbnailRefs.current[selectedIndex]) {
+      thumbnailRefs.current[selectedIndex]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
+  }, [selectedIndex, galleryOpen]);
+
+  // --- Touch event handlers for mobile swiping ---
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) {
+      return;
+    }
+    const touchEndX = e.changedTouches[0].clientX;
+    const swipeDistance = touchEndX - touchStartX;
+    const minSwipeDistance = 50; // User must swipe at least 50px
+
+    if (swipeDistance > minSwipeDistance) {
+      goToPrevious(); // Swiped right
+    } else if (swipeDistance < -minSwipeDistance) {
+      goToNext(); // Swiped left
+    }
+    setTouchStartX(null); // Reset for next swipe
+  };
+
+    const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (galleryImages[selectedIndex]) {
+      const img = new window.Image();
+      img.src = galleryImages[selectedIndex];
+      img.onload = () => {
+        setImageDimensions({
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+        });
+      };
+    }
+  }, [selectedIndex, galleryImages]);
+
+  useEffect(() => {
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    if (galleryOpen) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    }
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, [galleryOpen]);
+
   return (
     <div className='flex flex-col items-center self-center min-h-[100dvh] text-black bg-red-500/0 overflow-hidden'>
       <div className="relative flex flex-col justify-center items-center w-[100vw] max-w-[2000px] w-full h-[55vh] text-white gap-[20px]">
@@ -41,7 +168,7 @@ const SoupBowl = () => {
         </p>
 
 
-            <div className='absolute flex gap-[15px] left-[0] bottom-[-80px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
+            {/* <div className='absolute flex gap-[15px] left-[0] bottom-[-80px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
               <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] flex flex-row gap-6'>
                 <button className="flex items-center py-[13px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
                   <span className='z-10 fill-[#E0E0E0]'>
@@ -50,7 +177,7 @@ const SoupBowl = () => {
                   <p className='font-bold text-[#E0E0E0]'>Explore in AR</p>
                 </button>
               </div>
-            </div>
+            </div> */}
       </div>
       {/* Foreground Content */}
       {/* <p className="font-black text-[3rem] max-md:text-[2rem] text-center leading-[1.2] z-10">
@@ -246,24 +373,87 @@ const SoupBowl = () => {
                             backdrop-blur-[15px] [mask-image:linear-gradient(to_top,black_40%,transparent)] opacity-100 h-[500px]
                           `}
                         ></div>
-          
-                        {/* <div
-                          className={`
-                            absolute w-[1500px] ml-[-400px] bg-transparent
-                            backdrop-blur-[20px] [mask-image:linear-gradient(to_bottom,black_20%,transparent)] backdrop-blur-[20px] opacity-100 h-[500px]
-                          `}
-                        ></div>
-          
-                        <div
-                          className={`
-                            absolute w-[1500px] ml-[-400px] bg-transparent
-                            [mask-image:linear-gradient(to_bottom,black_10%,transparent)] backdrop-blur-[5px] opacity-100 h-[160px]
-                          `}
-                        ></div> */}
                       </div>
+
+                  <Portal>
+                    {galleryOpen && (
+                        <div 
+                            onClick={() => setGalleryOpen(false)} 
+                            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-[2px] h-screen w-screen overscroll-behavior-y-contain"
+                        >
+                          <div className='fixed top-[0px] bg-white/1 max-sm:h-[50px] h-[0px] w-full z-[200] z-[-20]' />
+                          <div className='fixed bottom-[0px] bg-white/1 z-[200] max-sm:h-[50px] h-[0px] w-full z-[-20]' />
+                            <button onClick={() => setGalleryOpen(false)} className="absolute top-4 right-4 md:top-6 md:right-6 z-30 rounded-full bg-white/10 backdrop-blur-md p-2 hover:bg-white/20 transition-all">
+                                <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+
+                            {/* MAIN LAYOUT CONTAINER */}
+                            <div
+                                onClick={(e) => e.stopPropagation()}
+                                className="relative w-full h-full flex flex-col"
+                            >
+                                {/* IMAGE AREA */}
+                                <div className="flex-1 w-full flex justify-center items-center gap-4 p-4 min-h-0">
+                                    <button onClick={goToPrevious} aria-label="Previous image" className="cursor-pointer hidden md:flex flex-shrink-0 items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors z-10">
+                                        <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                                    </button>
+
+                                    <div
+                                        className="relative w-full h-full flex items-center justify-center"
+                                        onTouchStart={handleTouchStart}
+                                        onTouchEnd={handleTouchEnd}
+                                    >
+                                        {imageDimensions.width > 0 && (
+                                            <Image 
+                                                src={galleryImages[selectedIndex]} 
+                                                alt={`Gallery ${selectedIndex + 1}`} 
+                                                width={imageDimensions.width}
+                                                height={imageDimensions.height}
+                                                priority={true}
+                                                className="object-contain max-w-full max-h-full" 
+                                            />
+                                        )}
+                                    </div>
+
+                                    <button onClick={goToNext} aria-label="Next image" className="cursor-pointer hidden md:flex flex-shrink-0 items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 z-10">
+                                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                    </button>
+                                </div>
+
+                                {/* THUMBNAIL AREA */}
+                                <div className="flex-shrink-0 flex flex-col items-center pb-4 pt-0">
+                                    <div className="w-full max-w-4xl flex justify-start md:justify-center gap-3 overflow-x-auto py-2 px-4 hide-scrollbar">
+                                        {galleryImages.map((src, index) => (
+                                            <button 
+                                                key={index} 
+                                                // --- THIS IS THE FIX ---
+                                                ref={(el) => { thumbnailRefs.current[index] = el; }}
+                                                onClick={() => setSelectedIndex(index)} 
+                                                className={`flex-shrink-0 transition-all duration-200 focus:outline-none ${selectedIndex === index ? 'scale-105' : 'opacity-70 hover:opacity-100'}`}
+                                            >
+                                                {selectedIndex === index ? (
+                                                    <div className='w-20 h-20 max-sm:w-17 max-sm:h-17 flex items-center justify-center rounded-[22px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
+                                                        <div className="relative w-full h-full rounded-[20px] overflow-hidden">
+                                                            <Image src={src} alt={`Thumbnail ${index + 1}`} layout="fill" className="object-cover" />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="relative w-20 h-20 max-sm:w-17 max-sm:h-17 rounded-[20px] overflow-hidden">
+                                                        <Image src={src} alt={`Thumbnail ${index + 1}`} layout="fill" className="object-cover" />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="text-white/80 text-sm mt-2 max-sm:mb-7">{selectedIndex + 1} / {galleryImages.length}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </Portal>
             <div className='absolute left-[77px] bottom-[-20px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
               <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                <button className="flex items-center py-[10px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
+                <button onClick={() => setGalleryOpen(true)} className="cursor-pointer flex items-center py-[10px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
                   <span className='z-10 fill-[#E0E0E0]'>
                     <Image src={photoIcon} alt="" height={30} className=''/>
                   </span>
@@ -456,5 +646,22 @@ const SoupBowl = () => {
     </div>
   );
 };
+
+const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  // This creates the portal, rendering the children into the document body.
+  return ReactDOM.createPortal(children, document.body);
+};
+
 
 export default SoupBowl;

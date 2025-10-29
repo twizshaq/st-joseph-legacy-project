@@ -17,7 +17,8 @@ import { Star } from "lucide-react";
 import { Session } from '@supabase/supabase-js';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getDay, startOfWeek, format } from "date-fns";
+import CustomCalendar from "../components/CustomCalendar";
+import { getDay, startOfWeek, format, isSameDay } from "date-fns";
 
 // --- START: TYPE DEFINITIONS ---
 // Define the shape of your data to help TypeScript
@@ -57,13 +58,16 @@ interface Tour {
 export default function ToursPage() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   
+  // State for your custom calendar
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const handleDateChange = (date: Date | null) => {
-  // Only update the state if the date is not null
-  if (date) {
+
+  // Modified handler to also close the calendar upon selection
+  const handleDateChange = (date: Date) => {
     setSelectedDate(date);
-  }
-};
+    setIsCalendarOpen(false); // Close calendar after a date is picked
+  };
 
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewText, setReviewText] = useState('');
@@ -354,38 +358,49 @@ export default function ToursPage() {
             </div>
 
 
-            <div className="bg-pink-500/0 overflow-hidden h-full">
-            {/* <div className="h-[70%] w-[1px] bg-black/10 absolute "/> */}
-              <DatePicker
-                selected={selectedDate}
-                onChange={handleDateChange}
-                customInput={
-                  <button className="cursor-pointer">
-                    <div className="flex flex-col items-start">
+            <div className="bg-pink-500/0 h-full relative"> {/* Added relative positioning */}
+              {/* This button will now open your custom calendar */}
+              <button className="cursor-pointer" onClick={() => setIsCalendarOpen(true)}>
+                  <div className="flex flex-col items-start">
                       <p className="flex items-center">Select a date <span className=""><ArrowIcon className="rotate-180" color="#000" /></span></p>
                       <p className="font-[700] mt-[-5px] text-[1.125rem]">
-                        {format(selectedDate, 'MMMM')} <span className="text-[#656565] font-[400]">{format(selectedDate, 'yyyy')}</span>
+                          {format(selectedDate, 'MMMM')} <span className="text-[#656565] font-[400]">{format(selectedDate, 'yyyy')}</span>
                       </p>
-                    </div>
-                    <div className="bg-red-500/0 flex gap-[20px] mt-[5px]">
+                  </div>
+                  <div className="bg-red-500/0 flex gap-[20px] mt-[5px]">
                       {Array.from({ length: 7 }).map((_, i) => {
-                        const day = startOfWeek(new Date(), { weekStartsOn: 1 }); // weekStartsOn: 1 for Monday
-                        day.setDate(day.getDate() + i);
-                        const isSelected = selectedDate && selectedDate.getDay() === day.getDay();
-                        return (
-                          <div key={i} className="flex flex-col items-center">
-                            <p className="font-[500]">{format(day, 'EEE')}</p>
-                            <p className={isSelected ? "bg-[#007BFF] rounded-full py-[1px] pt-[2px] px-[4.5px] text-white" : ""}>
-                              {format(day, 'd')}
-                            </p>
-                          </div>
-                        );
+                          const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
+                          const day = new Date(weekStart);
+                          day.setDate(weekStart.getDate() + i);
+
+                          const isSelected = isSameDay(selectedDate, day);
+
+                          return (
+                              <div key={i} className="flex flex-col items-center">
+                                  <p className="font-[500]">{format(day, 'EEE')}</p>
+                                  <p className={isSelected ? "bg-[#007BFF] rounded-full py-[1px] pt-[2px] px-[4.5px] text-white" : ""}>
+                                      {format(day, 'd')}
+                                  </p>
+                              </div>
+                          );
                       })}
-                    </div>
-                  </button>
-                }
-                popperPlacement="bottom-start"
-              />
+                  </div>
+              </button>
+
+              {/* Conditionally render your CustomCalendar */}
+            <span className="absolute left-[0px] z-20">
+              {isCalendarOpen && (
+                  <CustomCalendar
+                      selectedDate={selectedDate}
+                      onChange={handleDateChange}
+                      onClose={() => setIsCalendarOpen(false)}
+                  />
+              )}
+            </span>
+    
+
+                
+                
               <div className="mt-[20px] mb-[10px]">
                 <div className="flex items-center gap-[10px]">
                   <input type="text" className="p-[2px] px-[15px] bg-[#EDEDED] rounded-[20px] h-[50px] w-[261px] outline-none font-[500]" placeholder="Full Name" />

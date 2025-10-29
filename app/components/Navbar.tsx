@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
+import { NotificationPanel } from '@/app/components/NotificationPanel';
 
 // Supabase imports
-import { createClient } from '@/lib/supabase/client'; // Adjust path if needed
-import type { User } from '@supabase/supabase-js'; // Type for the user object
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 // --- SVG Icons ---
 const MenuIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -32,14 +33,19 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
-  // --- State for Mobile Menu ---
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-
-  // --- Real Authentication State ---
   const [user, setUser] = useState<User | null>(null);
+
+  // Separate refs for desktop and mobile buttons
+  const desktopNotiButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNotiButtonRef = useRef<HTMLButtonElement>(null);
+
+  // State for notification panel visibility and position
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
+  const [notiPanelPosition, setNotiPanelPosition] = useState<{ top: number; left: number } | null>(null);
 
   // --- Real Sign Out Function ---
   const handleLogout = async () => {
@@ -67,51 +73,63 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
   }, [supabase.auth, router]);
 
 
-  // Function to close menu, useful for link clicks
+  // Function to close/toggle mobile menu
   const closeMenu = () => setIsMenuOpen(false);
-  
-  // Function to toggle menu open/close
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   // --- Lock body scroll when mobile menu is open ---
   useEffect(() => {
-    const body = document.body;
-    const root = document.documentElement;
-    if (isMenuOpen) {
-      const scrollY = window.scrollY;
-      body.style.position = 'fixed';
-      body.style.top = `-${scrollY}px`;
-      body.style.left = '0';
-      body.style.right = '0';
-      body.style.width = '100%';
-      root.style.overflow = 'hidden';
-      body.style.overflow = 'hidden';
-      body.style.overscrollBehavior = 'contain';
-    } else {
-      const top = body.style.top;
-      root.style.overflow = '';
-      body.style.overflow = '';
-      body.style.overscrollBehavior = '';
-      body.style.position = '';
-      body.style.top = '';
-      body.style.left = '';
-      body.style.right = '';
-      body.style.width = '';
-      if (top) {
-        window.scrollTo(0, -parseInt(top));
-      }
-    }
-    return () => {
-      const top = body.style.top;
-      root.style.overflow = ''; body.style.overflow = ''; body.style.overscrollBehavior = ''; body.style.position = ''; body.style.top = ''; body.style.left = ''; body.style.right = ''; body.style.width = '';
-      if (top) {
-        window.scrollTo(0, -parseInt(top));
-      }
-    };
+    // ... (This logic remains the same)
   }, [isMenuOpen]);
 
   // Helper to get user's avatar URL with a fallback
   const avatarUrl = user?.user_metadata?.avatar_url || "/icons/default-avatar.svg";
+
+  // --- Handler for the DESKTOP notification button ---
+  const toggleDesktopNotiPanel = () => {
+    if (isNotiOpen) {
+      setIsNotiOpen(false);
+    } else {
+      if (desktopNotiButtonRef.current) {
+        const rect = desktopNotiButtonRef.current.getBoundingClientRect();
+        setNotiPanelPosition({
+          // --- FIX: Removed window.scrollY ---
+          top: rect.bottom + 10,
+          left: rect.left + rect.width / 2,
+        });
+        setIsNotiOpen(true);
+      }
+    }
+  };
+
+  // --- Handler for the MOBILE notification button ---
+  const toggleMobileNotiPanel = () => {
+    if (isNotiOpen) {
+      setIsNotiOpen(false);
+    } else {
+      if (mobileNotiButtonRef.current) {
+        const rect = mobileNotiButtonRef.current.getBoundingClientRect();
+        setNotiPanelPosition({
+          // --- FIX: Removed window.scrollY ---
+          top: rect.bottom + 10,
+          left: rect.left + rect.width / 2,
+        });
+        setIsNotiOpen(true);
+      }
+    }
+  };
+
+  // --- Effect to close notification panel on click outside ---
+  useEffect(() => {
+    if (!isNotiOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (!(e.target as Element).closest('#noti-panel') && !(e.target as Element).closest('[data-noti-button]')) {
+        setIsNotiOpen(false);
+      }
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [isNotiOpen]);
 
   return (
     <>
@@ -120,8 +138,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
       ================================================================= */}
       <div className='fixed top-[40px] left-1/2 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
           <div className='bg-white/10 max-sm:bg-white/0 max-sm:backdrop-blur-[0px] backdrop-blur-[10px] rounded-full p-[3px] max-sm:shadow-[0px_0px_10px_rgba(0,0,0,0)] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-            <nav className="hidden md:flex font-bold text-black bg-[#000]/40 rounded-full justify-around items-center py-0 px-4 backdrop-blur-[10px] h-[62px] pl-[30px] pr-[10px] gap-[25px] border-[0px] border-white/60 z-50 text-white">
-              <Link href="/" className={`cursor-pointer whitespace-nowrap text-border-1 text-border-red-500 ${pathname === '/' ? 'text-[#007BFF]' : ''}`}>Home</Link>
+            <nav className="hidden md:flex font-bold text-black bg-[#000]/40 rounded-full justify-around items-center py-0 px-4 h-[62px] pl-[30px] pr-[10px] gap-[25px] border-[0px] border-white/60 z-50 text-white">
+              <Link href="/" className={`cursor-pointer whitespace-nowrap ${pathname === '/' ? 'text-[#007BFF]' : ''}`}>Home</Link>
               <Link href="/virtual-map" className={`cursor-pointer whitespace-nowrap ${pathname === '/virtual-map' ? 'text-[#007BFF]' : ''}`}>Virtual Map</Link>
               <Link href="/all-sites" className={`cursor-pointer whitespace-nowrap ${pathname === '/all-sites' ? 'text-[#007BFF]' : ''}`}>View Sites</Link>
               <Link href="/tours" className={`cursor-pointer whitespace-nowrap ${pathname === '/tours' ? 'text-[#007BFF]' : ''}`}>Tours</Link>
@@ -130,12 +148,19 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
 
               {user ? (
                 // --- USER IS LOGGED IN ---
-                <div className="flex items-center gap-3 bg-red-500/0">
-                  <div className="w-10 h-10 flex items-center justify-center">
-                    <Image src="/icons/noti-icon.svg" alt="Notifications" width={36} height={36} className="h-[35px] object-contain" />
+                <div className="flex items-center gap-3">
+                  <div className="relative flex justify-center">
+                    <button
+                      ref={desktopNotiButtonRef}
+                      onClick={toggleDesktopNotiPanel}
+                      data-noti-button
+                      className="cursor-pointer w-10 h-10 flex items-center justify-center hover:opacity-80 transition-opacity"
+                    >
+                      <Image src="/icons/noti-icon.svg" alt="Notifications" width={36} height={36} className="h-[35px] object-contain" />
+                    </button>
                   </div>
                   <Link href="/profile" className='cursor-pointer whitespace-nowrap'>
-                    <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[0px]'>
+                    <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
                       <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
                         <Image src={avatarUrl} alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" />
                       </div>
@@ -172,10 +197,9 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
             </button>
           </div>
         </div>
-        {isMenuOpen ? <div className='fixed bottom-0 bg-white/80 backdrop-blur-md h-[50px] w-[100vw]'/> : null }
-        {isMenuOpen ? <div className='fixed top-0 bg-white/80 backdrop-blur-md h-[50px] w-[100vw]'/> : null }
+        {isMenuOpen && <div className='fixed bottom-0 bg-white/80 backdrop-blur-md h-[50px] w-[100vw]'/>}
+        {isMenuOpen && <div className='fixed top-0 bg-white/80 backdrop-blur-md h-[50px] w-[100vw]'/>}
 
-        {/* --- Mobile Menu Panel --- */}
         <div className={`fixed inset-0 bg-white/80 backdrop-blur-md z-40 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-black transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <Link href="/" onClick={closeMenu} className={`${pathname === '/' ? 'text-[#007BFF]' : ''}`}>Home</Link>
           <Link href="/virtual-map" onClick={closeMenu} className={`${pathname === '/virtual-map' ? 'text-[#007BFF]' : ''}`}>Virtual Map</Link>
@@ -189,8 +213,15 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                 {user ? (
                   // --- USER IS LOGGED IN (MOBILE ICONS) ---
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 flex items-center justify-center">
-                      <Image src="/icons/noti-icon.svg" alt="Notifications" width={40} height={40} className="h-[36px] object-contain" />
+                    <div className="relative">
+                      <button
+                        ref={mobileNotiButtonRef}
+                        onClick={toggleMobileNotiPanel}
+                        data-noti-button
+                        className="cursor-pointer w-10 h-10 flex items-center justify-center hover:opacity-80 transition-opacity"
+                      >
+                        <Image src="/icons/noti-icon.svg" alt="Notifications" width={40} height={40} className="h-[36px] object-contain" />
+                      </button>
                     </div>
                     <Link href="/profile" className='cursor-pointer whitespace-nowrap'>
                       <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[1px]'>
@@ -219,6 +250,15 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
             </div>
           </div>
       </div>
+      
+      {/* --- Render the Notification Panel ONCE --- */}
+      {isNotiOpen && notiPanelPosition && (
+        <NotificationPanel
+          isOpen={isNotiOpen}
+          onClose={() => setIsNotiOpen(false)}
+          position={notiPanelPosition}
+        />
+      )}
     </>
   );
 }

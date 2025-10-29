@@ -169,24 +169,49 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
     setErrorMessage("");
     setSuccessMessage("");
   };
+  
+
 
   function Slideshow() {
-    const images: string[] = ["https://i.pinimg.com/1200x/d0/82/bd/d082bd203465b8293a1c83a3ad63ec42.jpg", "https://i.pinimg.com/1200x/45/d2/39/45d239454e17b1cda9b98b86ac0221fc.jpg", "https://i.pinimg.com/736x/49/9a/e7/499ae7e4d561f7f5ebc48a37cb05b7b0.jpg", ];
+    const images: string[] = [
+      "https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/France.jpeg", 
+      "https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/France.jpeg", 
+      "https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/France.jpeg"
+    ];
+
     const [currentIndex, setCurrentIndex] = useState<number>(0);
+
     useEffect(() => {
       const interval = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
       }, 3000);
       return () => clearInterval(interval);
     }, [images.length]);
+
     return (
       <div className="absolute inset-0 h-full w-full overflow-hidden rounded-l-xl">
-        {images.map((img, index) => (
-          <img key={index} src={img} alt="Decorative slideshow" className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? "opacity-100" : "opacity-0"}`} />
+        {images.map((imgSrc, index) => (
+          <Image
+            key={index}
+            src={imgSrc} // Use the string URL directly
+            alt="Decorative slideshow"
+            fill
+            priority={index === 0} // Still prioritize the first image for faster load
+            sizes="(max-width: 768px) 0vw, 40vw" // Adjust if needed
+            className={`
+              object-cover 
+              transition-opacity 
+              duration-1000 
+              ease-in-out 
+              will-change-opacity 
+              ${index === currentIndex ? "opacity-100" : "opacity-0"}
+            `}
+          />
         ))}
       </div>
     );
   }
+
 
   if (!isOpen) return null;
 
@@ -197,8 +222,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
 
   return (
     <>
-      <div className='fixed top-[0px] bg-white/1 h-[50px] w-full z-[200]' />
-      <div className='fixed bottom-[0px] bg-white/1 z-[200] h-[50px] w-full' />
+      <div className='fixed top-[0px] bg-white/1 h-[50px] w-full z-[200] z-[-20]' />
+      <div className='fixed bottom-[0px] bg-white/1 z-[200] h-[50px] w-full z-[-20]' />
 
       <div onClick={onClose} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 backdrop-blur-[15px]">
         {/* Error Popup */}
@@ -215,8 +240,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
         )}
 
         <div className='fixed left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[43px] p-[5px] z-[50]'>
-          <div className='bg-white/10 max-sm:backdrop-blur-[0px] backdrop-blur-[40px] rounded-[43px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-            <div onClick={(e) => e.stopPropagation()} className="max-h-[90dvh] relative flex w-[95vw] max-w-md overflow-y-auto rounded-[40px] bg-black/65 backdrop-blur-[10px] md:max-w-4xl touch-none">
+          <div className='bg-white/10 max-sm:backdrop-blur-[0px] backdrop-blur-[40px] rounded-[43px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,.5)]'>
+            <div onClick={(e) => e.stopPropagation()} className="max-h-[90dvh] relative flex w-[95vw] max-w-md overflow-y-auto rounded-[40px] bg-black/65 md:max-w-4xl touch-none">
               <button onClick={onClose} className="cursor-pointer absolute top-6 right-6 z-20 text-white hover:text-red-500 active:text-red-500 transition-colors">
                 <FaTimes size={24} />
               </button>
@@ -270,7 +295,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
                 {!isLogin && (
                   <label className="mt-4 flex cursor-pointer items-center gap-2">
                     <input type="checkbox" checked={agree} onChange={() => setAgree(!agree)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 font-[500]" />
-                    <p className="text-sm text-white">I agree to the <a href="/terms" className="text-[#66B2FF] hover:underline font-[500]">Terms & Conditions</a></p>
+                    <p className="text-sm text-white">I agree to the <a href="/terms" className="text-[#66B2FF] hover:underline font-[500]">Terms & Conditions *</a></p>
                   </label>
                 )}
 

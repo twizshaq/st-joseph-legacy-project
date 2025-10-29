@@ -191,3 +191,9 @@ body {
   /* set to transparent for a see-through center */
   border-radius: inherit;
 }
+
+.backdrop-blur {
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  /* Explicit for Safari */
+}
