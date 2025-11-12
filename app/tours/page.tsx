@@ -61,6 +61,24 @@ export default function ToursPage() {
   // State for your custom calendar
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
+  // State for the new guest dropdown
+  const [guestCount, setGuestCount] = useState(1);
+  const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
+  const guestDropdownRef = useRef<HTMLDivElement>(null);
+
+  // --- Optional but Recommended: Handle clicking outside the dropdown to close it ---
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (guestDropdownRef.current && !guestDropdownRef.current.contains(event.target as Node)) {
+        setIsGuestDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [guestDropdownRef]);
+
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Modified handler to also close the calendar upon selection
@@ -177,6 +195,63 @@ export default function ToursPage() {
   
   const displayTour = selectedTour;
 
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
+
+  // Function to go to the next image
+  const nextImage = () => {
+    if (displayTour && displayTour.images.length > 0) {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % displayTour.images.length);
+    }
+  };
+
+  // Function to go to the previous image
+  const prevImage = () => {
+    if (displayTour && displayTour.images.length > 0) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? displayTour.images.length - 1 : prevIndex - 1
+      );
+    }
+  };
+  // 
+  useEffect(() => {
+    // Reset to the first image whenever the selected tour changes
+    setCurrentImageIndex(0);
+  }, [selectedTour]);
+
+  // Automatically advance images every 3 seconds when a tour is displayed and has images
+
+    useEffect(() => {
+  if (!displayTour || displayTour.images.length <= 1) return;
+
+  // This effect handles the "jump" back to the start.
+  if (currentImageIndex === displayTour.images.length) {
+    const timer = setTimeout(() => {
+      setIsTransitionEnabled(false); // Disable the transition
+      setCurrentImageIndex(0);      // Jump to the first slide
+    }, 500); // This duration MUST match the CSS transition time
+
+    return () => clearTimeout(timer);
+  }
+  
+  // This re-enables the transition after the jump is complete.
+  if (!isTransitionEnabled && currentImageIndex === 0) {
+      // We need a tiny delay to ensure React has updated the DOM before re-enabling the transition
+      const timer = setTimeout(() => {
+          setIsTransitionEnabled(true);
+      }, 50);
+      return () => clearTimeout(timer);
+  }
+
+  // This interval handles the regular auto-advancing of slides.
+  const interval = setInterval(() => {
+    setCurrentImageIndex((prevIndex) => prevIndex + 1);
+  }, 3000); // Change image every 3 seconds
+
+  return () => clearInterval(interval);
+}, [currentImageIndex, displayTour, isTransitionEnabled]);
+
+
 
   return (
     <div className="flex flex-col items-center text-black"
@@ -258,7 +333,7 @@ export default function ToursPage() {
 
 
       <div className='flex justify-center gap-[15px] right-[10px] bottom-[10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] relative' onClick={() => setIsPopupOpen(true)}>
-        <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] flex flex-row gap-6'>
+        <div className='bg-white/10 active:scale-97 backdrop-blur-[3px] rounded-full p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] flex flex-row gap-6'>
           <button
             className="cursor-pointer flex items-center py-[10px] pl-[13px] pr-[10px] gap-[3px] justify-center rounded-full bg-[#333]/10 backdrop-blur-[5px] active:bg-[#333]/20 z-[10]"
             onClick={(e) => {
@@ -272,14 +347,14 @@ export default function ToursPage() {
         {isPopupOpen && (
           <div
             ref={popupRef}
-            className="absolute top-full mt-2 bg-[#000]/10 rounded-[30px] border-[2px] border-white backdrop-blur-[10px] p-[7px] shadow-[0px_0px_20px_rgba(0,0,0,0.1)] w-[250px] flex flex-wrap z-[40] overflow-hidden"
+            className="absolute top-full mt-2 bg-[#000]/40 rounded-[30px] border-[2px] border-white backdrop-blur-[10px] p-[7px] shadow-[0px_0px_20px_rgba(0,0,0,0.2)] w-[250px] flex flex-wrap z-[40] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col gap-2 w-[100%]">
             {tours.map((tour) => (
               <button
                 key={tour.id}
-                className="flex items-center gap-[10px] p-1 hover:bg-black/10 cursor-pointer rounded-[20px]"
+                className="flex items-center gap-[10px] p-1 active:scale-99 active:bg-white/10 hover:bg-white/10 cursor-pointer rounded-[20px]"
                 onClick={() => handleTourSelect(tour)}
               >
                 <div className="relative overflow-hidden min-w-[50px] max-w-[50px] min-h-[50px] max-h-[50px] border-[1.5px] border-white rounded-[17px]">
@@ -296,7 +371,7 @@ export default function ToursPage() {
                     <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-500" />
                   )}
                 </div>
-                <p className="text-wrap text-left font-[500]">{tour.name}</p>
+                <p className="text-wrap text-white text-left font-[500]">{tour.name}</p>
               </button>
             ))}
             </div>
@@ -304,125 +379,205 @@ export default function ToursPage() {
         )}
       </div>
 
-          {/* tour details  */}
+          {/* tour details - Revamped for Mobile Responsiveness */}
           {/* We now check if displayTour exists before trying to render it */}
           {displayTour && (
-          <div className="bg-white p-[10px] mt-[30px] gap-[20px] max-w-[92vw] flex flex-wrap shadow-[0px_0px_20px_rgba(0,0,0,.1)] rounded-[45px] overflow-hidden">
+          <div className="bg-white p-3 mt-8 w-[1200px] max-w-[95vw] flex flex-col lg:flex-row gap-6 shadow-[0px_0px_20px_rgba(0,0,0,.1)] rounded-[45px] overflow-visable">
 
-            {/* tour details - IMAGES  */}
-            <div className="relative bg-red-500/0 flex h-full  rounded-l-[40px] overflow-hidden gap-[10px]">
-              <div className="bg-green-500/0 flex flex-col h-full w-[200px] gap-[5px] rounded-l-[35px] justify-between">
-                <div className="bg-pink-500 w-full h-[230px] rounded-[10px] rounded-tl-[35px]"></div>
-                <div className="bg-blue-500 w-full h-[230px] rounded-[10px] rounded-bl-[35px] self-end"></div>
-              </div>
+            {/* tour details - IMAGES (Responsive Grid) */}
+            <div className="relative w-full h-[300px] lg:w-[370px] lg:h-auto">
 
-              <div className="flex flex-col w-[150px] bg-purple-500/0 justify-between">
-                <div className="bg-green-500 w-full h-[23.5%] self-end rounded-[10px] rounded-tr-[35px]"></div>
-                <div className="bg-pink-500 w-full h-[23.5%] self-end rounded-[10px]"></div>
-                <div className="bg-yellow-500 w-full h-[23.5%] self-end rounded-[10px]"></div>
-                <div className="bg-purple-500 w-full h-[23.5%] self-end rounded-[10px] rounded-br-[35px]"></div>
-              </div>
-              <div className='absolute flex gap-[15px] right-[10px] bottom-[10px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
+                {/* Main Image */}
+                <div className="relative h-full w-full rounded-[35px] overflow-hidden group">
+                  {(() => {
+                    // Return a block of JSX, but first prepare the slides for the infinite loop
+                    const slides = displayTour.images.length > 1 
+                      ? [...displayTour.images, displayTour.images[0]] // Add a clone of the first image to the end
+                      : displayTour.images;
+
+                    return (
+                      <>
+                        {/* This container holds the sliding images */}
+                        <div
+                          className="flex h-full w-full"
+                          style={{
+                            transform: `translateX(-${currentImageIndex * 100}%)`,
+                            // The transition is turned off during the "jump" back to the start
+                            transition: !isTransitionEnabled ? 'none' : 'transform 500ms ease-in-out',
+                          }}
+                        >
+                          {/* Map over the new 'slides' array which includes the clone */}
+                          {slides.map((image, index) => (
+                            <div key={index} className="relative w-full h-full flex-shrink-0">
+                              <Image
+                                src={image.url}
+                                alt={`View of ${displayTour.name} #${index + 1}`}
+                                layout="fill"
+                                objectFit="cover"
+                                className=""
+                              />
+                            </div>
+                          ))}
+                        </div>
+
+                  {/* Navigation Arrows (only show if there's more than one image) */}
+                  {displayTour.images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute top-1/2 left-3 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute top-1/2 right-3 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                      </button>
+                    </>
+                  )}
+
+                  {/* Indicator Dots */}
+                  <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/40 rounded-full py-[5px] px-[7px] flex gap-[10px] z-10">
+                    {displayTour.images.map((_, index) => (
+                      <div
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`h-[8px] w-[8px] rounded-full cursor-pointer transition-colors ${
+                          currentImageIndex === index ? 'bg-white' : 'bg-white/50'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  </>
+                );
+              })()}
+            </div>
+
+              {/* <div className='absolute flex gap-[15px] right-[10px] top-[10px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
                 <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] flex flex-row gap-6'>
-                  <button className="cursor-pointer flex items-center py-[7px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
-                    <p className='font-bold text-[#fff]'>See all photos</p>
+                  <button className="cursor-pointer flex items-center py-[10px] px-[13px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
+                    <p className='font-[500] text-[#fff]'>See all photos</p>
                   </button>
                 </div>
+              </div> */}
+            </div>
+
+
+            {/* tour details - INFO (Flexible Width) */}
+            {/* Takes full width on mobile and a specific portion on desktop. */}
+            <div className="w-full lg:w-1/3 flex flex-col gap-4">
+              <div>
+                <p className="text-gray-500">Tour</p>
+                <p className="font-bold text-2xl lg:text-3xl">{displayTour.name}</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <p className="px-4 py-1 font-medium bg-gray-200 rounded-full text-gray-800">{displayTour.duration} Hours</p>
+                  <p className="px-4 py-1 font-medium bg-gray-200 rounded-full text-gray-800">${displayTour.price} USD</p>
+                </div>
+                <div className="bg-gray-200 w-full mt-4 mb-2 h-px"/>
+              </div>
+              <div className="flex flex-col gap-6">
+                <div>
+                  <p className="text-xl font-bold">Description</p>
+                  <p className="text-gray-700 mt-1">{displayTour.description}</p>
+                </div>
+                <div>
+                  <p className="text-xl font-bold">Stops</p>
+                  <div className="space-y-2 mt-1">
+                    {displayTour.stops.map((stop) => (
+                      <p key={stop.id} className="text-gray-700"><b>{stop.name}:</b> {stop.description}</p>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
 
-            {/* tour details - INFO  */}
-            <div className="bg-blue-500/0 w-[450px] h-full">
-              <div className="flex flex-col">
-                <p className="">Tour</p>
-                <p className="font-[700] text-[1.5rem]">{displayTour.name}</p>
-                <div className="flex gap-[5px]">
-                  <p className="px-[15px] py-[3px] font-[500] bg-black/30 rounded-full text-white">{displayTour.duration} Hours</p>
-                  <p className="px-[15px] py-[3px] font-[500] bg-black/30 rounded-full text-white">{displayTour.price} USD</p>
-                </div>
-                <div className=" bg-black/10 w-[80%] mt-[10px] mb-[10px] h-[1px]"/>
-              </div>
-              <div className="flex flex-col gap-[30px]"> 
-                <div>
-                  <p className="text-[1.25rem] font-[700]">Description</p>
-                  <p className="">{displayTour.description}</p>
-                </div>
-                <div>
-                  <p className="text-[1.25rem] font-[700]">Stops</p>
-                  {displayTour.stops.map((stop) => (
-                    <p key={stop.id} className=""><b>{stop.name}:</b> {stop.description}</p>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-
-            <div className="bg-pink-500/0 h-full relative"> {/* Added relative positioning */}
-              {/* This button will now open your custom calendar */}
-              <button className="cursor-pointer" onClick={() => setIsCalendarOpen(true)}>
-                  <div className="flex flex-col items-start">
-                      <p className="flex items-center">Select a date <span className=""><ArrowIcon className="rotate-180" color="#000" /></span></p>
-                      <p className="font-[700] mt-[-5px] text-[1.125rem]">
-                          {format(selectedDate, 'MMMM')} <span className="text-[#656565] font-[400]">{format(selectedDate, 'yyyy')}</span>
-                      </p>
+            {/* tour details - BOOKING FORM (Responsive Inputs) */}
+            {/* Stacks vertically on mobile. Inputs take full width for better usability. */}
+            <div className="w-full lg:w-1/3 h-full relative flex flex-col gap-4">
+              {/* Calendar and Time Picker */}
+              <div>
+                <button className="cursor-pointer flex w-full text-left pt-2 pb-0 rounded-[30px]" onClick={() => setIsCalendarOpen(true)}>
+                  <div className="flex flex-col">
+                    <p className="flex items-center text-sm">Select a date & time</p>
+                    <p className="font-bold text-lg mt-[-2px]">
+                      {format(selectedDate, 'MMMM d, yyyy')}
+                    </p>
                   </div>
-                  <div className="bg-red-500/0 flex gap-[20px] mt-[5px]">
-                      {Array.from({ length: 7 }).map((_, i) => {
-                          const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
-                          const day = new Date(weekStart);
-                          day.setDate(weekStart.getDate() + i);
+                  <p className="absolute right-4 self-end font-[500] text-[#656565] text-[1.1rem]">{format(selectedDate, 'p')}</p>
+                </button>
 
-                          const isSelected = isSameDay(selectedDate, day);
-
-                          return (
-                              <div key={i} className="flex flex-col items-center">
-                                  <p className="font-[500]">{format(day, 'EEE')}</p>
-                                  <p className={isSelected ? "bg-[#007BFF] rounded-full py-[1px] pt-[2px] px-[4.5px] text-white" : ""}>
-                                      {format(day, 'd')}
-                                  </p>
-                              </div>
-                          );
-                      })}
-                  </div>
-              </button>
-
-              {/* Conditionally render your CustomCalendar */}
-            <span className="absolute left-[0px] z-20">
-              {isCalendarOpen && (
-                  <CustomCalendar
+                {/* Conditionally render your CustomCalendar */}
+                <div className="absolute z-20">
+                  {isCalendarOpen && (
+                    <CustomCalendar
                       selectedDate={selectedDate}
                       onChange={handleDateChange}
                       onClose={() => setIsCalendarOpen(false)}
-                  />
-              )}
-            </span>
-    
-
-                
-                
-              <div className="mt-[20px] mb-[10px]">
-                <div className="flex items-center gap-[10px]">
-                  <input type="text" className="p-[2px] px-[15px] bg-[#EDEDED] rounded-[20px] h-[50px] w-[261px] outline-none font-[500]" placeholder="Full Name" />
-                  <button className="cursor-pointer pl-[3px] bg-[#EDEDED] flex justify-center gap-[3px] items-center rounded-[20px] h-[50px] w-[80px]">
-                    <span className="rotate-[0deg] opacity-[.7]"><Image src={profileIcon} alt="drop down arrow" height={22} /></span>
-                    <span><ArrowIcon className="rotate-180 h-[25px] w-[25px] opacity-[.7]" color="#656565" /></span>
-                  </button>
+                    />
+                  )}
                 </div>
               </div>
-              <div className="flex flex-col gap-[10px]">
-                <input type="text" className="p-[2px] px-[15px] bg-[#EDEDED] rounded-[20px] h-[50px] w-[350px] mx-[] outline-none font-[500]" placeholder="Phone Number" />
-                <input type="text" className="p-[2px] px-[15px] bg-[#EDEDED] rounded-[20px] h-[50px] w-[350px] outline-none font-[500]" placeholder="Email" />
-                <textarea name="" id="" placeholder="Additional Notes (Optional)" className="resize-none w-[350px] outline-none h-[100px] font-[500] p-[15px] bg-[#EDEDED] rounded-[20px]"></textarea>
-              </div>
-              <div className="bg-red-400/0 w-[100%] mt-[10px] flex justify-end">
-                <button className='relative self-center mr-[3px] active:bg-black/30 cursor-pointer whitespace-nowrap rounded-full p-[3px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
-                  <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[30px] py-[10px]'>
-                    <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
-                      Book Tour
-                    </span>
+
+              {/* Input Fields */}
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-row items-center gap-3">
+                  <input type="text" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-12 w-full outline-none font-medium" placeholder="Full Name" />
+                  {/* --- START: Custom Guest Dropdown --- */}
+                  <div ref={guestDropdownRef} className="relative">
+                    <button 
+                      onClick={() => setIsGuestDropdownOpen(!isGuestDropdownOpen)}
+                      className="cursor-pointer flex items-center gap-2 p-1 pr-7 pl-4 bg-[#F5F5F5] rounded-[20px] h-12 w-full sm:w-auto"
+                    >
+                      <Image src={profileIcon} alt="Guests icon" height={22} className="opacity-70" />
+                      <span className="w-3 text-center font-[600] pr-2 text-[#000]/70 text-[1.1rem]">{guestCount}</span>
+                      <div className="pr-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 opacity-70 transition-transform ${isGuestDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </button>
+
+                    {isGuestDropdownOpen && (
+                    <div className='absolute bg-white/10 mt-[5px] backdrop-blur-[10px] rounded-[27px] p-[3px] z-[99] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                      <div className="top-full w-full bg-black/40 rounded-[25px]">
+                        <p className="font-bold text-center px-2 py-1 text-white">Select Guests</p>
+                        <div className="max-h-48 flex flex-col overflow-y-auto pb-2">
+                          {[1, 2, 3, 4, 5, 6, 7, 8].map((number) => (
+                            <button
+                              key={number}
+                              className="block cursor-pointer text-white text-center p-2 mx-2 hover:bg-gray-100/20 active:bg-gray-100/20 active:scale-95 rounded-[17px] font-[600] transition-all"
+                              onClick={() => {
+                                setGuestCount(number);
+                                setIsGuestDropdownOpen(false);
+                              }}
+                            >
+                              {number}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      </div>
+                    )}
                   </div>
-                </button>
+                  {/* --- END: Custom Guest Dropdown --- */}
+                </div>
+                <input type="tel" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-12 w-full outline-none font-medium" placeholder="Phone Number" />
+                <input type="email" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-12 w-full outline-none font-medium" placeholder="Email Address" />
+                <textarea placeholder="Additional Notes (Optional)" className="resize-none w-full outline-none h-24 font-medium p-3 px-4 bg-[#F5F5F5] rounded-[20px]"></textarea>
+              </div>
+
+              {/* Book Tour Button */}
+              <div className="w-full mt-0 flex justify-center lg:justify-end">
+                <button className='relative self-center mr-[3px] active:bg-black/30 cursor-pointer whitespace-nowrap rounded-full p-[3px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
+                <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[50px] py-[10px]'>
+                  <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
+                    Book Tour
+                  </span>
+                </div>
+              </button>
               </div>
             </div>
           </div>

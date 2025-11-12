@@ -379,11 +379,11 @@ const SoupBowl = () => {
                     {galleryOpen && (
                         <div 
                             onClick={() => setGalleryOpen(false)} 
-                            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-[2px] h-screen w-screen overscroll-behavior-y-contain"
+                            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-[2px] h-screen w-screen touch-none overscroll-behavior-y-contain"
                         >
                           <div className='fixed top-[0px] bg-white/1 max-sm:h-[50px] h-[0px] w-full z-[200] z-[-20]' />
                           <div className='fixed bottom-[0px] bg-white/1 z-[200] max-sm:h-[50px] h-[0px] w-full z-[-20]' />
-                            <button onClick={() => setGalleryOpen(false)} className="absolute top-4 right-4 md:top-6 md:right-6 z-30 rounded-full bg-white/10 backdrop-blur-md p-2 hover:bg-white/20 transition-all">
+                            <button onClick={() => setGalleryOpen(false)} className="cursor-pointer absolute top-4 right-4 md:top-6 md:right-6 z-30 rounded-full bg-black/10 hover:bg-black/60 backdrop-blur-sm p-2 transition-all">
                                 <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
 
