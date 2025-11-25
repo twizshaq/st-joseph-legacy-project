@@ -3,6 +3,7 @@
  import React, { useState, useEffect } from "react";
  import { useRouter } from "next/navigation"; // Import the router
  import { FaEye, FaEyeSlash, FaTimes } from "react-icons/fa";
+ import { ChevronDown } from 'lucide-react';
  import Image from "next/image";
  import GoogleIcon from "@/public/icons/google-icon.svg";
  import FacebookIcon from "@/public/icons/facebook-icon";
@@ -304,7 +305,7 @@
                          {showConfirmPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
                        </button>
                      </div>
- 
+
                      {/* --- MANDATORY YES/NO QUESTION --- */}
                      <div className="mt-4">
                        <p className="text-sm text-white mb-2">Are you a Barbadian? *</p>
@@ -336,6 +337,9 @@
                      {/* --- PARISH DROPDOWN (CONDITIONAL) --- */}
                      {isBarbadianAnswer === 'yes' && (
                        <div className="relative mt-4">
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-white">
+                                            <ChevronDown size={20} />
+                                          </div>
                          <select 
                            value={parish} 
                            onChange={(e) => setParish(e.target.value)} 
@@ -344,7 +348,7 @@
                          >
                            <option value="" disabled className="text-gray-500">Select your parish *</option>
                            {parishes.map((p) => (
-                             <option key={p} value={p} className="text-black">{p}</option>
+                             <option key={p} value={p} className="">{p}</option>
                            ))}
                          </select>
                        </div>
@@ -359,7 +363,7 @@
  
                  <button 
                    type="submit" 
-                   className="mt-6 w-full rounded-full bg-[#007BFF] py-3 font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50" 
+                   className="mt-6 w-full rounded-[20px] bg-[#007BFF] py-3 font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer active:scale-[0.98]" 
                    disabled={
                      isLoading || 
                      (isLogin 
@@ -378,11 +382,11 @@
                  </div>
                  
                  <div className="flex justify-center gap-[20px]">
-                   <button type="button" onClick={handleGoogleSignIn} className="cursor-pointer flex w-full max-w-xs items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-2.5 px-4 font-semibold text-gray-700 transition hover:bg-gray-50">
+                   <button type="button" onClick={handleGoogleSignIn} className="cursor-pointer flex w-full max-w-xs items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-2.5 px-4 font-semibold text-gray-700 transition hover:bg-gray-50 active:scale-[0.98]">
                      <Image src={GoogleIcon} alt="Google Icon" height={30} />
                      Google
                    </button>
-                   <button type="button" onClick={handleGoogleSignIn} className="cursor-pointer flex w-full max-w-xs items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-2.5 px-4 font-semibold text-gray-700 transition hover:bg-gray-50">
+                   <button type="button" onClick={handleGoogleSignIn} className="cursor-pointer flex w-full max-w-xs items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-2.5 px-4 font-semibold text-gray-700 transition hover:bg-gray-50 active:scale-[0.98]">
                      <FacebookIcon color="#0866FF" height={25} width={25} />
                      Facebook
                    </button>

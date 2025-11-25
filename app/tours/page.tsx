@@ -201,7 +201,15 @@ export default function ToursPage() {
   // Function to go to the next image
   const nextImage = () => {
     if (displayTour && displayTour.images.length > 0) {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % displayTour.images.length);
+      setCurrentImageIndex((prevIndex) => {
+        // We allow the index to go to 'displayTour.images.length'
+        // which is the index of the cloned first slide.
+        // The useEffect below will detect this and silently reset to 0.
+        if (prevIndex >= displayTour.images.length) {
+          return 0; // Fallback safety
+        }
+        return prevIndex + 1;
+      });
     }
   };
 
@@ -222,36 +230,66 @@ export default function ToursPage() {
   // Automatically advance images every 3 seconds when a tour is displayed and has images
 
     useEffect(() => {
-  if (!displayTour || displayTour.images.length <= 1) return;
+    if (!displayTour || displayTour.images.length <= 1) return;
 
-  // This effect handles the "jump" back to the start.
-  if (currentImageIndex === displayTour.images.length) {
-    const timer = setTimeout(() => {
-      setIsTransitionEnabled(false); // Disable the transition
-      setCurrentImageIndex(0);      // Jump to the first slide
-    }, 500); // This duration MUST match the CSS transition time
-
-    return () => clearTimeout(timer);
-  }
-  
-  // This re-enables the transition after the jump is complete.
-  if (!isTransitionEnabled && currentImageIndex === 0) {
-      // We need a tiny delay to ensure React has updated the DOM before re-enabling the transition
+    // 1. Check if we have reached the "Clone" slide (which is at index === length)
+    if (currentImageIndex === displayTour.images.length) {
       const timer = setTimeout(() => {
-          setIsTransitionEnabled(true);
+        setIsTransitionEnabled(false); // Turn off animation
+        setCurrentImageIndex(0);      // Silently snap back to real first slide
+      }, 500); // Wait for the slide animation to finish (must match CSS duration)
+
+      return () => clearTimeout(timer);
+    }
+
+    // 2. Re-enable transition after the snap back
+    if (!isTransitionEnabled && currentImageIndex === 0) {
+      const timer = setTimeout(() => {
+        setIsTransitionEnabled(true); // Turn animation back on for next click
       }, 50);
       return () => clearTimeout(timer);
-  }
+    }
 
-  // This interval handles the regular auto-advancing of slides.
-  const interval = setInterval(() => {
-    setCurrentImageIndex((prevIndex) => prevIndex + 1);
-  }, 3000); // Change image every 3 seconds
+    // 3. Auto-advance logic
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => prevIndex + 1);
+    }, 3000);
 
-  return () => clearInterval(interval);
-}, [currentImageIndex, displayTour, isTransitionEnabled]);
+    return () => clearInterval(interval);
+  }, [currentImageIndex, displayTour, isTransitionEnabled]);
 
 
+  // --- SWIPE LOGIC START ---
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Minimum distance (px) to be considered a swipe
+  const minSwipeDistance = 50; 
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); // Reset touch end
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextImage(); // Swipe Left = Go Next
+    } 
+    if (isRightSwipe) {
+      prevImage(); // Swipe Right = Go Prev
+    }
+  };
+  // --- SWIPE LOGIC END ---
 
   return (
     <div className="flex flex-col items-center text-black"
@@ -388,7 +426,12 @@ export default function ToursPage() {
             <div className="relative w-full h-[300px] lg:w-[370px] lg:h-auto">
 
                 {/* Main Image */}
-                <div className="relative h-full w-full rounded-[35px] overflow-hidden group">
+                <div className="relative h-full w-full rounded-[35px] overflow-hidden group"
+                  onTouchStart={onTouchStart}
+                  onTouchMove={onTouchMove}
+                  onTouchEnd={onTouchEnd}
+                >
+                  
                   {(() => {
                     // Return a block of JSX, but first prepare the slides for the infinite loop
                     const slides = displayTour.images.length > 1 
@@ -425,13 +468,13 @@ export default function ToursPage() {
                     <>
                       <button
                         onClick={prevImage}
-                        className="absolute top-1/2 left-3 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        className="cursor-pointer active:scale-97 absolute top-1/2 left-3 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                       </button>
                       <button
                         onClick={nextImage}
-                        className="absolute top-1/2 right-3 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        className="cursor-pointer active:scale-97 absolute top-1/2 right-3 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                       </button>
@@ -439,13 +482,17 @@ export default function ToursPage() {
                   )}
 
                   {/* Indicator Dots */}
-                  <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/40 rounded-full py-[5px] px-[7px] flex gap-[10px] z-10">
+                  <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/0 rounded-full py-[5px] px-[7px] flex gap-[10px] z-10">
                     {displayTour.images.map((_, index) => (
                       <div
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`h-[8px] w-[8px] rounded-full cursor-pointer transition-colors ${
-                          currentImageIndex === index ? 'bg-white' : 'bg-white/50'
+                        className={`h-[8px] w-[8px] rounded-full cursor-pointer shadow-[0px_0px_10px_rgba(0,0,0,0.3)] transition-colors ${
+                          // --- FIX START: Use % to highlight the first dot when on the clone slide ---
+                          (currentImageIndex % displayTour.images.length) === index 
+                            ? 'bg-white w-[25px]' 
+                            : 'bg-white/50'
+                          // --- FIX END ---
                         }`}
                       />
                     ))}
@@ -472,10 +519,10 @@ export default function ToursPage() {
                 <p className="text-gray-500">Tour</p>
                 <p className="font-bold text-2xl lg:text-3xl">{displayTour.name}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  <p className="px-4 py-1 font-medium bg-gray-200 rounded-full text-gray-800">{displayTour.duration} Hours</p>
-                  <p className="px-4 py-1 font-medium bg-gray-200 rounded-full text-gray-800">${displayTour.price} USD</p>
+                  <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">{displayTour.duration} Hours</p>
+                  <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">${displayTour.price} USD</p>
                 </div>
-                <div className="bg-gray-200 w-full mt-4 mb-2 h-px"/>
+                <div className="bg-gray-200/90 w-full mt-4 mb-0 h-px"/>
               </div>
               <div className="flex flex-col gap-6">
                 <div>
@@ -483,11 +530,44 @@ export default function ToursPage() {
                   <p className="text-gray-700 mt-1">{displayTour.description}</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold">Stops</p>
-                  <div className="space-y-2 mt-1">
-                    {displayTour.stops.map((stop) => (
-                      <p key={stop.id} className="text-gray-700"><b>{stop.name}:</b> {stop.description}</p>
+                  <p className="text-xl font-bold mb-4">Trip Info</p>
+                  <div className="flex flex-col">
+                    {displayTour.stops
+                      // Sort by created_at or a specific order column if you have one. 
+                      // Currently sorting by default order.
+                      .map((stop, index) => (
+                      <div key={stop.id} className="relative flex gap-4 pb-4 last:pb-0 ">
+                        
+                        {/* VISUAL: The Timeline Line & Dots */}
+                        <div className="flex flex-col items-center bg-red-500/0">
+                            {/* The Circle (Dot) */}
+                            <div className={`
+                              relative z-10 flex items-center justify-center w-4 h-4 bg-white rounded-full border-[3px] flex-shrink-0 border-[#007BFF]
+                            `}>
+                              {/* Optional: Inner dot for the first item like the screenshot */}
+                              <div className="w-2 h-2 bg-black/10 rounded-full" />
+                            </div>
+
+                            {/* The Vertical Line */}
+                            {/* We hide the line for the last item */}
+                            {index !== displayTour.stops.length - 1 && (
+                              <div className="absolute top-4 bottom-0 w-[3px] bg-blue-500"></div>
+                            )}
+                        </div>
+
+                        {/* TEXT: Content */}
+                        <div className="flex flex-col mt-[-4px]">
+                          <p className="text-gray-800/70 font-[500] text-[.9rem] leading-tight">
+                            {stop.description}
+                          </p>
+                          <p className={`font-[500] text-[1rem] text-gray-900`}>
+                            {stop.name}
+                          </p>
+                        </div>
+
+                      </div>
                     ))}
+                    <p className="font-[500] text-[1rem] self-center mt-[5px] max-sm:my-[15px] px-[17px] py-[7px] cursor-pointer bg-black/5 rounded-full hover:bg-[#E0E0E0] active:bg-[#E0E0E0]">View All Stops</p>
                   </div>
                 </div>
               </div>
@@ -499,9 +579,9 @@ export default function ToursPage() {
             <div className="w-full lg:w-1/3 h-full relative flex flex-col gap-4">
               {/* Calendar and Time Picker */}
               <div>
-                <button className="cursor-pointer flex w-full text-left pt-2 pb-0 rounded-[30px]" onClick={() => setIsCalendarOpen(true)}>
+                <button className="cursor-pointer bg-[#F5F5F5] hover:bg-[#E0E0E0] active:bg-[#E0E0E0] flex w-full text-left p-4 rounded-[30px]" onClick={() => setIsCalendarOpen(true)}>
                   <div className="flex flex-col">
-                    <p className="flex items-center text-sm">Select a date & time</p>
+                    <p className="flex items-center text-sm">Select a date & time <ArrowIcon className="rotate-180" color="#000" /></p>
                     <p className="font-bold text-lg mt-[-2px]">
                       {format(selectedDate, 'MMMM d, yyyy')}
                     </p>
@@ -524,12 +604,12 @@ export default function ToursPage() {
               {/* Input Fields */}
               <div className="flex flex-col gap-3">
                 <div className="flex flex-row items-center gap-3">
-                  <input type="text" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-12 w-full outline-none font-medium" placeholder="Full Name" />
+                  <input type="text" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Full Name" />
                   {/* --- START: Custom Guest Dropdown --- */}
                   <div ref={guestDropdownRef} className="relative">
                     <button 
                       onClick={() => setIsGuestDropdownOpen(!isGuestDropdownOpen)}
-                      className="cursor-pointer flex items-center gap-2 p-1 pr-7 pl-4 bg-[#F5F5F5] rounded-[20px] h-12 w-full sm:w-auto"
+                      className="cursor-pointer flex items-center gap-2 p-1 pr-7 pl-4 bg-[#F5F5F5] hover:bg-[#E0E0E0] active:bg-[#E0E0E0] rounded-[20px] h-13 w-full sm:w-auto"
                     >
                       <Image src={profileIcon} alt="Guests icon" height={22} className="opacity-70" />
                       <span className="w-3 text-center font-[600] pr-2 text-[#000]/70 text-[1.1rem]">{guestCount}</span>
@@ -564,15 +644,15 @@ export default function ToursPage() {
                   </div>
                   {/* --- END: Custom Guest Dropdown --- */}
                 </div>
-                <input type="tel" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-12 w-full outline-none font-medium" placeholder="Phone Number" />
-                <input type="email" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-12 w-full outline-none font-medium" placeholder="Email Address" />
+                <input type="tel" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Phone Number" />
+                <input type="email" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Email Address" />
                 <textarea placeholder="Additional Notes (Optional)" className="resize-none w-full outline-none h-24 font-medium p-3 px-4 bg-[#F5F5F5] rounded-[20px]"></textarea>
               </div>
 
               {/* Book Tour Button */}
-              <div className="w-full mt-0 flex justify-center lg:justify-end">
-                <button className='relative self-center mr-[3px] active:bg-black/30 cursor-pointer whitespace-nowrap rounded-full p-[3px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
-                <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[50px] py-[10px]'>
+              <div className="mt-0 flex justify-center bg-red-500/0">
+                <button className='active:scale-97 relative w-full self-center mr-[3px] active:bg-black/30 cursor-pointer whitespace-nowrap rounded-full p-[3px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
+                <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full py-[15px]'>
                   <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
                     Book Tour
                   </span>
@@ -796,7 +876,7 @@ export default function ToursPage() {
                     </Link>
                   </li>
                 </ul>
-                <button className='relative lg:self-center cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
+                <button className='relative active:scale-97 lg:self-center cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
                   <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
                     <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
                       Contribute
@@ -819,7 +899,7 @@ export default function ToursPage() {
                   />
                   <button
                     className={`
-                      absolute cursor-pointer rounded-full py-[10px] px-[22px] mr-[7px] font-semibold bg-[#007BFF] text-white filter shadow-[0_0_7px_rgba(0,123,255,0.5)]
+                      absolute cursor-pointer active:scale-97 rounded-full py-[10px] px-[22px] mr-[7px] font-semibold bg-[#007BFF] text-white filter shadow-[0_0_7px_rgba(0,123,255,0.5)]
                     `}
                   >
                     Subscribe

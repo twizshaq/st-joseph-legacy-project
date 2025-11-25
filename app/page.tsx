@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Image from 'next/image';
+import { AlertIcon } from '@/public/icons/alert-icon';
 import alertIcon from '@/public/icons/alert-icon.svg';
 import loadingIcon from '@/public/loading-icon.png';
 import vrIcon from "@/public/icons/vr-icon.svg"
@@ -357,7 +358,7 @@ export default function Home() {
           <div className='absolute bottom-[20px] right-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
             <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
               <button className='rounded-full active:bg-black/30 bg-black/40 backdrop-blur-[5px] flex flex-row text-white font-bold px-[15px] py-[10px] gap-[10px] z-[40]'>
-              <Image src={alertIcon} alt="" height={25} width={25}/>
+              <AlertIcon size={23} color="white" />
               <p className=''>Feedback</p>
             </button>
             </div>

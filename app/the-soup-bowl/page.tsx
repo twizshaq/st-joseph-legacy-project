@@ -20,17 +20,19 @@ const SoupBowl = () => {
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
-  // Sample images (replace with your actual ones)
-  const galleryImages = [
-    'https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg',
-    'https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg',
-    'https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg',
-    'https://i.pinimg.com/736x/b2/1a/4e/b21a4edd98d5deeae826a459aeeb1b26.jpg',
-    'https://i.pinimg.com/736x/a5/71/41/a57141ad568104a6b1e49acedddd1eca.jpg',
-    'https://i.pinimg.com/736x/d8/51/26/d85126e7178f37e0f8cb5a73d495707d.jpg',
-    'https://i.pinimg.com/736x/3f/82/ac/3f82ac4cde04c3143ed4f2580d64820c.jpg',
-    'https://i.pinimg.com/736x/4c/20/00/4c20006b09ffc0b4f31278d3009f7390.jpg',
-    'https://i.pinimg.com/736x/ee/f1/ed/eef1ed5ee44a821046bcd209a3e1fbcc.jpg',
+  // Gallery items: images, video, and 360 photo
+  const galleryItems = [
+    { type: 'image', src: 'https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg' },
+    { type: 'video', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4' },
+    { type: 'photo_360', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/Andromeda_20250920_110344_00_008.jpg' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/b2/1a/4e/b21a4edd98d5deeae826a459aeeb1b26.jpg' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/a5/71/41/a57141ad568104a6b1e49acedddd1eca.jpg' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/d8/51/26/d85126e7178f37e0f8cb5a73d495707d.jpg' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/3f/82/ac/3f82ac4cde04c3143ed4f2580d64820c.jpg' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/4c/20/00/4c20006b09ffc0b4f31278d3009f7390.jpg' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/ee/f1/ed/eef1ed5ee44a821046bcd209a3e1fbcc.jpg' },
   ];
 
   useEffect(() => {
@@ -47,12 +49,12 @@ const SoupBowl = () => {
   }, [galleryOpen]);
 
   const goToNext = useCallback(() => {
-    setSelectedIndex((prevIndex) => (prevIndex + 1) % galleryImages.length);
-  }, [galleryImages.length]);
+    setSelectedIndex((prevIndex) => (prevIndex + 1) % galleryItems.length);
+  }, [galleryItems.length]);
 
   const goToPrevious = useCallback(() => {
-    setSelectedIndex((prevIndex) => (prevIndex - 1 + galleryImages.length) % galleryImages.length);
-  }, [galleryImages.length]);
+    setSelectedIndex((prevIndex) => (prevIndex - 1 + galleryItems.length) % galleryItems.length);
+  }, [galleryItems.length]);
 
   const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -108,12 +110,12 @@ const SoupBowl = () => {
     setTouchStartX(null); // Reset for next swipe
   };
 
-    const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    if (galleryImages[selectedIndex]) {
+    if (galleryItems[selectedIndex] && galleryItems[selectedIndex].type === 'image') {
       const img = new window.Image();
-      img.src = galleryImages[selectedIndex];
+      img.src = galleryItems[selectedIndex].src;
       img.onload = () => {
         setImageDimensions({
           width: img.naturalWidth,
@@ -121,7 +123,7 @@ const SoupBowl = () => {
         });
       };
     }
-  }, [selectedIndex, galleryImages]);
+  }, [selectedIndex, galleryItems]);
 
   useEffect(() => {
     const originalBodyOverflow = document.body.style.overflow;
@@ -392,7 +394,7 @@ const SoupBowl = () => {
                                 onClick={(e) => e.stopPropagation()}
                                 className="relative w-full h-full flex flex-col"
                             >
-                                {/* IMAGE AREA */}
+                                {/* MEDIA AREA */}
                                 <div className="flex-1 w-full flex justify-center items-center gap-4 p-4 min-h-0">
                                     <button onClick={goToPrevious} aria-label="Previous image" className="cursor-pointer hidden md:flex flex-shrink-0 items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors z-10">
                                         <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -403,15 +405,32 @@ const SoupBowl = () => {
                                         onTouchStart={handleTouchStart}
                                         onTouchEnd={handleTouchEnd}
                                     >
-                                        {imageDimensions.width > 0 && (
-                                            <Image 
-                                                src={galleryImages[selectedIndex]} 
-                                                alt={`Gallery ${selectedIndex + 1}`} 
-                                                width={imageDimensions.width}
-                                                height={imageDimensions.height}
-                                                priority={true}
-                                                className="object-contain max-w-full max-h-full" 
-                                            />
+                                        {galleryItems[selectedIndex].type === 'image' && (
+                                          <Image
+                                            src={galleryItems[selectedIndex].src}
+                                            alt={`Gallery ${selectedIndex + 1}`}
+                                            fill
+                                            className="object-contain max-w-full max-h-full"
+                                          />
+                                        )}
+                                        {galleryItems[selectedIndex].type === 'video' && (
+                                          <video
+                                            src={galleryItems[selectedIndex].src}
+                                            controls
+                                            autoPlay
+                                            className="max-w-full max-h-full"
+                                          />
+                                        )}
+                                        {galleryItems[selectedIndex].type === 'photo_360' && (
+                                          <iframe
+                                            src={galleryItems[selectedIndex].src}
+                                            width="100%"
+                                            height="100%"
+                                            style={{ border: 0 }}
+                                            allowFullScreen
+                                            aria-hidden="false"
+                                            tabIndex={0}
+                                          ></iframe>
                                         )}
                                     </div>
 
@@ -423,10 +442,9 @@ const SoupBowl = () => {
                                 {/* THUMBNAIL AREA */}
                                 <div className="flex-shrink-0 flex flex-col items-center pb-4 pt-0">
                                     <div className="w-full max-w-4xl flex justify-start md:justify-center gap-3 overflow-x-auto py-2 px-4 hide-scrollbar">
-                                        {galleryImages.map((src, index) => (
+                                        {galleryItems.map((item, index) => (
                                             <button 
                                                 key={index} 
-                                                // --- THIS IS THE FIX ---
                                                 ref={(el) => { thumbnailRefs.current[index] = el; }}
                                                 onClick={() => setSelectedIndex(index)} 
                                                 className={`flex-shrink-0 transition-all duration-200 focus:outline-none ${selectedIndex === index ? 'scale-105' : 'opacity-70 hover:opacity-100'}`}
@@ -434,18 +452,42 @@ const SoupBowl = () => {
                                                 {selectedIndex === index ? (
                                                     <div className='w-20 h-20 max-sm:w-17 max-sm:h-17 flex items-center justify-center rounded-[22px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
                                                         <div className="relative w-full h-full rounded-[20px] overflow-hidden">
-                                                            <Image src={src} alt={`Thumbnail ${index + 1}`} layout="fill" className="object-cover" />
+                                                            <Image src={item.src} alt={`Thumbnail ${index + 1}`} layout="fill" className="object-cover" />
+                                                            {item.type === 'video' && (
+                                                              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                                                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                                  <path d="M4 3.25v13.5l12-6.75L4 3.25z"/>
+                                                                </svg>
+                                                              </div>
+                                                            )}
+                                                            {item.type === 'photo_360' && (
+                                                              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                                                <Image src={vrIcon} alt="VR Icon" width={32} height={32} />
+                                                              </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ) : (
                                                     <div className="relative w-20 h-20 max-sm:w-17 max-sm:h-17 rounded-[20px] overflow-hidden">
-                                                        <Image src={src} alt={`Thumbnail ${index + 1}`} layout="fill" className="object-cover" />
+                                                        <Image src={item.src} alt={`Thumbnail ${index + 1}`} fill sizes="80px" className="object-cover" />
+                                                        {item.type === 'video' && (
+                                                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                                            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                              <path d="M4 3.25v13.5l12-6.75L4 3.25z"/>
+                                                            </svg>
+                                                          </div>
+                                                        )}
+                                                        {item.type === 'photo_360' && (
+                                                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                                            <Image src={vrIcon} alt="VR Icon" width={32} height={32} />
+                                                          </div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </button>
                                         ))}
                                     </div>
-                                    <p className="text-white/80 text-sm mt-2 max-sm:mb-7">{selectedIndex + 1} / {galleryImages.length}</p>
+                                    <p className="text-white/80 text-sm mt-2 max-sm:mb-7">{selectedIndex + 1} / {galleryItems.length}</p>
                                 </div>
                             </div>
                         </div>
