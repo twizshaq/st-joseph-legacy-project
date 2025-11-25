@@ -12,7 +12,7 @@ import houseIcon from '@/public/icons/house-icon.svg';
 import ArrowIcon from '@/public/icons/arrow-icon';
 import photoIcon from "@/public/icons/photos-icon.svg"
 import FacebookIcon from "@/public/icons/facebook-icon";
-import profileIcon from "@/public/icons/profile-icon.svg"
+import { ProfileIcon } from "@/public/icons/profile-icon"
 import { Star } from "lucide-react"; 
 import { Session } from '@supabase/supabase-js';
 import DatePicker from "react-datepicker";
@@ -542,16 +542,16 @@ export default function ToursPage() {
                         <div className="flex flex-col items-center bg-red-500/0">
                             {/* The Circle (Dot) */}
                             <div className={`
-                              relative z-10 flex items-center justify-center w-4 h-4 bg-white rounded-full border-[3px] flex-shrink-0 border-[#007BFF]
+                              relative z-10 flex items-center justify-center w-4 h-4 bg-white rounded-full border-[3px] flex-shrink-0 border-[#007BFF] shadow-[0px_0px_3px_rgba(0,140,255,0)]
                             `}>
                               {/* Optional: Inner dot for the first item like the screenshot */}
-                              <div className="w-2 h-2 bg-black/10 rounded-full" />
+                              {/* <div className="w-2 h-2 bg-black/10 rounded-full" /> */}
                             </div>
 
                             {/* The Vertical Line */}
                             {/* We hide the line for the last item */}
                             {index !== displayTour.stops.length - 1 && (
-                              <div className="absolute top-4 bottom-0 w-[3px] bg-blue-500"></div>
+                              <div className="absolute top-4 bottom-0 w-[3px] bg-blue-500 shadow-[0px_0px_3px_rgba(0,140,255,0)]"></div>
                             )}
                         </div>
 
@@ -609,12 +609,12 @@ export default function ToursPage() {
                   <div ref={guestDropdownRef} className="relative">
                     <button 
                       onClick={() => setIsGuestDropdownOpen(!isGuestDropdownOpen)}
-                      className="cursor-pointer flex items-center gap-2 p-1 pr-7 pl-4 bg-[#F5F5F5] hover:bg-[#E0E0E0] active:bg-[#E0E0E0] rounded-[20px] h-13 w-full sm:w-auto"
+                      className="cursor-pointer flex items-center gap-2 p-1 pr-1 pl-4 bg-[#F5F5F5] hover:bg-[#E0E0E0] active:bg-[#E0E0E0] rounded-[20px] h-13 w-full sm:w-auto"
                     >
-                      <Image src={profileIcon} alt="Guests icon" height={22} className="opacity-70" />
-                      <span className="w-3 text-center font-[600] pr-2 text-[#000]/70 text-[1.1rem]">{guestCount}</span>
+                      <ProfileIcon size={24} color="#000000a5" />
+                      <span className="w-3 text-center font-[600] pr-0 text-[#000]/70 text-[1.1rem]">{guestCount}</span>
                       <div className="pr-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 opacity-70 transition-transform ${isGuestDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-7 w-7 opacity-70 transition-transform ${isGuestDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                       </div>
@@ -623,7 +623,7 @@ export default function ToursPage() {
                     {isGuestDropdownOpen && (
                     <div className='absolute bg-white/10 mt-[5px] backdrop-blur-[10px] rounded-[27px] p-[3px] z-[99] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
                       <div className="top-full w-full bg-black/40 rounded-[25px]">
-                        <p className="font-bold text-center px-2 py-1 text-white">Select Guests</p>
+                        <p className="font-[500] text-center px-2 py-2 text-white">Select Guests</p>
                         <div className="max-h-48 flex flex-col overflow-y-auto pb-2">
                           {[1, 2, 3, 4, 5, 6, 7, 8].map((number) => (
                             <button
