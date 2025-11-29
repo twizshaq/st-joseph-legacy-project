@@ -239,7 +239,7 @@
        <div className='fixed top-[0px] bg-white/1 h-[50px] w-full z-[200] z-[-20]' />
        <div className='fixed bottom-[0px] bg-white/1 z-[200] h-[50px] w-full z-[-20]' />
  
-       <div onClick={onClose} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 backdrop-blur-[15px]">
+       <div onClick={onClose} className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/20 backdrop-blur-[15px]">
          {/* Error Popup */}
          {errorMessage && (
            <div className="absolute text-center top-5 left-[50%] z-[120] px-6 py-2 bg-red-600 text-white font-semibold rounded-full animate-popup">

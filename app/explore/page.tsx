@@ -29,8 +29,9 @@ interface UserItem {
   username: string;
   fullName: string;
   avatar: string;
-  followers: string;
-  isFollowing: boolean;
+//   followers: string;
+//   isFollowing: boolean;
+  rank: string;
 }
 
 // --- Mock Data ---
@@ -83,9 +84,9 @@ const mockMedia: MediaItem[] = [
 ];
 
 const mockUsers: UserItem[] = [
-  { id: 1, username: 'island_girl', fullName: 'Jessica W.', avatar: 'https://i.pinimg.com/736x/87/bb/6f/87bb6feec00fb1ff38c0f828630956b1.jpg', followers: '12K', isFollowing: false },
-  { id: 2, username: 'surfer_dude', fullName: 'Mikey P.', avatar: 'https://i.pinimg.com/736x/0b/42/39/0b42396dc5e5b8ca43bef1102b9a9fdb.jpg', followers: '8.5K', isFollowing: true },
-  { id: 3, username: 'explore_barbados', fullName: 'Visit Barbados', avatar: 'https://i.pinimg.com/736x/fb/f1/d2/fbf1d2a2c9767c53aec9c6258ca51d8a.jpg', followers: '150K', isFollowing: false },
+  { id: 1, username: 'island_girl', fullName: 'Jessica W.', avatar: 'https://i.pinimg.com/736x/87/bb/6f/87bb6feec00fb1ff38c0f828630956b1.jpg', rank: 'Rank: 1' },
+  { id: 2, username: 'surfer_dude', fullName: 'Mikey P.', avatar: 'https://i.pinimg.com/736x/0b/42/39/0b42396dc5e5b8ca43bef1102b9a9fdb.jpg', rank: 'Rank: 20' },
+  { id: 3, username: 'explore_barbados', fullName: 'Visit Barbados', avatar: 'https://i.pinimg.com/736x/fb/f1/d2/fbf1d2a2c9767c53aec9c6258ca51d8a.jpg', rank: 'Rank: 200' },
 ];
 
 export default function ExplorePage() {
@@ -297,7 +298,7 @@ export default function ExplorePage() {
                                 <input 
                                     type="text"
                                     placeholder="Search users, or locations"
-                                    className="w-full pl-11 pr-4 py-4 bg-[#000]/40 rounded-full focus:outline-none transition-all text-[15px] font-[500] placeholder-text-[#fff] text-[#fff]"
+                                    className="w-full pl-11 pr-4 py-[15px] bg-[#000]/40 rounded-full focus:outline-none transition-all text-[15px] font-[500] placeholder-text-[#fff] text-[#fff]"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
@@ -310,32 +311,32 @@ export default function ExplorePage() {
                         <div className="mb-8">
                             <h3 className="font-bold text-lg mb-3 px-1 text-gray-900">Accounts</h3>
                             {filteredUsers.length > 0 ? (
-                                <div className="space-y-4">
+                                <div className="space-y-1">
                                     {filteredUsers.map(user => (
-                                        <div key={user.id} className="flex items-center justify-between p-1">
+                                        <div key={user.id} className="flex bg-red-500/0 active:scale-[.98] py-[7px] rounded-[20px] items-center justify-between p-1">
                                             <div className="flex items-center gap-3">
                                                 <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-100">
                                                     <Image src={user.avatar} alt={user.username} layout="fill" objectFit="cover" />
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-sm text-gray-900">{user.username}</p>
-                                                    <p className="text-gray-500 text-xs">{user.fullName} • {user.followers}</p>
+                                                    <p className="font-bold text-[.95rem] text-gray-900">{user.username}</p>
+                                                    <p className="text-gray-500 font-[500] text-xs">{user.rank}</p>
                                                 </div>
                                             </div>
-                                            <button className={`px-4 py-1.5 rounded-[10px] text-sm font-bold transition-colors ${
+                                            {/* <button className={`px-4 py-1.5 rounded-[10px] text-sm font-bold transition-colors ${
                                                 user.isFollowing 
                                                 ? 'bg-gray-100 text-black border border-gray-200' 
                                                 : 'bg-[#0095F6] text-white hover:bg-blue-600'
                                             }`}>
                                                 {user.isFollowing ? 'Following' : 'Follow'}
-                                            </button>
+                                            </button> */}
                                         </div>
                                     ))}
                                 </div>
                             ) : (
                                 <p className="text-gray-400 text-sm p-1">No accounts found.</p>
                             )}
-                             <h3 className="font-bold text-lg mt-8 mb-3 px-1 text-gray-900">Explore Posts</h3>
+                             <h3 className="font-bold text-lg mt-8 mb-3 px-1 text-gray-900">Explore Locations</h3>
                         </div>
                     )}
 

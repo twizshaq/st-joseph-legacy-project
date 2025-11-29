@@ -11,6 +11,10 @@ import { Feature, Point, FeatureCollection } from 'geojson';
 import arrowIcon from "@/public/icons/arrow-icon.svg"
 import linkIcon from "@/public/icons/link-icon.svg"
 import { createClient } from '@supabase/supabase-js';
+import DirectionsIcon from "@/public/icons/directions-icon"
+import ShareIcon from "@/public/icons/share-icon"
+import HeartIcon from "@/public/icons/heart-icon"
+import InfoIcon from "@/public/icons/info-icon"
 
 // --- TYPE DEFINITIONS ---
 
@@ -88,6 +92,7 @@ function SearchResults({
     }
   };
 
+
   return (
     <div className='relative w-full h-full'>
       {/* VIEW 1: The List View (Search Bar + Results) */}
@@ -106,25 +111,41 @@ function SearchResults({
             className="bg-black/40 rounded-full h-[50px] w-full text-[#E0E0E0] placeholder-[#E0E0E0] p-3 font-bold pl-[50px] outline-none"/>
         </div>
         {mobileSearchOpen && (
-          <div className='mt-2 overflow-y-auto overflow-x-hidden flex-1 rounded-[16px]'>
+          <div className='mt-2 overflow-y-auto overflow-x-hidden flex-1 pb-[10px]'>
             <ul className='px-3 pb-[5px] gap-[10px] mt-[10px] flex flex-col'>
               {sites.map((site) => (
                 <li key={site.id}>
-                  <button
-                    onClick={() => setSelectedSite(site)}
-                    className='flex flex-col w-full text-left rounded-[33px] bg-black/40 hover:bg-black/40 transition-colors duration-150 px-4 py-4 gap-3 mb-2'
-                  >
-                    <div className='flex-1'>
-                      <div className='font-semibold text-white leading-tight text-[1.2rem]'>{site.name}</div>
-                      <div className='text-sm text-[#E0E0E0]/80 line-clamp-2 pr-4 text-wrap'>{site.description}</div>
-                    </div>
-                    <div className='relative flex flex-row gap-2'>
-                      {/* Placeholder images */}
-                      <div className='min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2'></div>
-                      <div className='absolute ml-[45px] min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2 shadow-[0px_0px_15px_rgba(0,0,0,0.3)]'></div>
-                      <div className='absolute ml-[90px] min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2 shadow-[0px_0px_15px_rgba(0,0,0,0.3)]'></div>
-                    </div>
-                  </button>
+                  <div className='bg-white/10 active:scale-[.98] rounded-[37px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
+                    <button
+                      onClick={() => setSelectedSite(site)}
+                      className='flex w-full text-wrap text-left cursor-pointer rounded-[35px] bg-black/40 overflow-hidden hover:bg-black/40 transition-colors duration-150 p-2 gap-3'
+                    >
+                      {/* <div className='bg-white/10 rounded-[27px] p-[2.5px] shadow-[0px_0px_30px_rgba(0,0,0,.2)]'> */}
+                        {site.imageUrl ? (
+                          <Image 
+                            src={site.imageUrl} 
+                            alt='site image' 
+                            height={80} 
+                            width={80} 
+                            className='min-w-[80px] min-h-[80px] object-cover rounded-[28px] max-w-[80px] max-h-[80px]'
+                          />
+                        ) : (
+                          /* Fallback: Show a colored box if no image exists to prevent the crash */
+                          <div className='min-w-[80px] min-h-[80px] bg-black/20 rounded-[28px]' />
+                        )}
+                      {/* </div> */}
+                      <div className='flex-1'>
+                        <div className='font-semibold text-white leading-tight text-[1.2rem]'>{site.name}</div>
+                        <div className='text-sm text-[#E0E0E0]/80 line-clamp-2 pr-4 text-wrap'>{site.category}</div>
+                      </div>
+                      <div className='relative flex flex-row gap-2'>
+                        {/* Placeholder images */}
+                        {/* <div className='min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2'></div> */}
+                        {/* <div className='absolute ml-[45px] min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2 shadow-[0px_0px_15px_rgba(0,0,0,0.3)]'></div>
+                        <div className='absolute ml-[90px] min-w-[60px] min-h-[60px] overflow-hidden rounded-[22px] bg-[#FFCEC4] border-white border-2 shadow-[0px_0px_15px_rgba(0,0,0,0.3)]'></div> */}
+                      </div>
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -136,9 +157,9 @@ function SearchResults({
       <div className={`absolute inset-0 flex flex-col h-full transition-opacity duration-400 ${selectedSite ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         {selectedSite && (
           <>
-            <div onClick={handleHeaderClick} className={`absolute  z-10 flex items-start px-[10px] justify-between transition-all duration-400 rounded-full ${mobileSearchOpen ? 'bg-black/0 pt-[7.5px] pb-[0px] w-[100%] px-[15px]' : 'bg-black/0 mt-[0px] py-[7.5px] w-[100%]'}`}>
+            <div onClick={handleHeaderClick} className={`absolute  z-10 flex items-start px-[10px] justify-between transition-all duration-400 rounded-full ${mobileSearchOpen ? 'bg-black/0 pt-[7.5px] mt-[6px] pb-[0px] w-[100%] px-[15px]' : 'bg-black/0 mt-[0px] py-[7.5px] w-[100%]'}`}>
 
-              <button onClick={() => setSelectedSite(null)} className={`inline-flex items-center gap-2 text-white/90 hover:text-white active:opacity-80 ${mobileSearchOpen ? 'mt-[5px]' : 'mt-[0px]'}`}>
+              <button onClick={() => setSelectedSite(null)} className={`inline-flex cursor-pointer items-center gap-2 text-white/90 hover:text-white active:opacity-80 ${mobileSearchOpen ? 'mt-[5px]' : 'mt-[0px]'}`}>
 
                 <span className='rotate-[-90deg]'><Image src={arrowIcon} alt='Back Icon' height={35} /></span>
               </button>
@@ -154,7 +175,7 @@ function SearchResults({
               </div>
             </div>
             <>
-              <div
+              {/* <div
                 style={{ '--bg-color': selectedSite?.colorhex || '#fff' } as React.CSSProperties}
                 className={`
                   bg-[var(--bg-color)]/30
@@ -163,25 +184,25 @@ function SearchResults({
                   ${isScrolled ? 'backdrop-blur-[15px] [mask-image:linear-gradient(to_bottom,black_30%,transparent)] opacity-100' : 'backdrop-blur-[15px] [mask-image:linear-gradient(to_bottom,black_0%,transparent)] opacity-0'}
                   ${mobileSearchOpen ? 'h-[130px]' : 'h-0 opacity-0'}
                 `}
-              ></div>
+              ></div> */}
 
               <div
                 className={`
-                  absolute w-full bg-transparent
-                  transition-all duration-400 ease-in-out backdrop-blur-[20px] [mask-image:linear-gradient(to_bottom,black_20%,transparent)]
-                  ${isScrolled ? 'backdrop-blur-[20px] opacity-100' : 'backdrop-blur-0 opacity-0'}
-                  ${mobileSearchOpen ? 'h-[50px]' : 'h-0 opacity-0'}
+                  absolute w-full bg-[#676767]
+                  transition-all duration-400 ease-in-out [mask-image:linear-gradient(to_bottom,black_30%,transparent)]
+                  ${isScrolled ? 'opacity-100' : 'opacity-0'}
+                  ${mobileSearchOpen ? 'h-[100px]' : 'h-0 opacity-0'}
                 `}
               ></div>
 
-              <div
+              {/* <div
                 className={`
                   absolute w-full bg-transparent
                   transition-all duration-400 ease-in-out [mask-image:linear-gradient(to_bottom,black_10%,transparent)]
                   ${isScrolled ? 'backdrop-blur-[5px] opacity-100' : 'backdrop-blur-0 opacity-0'}
                   ${mobileSearchOpen ? 'h-[20px]' : 'h-0 opacity-0'}
                 `}
-              ></div>
+              ></div> */}
             </>
            <div
               ref={scrollContainerRef}
@@ -194,32 +215,58 @@ function SearchResults({
             >
               {/* Example detail card */}
               <div className='flex flex-col rounded-[16px] overflow-hidden pb-3 gap-5'>
+                <div className='flex flex-col gap-2 text-sm text-[#E0E0E0] bg-blue-500/0 mt-[90px]'>
+                  <p className='font-bold text-[1.2rem] px-4'>Description</p>
+                  <p className='text-black font-[500] px-4 text-white'>{selectedSite.description}</p>
+                  {/* <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] bg-green-500/0 hide-scrollbar'>
+                    <div className='bg-red-400 min-h-[120px] min-w-[150px] rounded-[30px]'></div>
+                    <div className='flex flex-col gap-2'>
+                      <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
+                      <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
+                    </div>
+                      <div className='bg-red-400 min-h-[120px] min-w-[150px] rounded-[30px]'></div>
+                    <div className='flex flex-col gap-2'>
+                      <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
+                      <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
+                    </div>
+                    <button className='cursor-pointer flex justify-center items-center bg-red-400 min-h-[120px] min-w-[150px] rounded-[30px]'>
+                      <p>View All Photos</p>
+                    </button>
+                  </div> */}
+                </div>
                 <div className='px-4'>
                   {/* <h3 className='text-white text-lg font-bold mb-1'>{selectedSite.name}</h3> */}
-                  <div className='flex gap-4 text-sm text-[#E0E0E0] mt-[100px]'>
-                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer whitespace-nowrap rounded-[20px] p-[2px] bg-black/0'>
-                      <Link href="/sign-up">
-                          <p className='text-white font-bold text-[.9rem]'>Distance</p>
-                          <p>13km</p>
-                      </Link>
+                  <div className='flex gap-4 text-sm text-[#E0E0E0]'>
+                    
+                    <div className='flex w-[100%] text-center items-center bg-black/0 gap-[5px]'>
+                      {/* <Link href="/sign-up"> */}
+                      <div className='bg-white/10 active:scale-[.98] rounded-[26px] p-[3px] w-[100%] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
+                        <div className='flex justify-center items-center gap-[10px] text-white font-[500] text-[1rem] bg-black/30 py-[12px] rounded-[23px]'>
+                          <DirectionsIcon size={30} color="#fff"/>
+                          <p>Get Directions</p>
+                        </div>
+                      </div>
+                          {/* <p className='text-white font-bold text-[1rem] bg-red-500 py-[20px] w-fit px-[20px]'>Like</p> */}
+                          <div className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
+                            <HeartIcon size={45} color="#fff" className='bg-black/30 p-[13px] h-[100%] w-[100%] rounded-[23px]' />
+                          </div>
+                          {/* <HeartIcon size={80} color="#fff" className='bg-black/40 p-3'/> */}
+                          <div className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
+                            <ShareIcon size={45} color="#fff" className='bg-black/30 p-[13px] h-[100%] w-[100%] rounded-[23px]'/>
+                          </div>
+                          {/* <p className='text-white font-bold text-[1rem] bg-red-500'>Custom Tour</p> */}
+                          {/* <p>13km</p> */}
+                      {/* </Link> */}
                     </div>
-                    <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer whitespace-nowrap rounded-[20px] p-[2px] bg-black/0'>
-                      <Link href="/sign-up">
-                          <p className='text-white font-bold text-[.8rem]'>Hours</p>
-                          <p className='text-green-500 font-bold '>Open</p>
-                      </Link>
-                    </div>
-                    {/* <div className='flex flex-col text-center py-[7px] items-center justify-center cursor-pointer whitespace-nowrap rounded-[20px] p-[2px] bg-black/0'>
-                      <Link href="/sign-up">
-                          <p className='text-white font-bold text-[.9rem]'>Distance</p>
-                          <p>13km</p>
-                      </Link>
-                    </div> */}
                   </div>
                 </div>
-                <div className='flex flex-col gap-2 text-sm text-[#E0E0E0] bg-blue-500/0 mt-[0px]'>
-                  <p className='font-bold text-[1.2rem] px-4'>Photo Gallery</p>
-                  <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] bg-green-500/0 hide-scrollbar'>
+
+              </div>
+
+              <div className='flex flex-col gap-[15px] mb-[17px]'>
+                <div className='bg-white/10 h-[2px] w-[65%] self-center'></div>
+                <p className='font-bold text-[1.2rem] px-4'>Media</p>
+                <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] bg-green-500/0 hide-scrollbar'>
                     <div className='bg-red-400 min-h-[120px] min-w-[150px] rounded-[30px]'></div>
                     <div className='flex flex-col gap-2'>
                       <div className='bg-red-400 h-[120px] w-[120px] rounded-[30px]'></div>
@@ -234,50 +281,18 @@ function SearchResults({
                       <p>View All Photos</p>
                     </button>
                   </div>
-                </div>
-                <div className='px-4 mt-[40px]'>
-                  <p className='font-bold text-[1.2rem]'>Details</p>
-                  <div className='flex flex-col gap-3'>
-                    <div className='flex flex-col'>
-                      <p className='text-[#fff] font-bold'>Hours</p>
-                      <div className='flex flex-row gap-9'>
-                        <p>Mon - friday <br /> 6:00 am - 6:00 pm</p>
-                        <p>Saturday <br /> 9:00 am - 3:00 pm</p>
+                  <div className='bg-white/10 h-[2px] w-[65%] self-center'></div>
+                  <div className='w-[90%] flex self-center items-center gap-[10px]'>
+                    <div className='self-center cursor-pointer whitespace-nowrap rounded-[26px] p-[2.4px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0)] -mr-[2px] w-[100%]'>
+                    {/* <Link href="/sign-up"> */}
+                      <div className='flex flex-col text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[15px] py-[15.4px]'>
+                        <span className='text-white font-bold'>Create a custom trip</span>
                       </div>
+                    {/* </Link> */}
                     </div>
-                    <div className='bg-white/5 h-[2px] w-[95%] self-center'></div>
-                    <div className='flex flex-col'>
-                      <p className='font-bold'>Website</p>
-                      <div className='flex gap-1'>
-                        <p>www.example.com</p>
-                        <Image src={linkIcon} alt='Back Icon' height={15} />
-                      </div>
-                    </div>
-                    <div className='bg-white/5 h-[2px] w-[95%] self-center'></div>
-                    <div className='flex flex-col'>
-                      <p className='font-bold'>Contact</p>
-                      <p>1(246)823-5885</p>
-                      <p>shaquxn@gmail.com</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className='flex flex-col gap-[15px] mb-[17px]'>
-                <div className='bg-white/5 h-[2px] w-[65%] self-center'></div>
-                  <div className='self-center cursor-pointer whitespace-nowrap rounded-full p-[2.4px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0)] -mr-[2px]'>
-                    <Link href="/sign-up">
-                      <div className='flex flex-col text-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[6.4px]'>
-                        <span className='text-white font-bold'>Availible Tours</span>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className='self-center cursor-pointer whitespace-nowrap rounded-full p-[2.4px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[4px_4px_10px_rgba(0,0,0,0)] -mr-[2px]'>
-                    <Link href="/sign-up">
-                      <div className='flex flex-col text-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[6.4px]'>
-                        <span className='text-white font-bold'>Add to Self Guided Tour</span>
-                      </div>
-                    </Link>
+                    {/* <div className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'> */}
+                      <InfoIcon size={45} color="#fff" />
+                    {/* </div> */}
                   </div>
               </div>
               {/* Add more detail cards as needed */}
@@ -442,7 +457,7 @@ export default function FullScreenMapPage() {
       </div>
 
       {/* Desktop Search Panel */}
-      <div className='absolute bottom-[20px] left-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[400px] hidden sm:block'>
+      <div className='absolute bottom-[20px] left-[20px] whitespace-nowrap rounded-full p-[3px] w-[400px] hidden sm:block'>
         <div ref={desktopSearchRef} className={`bg-white/10 backdrop-blur-[20px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-400 ease-in-out rounded-[43px]`}>
           <div className={`bg-black/45 relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[55vh] rounded-[40px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
             <SearchResults sites={sites} selectedSite={selectedSite} setSelectedSite={setSelectedSite} mobileSearchInputRef={mobileSearchInputRef} mobileSearchReady={mobileSearchReady} handleMobileSearchTap={handleMobileSearchTap} mobileSearchOpen={mobileSearchOpen} />
@@ -470,8 +485,8 @@ export default function FullScreenMapPage() {
         
         {/* Mobile Search Panel */}
         <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] w-full'>
-          <div ref={mobileSearchRef} className={`bg-white/10 backdrop-blur-[20px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-400 ease-in-out rounded-[43px]`}>
-            <div className={`bg-black/45 relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[60vh] rounded-[40px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
+          <div ref={mobileSearchRef} className={`bg-white/10 backdrop-blur-[20px] p-[3px] shadow-[0px_0px_20px_rgba(0,0,0,0.3)] w-full transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'rounded-[43px] rounded-b-[49px]' : 'rounded-[43px] rounded-b-[43px]'}`}>
+            <div className={`bg-black/45 relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[60vh] max-h-[500px] rounded-[40px] rounded-b-[47px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
               <SearchResults sites={sites} selectedSite={selectedSite} setSelectedSite={setSelectedSite} mobileSearchInputRef={mobileSearchInputRef} mobileSearchReady={mobileSearchReady} handleMobileSearchTap={handleMobileSearchTap} mobileSearchOpen={mobileSearchOpen} />
             </div>
           </div>

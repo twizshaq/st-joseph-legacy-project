@@ -12,7 +12,7 @@ import Navigation from '@/app/components/ProfileNav';
 // --- Mock Data ---
 const topThree = [
   { rank: 2, name: 'sarah_j', points: 1500, img: 'https://i.pinimg.com/736x/c2/d9/d1/c2d9d1ba6373b685f8f737b10fa57611.jpg', color: 'border-gray-300' },
-  { rank: 1, name: 'king_david', points: 2000, img: 'https://i.pinimg.com/736x/d4/aa/92/d4aa9219d018d5fea71a647303b71e62.jpg', color: 'border-yellow-400' },
+  { rank: 1, name: 'king_david', points: 2000, img: 'https://i.pinimg.com/736x/18/bf/03/18bf03651fb073494e87f7c07952ccf0.jpg', color: 'border-yellow-400' },
   { rank: 3, name: 'mikey_p', points: 1300, img: 'https://i.pinimg.com/736x/87/bb/6f/87bb6feec00fb1ff38c0f828630956b1.jpg', color: 'border-orange-400' },
 ];
 
