@@ -5,9 +5,9 @@ import Image from 'next/image';
 import arrowIcon from "@/public/icons/arrow-icon.svg";
 import AddIcon from "@/public/icons/add-icon"
 import MapIcon from "@/public/icons/map-icon"
-import TrashIcon from "@/public/icons/trash-icon"
+// REMOVED: TrashIcon import (unused)
 import { Reorder, useDragControls } from "framer-motion";
-import { createClient } from '@supabase/supabase-js';
+// REMOVED: createClient import (unused)
 
 // --- TYPES ---
 export type TripSite = {
@@ -23,23 +23,13 @@ export type Site = {
   name: string;
   category: string;
   description: string;
-  coordinates: [number, number]; // [longitude, latitude]
+  coordinates: [number, number]; 
   imageUrl: string;
   colorhex: string;
   slug: string;
 };
 
-interface SupabaseSiteData {
-  id: number;
-  name: string | null;
-  category: string | null;
-  description: string | null;
-  longitude: string | null;
-  latitude: string | null;
-  pointimage: string | null;
-  colorhex: string | null;
-  slug: string;
-}
+// REMOVED: SupabaseSiteData interface (unused in this file)
 
 export type TripData = {
   name: string;
@@ -52,35 +42,33 @@ interface TripPlannerProps {
   onBack: () => void;
   onClose: () => void;
   onSaveTrip?: (data: TripData) => void;
-  mobileSearchOpen: boolean; // <--- 1. NEW PROP ADDED
+  mobileSearchOpen: boolean; 
   onHeaderClick: () => void;
 }
 
 // --- ICONS ---
 const Icons = {
-  DragHandle: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/></svg>,
-  Close: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
+  // REMOVED: DragHandle (unused, you used inline SVG)
+  // REMOVED: Close (unused)
   Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
   ChevronUp: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>,
   ChevronDown: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>,
   Plus: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
   Map: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>,
   Location: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.5 15L22 18.5L15.5 22L12 15.5L8.5 22L2 18.5L8.5 15L12 2Z" /></svg>,
-  Calendar: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+  // REMOVED: Calendar (unused)
 };
 
 export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobileSearchOpen, onHeaderClick }: TripPlannerProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   
-  // Set Date (User's Current Time) safely on client side
   const [scheduledDate, setScheduledDate] = useState("");
   const [tripName, setTripName] = useState("My Trip to Barbados");
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItems, setSelectedItems] = useState<TripSite[]>([]);
 
   useEffect(() => {
-    // Correct way to get local time string in format 'YYYY-MM-DDTHH:MM' for the input
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     setScheduledDate(now.toISOString().slice(0, 16));
@@ -95,14 +83,7 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
   const addItem = (site: TripSite) => setSelectedItems([...selectedItems, site]);
   const removeItem = (id: number) => setSelectedItems(prev => prev.filter(i => i.id !== id));
 
-  const moveItem = (index: number, dir: 'up' | 'down') => {
-    const temp = [...selectedItems];
-    const targetIndex = dir === 'up' ? index - 1 : index + 1;
-    if (targetIndex >= 0 && targetIndex < temp.length) {
-      [temp[index], temp[targetIndex]] = [temp[targetIndex], temp[index]];
-      setSelectedItems(temp);
-    }
-  };
+  // REMOVED: moveItem (unused)
 
   const handleSave = () => {
     if (selectedItems.length === 0) return;
@@ -123,12 +104,9 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
     }
   };
 
-  // NEW: State to track if the content is scrolled
     const [isScrolled, setIsScrolled] = useState(false);
-    // NEW: Ref for the scrollable container
     const scrollContainerRef = useRef<HTMLDivElement>(null);
   
-    // NEW: Update isScrolled based on scroll position
     const handleScroll = () => {
       if (scrollContainerRef.current) {
         const { scrollTop } = scrollContainerRef.current;
@@ -136,35 +114,20 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
       }
     };
 
-    const dragItem = useRef<number | null>(null);
-  const dragOverItem = useRef<number | null>(null);
-
-  // 2. ADD SORT HANDLER
-  const handleSort = () => {
-    if (dragItem.current === null || dragOverItem.current === null) return;
-    
-    // Create copy
-    const _items = [...selectedItems];
-    // Remove item from old pos
-    const draggedItemContent = _items.splice(dragItem.current, 1)[0];
-    // Insert at new pos
-    _items.splice(dragOverItem.current, 0, draggedItemContent);
-
-    // Reset Refs
-    dragItem.current = null;
-    dragOverItem.current = null;
-
-    setSelectedItems(_items);
-  };
+    // REMOVED: dragItem, dragOverItem, handleSort (All unused)
 
   return (
-    // Note: Reused exact background/radius logic from your SearchResults View 2 container to match
     <div className="relative h-full w-full flex flex-col overflow-hidden rounded-[40px] animate-in fade-in zoom-in-95 duration-200">
         
         {/* --- HEADER --- */}
+        {/* FIX: Changed div to div with role="button" to fix accessibility error, 
+            or you could remove onClick here if the click is only meant for the back button */}
         <div 
-          onClick={onHeaderClick} 
-          
+          onClick={onHeaderClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && onHeaderClick()}
+          className="outline-none"
         >
         <div className={`
           absolute z-30 flex items-start justify-between px-[10px] w-full
@@ -172,9 +135,11 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
           ${mobileSearchOpen ? 'bg-black/0 pt-[7.5px] mt-[6px] pb-[0px] px-[15px]' : 'bg-black/0 mt-[0px] py-[7.5px]'}
         `}>
           
-          {/* Back Button: Using IDENTICAL logic to SearchResults to prevent jumping */}
           <button 
-            onClick={onBack} 
+            onClick={(e) => {
+              e.stopPropagation(); // Stop bubbling to header
+              onBack();
+            }} 
             className={`
               inline-flex pr-[10px] active:scale-[.95] shrink-0 cursor-pointer items-center gap-2 
               text-white/90 hover:text-white active:opacity-80 
@@ -184,13 +149,13 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
             <span className='rotate-[-90deg]'><Image src={arrowIcon} alt='Back Icon' height={35} /></span>
           </button>
 
-          {/* Right Section: Name & Date (Replaces Title/Category) */}
           <div className='flex flex-col text-right pr-3 pt-1 flex-1 mt-[-11px] min-w-0 overflow-hidden relative'>
             <div className="w-full">
                <input 
                 type="text" 
                 value={tripName}
                 onChange={(e) => setTripName(e.target.value)}
+                onClick={(e) => e.stopPropagation()} // Allow typing without triggering header click
                 className={`
                   w-full bg-transparent text-white text-right font-bold text-[1.23rem] outline-none
                   text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)] p-0 m-0 border-none focus:ring-0
@@ -199,14 +164,14 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
                   ${!mobileSearchOpen ? 'pointer-events-none' : ''} 
                 `}
                 placeholder="Trip Name"
-                tabIndex={!mobileSearchOpen ? -1 : 0} // Prevent tabbing into it when closed
+                tabIndex={!mobileSearchOpen ? -1 : 0} 
               />
             </div>
-            {/* Date Input */}
             <input 
               type="datetime-local" 
               value={scheduledDate}
               onChange={(e) => setScheduledDate(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
               className={`
                 bg-transparent text-[#E0E0E0] text-sm text-right outline-none w-full font-medium p-0 m-0 
                 border-none focus:ring-0 [color-scheme:dark] opacity-90 cursor-pointer mt-[-2px] 
@@ -218,9 +183,6 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
           </div>
         </div>
       </div>
-
-        {/* --- SPACER to push content below the absolute header --- */}
-        {/* <div className={`transition-all duration-400 ${mobileSearchOpen ? 'mt-[80px]' : 'mt-[70px]'}`}></div> */}
 
           <div
             className={`
@@ -241,23 +203,6 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
 
         {/* --- TRIP LIST CONTENT --- */}
         <div onScroll={handleScroll} ref={scrollContainerRef} className="flex-1 overflow-y-auto h-[100%] justify-center items-center relative bg-red-500/0 custom-scrollbar p-4 space-y-2 relative">
-
-        {/* <div
-            className={`
-              fixed top-0 left-0 right-0 w-full bg-[#676767] pointer-events-none
-              transition-all duration-400 ease-in-out z-[20] [mask-image:linear-gradient(to_bottom,black_30%,transparent)]
-              ${isScrolled ? 'opacity-100' : 'opacity-0'}
-              ${mobileSearchOpen ? 'h-[100px]' : 'h-0 opacity-0'}
-            `}
-          ></div> */}
-          
-          {/* <div
-            className={`
-              absolute top-0 left-0 right-0 w-full bg-[#676767] pointer-events-none
-              transition-all duration-400 ease-in-out z-[20] [mask-image:linear-gradient(to_bottom,black_30%,transparent)]
-              ${mobileSearchOpen ? 'h-[100px]' : 'h-0 opacity-0'} 
-            `}
-          ></div> */}
           
           {/* Start Point */}
           <div className='flex gap-[10px] w-[100%] bg-red-500/0 mt-18'>
@@ -272,9 +217,14 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
                 </div>
               </div>
             </div>
-            <div onClick={() => { setIsAdding(true); setShowExportMenu(false); }} className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] cursor-pointer'>
+            {/* FIX: Changed div to button for accessibility */}
+            <button 
+              onClick={() => { setIsAdding(true); setShowExportMenu(false); }} 
+              className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] cursor-pointer'
+              aria-label="Add Stop"
+            >
                 <AddIcon size={45} color="#fff" className='bg-black/30 h-[100%] w-[100%] p-3 rounded-[23px]'/>
-            </div>
+            </button>
           </div>
 
           <div className='bg-white/10 h-[2px] my-[13px] w-[75%] self-center mx-auto'></div>
@@ -284,10 +234,9 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
             {selectedItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center mt-[10%] text-white/30 text-center gap-2">
                 <MapIcon size={25} color="#ffffff30"/>
-                <div><p className="text-sm font-medium">No places added</p><p className="text-xs">Tap "+ Add Stop"</p></div>
+                <div><p className="text-sm font-medium">No places added Yet</p></div>
               </div>
             ) : (
-              // USE REORDER GROUP HERE
               <Reorder.Group 
                 axis="y" 
                 values={selectedItems} 
@@ -296,7 +245,7 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
               >
                 {selectedItems.map((item, i) => (
                   <SortableTripItem 
-                    key={item.id} // Must be unique ID (database ID)
+                    key={item.id} 
                     item={item} 
                     index={i} 
                     onRemove={removeItem}
@@ -309,8 +258,6 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
 
         {/* --- FOOTER --- */}
         <div className="absolute bottom-0 p-4 pt-2 flex bg-red-500/0 gap-3 z-30 w-full">
-          {/* <button onClick={() => { setIsAdding(true); setShowExportMenu(false); }} className="flex items-center justify-center py-3.5 bg-white/10 hover:bg-white/20 active:bg-white/10 text-white font-bold rounded-2xl text-xs sm:text-sm border border-white/5 transition-colors">+ Add Stop</button> */}
-
           <div className='relative h-full'>
             <button disabled={selectedItems.length === 0} onClick={() => setShowExportMenu(!showExportMenu)} className={`self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)]  w-[100%]`}>
               <div className='flex items-center gap-[7px] text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[35px] py-[15.4px]'>
@@ -340,7 +287,15 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 bg-[#151515]">
             {availableSites.map(site => (
-              <div key={site.id} onClick={() => addItem(site)} className="flex items-center justify-between p-3.5 rounded-xl hover:bg-white/5 active:bg-white/10 transition-colors cursor-pointer group">
+              // FIX: Added keyboard support for accessibility
+              <div 
+                key={site.id} 
+                onClick={() => addItem(site)} 
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && addItem(site)}
+                className="flex items-center justify-between p-3.5 rounded-xl hover:bg-white/5 active:bg-white/10 transition-colors cursor-pointer group"
+              >
                 <div className='flex-1 pr-2 min-w-0'><h4 className="text-white text-sm font-medium truncate">{site.name}</h4><p className="text-white/40 text-xs truncate">{site.category}</p></div>
                 <div className="w-8 h-8 rounded-full bg-[#222] text-blue-500 border border-white/10 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors"><Icons.Plus /></div>
               </div>
@@ -360,18 +315,14 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
     <Reorder.Item
       value={item}
       id={String(item.id)}
-      dragListener={false} // We rely on the specific drag handle
+      dragListener={false} 
       dragControls={controls}
-      // "touch-none" prevents the browser from hijacking the swipe for scrolling
-      // "layout" helps Framer Motion calculate positions more efficiently
       className="relative my-1 select-none touch-none" 
       layout="position"
     >
-      {/* transform-gpu forces the iPhone to use the graphics card for smoother movement */}
       <div className='bg-white/10 active:scale-[.98] rounded-[26px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] transition-colors hover:bg-white/20 transform-gpu'>
         <div className="flex items-center gap-3 bg-black/30 px-2 pr-4 rounded-[23px] z-10 py-3">
           
-          {/* Badge / Image */}
           <div className="w-8 h-8 flex-shrink-0 rounded-[10px] overflow-hidden bg-[#333]/70 text-white flex items-center justify-center text-xs font-bold font-mono border border-white/10 shadow-[0px_0px_10px_rgba(0,0,0,0.3)] relative">
             {item.imageUrl ? (
               <Image 
@@ -379,26 +330,20 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
                 alt={item.name}
                 fill
                 className='object-cover'
-                // Optimization: Tell browser this is a thumbnail to save memory
                 sizes="32px"
-                // Optimization: Load immediately so it doesn't flash white during drag
                 loading="eager"
               />
             ) : (
-              /* Fallback to Number if no image found */
               <span>{index + 1}</span>
             )}
           </div>
           
-          {/* Name */}
           <div className="flex-1 min-w-0 pointer-events-none">
             <h4 className="text-white font-medium text-sm truncate">{item.name}</h4>
           </div>
           
-          {/* Controls */}
           <div className="flex items-center gap-3 pl-2 border-l border-white/10 touch-none"> 
             
-            {/* DRAG HANDLE - TOUCH ACTIVATED */}
             <div 
               onPointerDown={(e) => controls.start(e)}
               className="text-white/40 hover:text-white cursor-grab active:cursor-grabbing p-2"
@@ -406,7 +351,6 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             </div>
 
-            {/* Trash */}
             <button 
               onClick={(e) => { 
                   e.stopPropagation(); 
@@ -422,3 +366,6 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
     </Reorder.Item>
   );
 });
+
+// Explicit Display Name for Memoized Component (Fixes potential display-name error)
+SortableTripItem.displayName = 'SortableTripItem';
