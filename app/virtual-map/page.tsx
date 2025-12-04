@@ -18,6 +18,7 @@ import InfoIcon from "@/public/icons/info-icon"
 import PlayIcon from "@/public/icons/play-icon"
 import InfoPopup from '@/app/components/InfoPopup';
 import DirectionsPopup from '@/app/components/DirectionsPopup';
+import TripPlanner from '@/app/components/TripPlanner';
 
 // --- TYPE DEFINITIONS ---
 
@@ -58,7 +59,7 @@ const MOCK_GALLERY = [
 
 // --- SEARCH RESULTS COMPONENT ---
 
-function SearchResults({
+const SearchResults = React.memo(function SearchResults({
   sites,
   selectedSite,
   setSelectedSite,
@@ -75,24 +76,76 @@ function SearchResults({
   handleMobileSearchTap: () => void;
   mobileSearchOpen: boolean;
 }) {
+
+  const [ShowTripPlanner, setShowTripPlanner] = useState(false);
+  const [isPlanningTrip, setIsPlanningTrip] = useState(false);
+  // RESET trip planner if selectedSite is cleared/closed
+  useEffect(() => {
+    if (!selectedSite) setIsPlanningTrip(false);
+  }, [selectedSite]);
+
+  
   // NEW: State to track if the content is scrolled
   const [isScrolled, setIsScrolled] = useState(false);
   // NEW: Ref for the scrollable container
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // NEW: Update isScrolled based on scroll position
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop } = scrollContainerRef.current;
-      setIsScrolled(scrollTop > 0);
+      const shouldBeScrolled = scrollTop > 0;
+      if (shouldBeScrolled !== isScrolled) {
+        setIsScrolled(shouldBeScrolled);
+      }
     }
-  };
+  }, [isScrolled]);
 
   const handleHeaderClick = () => {
     if (!mobileSearchOpen) {
       handleMobileSearchTap();
     }
   };
+
+  // 1. REFS: One for text, one for the container holding it
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // 2. STATE
+  const [isTitleOverflowing, setIsTitleOverflowing] = useState(false);
+
+  // 3. CHECK FUNCTION
+  const checkOverflow = useCallback(() => {
+    const titleEl = titleRef.current;
+    const containerEl = containerRef.current;
+
+    if (titleEl && containerEl) {
+      // Compare the text's full length vs the container's allowed width.
+      // We add a tiny buffer (1px) to prevent sub-pixel jitters.
+      const contentWidth = titleEl.scrollWidth;
+      const boxWidth = containerEl.clientWidth;
+      
+      setIsTitleOverflowing(contentWidth > boxWidth);
+    }
+  }, []);
+
+  // 4. OBSERVER & TRIGGER
+  useEffect(() => {
+    // Reset immediately to ensure calculation runs fresh on new site selection
+    checkOverflow();
+
+    const containerEl = containerRef.current;
+    if (!containerEl) return;
+
+    // Watch the CONTAINER for resizing (when mobile drawer slides up/down)
+    const resizeObserver = new ResizeObserver(() => {
+      checkOverflow();
+    });
+
+    resizeObserver.observe(containerEl);
+
+    return () => resizeObserver.disconnect();
+  }, [checkOverflow, selectedSite, mobileSearchOpen]); // Rerun when site or view mode changes
 
   
 
@@ -101,7 +154,7 @@ function SearchResults({
     <div className='relative w-full h-full'>
       {/* VIEW 1: The List View (Search Bar + Results) */}
       <div className={`absolute inset-0 flex flex-col h-full transition-opacity duration-300 ${selectedSite ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <div className={`relative transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'mt-[13px] w-[93%] mx-auto' : 'w-full self-center'}`}>
+        <div className={`relative transition-all duration-400 ease-in-out transform-gpu ${mobileSearchOpen ? 'mt-[13px] w-[93%] mx-auto' : 'w-full self-center'}`}>
           <span className='absolute z-10 mt-[11.5px] ml-[15px] fill-[#E0E0E0]'>
             <Image src={searchIcon} alt='Search Icon' height={25} />
           </span>
@@ -119,12 +172,11 @@ function SearchResults({
             <ul className='px-3 pb-[5px] gap-[10px] mt-[10px] flex flex-col'>
               {sites.map((site) => (
                 <li key={site.id}>
-                  <div className='bg-white/10 active:scale-[.98] rounded-[37px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
+                  <div className='bg-white/10 active:scale-[.98] rounded-[37px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] transform-gpu'>
                     <button
                       onClick={() => setSelectedSite(site)}
                       className='flex w-full text-wrap text-left cursor-pointer rounded-[35px] bg-black/40 overflow-hidden hover:bg-black/40 transition-colors duration-150 p-2 gap-3'
                     >
-                      {/* <div className='bg-white/10 rounded-[27px] p-[2.5px] shadow-[0px_0px_30px_rgba(0,0,0,.2)]'> */}
                         {site.imageUrl ? (
                           <Image 
                             src={site.imageUrl} 
@@ -132,6 +184,8 @@ function SearchResults({
                             height={80} 
                             width={80} 
                             className='min-w-[80px] min-h-[80px] object-cover rounded-[28px] max-w-[80px] max-h-[80px]'
+                            // 5. OPTIMIZATION: Explicitly small size for list view
+                            sizes="80px"
                           />
                         ) : (
                           /* Fallback: Show a colored box if no image exists to prevent the crash */
@@ -160,53 +214,76 @@ function SearchResults({
       {/* VIEW 2: The Detail View */}
       <div className={`absolute inset-0 flex flex-col h-full transition-opacity duration-400 ${selectedSite ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         {selectedSite && (
+          
+          /* IF PLANNING TRIP -> SHOW TRIP PLANNER, ELSE -> SHOW DETAILS */
+          isPlanningTrip ? (
+            <TripPlanner 
+              sites={sites} 
+              onBack={() => setIsPlanningTrip(false)}
+              onClose={() => {
+                setIsPlanningTrip(false); 
+                setSelectedSite(null); // Closes entire panel
+              }} 
+              mobileSearchOpen={mobileSearchOpen}
+              onHeaderClick={handleHeaderClick}
+            />
+          ) : (
           <>
-          <style jsx>{`
-              @keyframes marquee-loop {
-                0%, 15% { transform: translateX(0%); }      /* Stay (Start) */
-                45% { transform: translateX(-105%); }       /* Exit completely Left */
-                45.01% { transform: translateX(105%); }     /* Teleport to Right (Hidden) */
-                75%, 100% { transform: translateX(0%); }    /* Enter & Stay (End) */
-              }
-              
-              .scrolling-text {
-                display: inline-block;
-                white-space: nowrap;
-                /* 12s duration = quick scroll, long read time */
-                animation: marquee-loop 12s linear infinite; 
-              }
-            `}</style>
-            <div onClick={handleHeaderClick} className={`absolute  z-30 flex items-start px-[10px] justify-between transition-all duration-400 rounded-full ${mobileSearchOpen ? 'bg-black/0 pt-[7.5px] mt-[6px] pb-[0px] w-[100%] px-[15px]' : 'bg-black/0 mt-[0px] py-[7.5px] w-[100%]'}`}>
+            <div onClick={handleHeaderClick} className={`absolute z-30 flex items-center px-[10px] justify-between transition-all duration-400 rounded-full ${mobileSearchOpen ? 'bg-black/0 pt-[7.5px] mt-[6px] pb-[0px] w-[100%] px-[15px]' : 'bg-black/0 mt-[0px] py-[7.5px] w-[100%]'}`}>
 
-              <button onClick={() => setSelectedSite(null)} className={`inline-flex pr-[10px] active:scale-[.95] shrink-0 cursor-pointer items-center gap-2 text-white/90 hover:text-white active:opacity-80 ${mobileSearchOpen ? 'mt-[7px]' : 'mt-[-1px]'}`}>
-
+              {/* 1. BACK ARROW */}
+              <button onClick={() => setSelectedSite(null)} className={`inline-flex pr-[10px] active:scale-[.95] shrink-0 cursor-pointer items-center gap-2 text-white/90 hover:text-white active:opacity-80 ${mobileSearchOpen ? 'mt-[-6px]' : 'mt-[-6px]'}`}>
                 <span className='rotate-[-90deg]'><Image src={arrowIcon} alt='Back Icon' height={35} /></span>
-              </button>
-              <div className='flex flex-col text-right pr-3 pt-1 flex-1 mt-[-11px] min-w-0 overflow-hidden relative'>
-                <div className="w-full overflow-hidden">
-                  <h2 className={`font-bold text-white text-[1.23rem] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)] transition-all duration-400 ${mobileSearchOpen ? 'mt-[10px]' : 'mt-[0px]'} ${selectedSite.name.length > 20 ? 'scrolling-text' : 'truncate'}`}>
+              </button>   
+
+              {/* 2. TEXT CONTAINER */}
+              {/* Note: 'flex-1' allows expansion, 'min-w-0' allows shrinking. Critical for calculation. */}
+              <div ref={containerRef} className='flex flex-col text-right pr-3 pt-1 flex-1 mt-[-11px] min-w-0 overflow-hidden relative'>
+                
+                {/* 3. SCROLLING TITLE */}
+                <style jsx>{`
+                  @keyframes marquee-loop {
+                    0%, 15% { transform: translateX(0%); }      /* Stay (Start) */
+                    45% { transform: translateX(-105%); }       /* Exit completely Left */
+                    45.01% { transform: translateX(105%); }     /* Teleport to Right (Hidden) */
+                    75%, 100% { transform: translateX(0%); }    /* Enter & Stay (End) */
+                  }
+                  
+                  .scrolling-text {
+                    display: inline-block;
+                    white-space: nowrap;
+                    padding-right: 10px; /* Small buffer to prevent cutting the last letter */
+                    animation: marquee-loop 12s linear infinite; 
+                    will-change: transform; 
+                  }
+                `}</style>
+
+                <div className="w-full overflow-hidden block"> {/* Ensure block display for correct width ref */}
+                  <h2 
+                    ref={titleRef} 
+                    className={`
+                      font-bold text-white text-[1.23rem] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)] 
+                      transition-all duration-400 
+                      ${mobileSearchOpen ? 'mt-[10px]' : 'mt-[0px]'}
+                      
+                      /* THE KEY: Apply style based on the math result */
+                      ${isTitleOverflowing ? 'scrolling-text' : 'truncate'}
+                    `}
+                  >
                     {selectedSite.name}
                   </h2>
-              </div>
+                </div>
+
+                {/* Subtitle */}
                 {mobileSearchOpen ? (
-                  <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>{selectedSite.category}</p>
+                  <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)] truncate'>{selectedSite.category}</p>
                 ) : (
                   <p className='text-[#E0E0E0] mt-[-5px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>{selectedSite.category}</p>
                 )}
               </div>
             </div>
             <>
-              {/* <div
-                style={{ '--bg-color': selectedSite?.colorhex || '#fff' } as React.CSSProperties}
-                className={`
-                  bg-[var(--bg-color)]/30
-                  absolute w-full
-                  transition-all duration-400 ease-in-out backdrop-blur-[15px]
-                  ${isScrolled ? 'backdrop-blur-[15px] [mask-image:linear-gradient(to_bottom,black_30%,transparent)] opacity-100' : 'backdrop-blur-[15px] [mask-image:linear-gradient(to_bottom,black_0%,transparent)] opacity-0'}
-                  ${mobileSearchOpen ? 'h-[130px]' : 'h-0 opacity-0'}
-                `}
-              ></div> */}
-
+              
               <div
                 className={`
                   absolute w-full bg-[#676767]
@@ -216,14 +293,6 @@ function SearchResults({
                 `}
               ></div>
 
-              {/* <div
-                className={`
-                  absolute w-full bg-transparent
-                  transition-all duration-400 ease-in-out [mask-image:linear-gradient(to_bottom,black_10%,transparent)]
-                  ${isScrolled ? 'backdrop-blur-[5px] opacity-100' : 'backdrop-blur-0 opacity-0'}
-                  ${mobileSearchOpen ? 'h-[20px]' : 'h-0 opacity-0'}
-                `}
-              ></div> */}
             </>
            <div
               ref={scrollContainerRef}
@@ -290,7 +359,13 @@ function SearchResults({
                 <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] bg-green-500/0 hide-scrollbar'>
                           {/* Item 1: Large Image */}
                           <div className='active:scale-[.98] snap-start relative min-h-[250px] min-w-[180px] rounded-[30px] overflow-hidden bg-neutral-800'>
-                              <Image src={MOCK_GALLERY[0].src} alt="Gallery 1" fill className='object-cover' />
+                              <Image 
+                                src={MOCK_GALLERY[0].src} 
+                                alt="Gallery 1" 
+                                fill 
+                                className='object-cover'
+                                sizes="(max-width: 768px) 50vw, 200px" 
+                              />
                           </div>
 
                           {/* Item 2: Stacked Column */}
@@ -307,7 +382,6 @@ function SearchResults({
                            <div className='active:scale-[.98] snap-start relative min-h-[250px] min-w-[180px] rounded-[30px] overflow-hidden bg-neutral-800 group cursor-pointer'>
                               <Image src={MOCK_GALLERY[3].src} alt="Gallery Video" fill className='object-cover opacity-80' />
                               <div className='absolute inset-0 flex bg-red-500/0'>
-                                {/* <div className='w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/40'> */}
                                    {/* Simple Play Icon SVG */}
                                    <PlayIcon size={20} color="#fff" className='absolute top-[15px] right-[15px] drop-shadow-[0px_0px_5px_rgba(0,0,0,0.4)]'/>
                                 {/* </div> */}
@@ -328,13 +402,6 @@ function SearchResults({
 
                           {/* View All Button */}
                           <button className='snap-start relative cursor-pointer min-h-[250px] min-w-[120px] rounded-[30px] overflow-hidden border-[1px] active:scale-[.98] [mask-image:radial-gradient(white,black)] border-white/10'>
-                              
-
-                              {/* Dark Overlay */}
-                              {/* <div className='h-[100%] w-[100%] absolute inset-0 bg-black/40 backdrop-blur-[2px]'></div> */}
-
-                              {/* Dark Overlay */}
-                              {/* <div className='h-[100%] w-[100%] bg-black/60 z-[1000]'></div> */}
 
                               {/* Background Image Stack */}
                               {/* Added rounded-[30px] here explicitly to help Safari/Mobile clip inner images */}
@@ -367,7 +434,7 @@ function SearchResults({
                         </div>
                   <div className='bg-white/10 h-[2px] w-[65%] self-center'></div>
                   <div className='w-[90%] flex self-center items-center gap-[10px]'>
-                    <div className='self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.4px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] -mr-[2px] w-[100%]'>
+                    <div onClick={() => setIsPlanningTrip(true)} className='self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] -mr-[2px] w-[100%]'>
                     {/* <Link href="/sign-up"> */}
                       <div className='flex flex-col text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[15px] py-[15.4px]'>
                         <span className='text-white font-bold'>Create a custom trip</span>
@@ -380,15 +447,21 @@ function SearchResults({
 
 
                   </div>
+                {/* {showTripPlanner && (
+                    <CustomTripPopup 
+                      sites={sites} 
+                      onClose={() => setShowTripPlanner(false)} 
+                    />)} */}
               </div>
               {/* Add more detail cards as needed */}
             </div>
           </>
+          )
         )}
       </div>
     </div>
   );
-}
+})
 
 // --- MAIN PAGE COMPONENT ---
 
@@ -542,7 +615,7 @@ export default function FullScreenMapPage() {
       {/* Desktop Zoom Controls */}
       <div className='absolute bottom-[20px] right-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px] hidden sm:block'>
         <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-          <div className='rounded-full bg-black/40 backdrop-blur-[5px] flex flex-col gap-0 w-[45px] overflow-hidden z-[40]'>
+          <div className='rounded-full bg-black/40 flex flex-col gap-0 w-[45px] overflow-hidden z-[40]'>
             <button onClick={handleZoomIn} className='px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'>
               <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
               <div className='absolute bg-white h-[3px] w-[50%] rounded-full rotate-[90deg]'></div>
@@ -556,7 +629,7 @@ export default function FullScreenMapPage() {
 
       {/* Desktop Search Panel */}
       <div className='absolute bottom-[20px] left-[20px] whitespace-nowrap rounded-full p-[3px] w-[400px] hidden sm:block'>
-        <div ref={desktopSearchRef} className={`bg-white/10 backdrop-blur-[20px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-400 ease-in-out rounded-[43px]`}>
+        <div ref={desktopSearchRef} className={`bg-white/10 backdrop-blur-[13px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-400 ease-in-out rounded-[43px]`}>
           <div className={`bg-black/45 [mask-image:radial-gradient(white,black)] relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[60vh] max-h-[500px] rounded-[40px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
             <SearchResults sites={sites} selectedSite={selectedSite} setSelectedSite={setSelectedSite} mobileSearchInputRef={mobileSearchInputRef} mobileSearchReady={mobileSearchReady} handleMobileSearchTap={handleMobileSearchTap} mobileSearchOpen={mobileSearchOpen} />
           </div>
@@ -568,7 +641,7 @@ export default function FullScreenMapPage() {
         <div className={`absolute right-1 bottom-[0px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px] transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'opacity-0 pointer-events-none translate-y-0' : 'opacity-100'}`}>
 
           <div className='absolute bottom-[80px] right-0 bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-            <div className='rounded-full bg-black/45 backdrop-blur-[5px] flex flex-col gap-0 w-[45px] overflow-hidden z-[40]'>
+            <div className='rounded-full bg-black/55 flex flex-col gap-0 w-[45px] overflow-hidden z-[40]'>
               <button onClick={handleZoomIn} className='px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'>
                 <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
                 <div className='absolute bg-white h-[3px] w-[50%] rounded-full rotate-[90deg]'></div>
@@ -583,8 +656,8 @@ export default function FullScreenMapPage() {
         
         {/* Mobile Search Panel */}
         <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] w-full'>
-          <div ref={mobileSearchRef} className={`bg-white/10 backdrop-blur-[20px] p-[3px] shadow-[0px_0px_20px_rgba(0,0,0,0.3)] w-full transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'rounded-[43px] rounded-b-[49px]' : 'rounded-[43px] rounded-b-[43px]'}`}>
-            <div className={`bg-black/45 [mask-image:radial-gradient(white,black)] relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[60vh] max-h-[500px] rounded-[40px] rounded-b-[47px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
+          <div ref={mobileSearchRef} className={`bg-white/10 backdrop-blur-[13px] p-[3px] shadow-[0px_0px_20px_rgba(0,0,0,0.3)] w-full transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'rounded-[43px] rounded-b-[49px]' : 'rounded-[43px] rounded-b-[43px]'}`}>
+            <div className={`bg-black/55 [mask-image:radial-gradient(white,black)] relative w-full overflow-hidden transition-all duration-400 ease-in-out ${mobileSearchOpen ? 'h-[60vh] max-h-[500px] rounded-[40px] rounded-b-[47px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
               <SearchResults sites={sites} selectedSite={selectedSite} setSelectedSite={setSelectedSite} mobileSearchInputRef={mobileSearchInputRef} mobileSearchReady={mobileSearchReady} handleMobileSearchTap={handleMobileSearchTap} mobileSearchOpen={mobileSearchOpen} />
             </div>
           </div>

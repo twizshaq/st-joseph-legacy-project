@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import InfoIcon from "@/public/icons/info-icon"; 
+ import { FaTimes } from "react-icons/fa";
 
 export default function InfoPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -118,11 +119,9 @@ export default function InfoPopup() {
                   e.stopPropagation();
                   setIsOpen(false);
                 }}
-                className="absolute top-3 right-3 text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
+                className="absolute cursor-pointer top-2 right-2 text-white p-1 rounded-full hover:text-red-500 active:text-red-500 transition-colors"
               >
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M13 1L1 13M1 1l12 12" />
-                </svg>
+                <FaTimes size={20} />
               </button>
 
               <h4 className="font-bold text-sm text-white tracking-wide">Custom Trip</h4>
