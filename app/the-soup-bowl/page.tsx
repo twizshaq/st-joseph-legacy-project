@@ -12,11 +12,113 @@ import photoIcon from "@/public/icons/photos-icon.svg"
 import quizIcon from "@/public/icons/quiz-icon.svg"
 import { stories } from '@/public/data/stories';
 import { experiences } from '@/public/data/experiences';
+import arrowIcon from "@/public/icons/arrow-icon.svg";
+import PenIcon from "@/public/icons/pen-icon";
+import { TbBulb } from "react-icons/tb";
+import { ImWarning } from "react-icons/im";
+import { TiStarFullOutline } from "react-icons/ti";
+import { ReviewCard } from "@/app/components/ReviewCard"
+import { ReviewModal } from "@/app/components/ReviewModal";
+import { supabase } from '@/lib/supabaseClient';
+import { User } from '@supabase/supabase-js';
+
 
 const SoupBowl = () => {
   const [isSafetyOpen, setIsSafetyOpen] = useState(true);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  // --- Check user session on component load ---
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+    getSession();
+
+    // Also listen for auth changes (login/logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe(); // Cleanup subscription on component unmount
+  }, []);
+
+  const handleWriteReviewClick = () => {
+    if (user) {
+      setReviewModalOpen(true);
+    } else {
+      alert("You must be signed in to write a review.");
+    }
+  };
+
+
+
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 5; // Set this to 5
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = experiences.slice(indexOfFirstReview, indexOfLastReview);
+  const pageCount = Math.ceil(experiences.length / reviewsPerPage);
+  const pageNumbers = pageCount > 1 ? Array.from({ length: pageCount }, (_, i) => i + 1) : [];
+  const [isReviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]); // To hold reviews from Supabase
+
+  // --- Function to fetch reviews ---
+  const fetchReviews = async () => {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .order('id', { ascending: false }); // Show newest reviews first
+
+    if (error) {
+      console.error("Error fetching reviews:", error);
+    } else {
+      setReviews(data);
+    }
+  };
+
+  // --- Fetch reviews on initial component load ---
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  // --- QUIZ STATE ---
+  const [quizStage, setQuizStage] = useState<'start' | 'question' | 'result'>('start');
+  const [qIndex, setQIndex] = useState(0);
+  const [score, setScore] = useState(0);
+
+  const quizData = [
+    {
+      q: "Best time to surf here?",
+      options: ["Winter (Nov-Apr)", "Summer (Jun-Aug)"],
+      answer: 0
+    },
+    {
+      q: "Which coast is this?",
+      options: ["West Coast", "East Coast"],
+      answer: 1
+    }
+  ];
+
+  const handleAnswer = (selectedIndex: number) => {
+    if (selectedIndex === quizData[qIndex].answer) {
+      setScore(s => s + 1);
+    }
+    
+    if (qIndex + 1 < quizData.length) {
+      setQIndex(i => i + 1);
+    } else {
+      setQuizStage('result');
+    }
+  };
+
+  const restartQuiz = () => {
+    setScore(0);
+    setQIndex(0);
+    setQuizStage('start');
+  };
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
@@ -161,7 +263,7 @@ const SoupBowl = () => {
       {/* Dark Overlay (optional for text readability) */}
       <div className="absolute top-0 left-0 w-full h-full bg-black/40" />
 
-      <div className='bg-pink-500/0 z-0 absolute w-[1400px] max-w-[90vw] bottom-[45px]'>
+      <div className='z-0 absolute w-[1400px] max-w-[90vw] bottom-[45px]'>
         <p className="font-black text-[3rem] max-md:text-[2rem] text-start leading-[1.2] z-10 mb-[10px] text-shadow-[0px_0px_10px_rgba(0,0,0,0.2)]">
         Soup Bowl
         </p>
@@ -206,43 +308,96 @@ const SoupBowl = () => {
             </div> */}
       </div>
 
-      <div className='bg-[#E0E0E0] w-[691px] max-w-[80vw] h-[1px] mt-[85px] rounded-full'></div>
+      {/* --- DIVIDER --- */}
+      <div className='bg-[#E0E0E0] w-[691px] max-w-[80vw] h-[2px] max-sm:mt-[60px] mt-[85px] rounded-full'></div>
 
-      <div className='relative mt-[40px] w-[1400px] max-w-[90vw] bg-green-500/0 flex flex-col overflow-visible isolation-isolate '>
-        {/* Blurred color blobs behind Quick Facts */}
-        <div aria-hidden className='pointer-events-none absolute inset-0 -z-10 opacity-20'>
-          <div className='absolute -top-8 left-[5%] w-[260px] h-[260px] rounded-full bg-[#60A5FA]/40 blur-[90px]'></div>
-          <div className='absolute top-6 right-[2%] w-[220px] h-[220px] rounded-full bg-[#F472B6]/40 blur-[90px]'></div>
-          <div className='absolute -bottom-10 left-1/2 -translate-x-1/2 w-[360px] h-[360px] rounded-full bg-[#34D399]/35 blur-[110px]'></div>
-          <div className='absolute bottom-0 left-[18%] w-[180px] h-[180px] rounded-full bg-[#F59E0B]/35 blur-[80px]'></div>
-        </div>
+      <div className='relative mt-[60px] w-[1400px] max-w-[90vw] flex flex-col'>
+        
+        
 
-        <p className='relative z-10 font-bold text-[2rem]'>Quick Facts</p>
-        <div className='relative z-10 flex flex-wrap mt-[30px] gap-[70px] max-sm:gap-[30px]'>
+        {/* Section Title */}
+        <p className='relative z-10 font-bold text-[2rem] text-start mb-8'>Quick Facts</p>
+        
+        {/* Cards Container - Using Grid for better alignment */}
+        <div className='relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
 
-          <div className='flex flex-row gap-[10px]'>
-            <Image src={clockIcon} alt="" height={35} className='' />
-            <div className='flex flex-col'>
-              <p className='text-[.938rem] text-[#747474]'>Best Time</p>
-              <p className='text-[1rem]'>Sunrise & Late Afternoon</p>
+          {/* Card 1: Best Time */}
+          <div className='bg-[#FF8400]/10 backdrop-blur-[3px] rounded-[42px] p-[3px] active:scale-[.992] shadow-[0px_0px_10px_rgba(0,0,0,0.08)] cursor-pointer'>
+            
+            {/* Added 'group' here so the children know when this is hovered */}
+            <div className='group relative flex flex-row items-center gap-5 p-4 bg-white/80 rounded-[40px] overflow-hidden transition-all duration-300'>
+
+              {/* Pattern Background Layer */}
+              <div 
+                className="absolute inset-0 opacity-[.1] z-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.3] group-active:opacity-[0.3]" 
+                style={{ 
+                  backgroundImage: 'radial-gradient(#FF8F00 1px, transparent 1px)', 
+                  backgroundSize: '14px 14px', 
+                }} 
+              />
+
+              {/* Icon Container: Changed 'hover:scale' to 'group-hover:scale' so it pops when you hover anywhere on the card */}
+              <div className='relative z-10 flex items-center justify-center w-[65px] h-[65px] bg-orange-100 rounded-[23px] group-hover:scale-110 transition-transform duration-300'>
+                <span className='group-hover:rotate-12 group-active:rotate-12 transition-transform duration-300'>
+                  <Image src={clockIcon} alt="Clock" height={28} className='opacity-80' />
+                </span>
+              </div>
+
+              <div className='relative z-10 flex flex-col'>
+                <p className='text-[0.85rem] font-bold uppercase tracking-wider text-orange-600/70 mb-0.5'>Best Time</p>
+                <p className='text-[1.05rem] font-[600] text-slate-800 leading-tight'>Sunrise & <br/>Late Afternoon</p>
+              </div>
             </div>
           </div>
 
-          <div className='flex flex-row gap-[10px]'>
-            <Image src={camIcon} alt="" height={35} className='' />
-            <div className='flex flex-col'>
-              <p className='text-[.938rem] text-[#747474]'>Photo Spots</p>
-              <p className='text-[1rem]'>Soup Bowl • Bathsheba Rock</p>
+          {/* Card 2: Photo Spots */}
+          <div className='bg-[#2563EB]/10 backdrop-blur-[3px] rounded-[42px] p-[3px] active:scale-[.992] shadow-[0px_0px_20px_rgba(0,0,0,.08)] cursor-pointer'>
+            <div className='group relative flex flex-row items-center gap-5 p-4 bg-white/80 rounded-[40px] overflow-hidden transition-all duration-300'>
+
+              {/* Pattern Background Layer */}
+              <div 
+                className="absolute inset-0 opacity-[.1] z-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.3] group-active:opacity-[0.3]" 
+                style={{ 
+                  backgroundImage: 'radial-gradient(#2563EB 1px, transparent 1px)', 
+                  backgroundSize: '14px 14px', 
+                }} 
+              />
+              
+              <div className='flex items-center justify-center z-[1] w-[65px] h-[65px] bg-blue-100 rounded-[23px] group-hover:scale-110 transition-transform duration-300'>
+                <span className='group-hover:rotate-12 group-active:rotate-[-12deg] transition-transform duration-300'>
+                  <Image src={camIcon} alt="Camera" height={28} className='opacity-80' />
+                </span>
+              </div>
+              <div className='relative z-10 flex flex-col'>
+                <p className='text-[0.85rem] font-bold uppercase tracking-wider text-blue-600/70 mb-0.5'>Photo Spots</p>
+                <p className='text-[1.05rem] font-[600] text-slate-800 leading-tight'>Soup Bowl • <br/>Bathsheba Rock</p>
+              </div>
             </div>
           </div>
 
-          <div className='flex flex-row gap-[10px]'>
-            <span>
-              <Image src={ticketIcon} alt="" height={35} className='rotate-[-20deg] mt-[7px]' />
-            </span>
-            <div className='flex flex-col'>
-              <p className='text-[.938rem] text-[#747474]'>Entry Fee</p>
-              <p className='text-[1rem]'>Free Access</p>
+          {/* Card 3: Entry Fee */}
+          <div className='bg-[#15803d]/10 backdrop-blur-[3px] rounded-[42px] p-[3px] overflow-hidden active:scale-[.992] shadow-[0px_0px_20px_rgba(0,0,0,.09)] cursor-pointer'>
+            <div className='group relative flex flex-row items-center gap-5 p-4 bg-white/80 rounded-[40px] overflow-hidden transition-all duration-300'>
+
+              {/* Pattern Background Layer */}
+              <div 
+                className="absolute inset-0 opacity-[.1] z-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.3] group-active:opacity-[0.3]" 
+                style={{ 
+                  backgroundImage: 'radial-gradient(#15803d 1px, transparent 1px)', 
+                  backgroundSize: '14px 14px', 
+                }} 
+              />
+
+
+              <div className='flex items-center justify-center z-[1] w-[65px] h-[65px] bg-green-100 rounded-[23px] group-hover:scale-110 transition-transform duration-300'>
+                <span className='group-hover:rotate-12 group-active:rotate-12 transition-transform duration-300'>
+                  <Image src={ticketIcon} alt="Ticket" height={28} className='opacity-80' />
+                </span>
+              </div>
+              <div className='flex flex-col'>
+                <p className='text-[0.85rem] font-bold uppercase tracking-wider text-green-600/70 mb-0.5'>Entry Fee</p>
+                <p className='text-[1.05rem] font-[600] text-slate-800 leading-tight'>Free <br/>Public Access</p>
+              </div>
             </div>
           </div>
 
@@ -262,62 +417,297 @@ const SoupBowl = () => {
 
 
       <div className='flex flex-col'>
-        <div className='w-[450px] max-w-full max-sm:w-full'>
-          <div className='rounded-[30px] border-[2px] border-[#B8F500] bg-[#F7FFEA] shadow-[0_6px_20px_rgba(0,0,0,0.08)] overflow-hidden'>
+        {/* SAFETY / DISASTER PREPAREDNESS SECTION */}
+        {/* <div className='w-full h-fit rounded-[38px] p-[3px] bg-amber-500/10 shadow-[0_0px_30px_rgb(0,0,0,0.2)] overflow-hidden'> */}
+        <div className='w-[450px] max-w-full max-sm:w-full mt-4 relative z-10'>
+          {/* Decorative blurred blob behind the card for depth */}
+          <div className='absolute top-10 left-10 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl -z-10 pointer-events-none'></div>
+
+          <div className='rounded-[35px] active:scale-[.99] border border-amber-500/30 bg-white/95 backdrop-blur-sm overflow-hidden transition-all duration-300 shadow-[0_0px_20px_rgb(0,0,0,.1)]'>
+            
             {/* Header button */}
             <button
               type='button'
               onClick={() => setIsSafetyOpen(v => !v)}
               aria-expanded={isSafetyOpen}
               aria-controls='safety-panel'
-              className='w-full flex items-center justify-between gap-3 px-5 py-4'
+              className='group w-full flex items-center justify-between gap-3 px-6 py-5 cursor-pointer relative overflow-hidden'
             >
-              <span className='flex items-center gap-3'>
-                <span className='font-bold text-[1.25rem] text-black'>Disaster Preparedness</span>
-              </span>
+              {/* GRAPHIC 1: Subtle Hazard Stripe Background Pattern */}
+              <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(45deg,#f59e0b_25%,transparent_25%,transparent_50%,#f59e0b_50%,#f59e0b_75%,transparent_75%,transparent)] bg-[length:20px_20px] pointer-events-none"></div>
+              
+              {/* GRAPHIC 2: Soft Gradient Glow behind content */}
+              <div className="absolute left-0 top-0 w-1/3 h-full blur-[20px] bg-gradient-to-r from-amber-50/80 to-transparent pointer-events-none"></div>
 
+              <div className='flex items-center gap-4 relative z-10'>
+                {/* Animated Safety Icon */}
+                <div className='relative flex items-center justify-center w-10 h-10 rounded-full bg-amber-100/0 text-amber-600 text-[1.5rem]  transition-colors duration-300'>
+                  {/* Icon */}
+                  <svg width='30' height='30' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'/>
+                            <path d='M12 9v4' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round'/>
+                            <path d='M12 17h.01' stroke='currentColor' strokeWidth='3' strokeLinecap='round'/>
+                        </svg>
+                  {/* Pulse Ring */}
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-20 animate-ping group-hover:opacity-40"></span>
+                </div>
+                
+                <div className="flex flex-col items-start">
+                    <span className='font-bold text-[1.15rem] text-slate-800 leading-tight'>Disaster Ready</span>
+                    <span className='text-[0.8rem] text-slate-400 font-medium'>Safety Guidelines</span>
+                </div>
+              </div>
+
+              {/* Arrow with smooth rotation */}
+              <span className={`transform transition-transform duration-300 ease-in-out relative z-10 ${isSafetyOpen ? 'rotate-180' : 'rotate-0'}`}>
+                <Image src={arrowIcon} alt='Back Icon' height={28} className='opacity-60 invert'/>
+              </span>
             </button>
+
+            {/* GRAPHIC 3: Gradient Separator Line */}
+            <div className={`h-[1px] w-full bg-gradient-to-r from-transparent via-amber-200 to-transparent transition-opacity duration-300 ${isSafetyOpen ? 'opacity-100' : 'opacity-0'}`}></div>
 
             {/* Collapsible content */}
             <div
               id='safety-panel'
-              className={`${isSafetyOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}
+              className={` 
+                ${isSafetyOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'} 
+                overflow-hidden bg-white relative
+              `}
             >
-              <div className='px-5 pb-5 text-[#1a1a1a]'>
-                <p className='text-[0.98rem] leading-[1.5] mb-3'>
-                  Seas on the east coast can be rough year‑round. Avoid swimming during heavy swell, keep a safe distance from blowholes, and monitor weather advisories during the hurricane season (June–November).
-                </p>
-                <ul className='list-disc pl-5 space-y-2 text-[0.98rem]'>
-                  <li>Use designated viewpoints for photography and stay off slippery rocks.</li>
-                  <li>Park in safe zones away from cliff edges and soft shoulder areas.</li>
-                </ul>
+              {/* GRAPHIC 4: Large Watermark/Illustration in background */}
+              <svg className="absolute -bottom-10 -right-10 w-64 h-64 text-slate-50 pointer-events-none opacity-60" viewBox="0 0 200 200" fill="currentColor">
+                <path d="M45.7,166.9c-2.4-9.5-6.2-22.6-8.2-31.5C31.2,107.8,28.8,78.2,46.5,50c4.5-7.1,10.6-13.3,18.4-17.2 c17.6-8.9,39.4-6.3,55.4,3.5c16.9,10.4,28.7,27.5,35.6,46.3c10.1,27.3,7.6,58.8-9.4,83.1c-6.6,9.5-15.5,17.4-26.2,22.1 c-17.6,7.7-38.3,6-55.9-1.9C57.7,183.1,51.3,176.4,45.7,166.9z" />
+              </svg>
 
-                <div className='flex items-start gap-2 mt-4 text-[0.95rem]'>
-                  {/* Warning icon */}
-                  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' aria-hidden>
-                    <path d='M12 3l9 16H3L12 3Z' stroke='#B8F500' strokeWidth='2' strokeLinejoin='round'/>
-                    <path d='M12 9v5' stroke='#B8F500' strokeWidth='2' strokeLinecap='round'/>
-                    <circle cx='12' cy='17' r='1.2' fill='#B8F500'/>
-                  </svg>
-                  <span>
-                    <span className='font-medium'>Learn more:</span> Coastal safety & storm readiness
-                  </span>
+              <div className='px-6 pb-6 pt-4 relative z-10'>
+                <div className="">
+                    <p className='text-[0.95rem] leading-[1.6] text-slate-600 mb-4'>
+                    East coast seas are unpredictable. Avoid swimming during high swells and keep clear of cliff edges. Monitor weather advisories during hurricane season (June–Nov).
+                    </p>
+                    
+                    <ul className='space-y-3 mb-5'>
+                    <li className="flex gap-3 items-start">
+                        <span className="mt-1.5 min-w-[6px] h-[6px] rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
+                        <span className="text-[0.9rem] text-slate-500 font-medium">Use designated zones for photography; rocks are slippery.</span>
+                    </li>
+                    <li className="flex gap-3 items-start">
+                        <span className="mt-1.5 min-w-[6px] h-[6px] rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
+                        <span className="text-[0.9rem] text-slate-500 font-medium">Park vehicles in marked areas away from soft shoulders.</span>
+                    </li>
+                    </ul>
+
+                    {/* Alert Box */}
+                    <div className='relative flex items-start gap-3 mt-4 bg-amber-50 border border-amber-100 p-3 rounded-[25px] overflow-hidden'>
+                    {/* GRAPHIC 5: Tiny dot pattern for "Ticket/Paper" feel */}
+                    <div className="absolute inset-0 opacity-[0.4]" style={{ backgroundImage: 'radial-gradient(#fbbf24 0.5px, transparent 0.5px)', backgroundSize: '8px 8px' }}></div>
+                    
+                    <div className="bg-white p-1.5 rounded-full shadow-sm text-amber-500 mt-0.5 relative z-10 ring-1 ring-amber-100">
+                        <svg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'/>
+                            <path d='M12 9v4' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round'/>
+                            <path d='M12 17h.01' stroke='currentColor' strokeWidth='3' strokeLinecap='round'/>
+                        </svg>
+                    </div>
+                    <div className="flex flex-col relative z-10">
+                        <span className='font-bold text-[0.85rem] text-amber-900'>Emergency Advisory</span>
+                        <span className="text-[0.85rem] text-amber-800/70 leading-tight mt-1">
+                            Call 211 for Ambulance/Fire • 212 for Police
+                        </span>
+                    </div>
+                    </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        {/* </div> */}
 
-        <div className='w-[450px] max-w-full max-sm:w-full bg-red-500 mt-[40px] h-[170px] rounded-[40px] flex justify-center items-center'>
-          <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] flex flex-row gap-6'>
-            <button className="flex items-center py-[13px] pl-[15px] pr-[20px] gap-[10px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
-                  <span className='z-10 fill-[#E0E0E0]'>
-                    <Image src={quizIcon} alt="" height={24} className='invert'/>
+        {/* IN-PLACE QUIZ SECTION */}
+        {/* TERRAIN/MAP THEMED QUIZ SECTION */}
+        <div className='shadow-[0px_0px_20px_rgba(0,0,0,0.4)] mt-[40px] rounded-[43px] w-[450px] max-w-[90vw] mb-[0px]'>
+          
+          {/* INNER DIV: Holds the mask, background, and padding (The visual border) */}
+          <div className='w-full h-full rounded-[43px] p-[3px] [mask-image:radial-gradient(white,black)] bg-gradient-to-br from-indigo-300 via-blue-800/95 to-blue-300 overflow-hidden'>
+          <div 
+            className={`
+              w-[450px] max-w-full max-sm:w-full rounded-[40px]
+              flex flex-col justify-center items-center relative overflow-hidden
+              transition-all duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)]
+              bg-gradient-to-br from-indigo-600 via-blue-500 to-blue-800
+              ${quizStage === 'start' ? 'h-[200px]' : 'min-h-[240px] py-8'}
+            `}
+          >
+            {/* --- GRAPHICS LAYER --- */}
+            
+            {/* 1. Technical Map Grid (Background Texture) */}
+            <div className="absolute inset-0 opacity-[0.08]" 
+              style={{ 
+                backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)', 
+                backgroundSize: '40px 40px' 
+              }} 
+            />
+
+            {/* 2. Glow effect (Sun/Highlight) */}
+            <div className="absolute -top-[50%] left-[20%] w-[300px] h-[300px] bg-indigo-300/20 blur-[90px] rounded-full pointer-events-none" />
+            
+            {/* 3. TERRAIN / HILLS SILHOUETTE (Replacing Waves) */}
+            <div className="absolute bottom-0 left-0 w-full h-full pointer-events-none overflow-hidden rounded-[40px]">
+              <svg className="absolute bottom-[-5px] w-full min-h-[140px]" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                  {/* Back Hill (Depth) */}
+                  <path 
+                    fill="rgba(0, 0, 0, 0.15)" 
+                    d="M0,280 C240,280 480,180 720,180 C960,180 1200,240 1440,240 V320 H0 Z"
+                  ></path>
+                  {/* Front Hill (Foreground) */}
+                  <path 
+                    fill="rgba(255, 255, 255, 0.08)" 
+                    d="M0,320 L0,220 C250,260 500,340 750,260 C1000,180 1250,220 1440,160 V320 Z"
+                  ></path>
+              </svg>
+            </div>
+
+            {/* --- STAGE: START --- */}
+            {quizStage === 'start' && (
+              <div className="flex flex-col items-center justify-center w-full z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                
+                {/* Explorer Badge */}
+                <div className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full mb-3 border border-white/20 shadow-[0px_0px_5px_rgba(0,0,0,0.2)]">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                  <span className="text-[10px] font-bold text-white uppercase tracking-wider">
+                    Site Explorer
                   </span>
-                  <p className='font-bold text-[#E0E0E0]'>Start Quiz</p>
-            </button>
+                </div>
+
+                {/* Main Title */}
+                <h3 className="text-white font-black text-2xl leading-none mb-1 text-center drop-shadow-lg tracking-tight">
+                  Knowledge Check
+                </h3>
+                
+                {/* Subtitle / Instruction */}
+                <p className="text-blue-100 text-sm font-medium mb-5 text-center max-w-[85%]">
+                  Complete <span className="text-white font-bold border-b-2 border-white/20">2 questions</span> on the local geography.
+                </p>
+
+                {/* Start Button */}
+                <button 
+                  onClick={() => setQuizStage('question')}
+                  className="group cursor-pointer relative bg-white text-indigo-700 rounded-full py-3 pl-5 pr-6 font-bold text-[1rem] shadow-[0_0px_15px_rgba(0,0,0,0.2)] flex items-center gap-2 hover:scale-105 transition-transform active:scale-95"
+                >
+                  <span>Begin Quest</span>
+                  <div className="text-[1.3rem]">
+                      {/* Arrow Icon */}
+                      <TbBulb/>
+                  </div>
+                </button>
+              </div>
+            )}
+
+            {/* --- STAGE: QUESTION --- */}
+            {quizStage === 'question' && (
+              <div  className="w-full px-6 z-10 flex flex-col items-center gap-6 animate-in slide-in-from-right-8 fade-in duration-500">
+                
+                <div className="flex flex-col items-center gap-2">
+                  {/* Progress Indicators (Bars instead of dots for technical feel) */}
+                  {/* <div className="flex gap-1.5 mb-1">
+                    {quizData.map((_, i) => (
+                      <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === qIndex ? 'w-10 bg-white shadow-[0_0_10px_white]' : 'w-4 bg-white/30'}`} />
+                    ))}
+                  </div> */}
+                  <p className="text-white font-bold text-xl md:text-2xl text-center leading-tight drop-shadow-md">
+                    {quizData[qIndex].q}
+                  </p>
+                </div>
+
+                {/* Options */}
+                <div className="flex w-full gap-3">
+                  {quizData[qIndex].options.map((opt, i) => (
+                    <div key={i} className='bg-white/5 active:scale-[.98] backdrop-blur-[3px] min-h-[70px] rounded-[30px] w-[100%] px-auto p-[2.5px] shadow-[0_0px_15px_rgba(0,0,0,0.1)] cursor-pointer'>
+                    <button
+                      key={i}
+                      onClick={() => handleAnswer(i)}
+                      className="
+                        flex-1 py-4 px-3 
+                        bg-indigo-900/50 cursor-pointer h-[100%] w-[100%] hover:bg-white text-white hover:text-indigo-800
+                        rounded-[27px] font-bold text-sm leading-tight
+                        transition-all duration-200
+                      "
+                    >
+                      {opt}
+                    </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute bottom-[20px] flex gap-1.5">
+                    {quizData.map((_, i) => (
+                      <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === qIndex ? 'w-8 bg-white shadow-[0_0_10px_white]' : 'w-4 bg-white/30'}`} />
+                    ))}
+                  </div>
+              </div>
+            )}
+
+            {/* --- STAGE: RESULT --- */}
+          {quizStage === 'result' && (
+            <div className="flex flex-col items-center justify-center w-full px-6 mt-[-30px] z-10 animate-in zoom-in fade-in duration-500">
+               
+              <div className='flex items-center gap-[20px]'>
+               {/* Rank / Badge Icon */}
+              <div className="relative mb-3">
+                <div className={`rotate-6 mb-[4px] rounded-[23px] w-[100%] px-auto p-[2.5px] shadow-[0px_0px_30px_rgba(0,0,0,0)] ${score > 0 ? 'bg-gradient-to-br from-yellow-500 via-amber-500/65 to-amber-300' : 'bg-gradient-to-br from-gray-300 via-gray-500/65 to-gray-400'}`}>
+                  <div className={`
+                    w-13 h-13 rounded-[20px] flex items-center justify-center text-[1.3rem]
+                    ${score > 0 ? 'bg-gradient-to-br from-yellow-300 to-amber-500' : 'bg-gradient-to-br from-gray-300 to-gray-400'}
+                  `}>
+                      {score === quizData.length ? '🏆' : score > 0 ? '✨' : '☁️'}
+                  </div>
+                </div>
+                  {/* Glowing Aura behind badge */}
+                  {score > 0 && <div className="absolute inset-0 bg-yellow-400/60 blur-xl -z-10 animate-pulse"></div>}
+               </div>
+
+                <div className="flex flex-col">
+                  <h3 className="text-white font-black text-2xl tracking-tight uppercase drop-shadow-md">
+                    {score === quizData.length ? 'Quest Complete!' : 'Completed'}
+                  </h3>
+                  <p className="text-indigo-100 text-sm font-medium mb-5 opacity-90">
+                    You got <span className="text-white font-bold">{score}</span> out of {quizData.length} correct.
+                  </p>
+                </div>
+              </div>
+
+                {/* Points Card */}
+              <div className='bg-white/10 backdrop-blur-[3px] active:scale-[.98] rounded-[28px] w-[100%] px-auto p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] cursor-pointer'>
+                <div className="w-full bg-white/10 rounded-[25px] p-4 flex flex-row items-center justify-between shadow-[0px_0px_20px_rgba(0,0,0,0.2)] relative overflow-hidden group">
+                   {/* Shine effect passing through */}
+                   <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
+                   
+                   <div className="flex flex-col items-start">
+                     <span className="text-indigo-200 text-[10px] font-[700] uppercase tracking-widest">Total Earned</span>
+                     <span className="text-white text-xs opacity-70 font-[500]">Experience</span>
+                   </div>
+
+                   <div className="flex items-center gap-1">
+                     <span className="text-4xl font-black text-white drop-shadow-sm leading-none">
+                       +{score * 50}
+                     </span>
+                     <span className="text-[10px] font-bold text-yellow-900 Scottish bg-yellow-400 px-1.5 py-0.5 rounded-[8px] mb-auto mt-1">
+                       PTS
+                     </span>
+                   </div>
+                </div>
+              </div>
+
+                {/* Status Footer */}
+                <div className="mt-4 mb-[-40px] flex items-center justify-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-widest">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Result Recorded
+                </div>
+              </div>
+            // </div>
+          )}
           </div>
         </div>
+      </div>
       </div>
 
 
@@ -493,7 +883,7 @@ const SoupBowl = () => {
                         </div>
                     )}
                 </Portal>
-            <div className='absolute left-[77px] bottom-[-20px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
+            <div className='absolute bottom-[-20px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
               <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
                 <button onClick={() => setGalleryOpen(true)} className="cursor-pointer flex items-center py-[10px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
                   <span className='z-10 fill-[#E0E0E0]'>
@@ -506,125 +896,80 @@ const SoupBowl = () => {
           </div>
       </div>
 
-      <div className='mb-[80px] bg-green-500/0 max-w-[90vw]'>
-        <p className='font-bold text-[2rem] bg-red-500/0'>Traveler Experiences</p>
-        <div className='flex flex-col bg-green-500/0 overflow-x-scroll bg-pink-500/0 '>
-          {/* <p className='font-bold text-[2rem] max-sm:px-[5vw]'>Traveler Experiences</p> */}
-           <div className='flex  py-[40px] gap-10 bg-red-500/0'>
-          {experiences.map((experience,index)=>(
-           
-              <div className='flex flex-col min-w-[400px] max-w-[350px] max-sm:min-w-[90vw] h-fit bg-[#EDEDED] overflow-hidden p-[20px] border-white border-[2px] rounded-[40px] shadow-[0px_0px_20px_rgba(0,0,0,.1)]' key={index}>
-                <div className='flex justify-between'>
-                  <div className='flex gap-[10px] items-center'>
-                    <Link href="/profile" className='cursor-pointer whitespace-nowrap'>
-                      <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)] -mr-[1px]'>
-                        <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
-                          {/* <Image src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" /> */}
-                          <video
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="w-full h-full object-cover"
-                          >
-                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-                          </video>
+      {/* --- TRAVELER EXPERIENCES SECTION --- */}
+      <div className='relative flex flex-col items-center w-[1400px] max-w-[90vw] mb-[120px]'>
+       
+        {/* Header: Title + Add Review Button */}
+        <div className='w-full flex flex-col md:flex-row justify-between max-sm:items-center items-end md:items-center gap-6 mb-5 z-10'>
+          <div className='flex flex-col gap-1'>
+            <p className='font-bold text-[2rem] leading-tight max-sm:text-center text-slate-800'>Traveler Experiences</p>
+            <p className='text-slate-500 font-medium max-sm:text-center'>See what others are saying about the surf and scenery.</p>
+          </div>
+         
+          <div onClick={handleWriteReviewClick} className='cursor-pointer rounded-full p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-[.98]'>
+                      <button className='cursor-pointer'>
+                        <div className='flex gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[10px]'>
+                          <span><PenIcon color='#fff'/></span>
+                          <p className='text-white font-bold'>Add a Review</p>
                         </div>
-                      </div>
-                    </Link>
-                    <div className='flex flex-col'>
-                      <p className='font-bold text-[#656565] text-[1.05rem]'>{experience.username}</p>
-                      <p className='text-base text-neutral-500 font-[500] text-[.8rem] mt-[-4px]'>{new Intl.DateTimeFormat("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      }).format(experience.upload_date)}</p>
+                      </button>
                     </div>
-                    
-                  </div>
-                  <div className='relative bg-blue-500/0 w-[50px] h-[50px] mt-[-3px]'>
-                    <div className='absolute bg-red-500/0 overflow-hidden border-white border-[1.5px] h-[45px] w-[45px] rounded-[15px] left-[5px] rotate-[15deg] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] z-[1]'>
-                      <video
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="w-full h-full object-cover"
-                          >
-                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-                          </video>
-                    </div>
-                    <div className='absolute bg-green-500/0 h-[45px] w-[45px] overflow-hidden border-white border-[1.5px] rounded-[15px] left-[-25px] mt-[0px] rotate-[-10deg] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] z-[1]'>
-                      <video
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="w-full h-full object-cover"
-                          >
-                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-                          </video>
-                    </div>
-                    {/* <div className='absolute bg-green-500/0 h-[25px] w-[25px] overflow-hidden border-white border-[1.5px] rounded-[9px] left-[0px] mt-[30px] rotate-[0deg] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] z-[0]'>
-                      <video
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="w-full h-full object-cover"
-                          >
-                            <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-                          </video>
-                    </div> */}
-                    {/* <div className='absolute bg-pink-500 h-[40px] w-[40px] rounded-[10px] ml-[-15px] rotate-[-10deg] mt-[-1px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'></div> */}
-                  </div>
-                  {/* <p className='text-base text-neutral-500 font-[500] text-[.8rem\9]'>{new Intl.DateTimeFormat("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  }).format(experience.upload_date)}</p> */}
-                </div>
-                {/* <p className='text-[1.1rem] mt-[15px] font-semibold'>{experience.title}</p> */}
-                <p className='bg-red-500/0 mt-[10px] font-[400]'>{experience.description}</p>
-                {/* <div className='flex justify-start pt-2 gap-x-3'>
-                  {experience.images.map((image,index)=>(
-                    <img src={image.src} alt={image.alt} className='rounded-[20px] w-20 h-20 border-white border-[1.5px]' key={index}/>
-                  ))}
-                </div> */}
-              </div>
-        
+        </div>
+        {/* Scrolling Cards Container */}
+        <div className='relative w-full overflow-visible z-10'>
+         
+          {/* Decorative Blur behind cards */}
+          <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-100/30 blur-[100px] -z-10 rounded-full' />
+          <div className='flex overflow-x-auto pb-12 pt-4 gap-6 w-[100vw] px-[5vw] md:w-full md:px-2 scroll-smooth snap-x mandatory hide-scrollbar -mx-[5vw] md:mx-0'>
+            {currentReviews.map((experience, index) => (
+              <ReviewCard key={index} experience={experience} />
+            ))}
+          </div>
+        </div>
+
+        {/* Custom Pagination Bar */}
+        <div className='flex flex-wrap justify-center gap-3 mt-4'>
+          
+          {/* Previous Arrow Button */}
+          <button 
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className='flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] bg-white/80 border border-slate-200/80 text-slate-500 rounded-2xl shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:scale-[1.05] hover:text-blue-600 transition-all disabled:cursor-not-allowed disabled:hover:scale-100 disabled:bg-slate-100 disabled:text-slate-400'
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+
+          {/* Page Number Buttons */}
+          {pageNumbers.map((num) => (
+            <button
+              key={num}
+              onClick={() => setCurrentPage(num)}
+              className={`flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] font-bold rounded-2xl transition-all ${
+                currentPage === num 
+                  ? 'bg-[#007BFF] text-white shadow-[0px_0px_15px_rgba(0,0,0,0.2)] hover:scale-[1.05]' 
+                  : 'bg-white/80 border border-slate-200/80 text-slate-500 shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:text-blue-600 hover:scale-[1.05]'
+              }`}
+            >
+              {num}
+            </button>
           ))}
-            </div>
-             {/* <button className='relative self-center cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[220px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] mt-16'>
-                           <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
-                             <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
-                              View All Experiences
-                             </span>
-                            
-                           </div>
-                         </button> */}
+          
+          {/* Next Arrow Button */}
+          <button 
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === pageCount}
+            className='flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] bg-white/80 border border-slate-200/80 text-slate-500 rounded-2xl shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:scale-[1.05] hover:text-blue-600 transition-all disabled:cursor-not-allowed disabled:hover:scale-100 disabled:bg-slate-100 disabled:text-slate-400'
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+          </button>
         </div>
-        <div className='flex justify-center gap-[10px] bg-red-500/0'>
-                          <div className='flex justify-center items-center bg-[#007BFF] h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
-                            1
-                          </div>
-                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
-                            2
-                          </div>
-                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
-                            3
-                          </div>
-                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
-                            4
-                          </div>
-                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
-                            5
-                          </div>
-                          <div className='flex justify-center items-center bg-[#656565]/30 h-[40px] w-[40px] font-[700] text-[1.2rem] text-white rounded-[15px]'>
-                            6
-                          </div>
-                        </div>
-        </div>
+        <ReviewModal 
+        isOpen={isReviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        onReviewSubmit={fetchReviews}
+        user={user} 
+      />
+      </div>
 
       <div className='w-[100vw]'>
         <div className='px-[5.4vw]'>
