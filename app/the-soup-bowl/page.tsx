@@ -1,154 +1,80 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import ReactDOM from 'react-dom';
 import Image from 'next/image';
-import vrIcon from "@/public/icons/vr-icon.svg"
-import camIcon from "@/public/icons/camera-icon.svg"
-import ticketIcon from "@/public/icons/ticket-icon.svg"
-import clockIcon from "@/public/icons/clock-icon.svg"
-import photoIcon from "@/public/icons/photos-icon.svg"
-import quizIcon from "@/public/icons/quiz-icon.svg"
-import { stories } from '@/public/data/stories';
-import { experiences } from '@/public/data/experiences';
-import arrowIcon from "@/public/icons/arrow-icon.svg";
-import PenIcon from "@/public/icons/pen-icon";
-import { TbBulb } from "react-icons/tb";
-import { ImWarning } from "react-icons/im";
-import { TiStarFullOutline } from "react-icons/ti";
-import { ReviewCard } from "@/app/components/ReviewCard"
-import { ReviewModal } from "@/app/components/ReviewModal";
 import { supabase } from '@/lib/supabaseClient';
 import { User } from '@supabase/supabase-js';
 
+// Import your components
+import { ReviewCard } from "@/app/components/ReviewCard";
+import { ReviewModal } from "@/app/components/ReviewModal";
+import { AuthAlertModal } from "@/app/components/AuthAlertModal";
+import { GalleryModal } from "@/app/components/GalleryModal";
+
+// Import your icons and data
+import vrIcon from "@/public/icons/vr-icon.svg";
+import camIcon from "@/public/icons/camera-icon.svg";
+import ticketIcon from "@/public/icons/ticket-icon.svg";
+import clockIcon from "@/public/icons/clock-icon.svg";
+import photoIcon from "@/public/icons/photos-icon.svg";
+import arrowIcon from "@/public/icons/arrow-icon.svg";
+import PenIcon from "@/public/icons/pen-icon";
+import { stories } from '@/public/data/stories';
+import { TbBulb } from "react-icons/tb";
+import { TiStarFullOutline } from "react-icons/ti";
 
 const SoupBowl = () => {
+  // --- 1. ALL STATE AND REF HOOKS ARE GROUPED AT THE TOP ---
+  const [user, setUser] = useState<User | null>(null);
   const [isSafetyOpen, setIsSafetyOpen] = useState(true);
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-
-  // --- Check user session on component load ---
-  useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-    };
-    getSession();
-
-    // Also listen for auth changes (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe(); // Cleanup subscription on component unmount
-  }, []);
-
-  const handleWriteReviewClick = () => {
-    if (user) {
-      setReviewModalOpen(true);
-    } else {
-      alert("You must be signed in to write a review.");
-    }
-  };
-
-
-
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const reviewsPerPage = 5; // Set this to 5
-  const indexOfLastReview = currentPage * reviewsPerPage;
-  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
-  const currentReviews = experiences.slice(indexOfFirstReview, indexOfLastReview);
-  const pageCount = Math.ceil(experiences.length / reviewsPerPage);
-  const pageNumbers = pageCount > 1 ? Array.from({ length: pageCount }, (_, i) => i + 1) : [];
+  const [reviews, setReviews] = useState<any[]>([]);
+  
+  // Modal states
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
-  const [reviews, setReviews] = useState<any[]>([]); // To hold reviews from Supabase
+  const [isAuthAlertOpen, setAuthAlertOpen] = useState(false);
 
-  // --- Function to fetch reviews ---
-  const fetchReviews = async () => {
-    const { data, error } = await supabase
-      .from('reviews')
-      .select('*')
-      .order('id', { ascending: false }); // Show newest reviews first
-
-    if (error) {
-      console.error("Error fetching reviews:", error);
-    } else {
-      setReviews(data);
-    }
-  };
-
-  // --- Fetch reviews on initial component load ---
-  useEffect(() => {
-    fetchReviews();
-  }, []);
-
-  // --- QUIZ STATE ---
+  // Quiz states
   const [quizStage, setQuizStage] = useState<'start' | 'question' | 'result'>('start');
   const [qIndex, setQIndex] = useState(0);
   const [score, setScore] = useState(0);
 
-  const quizData = [
-    {
-      q: "Best time to surf here?",
-      options: ["Winter (Nov-Apr)", "Summer (Jun-Aug)"],
-      answer: 0
-    },
-    {
-      q: "Which coast is this?",
-      options: ["West Coast", "East Coast"],
-      answer: 1
-    }
-  ];
-
-  const handleAnswer = (selectedIndex: number) => {
-    if (selectedIndex === quizData[qIndex].answer) {
-      setScore(s => s + 1);
-    }
-    
-    if (qIndex + 1 < quizData.length) {
-      setQIndex(i => i + 1);
-    } else {
-      setQuizStage('result');
-    }
-  };
-
-  const restartQuiz = () => {
-    setScore(0);
-    setQIndex(0);
-    setQuizStage('start');
-  };
-
+  // Interaction states
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // Gallery items: images, video, and 360 photo
-  const galleryItems = [
-    { type: 'image', src: 'https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg' },
-    { type: 'video', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4' },
-    { type: 'photo_360', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/Andromeda_20250920_110344_00_008.jpg' },
-    { type: 'image', src: 'https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg' },
-    { type: 'image', src: 'https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg' },
-    { type: 'image', src: 'https://i.pinimg.com/736x/b2/1a/4e/b21a4edd98d5deeae826a459aeeb1b26.jpg' },
-    { type: 'image', src: 'https://i.pinimg.com/736x/a5/71/41/a57141ad568104a6b1e49acedddd1eca.jpg' },
-    { type: 'image', src: 'https://i.pinimg.com/736x/d8/51/26/d85126e7178f37e0f8cb5a73d495707d.jpg' },
-    { type: 'image', src: 'https://i.pinimg.com/736x/3f/82/ac/3f82ac4cde04c3143ed4f2580d64820c.jpg' },
-    { type: 'image', src: 'https://i.pinimg.com/736x/4c/20/00/4c20006b09ffc0b4f31278d3009f7390.jpg' },
-    { type: 'image', src: 'https://i.pinimg.com/736x/ee/f1/ed/eef1ed5ee44a821046bcd209a3e1fbcc.jpg' },
-  ];
+  // --- 2. ALL CALLBACKS AND MEMOIZED FUNCTIONS ---
+  const handleAlertClose = useCallback(() => {
+    setAuthAlertOpen(false);
+  }, []);
 
-  useEffect(() => {
-    if (galleryOpen) {
-      document.body.style.overflow = 'hidden';
+  const fetchReviews = useCallback(async () => {
+    const { data, error } = await supabase.from('reviews').select('*').order('id', { ascending: false });
+    if (error) {
+      console.error("Error fetching reviews:", error);
     } else {
-      document.body.style.overflow = 'auto';
+      setReviews(data || []);
     }
+  }, []);
 
-    // Cleanup function to restore scrolling when the component unmounts
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [galleryOpen]);
+  const galleryItems = [
+{ type: 'image', src: 'https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg' },
+{ type: 'video', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4' },
+{ type: 'photo_360', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/Andromeda_20250920_110344_00_008.jpg' },
+{ type: 'image', src: 'https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg' },
+{ type: 'image', src: 'https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg' },
+{ type: 'image', src: 'https://i.pinimg.com/736x/b2/1a/4e/b21a4edd98d5deeae826a459aeeb1b26.jpg' },
+{ type: 'image', src: 'https://i.pinimg.com/736x/a5/71/41/a57141ad568104a6b1e49acedddd1eca.jpg' },
+{ type: 'image', src: 'https://i.pinimg.com/736x/d8/51/26/d85126e7178f37e0f8cb5a73d495707d.jpg' },
+{ type: 'image', src: 'https://i.pinimg.com/736x/3f/82/ac/3f82ac4cde04c3143ed4f2580d64820c.jpg' },
+{ type: 'image', src: 'https://i.pinimg.com/736x/4c/20/00/4c20006b09ffc0b4f31278d3009f7390.jpg' },
+{ type: 'image', src: 'https://i.pinimg.com/736x/ee/f1/ed/eef1ed5ee44a821046bcd209a3e1fbcc.jpg' },
+];
 
   const goToNext = useCallback(() => {
     setSelectedIndex((prevIndex) => (prevIndex + 1) % galleryItems.length);
@@ -158,92 +84,141 @@ const SoupBowl = () => {
     setSelectedIndex((prevIndex) => (prevIndex - 1 + galleryItems.length) % galleryItems.length);
   }, [galleryItems.length]);
 
-  const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  // --- 3. ALL USEEFFECT HOOKS ---
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+    getSession();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
-  // Effect for Keyboard Navigation
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  useEffect(() => {
+    document.body.style.overflow = galleryOpen ? 'hidden' : 'auto';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [galleryOpen]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowRight') {
-        goToNext();
-      } else if (event.key === 'ArrowLeft') {
-        goToPrevious();
-      } else if (event.key === 'Escape') {
-        setGalleryOpen(false);
+      if (!galleryOpen) return;
+      if (event.key === 'ArrowRight') goToNext();
+      if (event.key === 'ArrowLeft') goToPrevious();
+      if (event.key === 'Escape') setGalleryOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [galleryOpen, goToNext, goToPrevious]);
+
+  // --- 4. REGULAR FUNCTIONS AND DERIVED STATE/CONSTANTS ---
+  const handleWriteReviewClick = () => {
+    if (user) {
+      setReviewModalOpen(true);
+    } else {
+      setAuthAlertOpen(true);
+    }
+  };
+
+  const quizData = [
+  {
+  q: "Best time to surf here?",
+  options: ["Winter (Nov-Apr)", "Summer (Jun-Aug)"],
+  answer: 0
+  },
+  {
+  q: "Which coast is this?",
+  options: ["West Coast", "East Coast"],
+  answer: 1
+  }
+];
+
+  const handleAnswer = (selectedIndex: number) => {
+    if (selectedIndex === quizData[qIndex].answer) {
+    setScore(s => s + 1);
+    }
+    if (qIndex + 1 < quizData.length) {
+      setQIndex(i => i + 1);
+    } else {
+      setQuizStage('result');
+  }};
+
+  const restartQuiz = () => {
+    setScore(0);
+    setQIndex(0);
+    setQuizStage('start');
+  };
+
+  const reviewsPerPage = 5;
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
+  const pageCount = Math.ceil(reviews.length / reviewsPerPage);
+  const pageNumbers = pageCount > 1 ? Array.from({ length: pageCount }, (_, i) => i + 1) : [];
+
+  // --- NEARBY SITES LOGIC ---
+  const [nearbySites, setNearbySites] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchNearby = async () => {
+      // 1. Define Current Site Coordinates (Soup Bowl - based on your screenshot ID:1)
+      const currentLat = 13.214743;
+      const currentLng = -59.523950;
+
+      // 2. Fetch sites (excluding the current one by ID or logic)
+      const { data, error } = await supabase
+        .from('location_pins')
+        .select('*')
+        .neq('id', 1); // Assuming ID 1 is Soup Bowl. Remove this line if IDs differ.
+
+      if (error) {
+        console.error('Error fetching sites:', error);
+        return;
+      }
+
+      if (data) {
+        // 3. Haversine Formula to calculate distance in km
+        const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+          const R = 6371; // Radius of the earth in km
+          const dLat = (lat2 - lat1) * (Math.PI / 180);
+          const dLon = (lon2 - lon1) * (Math.PI / 180);
+          const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          return R * c;
+        };
+
+        // 4. Map distance, Map DB columns to Card props, Sort, and Slice
+        const sortedSites = data
+          .filter(site => site.latitude && site.longitude) // Ensure coords exist
+          .map((site) => ({
+            ...site,
+            distance: calculateDistance(currentLat, currentLng, site.latitude, site.longitude),
+            // MAPPING: Mapping your DB columns (screenshot) to the styling variables
+            image_url: site.pointimage, 
+            // Note: Your screenshot didn't show 'name' or 'slug' columns. 
+            // If they don't exist, replace 'site.name' with 'site.description' or add the columns to Supabase.
+            name: site.name || 'Unknown Site', 
+            slug: site.slug || '#',
+            description: site.description
+          }))
+          .sort((a, b) => a.distance - b.distance) // Sort closest to furthest
+          .slice(0, 5); // Limit to top 5 closest sites
+
+        setNearbySites(sortedSites);
       }
     };
 
-    if (galleryOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-    }
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [galleryOpen, goToNext, goToPrevious]);
-
-  useEffect(() => {
-    if (galleryOpen && thumbnailRefs.current[selectedIndex]) {
-      thumbnailRefs.current[selectedIndex]?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      });
-    }
-  }, [selectedIndex, galleryOpen]);
-
-  // --- Touch event handlers for mobile swiping ---
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStartX(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX === null) {
-      return;
-    }
-    const touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50; // User must swipe at least 50px
-
-    if (swipeDistance > minSwipeDistance) {
-      goToPrevious(); // Swiped right
-    } else if (swipeDistance < -minSwipeDistance) {
-      goToNext(); // Swiped left
-    }
-    setTouchStartX(null); // Reset for next swipe
-  };
-
-  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    if (galleryItems[selectedIndex] && galleryItems[selectedIndex].type === 'image') {
-      const img = new window.Image();
-      img.src = galleryItems[selectedIndex].src;
-      img.onload = () => {
-        setImageDimensions({
-          width: img.naturalWidth,
-          height: img.naturalHeight,
-        });
-      };
-    }
-  }, [selectedIndex, galleryItems]);
-
-  useEffect(() => {
-    const originalBodyOverflow = document.body.style.overflow;
-    const originalHtmlOverflow = document.documentElement.style.overflow;
-
-    if (galleryOpen) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = originalBodyOverflow;
-      document.documentElement.style.overflow = originalHtmlOverflow;
-    }
-
-    return () => {
-      document.body.style.overflow = originalBodyOverflow;
-      document.documentElement.style.overflow = originalHtmlOverflow;
-    };
-  }, [galleryOpen]);
+    fetchNearby();
+  }, []);
 
   return (
     <div className='flex flex-col items-center self-center min-h-[100dvh] text-black bg-red-500/0 overflow-hidden'>
@@ -416,7 +391,7 @@ const SoupBowl = () => {
         </div>
 
 
-      <div className='flex flex-col'>
+      <div className='flex flex-col max-md:items-center max-md:justify-center md:bg-red-500/0 max-md:w-[90vw]'>
         {/* SAFETY / DISASTER PREPAREDNESS SECTION */}
         {/* <div className='w-full h-fit rounded-[38px] p-[3px] bg-amber-500/10 shadow-[0_0px_30px_rgb(0,0,0,0.2)] overflow-hidden'> */}
         <div className='w-[450px] max-w-full max-sm:w-full mt-4 relative z-10'>
@@ -512,7 +487,7 @@ const SoupBowl = () => {
                     <div className="flex flex-col relative z-10">
                         <span className='font-bold text-[0.85rem] text-amber-900'>Emergency Advisory</span>
                         <span className="text-[0.85rem] text-amber-800/70 leading-tight mt-1">
-                            Call 211 for Ambulance/Fire • 212 for Police
+                            • 211 for Police <br /> • 511 for Ambulance <br /> • 311 for Fire
                         </span>
                     </div>
                     </div>
@@ -769,120 +744,13 @@ const SoupBowl = () => {
 
                   <Portal>
                     {galleryOpen && (
-                        <div 
-                            onClick={() => setGalleryOpen(false)} 
-                            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-[2px] h-screen w-screen touch-none overscroll-behavior-y-contain"
-                        >
-                          <div className='fixed top-[0px] bg-white/1 max-sm:h-[50px] h-[0px] w-full z-[200] z-[-20]' />
-                          <div className='fixed bottom-[0px] bg-white/1 z-[200] max-sm:h-[50px] h-[0px] w-full z-[-20]' />
-                            <button onClick={() => setGalleryOpen(false)} className="cursor-pointer absolute top-4 right-4 md:top-6 md:right-6 z-30 rounded-full bg-black/10 hover:bg-black/60 backdrop-blur-sm p-2 transition-all">
-                                <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-
-                            {/* MAIN LAYOUT CONTAINER */}
-                            <div
-                                onClick={(e) => e.stopPropagation()}
-                                className="relative w-full h-full flex flex-col"
-                            >
-                                {/* MEDIA AREA */}
-                                <div className="flex-1 w-full flex justify-center items-center gap-4 p-4 min-h-0">
-                                    <button onClick={goToPrevious} aria-label="Previous image" className="cursor-pointer hidden md:flex flex-shrink-0 items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors z-10">
-                                        <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                                    </button>
-
-                                    <div
-                                        className="relative w-full h-full flex items-center justify-center"
-                                        onTouchStart={handleTouchStart}
-                                        onTouchEnd={handleTouchEnd}
-                                    >
-                                        {galleryItems[selectedIndex].type === 'image' && (
-                                          <Image
-                                            src={galleryItems[selectedIndex].src}
-                                            alt={`Gallery ${selectedIndex + 1}`}
-                                            fill
-                                            className="object-contain max-w-full max-h-full"
-                                          />
-                                        )}
-                                        {galleryItems[selectedIndex].type === 'video' && (
-                                          <video
-                                            src={galleryItems[selectedIndex].src}
-                                            controls
-                                            autoPlay
-                                            className="max-w-full max-h-full"
-                                          />
-                                        )}
-                                        {galleryItems[selectedIndex].type === 'photo_360' && (
-                                          <iframe
-                                            src={galleryItems[selectedIndex].src}
-                                            width="100%"
-                                            height="100%"
-                                            style={{ border: 0 }}
-                                            allowFullScreen
-                                            aria-hidden="false"
-                                            tabIndex={0}
-                                          ></iframe>
-                                        )}
-                                    </div>
-
-                                    <button onClick={goToNext} aria-label="Next image" className="cursor-pointer hidden md:flex flex-shrink-0 items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 z-10">
-                                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                                    </button>
-                                </div>
-
-                                {/* THUMBNAIL AREA */}
-                                <div className="flex-shrink-0 flex flex-col items-center pb-4 pt-0">
-                                    <div className="w-full max-w-4xl flex justify-start md:justify-center gap-3 overflow-x-auto py-2 px-4 hide-scrollbar">
-                                        {galleryItems.map((item, index) => (
-                                            <button 
-                                                key={index} 
-                                                ref={(el) => { thumbnailRefs.current[index] = el; }}
-                                                onClick={() => setSelectedIndex(index)} 
-                                                className={`flex-shrink-0 transition-all duration-200 focus:outline-none ${selectedIndex === index ? 'scale-105' : 'opacity-70 hover:opacity-100'}`}
-                                            >
-                                                {selectedIndex === index ? (
-                                                    <div className='w-20 h-20 max-sm:w-17 max-sm:h-17 flex items-center justify-center rounded-[22px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
-                                                        <div className="relative w-full h-full rounded-[20px] overflow-hidden">
-                                                            <Image src={item.src} alt={`Thumbnail ${index + 1}`} layout="fill" className="object-cover" />
-                                                            {item.type === 'video' && (
-                                                              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                                                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                                  <path d="M4 3.25v13.5l12-6.75L4 3.25z"/>
-                                                                </svg>
-                                                              </div>
-                                                            )}
-                                                            {item.type === 'photo_360' && (
-                                                              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                                                <Image src={vrIcon} alt="VR Icon" width={32} height={32} />
-                                                              </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="relative w-20 h-20 max-sm:w-17 max-sm:h-17 rounded-[20px] overflow-hidden">
-                                                        <Image src={item.src} alt={`Thumbnail ${index + 1}`} fill sizes="80px" className="object-cover" />
-                                                        {item.type === 'video' && (
-                                                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                                            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                              <path d="M4 3.25v13.5l12-6.75L4 3.25z"/>
-                                                            </svg>
-                                                          </div>
-                                                        )}
-                                                        {item.type === 'photo_360' && (
-                                                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                                            <Image src={vrIcon} alt="VR Icon" width={32} height={32} />
-                                                          </div>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <p className="text-white/80 text-sm mt-2 max-sm:mb-7">{selectedIndex + 1} / {galleryItems.length}</p>
-                                </div>
-                            </div>
-                        </div>
+                      <GalleryModal 
+                        items={galleryItems} 
+                        initialIndex={selectedIndex} 
+                        onClose={() => setGalleryOpen(false)} 
+                      />
                     )}
-                </Portal>
+                  </Portal>
             <div className='absolute bottom-[-20px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
               <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
                 <button onClick={() => setGalleryOpen(true)} className="cursor-pointer flex items-center py-[10px] pl-[10px] pr-[15px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
@@ -901,7 +769,7 @@ const SoupBowl = () => {
        
         {/* Header: Title + Add Review Button */}
         <div className='w-full flex flex-col md:flex-row justify-between max-sm:items-center items-end md:items-center gap-6 mb-5 z-10'>
-          <div className='flex flex-col gap-1'>
+          <div className='flex flex-col gap-1 max-md:self-start max-sm:self-center'>
             <p className='font-bold text-[2rem] leading-tight max-sm:text-center text-slate-800'>Traveler Experiences</p>
             <p className='text-slate-500 font-medium max-sm:text-center'>See what others are saying about the surf and scenery.</p>
           </div>
@@ -920,11 +788,25 @@ const SoupBowl = () => {
          
           {/* Decorative Blur behind cards */}
           <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-100/30 blur-[100px] -z-10 rounded-full' />
-          <div className='flex overflow-x-auto pb-12 pt-4 gap-6 w-[100vw] px-[5vw] md:w-full md:px-2 scroll-smooth snap-x mandatory hide-scrollbar -mx-[5vw] md:mx-0'>
-            {currentReviews.map((experience, index) => (
-              <ReviewCard key={index} experience={experience} />
-            ))}
+          {reviews.length === 0 ? (
+          // If there are no reviews, show this message
+        <div className="flex flex-col items-center justify-center min-h-[200px] text-center p-8 rounded-[40px]">
+          <span className="text-4xl mb-3">🧐</span>
+          <p className="text-lg font-bold text-slate-700">No Reviews Yet</p>
+          <p className="text-slate-500">Be the first to share your experience!</p>
+        </div>
+      ) : (
+        // Otherwise, show the list of reviews
+        <div className='flex overflow-x-auto pb-12 pt-4 gap-6 w-full px-2 scroll-smooth snap-x mandatory hide-scrollbar'>
+          {currentReviews.map((review) => (
+            <ReviewCard key={review.id} experience={{
+              username: review.reviewer_name,
+              description: review.review_text,
+              upload_date: new Date(review.created_at).getTime()
+            }} />
+          ))}
           </div>
+          )}
         </div>
 
         {/* Custom Pagination Bar */}
@@ -964,69 +846,74 @@ const SoupBowl = () => {
           </button>
         </div>
         <ReviewModal 
-        isOpen={isReviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        onReviewSubmit={fetchReviews}
-        user={user} 
-      />
+          isOpen={isReviewModalOpen}
+          onClose={() => setReviewModalOpen(false)}
+          onReviewSubmit={fetchReviews}
+          user={user} 
+        />
+        <AuthAlertModal
+          isOpen={isAuthAlertOpen}
+          onClose={() => setAuthAlertOpen(false)}
+        />
       </div>
 
       <div className='w-[100vw]'>
-        <div className='px-[5.4vw]'>
+        <div className='px-[5.4vw] mb-[10px]'>
           <p className='font-bold text-[1.75rem]'>Nearby Sites</p>
           <p className='text-[#666]'>Plan your route across St. Joseph</p>
         </div>
+        
         <div className="flex flex-col w-full overflow-x-auto hide-scrollbar">
-          <div className="mt-[10px] flex flex-row items-center min-h-[450px] gap-[30px] w-[100vw] overflow-y-hidden px-[5.4vw]">
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[45px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                    <a href="/parris-hill-murals">
-                      <p className="text-white font-bold">Explore Site</p>
-                    </a>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <div className="flex flex-row items-center py-[30px] bg-blue-500/0 gap-[30px] w-[100vw] overflow-y-hidden px-[5.4vw]">
+            
+            {/* Dynamic Map of Nearby Sites */}
+            {nearbySites.map((card) => (
+              <div key={card.id} className="relative flex-shrink-0 group cursor-pointer">
+                {/* Background / shadow layer */}
+                <div
+                  className="absolute bg-cover bg-center min-h-[280px] max-h-[280px] min-w-[260px] max-w-[260px] rounded-[57px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white"
+                  style={{ backgroundImage: `url(${card.image_url})` }}
+                >
+                  <div className="rotate-[180deg] self-end">
+                    <div className="bg-blue-500/0 absolute w-[270px] top-[70px] rotate-[-180deg] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] opacity-100 h-[270px]"></div>
                   </div>
-              </div>
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[45px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                      <p className="text-white font-bold">Explore Site</p>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </div>
+
+                {/* Main card (clickable) */}
+                <div
+                  className="relative bg-cover bg-center min-h-[280px] max-h-[280px] min-w-[260px] max-w-[260px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10 transition-transform duration-300 group-hover:scale-[1.01]"
+                  style={{ backgroundImage: `url(${card.image_url})` }}
+                >
+                  <Link href={`/${card.slug}`} passHref>
+                    <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+                    <div className="relative z-30 text-center mb-[20px] px-[10px]">
+                      <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+                        <p className="font-bold text-[1.3rem] mb-[2px] leading-tight">{card.name}</p>
+                        <p className="text-[0.9rem] px-[5px] line-clamp-2">{card.description}</p>
+                        <div className='mt-[10px] flex justify-center items-center'>
+                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
+                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
+                                <p className='text-center font-bold text-[.85rem]'>{card.category}</p>
+                              </div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                  <div className="rotate-[180deg] self-end">
+                    <div className="bg-blue-500/0 absolute w-[270px] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_30%,transparent)] opacity-100 h-[150px]"></div>
                   </div>
+                </div>
               </div>
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[45px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                      <p className="text-white font-bold">Explore Site</p>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                  </div>
-              </div>
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[45px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                      <p className="text-white font-bold">Explore Site</p>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                  </div>
-              </div>
-              <div className="relative bg-pink-600 min-h-[370px] min-w-[300px] max-h-[370px] max-w-[300px] rounded-[45px] border-[3.5px] border-white shadow-[4px_4px_15px_rgba(0,0,0,0.2)] p-5 flex flex-col justify-end">
-                  <button className="absolute top-4 right-[17px] backdrop-blur-[10px] bg-black/10 rounded-full flex px-[15px] border-2 py-[5px] border-white/15">
-                      <p className="text-white font-bold">Explore Site</p>
-                  </button>
-                  <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                      <p className="font-bold text-[1.3rem]">Parris Hill Mural</p>
-                      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                  </div>
-              </div>
+            ))}
+            
+            {/* Empty State if no sites found */}
+            {nearbySites.length === 0 && (
+               <div className="text-gray-400 italic p-5">Loading nearby locations...</div>
+            )}
+
           </div>
-      </div>
+        </div>
       </div>
       
       {/* <p className='font-bold text-[1.5rem]'>Soup Bowl Page</p> */}
