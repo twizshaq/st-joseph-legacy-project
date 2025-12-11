@@ -329,6 +329,7 @@ export default function Home() {
               <div className='rounded-full bg-black/40 backdrop-blur-[5px] flex flex-col gap-0 p-[0px] py-[0px] w-[45px] overflow-hidden z-[40]'>
                 <button 
                   onClick={handleZoomIn}
+                  title='Zoom in'
                   className='rounded-[0px] px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'
                 >
                   <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
@@ -336,6 +337,7 @@ export default function Home() {
                 </button>
                 <button 
                   onClick={handleZoomOut}
+                  title='Zoom out'
                   className='rounded-[0px] px-[12px] py-[20px] pb-[23px] active:bg-white/10'
                 >
                   <div className='bg-white h-[3px] w-[100%] rounded-full'></div>
@@ -499,10 +501,10 @@ export default function Home() {
             </div>
             <div>
               <div className='flex items-center gap-4 mt-3'>
-                <a href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
-                  <Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/>
+                <a href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" title="Visit our Instagram" className='text-blue-300 hover:text-white'>
+                  <Image src="/icons/instagram-icon.svg" alt="Instagram" height={35} width={35}/>
                 </a>
-                <a href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                <a href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" title="Visit our Facebook" className='text-blue-300 hover:text-white'>
                   <FacebookIcon color="#FFFFFF" height={30} width={30}/>
                 </a>
               </div>
