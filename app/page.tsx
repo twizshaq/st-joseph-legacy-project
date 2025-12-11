@@ -214,7 +214,7 @@ export default function Home() {
         loop
         muted
         playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover"
+        className="absolute top-0 left-0 object-cover w-full h-full"
       >
         <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
       </video>
@@ -247,7 +247,7 @@ export default function Home() {
           {/* Mobile-Only Collage: Appears here on smaller screens */}
           <div className="block lg:hidden relative max-w-[90vw] w-[560px] bg-red-500/0 aspect-[14/13] self-center my-12 max-sm:right-[14px]">
             {/* Colorful Gradient Glow blobs */}
-            <div className="absolute inset-0 pointer-events-none opacity-50">
+            <div className="absolute inset-0 opacity-50 pointer-events-none">
               <div className="absolute w-[50%] h-[54%] top-[-5%] right-[5%] rounded-full bg-gradient-to-br from-[#2780F5]/30 to-[#F527B4]/50 blur-[80px]" />
               <div className="absolute w-[54%] h-[58%] bottom-[30%] left-[5%] rounded-full bg-gradient-to-tl from-yellow-300/30 to-orange-400/30 blur-[90px]" />
               <div className="absolute w-[50%] h-[54%] top-[50%] right-[5%] rounded-full bg-gradient-to-br from-[#00FF72]/30 to-[#A0F887]/30 blur-[80px]" />
@@ -276,7 +276,7 @@ export default function Home() {
           </p>
 
           <p className="mt-6">With some of the popular attractions being</p>
-          <ul className="list-disc pl-5 mt-2 space-y-1">
+          <ul className="pl-5 mt-2 space-y-1 list-disc">
             <li>Tent Bay</li>
             <li>Soup Bowl</li>
             <li>Flower Forest Botanical Gardens</li>
@@ -290,7 +290,7 @@ export default function Home() {
         <div className="hidden lg:block relative flex-1 w-full max-w-[560px] aspect-[14/13] self-center my-12 lg:my-0">
           {/* Colorful Gradient Glow blobs */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 pointer-events-none opacity-50">
+            <div className="absolute inset-0 opacity-50 pointer-events-none">
               <div className="absolute w-[50%] h-[54%] top-[-5%] right-[5%] rounded-full bg-gradient-to-br from-[#2780F5]/30 to-[#F527B4]/50 blur-[80px]" />
               <div className="absolute w-[54%] h-[58%] bottom-[30%] left-[5%] rounded-full bg-gradient-to-tl from-yellow-300/30 to-orange-400/30 blur-[90px]" />
               <div className="absolute w-[50%] h-[54%] top-[50%] right-[5%] rounded-full bg-gradient-to-br from-[#00FF72]/30 to-[#A0F887]/30 blur-[80px]" />
@@ -329,6 +329,7 @@ export default function Home() {
               <div className='rounded-full bg-black/40 backdrop-blur-[5px] flex flex-col gap-0 p-[0px] py-[0px] w-[45px] overflow-hidden z-[40]'>
                 <button 
                   onClick={handleZoomIn}
+                  title='Zoom in'
                   className='rounded-[0px] px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'
                 >
                   <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
@@ -336,6 +337,7 @@ export default function Home() {
                 </button>
                 <button 
                   onClick={handleZoomOut}
+                  title='Zoom out'
                   className='rounded-[0px] px-[12px] py-[20px] pb-[23px] active:bg-white/10'
                 >
                   <div className='bg-white h-[3px] w-[100%] rounded-full'></div>
@@ -466,7 +468,7 @@ export default function Home() {
               ))
             ) : (
               <div className='w-[100vw]'>
-                <p className="font-bold self-center text-center">No sites found.</p>
+                <p className="self-center font-bold text-center">No sites found.</p>
               </div>
             )}
           </div>
@@ -490,19 +492,19 @@ export default function Home() {
         <div className='max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10'>
           {/* Column 1: Identity & Contact */}
           <div className='flex flex-col gap-4'>
-            <h3 className='font-bold text-xl'>Unveiling Our Legacy</h3>
-            <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
+            <h3 className='text-xl font-bold'>Unveiling Our Legacy</h3>
+            <p className='text-sm text-blue-200'>A District Emergency Organization (DEO) Project.</p>
             <div>
-              <h4 className='font-semibold mb-2'>Contact Us</h4>
-              <a href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>stjoseph.legacy@deo.gov.bb</a>
-              <p className='text-blue-200 text-sm'>(246) 123-4567</p>
+              <h4 className='mb-2 font-semibold'>Contact Us</h4>
+              <a href="mailto:stjoseph.legacy@deo.gov.bb" className='text-sm text-blue-200 hover:underline'>stjoseph.legacy@deo.gov.bb</a>
+              <p className='text-sm text-blue-200'>(246) 123-4567</p>
             </div>
             <div>
               <div className='flex items-center gap-4 mt-3'>
-                <a href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
-                  <Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/>
+                <a href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" title="Visit our Instagram" className='text-blue-300 hover:text-white'>
+                  <Image src="/icons/instagram-icon.svg" alt="Instagram" height={35} width={35}/>
                 </a>
-                <a href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                <a href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" title="Visit our Facebook" className='text-blue-300 hover:text-white'>
                   <FacebookIcon color="#FFFFFF" height={30} width={30}/>
                 </a>
               </div>
@@ -512,8 +514,8 @@ export default function Home() {
           {/* Column 3: Get Involved + Stay Connected */}
           <div className='flex flex-col-reverse items-start lg:items-center gap-[40px] lg:ml-[25px] ml-0'>
             {/* Get Involved */}
-            <div className='flex flex-col gap-4 w-full'>
-              <h3 className='font-bold text-xl lg:text-center'>Get Involved</h3>
+            <div className='flex flex-col w-full gap-4'>
+              <h3 className='text-xl font-bold lg:text-center'>Get Involved</h3>
               <ul className='space-y-2 text-blue-200 lg:text-center'>
                 <li>
                   <Link
@@ -542,9 +544,9 @@ export default function Home() {
             </div>
 
             {/* Stay Connected */}
-            <div className='flex flex-col gap-4 items-start lg:items-center w-full'>
-              <h3 className='font-bold text-xl'>Stay Connected</h3>
-              <p className='text-blue-200 text-sm lg:text-center'>Subscribe to our newsletter for project updates and email blasts.</p>
+            <div className='flex flex-col items-start w-full gap-4 lg:items-center'>
+              <h3 className='text-xl font-bold'>Stay Connected</h3>
+              <p className='text-sm text-blue-200 lg:text-center'>Subscribe to our newsletter for project updates and email blasts.</p>
               <div className="h-hit w-fit flex items-center justify-end relative mb-[0px]">
                 <input
                   type="email"
@@ -589,7 +591,7 @@ export default function Home() {
 
           {/* Column 2: Navigation */}
           <div className='flex flex-col gap-4 text-left lg:text-right'>
-            <h3 className='font-bold text-xl'>Navigate</h3>
+            <h3 className='text-xl font-bold'>Navigate</h3>
             <ul className='space-y-2 text-blue-200'>
               <li><a href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</a></li>
               <li><a href="/map" className='hover:text-[#feb47b] transition-colors'>Virtual Map</a></li>
@@ -601,11 +603,11 @@ export default function Home() {
         </div>
 
         {/* Bottom Bar */}
-        <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center text-sm text-blue-300'>
+        <div className='flex flex-col items-start pt-8 mx-auto mt-10 text-sm text-blue-300 border-t border-blue-800 max-w-7xl lg:flex-row lg:justify-between lg:items-center'>
           <p>© 2025 DEO Project. All Rights Reserved.</p>
           <div className='flex gap-4 mt-4 lg:mt-0'>
-            <a href="/privacy" className='hover:text-white transition-colors'>Privacy Policy</a>
-            <a href="/terms" className='hover:text-white transition-colors'>Terms of Service</a>
+            <a href="/privacy" className='transition-colors hover:text-white'>Privacy Policy</a>
+            <a href="/terms" className='transition-colors hover:text-white'>Terms of Service</a>
           </div>
         </div>
       </footer>

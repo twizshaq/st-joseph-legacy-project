@@ -307,7 +307,7 @@ const SearchResults = React.memo(function SearchResults({
               <div className='flex flex-col rounded-[16px] overflow-hidden pb-3 gap-5'>
                 <div className='flex flex-col gap-2 text-sm text-[#E0E0E0] bg-blue-500/0 mt-[90px]'>
                   <p className='font-bold text-[1.2rem] px-4'>Description</p>
-                  <p className='text-black font-[500] px-4 text-white'>{selectedSite.description}</p>
+                  <p className='font-[500] px-4 text-white'>{selectedSite.description}</p>
                   {/* <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] bg-green-500/0 hide-scrollbar'>
                     <div className='bg-red-400 min-h-[120px] min-w-[150px] rounded-[30px]'></div>
                     <div className='flex flex-col gap-2'>
@@ -616,11 +616,11 @@ export default function FullScreenMapPage() {
       <div className='absolute bottom-[20px] right-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px] hidden sm:block'>
         <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
           <div className='rounded-full bg-black/40 flex flex-col gap-0 w-[45px] overflow-hidden z-[40]'>
-            <button onClick={handleZoomIn} className='px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'>
+            <button onClick={handleZoomIn} title='Zoom in' className='px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'>
               <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
               <div className='absolute bg-white h-[3px] w-[50%] rounded-full rotate-[90deg]'></div>
             </button>
-            <button onClick={handleZoomOut} className='px-[12px] py-[20px] pb-[23px] active:bg-white/10'>
+            <button onClick={handleZoomOut} title='Zoom out' className='px-[12px] py-[20px] pb-[23px] active:bg-white/10'>
               <div className='bg-white h-[3px] w-[100%] rounded-full'></div>
             </button>
           </div>
@@ -642,11 +642,11 @@ export default function FullScreenMapPage() {
 
           <div className='absolute bottom-[80px] right-0 bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
             <div className='rounded-full bg-black/55 flex flex-col gap-0 w-[45px] overflow-hidden z-[40]'>
-              <button onClick={handleZoomIn} className='px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'>
+              <button onClick={handleZoomIn} title='Zoom in' className='px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center'>
                 <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
                 <div className='absolute bg-white h-[3px] w-[50%] rounded-full rotate-[90deg]'></div>
               </button>
-              <button onClick={handleZoomOut} className='px-[12px] py-[20px] pb-[23px] active:bg-white/10'>
+              <button onClick={handleZoomOut} title='Zoom out' className='px-[12px] py-[20px] pb-[23px] active:bg-white/10'>
                 <div className='bg-white h-[3px] w-[100%] rounded-full'></div>
               </button>
             </div>
