@@ -11,7 +11,8 @@ import {
   BarChart2, 
   ChevronDown,
   X,
-  UploadCloud
+  UploadCloud,
+  LogOut
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -181,6 +182,7 @@ const ActivityCard = ({ item }: { item: ActivityItemProps }) => {
 export default function UserProfilePage() {
   const [activeTab, setActiveTab] = useState('All');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const supabase = createClient();
     const router = useRouter();
@@ -336,9 +338,30 @@ const SocialView = () => (
             </div>
             
             
-            <button className="text-gray-400 hover:text-gray-600">
-              <Settings size={24} />
-            </button>
+            {/* Settings / Logout Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100"
+              >
+                <Settings size={24} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isSettingsOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 origin-top-right">
+                  <div className="p-2">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-colors text-left"
+                    >
+                      <LogOut size={16} />
+                      Log Out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* <h2 className="text-xl font-bold mb-4">User Activities</h2> */}

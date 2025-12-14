@@ -80,7 +80,7 @@ export const AuthAlertModal = ({ isOpen, onClose }: AuthAlertModalProps) => {
       <div className="fixed top-0 left-0 right-0 z-[60] flex justify-center pointer-events-none">
         <div
           className={`
-            flex items-center gap-4 w-full max-w-md p-4 mt-[85px] mx-4
+            flex items-center gap-4 w-full max-w-md p-4 mt-[125px] max-sm:mt-[85px] mx-4
             bg-red-600 text-white 
             rounded-[30px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] border border-red-700/50
             pointer-events-auto
@@ -98,7 +98,7 @@ export const AuthAlertModal = ({ isOpen, onClose }: AuthAlertModalProps) => {
 
           <button 
             onClick={handleClose} // Use the new handleClose function
-            className="p-2 rounded-full flex-shrink-0 hover:bg-red-700/50 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors"
+            className="p-2 rounded-full cursor-pointer flex-shrink-0 hover:bg-red-700/50 active:scale-[.98] transition-colors"
             aria-label="Close notification"
           >
             <FaTimes size={20} />

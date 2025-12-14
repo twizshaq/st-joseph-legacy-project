@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import searchIcon from '@/public/icons/search-icon.svg';
 import sortIcon from '@/public/icons/sort-icon.svg';
+import Footer from "@/app/components/FooterModal"
 
 export type SiteCard = {
   id: number;
@@ -203,15 +204,7 @@ const AllSites = () => {
       </div>
 
       {/* --- Footer (No changes) --- */}
-      <footer className='bg-blue-900 text-white w-full mt-[100px] pb-12 pt-0 px-[4vw]'>
-        <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center text-sm text-blue-300'>
-          <p>© 2025 DEO Project. All Rights Reserved.</p>
-          <div className='flex gap-4 mt-4 lg:mt-0'>
-            <a href="/privacy" className='hover:text-white transition-colors'>Privacy Policy</a>
-            <a href="/terms" className='hover:text-white transition-colors'>Terms of Service</a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

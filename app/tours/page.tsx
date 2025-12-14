@@ -625,7 +625,7 @@ export default function ToursPage() {
                       <div className="top-full w-full bg-black/40 rounded-[25px]">
                         <p className="font-[500] text-center px-2 py-2 text-white">Select Guests</p>
                         <div className="max-h-48 flex flex-col overflow-y-auto pb-2">
-                          {[1, 2, 3, 4, 5, 6, 7, 8].map((number) => (
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((number) => (
                             <button
                               key={number}
                               className="block cursor-pointer text-white text-center p-2 mx-2 hover:bg-gray-100/20 active:bg-gray-100/20 active:scale-95 rounded-[17px] font-[600] transition-all"

@@ -239,7 +239,7 @@
        <div className='fixed top-[0px] bg-white/1 h-[50px] w-full z-[200] z-[-20]' />
        <div className='fixed bottom-[0px] bg-white/1 z-[200] h-[50px] w-full z-[-20]' />
  
-       <div onClick={onClose} className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/20 backdrop-blur-[15px]">
+       <div onClick={onClose} className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60">
          {/* Error Popup */}
          {errorMessage && (
            <div className="absolute text-center top-5 left-[50%] z-[120] px-6 py-2 bg-red-600 text-white font-semibold rounded-full animate-popup">
@@ -254,7 +254,7 @@
          )}
  
          <div className='fixed left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[43px] p-[5px] z-[50]'>
-           <div className='bg-white/10 max-sm:backdrop-blur-[0px] backdrop-blur-[40px] rounded-[43px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,.5)]'>
+           <div className='bg-white/10 backdrop-blur-[20px] rounded-[43px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,.5)]'>
              <div onClick={(e) => e.stopPropagation()} className="max-h-[90dvh] relative flex w-[95vw] max-w-md overflow-y-auto rounded-[40px] bg-black/65 md:max-w-4xl touch-none">
                <button onClick={onClose} className="cursor-pointer absolute top-6 right-6 z-20 text-white hover:text-red-500 active:text-red-500 transition-colors">
                  <FaTimes size={24} />

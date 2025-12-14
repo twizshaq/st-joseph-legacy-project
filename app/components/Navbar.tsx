@@ -131,6 +131,15 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
     return () => document.removeEventListener('click', handler);
   }, [isNotiOpen]);
 
+  // --- HELPER: Get Dynamic Username for Link ---
+  // Try to find a username, full name, or fallback to email part
+  const rawUsername = user?.user_metadata?.username || 
+                      user?.user_metadata?.full_name?.replace(/\s+/g, '').toLowerCase() || 
+                      user?.email?.split('@')[0];
+                      
+  // Construct the link. If no user, default to /profile or /login
+  const profileLink = rawUsername ? `/${rawUsername}` : '/profile';
+
   return (
     <>
       {/* =================================================================
@@ -159,7 +168,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                       <Image src="/icons/noti-icon.svg" alt="Notifications" width={36} height={36} className="h-[35px] object-contain" />
                     </button>
                   </div>
-                  <Link href="/profile" className='cursor-pointer whitespace-nowrap'>
+                  <Link href={profileLink} className='cursor-pointer whitespace-nowrap'>
                     <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
                       <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
                         <Image src={avatarUrl} alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" />
@@ -223,7 +232,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                         <Image src="/icons/noti-icon.svg" alt="Notifications" width={40} height={40} className="h-[36px] object-contain" />
                       </button>
                     </div>
-                    <Link href="/profile" className='cursor-pointer whitespace-nowrap'>
+                    <Link href={profileLink} className='cursor-pointer whitespace-nowrap'>
                       <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[1px]'>
                         <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
                           <Image src={avatarUrl} alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" />

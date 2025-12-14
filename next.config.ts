@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['i.pinimg.com'],
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com', // Allow the avatar generator
+        pathname: '/**',
+      },
       // Your existing pattern for AWS S3
       {
         protocol: 'https',
