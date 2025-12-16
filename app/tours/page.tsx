@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { SlidersHorizontal, ArrowRight, Clock, DollarSign, Leaf, Waves, Landmark, Mountain, Trees, MapPin, Sparkles, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { supabase } from '@/lib/supabaseClient'; // Adjust the import path as needed
+import { createClient } from '@/lib/supabase/client'; // Adjust the import path as needed
 import sortIcon from '@/public/icons/sort-icon.svg';
 import searchIcon from '@/public/icons/search-icon.svg';
 import starIcon from '@/public/icons/star-icon.svg';
@@ -19,6 +19,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CustomCalendar from "../components/CustomCalendar";
 import { getDay, startOfWeek, format, isSameDay } from "date-fns";
+import TourDetailsSkeleton from "@/app/components/TourDetailsSkeleton"; // Adjust path as needed
 
 // --- START: TYPE DEFINITIONS ---
 // Define the shape of your data to help TypeScript
@@ -56,7 +57,68 @@ interface Tour {
 
 
 export default function ToursPage() {
+  const supabase = createClient(); 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [notes, setNotes] = useState("");
+  const [isBooking, setIsBooking] = useState(false); // To handle loading state
+
+  const handleBookTour = async () => {
+  // 1. Basic Validation
+  if (!fullName || !email || !phone || !displayTour) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+
+  setIsBooking(true);
+
+  try {
+    // STRATEGY: Try to find the user in 2 different ways
+    // 1. Check the active session (works better than getUser in client components)
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // 2. Fallback to the React state variable if the async call missed it
+    const activeUser = session?.user || userSession?.user;
+
+    console.log("Booking User ID:", activeUser?.id || "Guest (Not Logged In)");
+
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert([
+        {
+          tour_id: displayTour.id,
+          // Use the detected user, or NULL if guest
+          user_id: activeUser?.id || null, 
+          full_name: fullName,
+          email: email,
+          phone: phone,
+          booking_date: selectedDate.toISOString(),
+          guest_count: guestCount,
+          notes: notes,
+          total_price: displayTour.price * guestCount,
+        },
+      ]);
+
+    if (error) throw error;
+
+    alert("Booking successful! We will contact you shortly.");
+    
+    // Reset form
+    setFullName("");
+    setPhone("");
+    setEmail("");
+    setNotes("");
+    
+  } catch (error: any) {
+    console.error("Booking Error:", error.message);
+    alert("Failed to book tour: " + error.message);
+  } finally {
+    setIsBooking(false);
+  }
+};
   
   // State for your custom calendar
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -300,74 +362,67 @@ export default function ToursPage() {
     }}
     >
 
-      <div className="relative bg-red-500/0 justify-center gap-[100px] w-[1500px] max-w-[90vw] flex flex-wrap-reverse overflow-visible mb-[130px] mt-[200px] max-sm:mt-[150px] ">
-      {/* Gradient Blob Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-[300px] h-[300px] bg-gradient-to-br from-blue-300/40 to-purple-300/40 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-40 right-0 w-[250px] h-[250px] bg-gradient-to-br from-pink-300/40 to-indigo-300/40 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
-
-      {/* Video Section */}
-      <div className="flex gap-[20px] md:gap-[40px] items-center bg-transparent overflow-visible relative z-10">
-  {/* Card 1: Smaller by default, scales up on medium screens */}
-  <div className="bg-blue-400 max-w-[170px] min-w-[170px] h-[240px] md:max-w-[300px] md:min-w-[300px] md:h-[400px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
-    {/* <video
-      autoPlay
-      loop
-      muted
-      playsInline
-      className="w-full h-full object-cover"
-    >
-      <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-    </video> */}
-    
-  </div>
-  {/* Container for the two smaller cards */}
-  <div className="flex flex-col gap-[20px] md:gap-[20px]">
-    {/* Card 2: Smaller by default */}
-    <div className="relative bg-blue-400 max-w-[150px] min-w-[150px] h-[180px] md:max-w-[250px] md:min-w-[250px] md:h-[300px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
-      {/* <Image src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fblog.portobelloinstitute.com%2Fwhat-are-the-different-types-of-tour-guide&psig=AOvVaw3JG3PXKL2ZAPakOt9_tmQf&ust=1760984237573000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCYg9vvsJADFQAAAAAdAAAAABAE" alt=""/> */}
-      {/* <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full h-full object-cover"
-      >
-        <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-      </video> */}
-    </div>
-    {/* Card 3: Smaller by default */}
-    <div className="bg-blue-400 max-w-[150px] min-w-[150px] h-[120px] md:max-w-[250px] md:min-w-[250px] md:h-[200px] rounded-[36px] md:rounded-[60px] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
-      {/* <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full h-full object-cover"
-      >
-        <source src="https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4" type="video/mp4" />
-      </video> */}
-    </div>
-  </div>
-</div>
-
-      {/* Text and Info Section */}
-      <div className="flex flex-col max-w-[600px] relative z-10">
-        <div className="flex flex-col">
-          <p className="font-bold text-[4rem] max-sm:text-[2.5rem] max-sm:leading-[60px] leading-[80px]">Discover St. Joseph&apos;s Hidden Wonders</p>
-          <p className="text-gray-700 mt-4 leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In lobortis venenatis ex, ultricies dapibus leo pulvinar sit amet. Praesent pharetra aliquet vehicula. Praesent et diam nunc. Suspendisse et magna et enim facilisis congue quis in nulla. Pellentesque quam nisl, bibendum bibendum vehicula a.</p>
+      {/* Container: constrained width, centered, responsive flex wrap */}
+      <div className="relative w-full max-w-[1500px] px-[5vw] mx-auto mt-[150px] mb-[130px] flex flex-wrap-reverse lg:flex-nowrap items-center justify-center gap-12 lg:gap-[100px] z-10">
+        
+        {/* Gradient Blob Background (Kept Absolute to this container) */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-20 -left-20 w-[300px] h-[300px] bg-gradient-to-br from-blue-300/40 to-purple-300/40 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-40 right-0 w-[250px] h-[250px] bg-gradient-to-br from-pink-300/40 to-indigo-300/40 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
-        <div className="flex mt-[20px] gap-[10px]">
-          <div className="bg-[#EDEDED] px-[15px] py-[10px] rounded-[40px] border-[2px] border-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)] transform hover:scale-105 duration-300">
-            <p className="font-[600] text-[1rem] text-gray-800">3 Unique Tours</p>
+
+        {/* LEFT COL: Image/Video Cards */}
+        {/* CHANGES: 
+            1. max-w-[550px]: Stops it from getting huge on tablets.
+            2. mx-auto: Centers it when it wraps on tablet.
+            3. lg:max-w-none: Removes the limit when side-by-side on desktop.
+            4. lg:mx-0: Aligns it left on desktop.
+        */}
+        <div className="w-full max-w-[550px] lg:max-w-none lg:w-1/2 flex items-center gap-4 md:gap-6 mx-auto lg:mx-0">
+          
+          {/* Large Left Card */}
+          <div className="w-[55%] aspect-[3/4] bg-blue-400 rounded-[45px] md:rounded-[3.5rem] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
+             {/* <video ... /> */}
           </div>
-          <div className="bg-[#EDEDED] px-[15px] py-[10px] rounded-[40px] border-[2px] border-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)] transform hover:scale-105 duration-300">
-            <p className="font-[600] text-[1rem] text-gray-800">4.9 Star Ratings</p>
+
+          {/* Right Column (Small Cards) */}
+          <div className="w-[45%] flex flex-col gap-4 md:gap-6">
+            
+            {/* Top Small Card */}
+            <div className="w-full aspect-[4/5] bg-blue-400 rounded-[45px] md:rounded-[3.5rem] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
+               {/* <Image ... /> */}
+            </div>
+            
+            {/* Bottom Small Card */}
+            <div className="w-full aspect-[5/4] bg-blue-400 rounded-[40px] md:rounded-[3.5rem] border-[3px] border-white shadow-[0px_0px_15px_rgba(0,0,0,0.15)] overflow-hidden transform hover:scale-105 transition-transform duration-300">
+               {/* <video ... /> */}
+            </div>
           </div>
+
         </div>
+
+        {/* RIGHT COL: Text and Info Section */}
+        <div className="w-full lg:w-1/2 flex flex-col relative z-10">
+          <div className="flex flex-col">
+            <h1 className="font-bold text-[3rem] sm:text-[4rem] leading-tight sm:leading-[80px]">
+              Discover St. Joseph&apos;s Hidden Wonders
+            </h1>
+            <p className="text-gray-700 mt-6 text-lg leading-relaxed">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. In lobortis venenatis ex, ultricies dapibus leo pulvinar sit amet. Praesent pharetra aliquet vehicula. Praesent et diam nunc. Suspendisse et magna et enim facilisis congue quis in nulla.
+            </p>
+          </div>
+          
+          {/* <div className="flex flex-wrap mt-8 gap-4">
+            <div className="bg-[#EDEDED] px-6 py-3 rounded-[40px] border-[2px] border-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)] transform hover:scale-105 duration-300">
+              <p className="font-[600] text-gray-800">3 Unique Tours</p>
+            </div>
+            <div className="bg-[#EDEDED] px-6 py-3 rounded-[40px] border-[2px] border-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)] transform hover:scale-105 duration-300">
+              <p className="font-[600] text-gray-800">4.9 Star Ratings</p>
+            </div>
+          </div> */}
+        </div>
+
       </div>
-    </div>
 
 
       <div className='flex justify-center gap-[15px] right-[10px] bottom-[10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] relative' onClick={() => setIsPopupOpen(true)}>
@@ -419,7 +474,9 @@ export default function ToursPage() {
 
           {/* tour details - Revamped for Mobile Responsiveness */}
           {/* We now check if displayTour exists before trying to render it */}
-          {displayTour && (
+          {!displayTour ? (
+            <TourDetailsSkeleton />
+          ) : (
           <div className="bg-white p-3 mt-8 w-[1200px] max-w-[95vw] flex flex-col lg:flex-row gap-6 shadow-[0px_0px_20px_rgba(0,0,0,.1)] rounded-[45px] overflow-visable">
 
             {/* tour details - IMAGES (Responsive Grid) */}
@@ -604,7 +661,13 @@ export default function ToursPage() {
               {/* Input Fields */}
               <div className="flex flex-col gap-3">
                 <div className="flex flex-row items-center gap-3">
-                  <input type="text" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Full Name" />
+                  <input 
+                    type="text" 
+                    className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" 
+                    placeholder="Full Name" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
                   {/* --- START: Custom Guest Dropdown --- */}
                   <div ref={guestDropdownRef} className="relative">
                     <button 
@@ -644,20 +707,42 @@ export default function ToursPage() {
                   </div>
                   {/* --- END: Custom Guest Dropdown --- */}
                 </div>
-                <input type="tel" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Phone Number" />
-                <input type="email" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Email Address" />
-                <textarea placeholder="Additional Notes (Optional)" className="resize-none w-full outline-none h-24 font-medium p-3 px-4 bg-[#F5F5F5] rounded-[20px]"></textarea>
+                <input 
+                  type="tel" 
+                  className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" 
+                  placeholder="Phone Number" 
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+                <input 
+                  type="email" 
+                  className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" 
+                  placeholder="Email Address" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                
+                <textarea 
+                  placeholder="Additional Notes (Optional)" 
+                  className="resize-none w-full outline-none h-24 font-medium p-3 px-4 bg-[#F5F5F5] rounded-[20px]"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                ></textarea>
               </div>
 
               {/* Book Tour Button */}
               <div className="mt-0 flex justify-center bg-red-500/0">
-                <button className='active:scale-97 relative w-full self-center mr-[3px] active:bg-black/30 cursor-pointer whitespace-nowrap rounded-full p-[3px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
-                <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full py-[15px]'>
-                  <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
-                    Book Tour
-                  </span>
-                </div>
-              </button>
+                <button 
+                  onClick={handleBookTour}
+                  disabled={isBooking}
+                  className={`active:scale-97 relative w-full self-center mr-[3px] cursor-pointer whitespace-nowrap rounded-full p-[3px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] ${isBooking ? 'opacity-50' : ''}`}
+                >
+                  <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full py-[15px]'>
+                    <span className='text-white font-bold text-[1.1rem]'>
+                      {isBooking ? "Processing..." : "Book Tour"}
+                    </span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
@@ -671,7 +756,7 @@ export default function ToursPage() {
             </div>
             <div className="flex justify-between gap-[30px] bg-red-500/0 max-ttk-wrap2:flex-wrap max-ttk-wrap:bg-red-500/0 max-ttk-wrap:justify-start max-sm:gap-y-[30px]">
 
-              <div className="bg-[#EDEDED] gap-[3px] max-sm:w-[90vw] max-ttk-wrap:w-[calc(50%-15px)] flex flex-col items-center border-white border-[2px] rounded-[45px] shadow-[0px_0px_20px_rgba(0,0,0,.1)] p-[15px] overflow-hidden transform hover:scale-105 duration-300">
+              <div className="bg-black/3 gap-[3px] max-sm:w-[90vw] max-ttk-wrap:w-[calc(50%-15px)] flex flex-col items-center border-white border-[2px] rounded-[45px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)] p-[15px] overflow-hidden transform hover:scale-105 duration-300">
                 <Image src={houseIcon} alt="star icon" height={30}/>
                 <p className="text-[#656565] text-center font-[600] text-[1.1rem]">House Rules</p>
                 <p className="text-center max-w-[300px]">
@@ -679,21 +764,21 @@ export default function ToursPage() {
                 </p>
               </div>
 
-              <div className="bg-[#EDEDED] gap-[3px] max-sm:w-[90vw] max-ttk-wrap:w-[calc(50%-15px)] flex flex-col items-center border-white border-[2px] rounded-[45px] shadow-[0px_0px_20px_rgba(0,0,0,.1)] p-[15px] overflow-hidden transform hover:scale-105 duration-300">
+              <div className="bg-black/3 gap-[3px] max-sm:w-[90vw] max-ttk-wrap:w-[calc(50%-15px)] flex flex-col items-center border-white border-[2px] rounded-[45px] shadow-[0px_0px_10px_rgba(0,0,0,.1)] p-[15px] overflow-hidden transform hover:scale-105 duration-300">
                 <Image src={houseIcon} alt="star icon" height={30}/>
                 <p className="text-[#656565] text-center font-[600] text-[1.1rem]">House Rules</p>
                 <p className="text-center max-w-[300px]">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco. 
                 </p>
               </div>
-              <div className="bg-[#EDEDED] gap-[3px] max-sm:w-[90vw] max-ttk-wrap:w-[calc(50%-15px)] flex flex-col items-center border-white border-[2px] rounded-[45px] shadow-[0px_0px_20px_rgba(0,0,0,.1)] p-[15px] overflow-hidden transform hover:scale-105 duration-300">
+              <div className="bg-black/3 gap-[3px] max-sm:w-[90vw] max-ttk-wrap:w-[calc(50%-15px)] flex flex-col items-center border-white border-[2px] rounded-[45px] shadow-[0px_0px_10px_rgba(0,0,0,.1)] p-[15px] overflow-hidden transform hover:scale-105 duration-300">
                 <Image src={houseIcon} alt="star icon" height={30}/>
                 <p className="text-[#656565] text-center font-[600] text-[1.1rem]">House Rules</p>
                 <p className="text-center max-w-[300px]">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco. 
                 </p>
               </div>
-              <div className="bg-[#EDEDED] gap-[3px] max-sm:w-[90vw] max-ttk-wrap:w-[calc(50%-15px)] flex flex-col items-center border-white border-[2px] rounded-[45px] shadow-[0px_0px_20px_rgba(0,0,0,.1)] p-[15px] overflow-hidden transform hover:scale-105 duration-300">
+              <div className="bg-black/3 gap-[3px] max-sm:w-[90vw] max-ttk-wrap:w-[calc(50%-15px)] flex flex-col items-center border-white border-[2px] rounded-[45px] shadow-[0px_0px_10px_rgba(0,0,0,.1)] p-[15px] overflow-hidden transform hover:scale-105 duration-300">
                 <Image src={houseIcon} alt="star icon" height={30}/>
                 <p className="text-[#656565] text-center font-[600] text-[1.1rem]">House Rules</p>
                 <p className="text-center max-w-[300px]">

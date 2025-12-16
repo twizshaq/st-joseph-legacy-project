@@ -107,10 +107,10 @@ export const ReviewModal = ({ isOpen, onClose, onReviewSubmit, user, siteId }: R
       {/* Modal content container */}
       <div className='bg-white/10 backdrop-blur-[15px] rounded-[43px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,0.3)]'>
         <div 
-          className="bg-black/60 rounded-[40px] p-7 w-[500px] max-w-[90vw] animate-in zoom-in-90 duration-300"
+          className="bg-black/60 rounded-[40px] p-5 w-[500px] max-w-[90vw] animate-in zoom-in-90 duration-300"
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
         >
-          <h2 className="text-2xl font-bold mb-1">Write a Review</h2>
+          <h2 className="text-2xl font-bold mb-1">Write a Comment</h2>
           <p className="mb-6">Share your experience with the community.</p>
 
           <form onSubmit={handleSubmit}>
@@ -163,7 +163,7 @@ export const ReviewModal = ({ isOpen, onClose, onReviewSubmit, user, siteId }: R
                 disabled={isSubmitting}
                 className="px-8 py-3 font-bold cursor-pointer text-white bg-[#007BFF] hover:bg-blue-600 rounded-full transition-colors duration-200 disabled:bg-slate-400 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                {isSubmitting ? 'Posting...' : 'Comment'}
               </button>
             </div>
           </form>

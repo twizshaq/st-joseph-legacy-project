@@ -56,17 +56,6 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
     setPreviewUrls(newUrls);
   };
 
-  // 1. Prevent Background Scrolling
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
 
 
 
@@ -92,17 +81,33 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
     fetchLocations();
   }, [isOpen]);
 
+    // 1. Prevent Background Scrolling
+  useEffect(() => {
+      if (isOpen) {
+        // Prevent when open scrolling
+        document.body.style.overflow = 'hidden';
+      } else {
+        // Re-enable scrolling
+        document.body.style.overflow = 'auto';
+      }
+  
+      // Cleanup: ensure scroll is re-enabled if component unmounts
+      return () => {
+        document.body.style.overflow = 'auto';
+      };
+    }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
     
     <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/20 backdrop-blur-[15px] p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200"
       onClick={onClose}
     >
         <div className='fixed top-[0px] bg-white/1 h-[50px] w-full z-[200] z-[-20]' />
        <div className='fixed bottom-[0px] bg-white/1 z-[200] h-[50px] w-full z-[-20]' />
-    <div className='bg-white/10 max-sm:backdrop-blur-[0px] backdrop-blur-[40px] rounded-[42px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,.5)]'>
+    <div className='bg-white/10 backdrop-blur-[15px] rounded-[42px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,.5)]'>
       <div 
         className="bg-black/65 flex flex-col justify-center max-w-[90vw] w-[400px] rounded-[40px] p-0 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}

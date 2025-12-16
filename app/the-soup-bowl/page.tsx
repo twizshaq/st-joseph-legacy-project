@@ -76,7 +76,7 @@ const fetchReviews = useCallback(async () => {
     .select(`
       *,
       profiles (
-        full_name,
+        username,
         avatar_url
       )
     `) // <--- JOIN: Get all review columns, PLUS the linked profile info
@@ -453,7 +453,7 @@ const fetchReviews = useCallback(async () => {
 
       {/* --- RESPONSIVE GRID CONTAINER --- */}
       {/* Changed flex to grid. Stacks on mobile/tablet (cols-1), splits on desktop (xl:cols-12) */}
-      <div className='grid grid-cols-1 xl:grid-cols-12 gap-12 w-[90vw] max-w-[1400px] px-[5vw] xl:px-0 mt-[60px] md:mt-[80px] mb-[80px]'>
+      <div className='grid grid-cols-1 xl:grid-cols-12 gap-12 md:w-[90vw] max-w-[1400px] px-[5vw] xl:px-0 mt-[60px] md:mt-[80px] mb-[80px]'>
         
         {/* --- LEFT COLUMN: TEXT CONTENT --- */}
         {/* Spans full width on tablet, 7 columns on desktop */}
@@ -852,7 +852,7 @@ const fetchReviews = useCallback(async () => {
                       <button className='cursor-pointer'>
                         <div className='flex gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[10px]'>
                           <span><PenIcon color='#fff'/></span>
-                          <p className='text-white font-bold'>Add a Review</p>
+                          <p className='text-white font-bold'>Add a Comment</p>
                         </div>
                       </button>
                     </div>
@@ -890,7 +890,7 @@ const fetchReviews = useCallback(async () => {
               key={review.id} 
               experience={{
                 // Prefer the live profile name/avatar, fallback to the snapshot
-                username: liveProfile.full_name || review.reviewer_name || 'Anonymous',
+                username: liveProfile.username || review.reviewer_name || 'Anonymous',
                 user_avatar: liveProfile.avatar_url || review.reviewer_avatar,
                 
                 description: review.review_text,

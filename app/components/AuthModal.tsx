@@ -86,15 +86,29 @@
  }, [isOpen]);
  
    const handleGoogleSignIn = async () => {
-     const { error } = await supabase.auth.signInWithOAuth({
-       provider: 'google',
-       options: { redirectTo: `${location.origin}/profile` },
-     });
-     if (error) {
-       setErrorMessage("Failed to sign in with Google.");
-       setTimeout(() => setErrorMessage(""), 3000);
-     }
-   };
+    // 1. Get the current URL (e.g., http://192.168.1.6:3000 or http://localhost:3000)
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    
+    // 2. Decide where to go after login (e.g., to the profile page)
+    const redirectUrl = `${origin}/profile`;
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { 
+        redirectTo: `${origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (error) {
+      console.error("Google Sign In Error:", error); // Helpful for debugging
+      setErrorMessage("Failed to sign in with Google.");
+      setTimeout(() => setErrorMessage(""), 3000);
+    }
+  };
  
    // --- UPDATED SUBMIT HANDLER WITH SUPABASE AUTH ---
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
