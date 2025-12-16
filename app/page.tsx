@@ -494,17 +494,17 @@ export default function Home() {
             <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
             <div>
               <h4 className='font-semibold mb-2'>Contact Us</h4>
-              <a href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>stjoseph.legacy@deo.gov.bb</a>
+              <Link href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>stjoseph.legacy@deo.gov.bb</Link>
               <p className='text-blue-200 text-sm'>(246) 123-4567</p>
             </div>
             <div>
               <div className='flex items-center gap-4 mt-3'>
-                <a href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                <Link href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
                   <Image src="/icons/instagram-icon.svg" alt="" height={35} width={35}/>
-                </a>
-                <a href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                </Link>
+                <Link href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
                   <FacebookIcon color="#FFFFFF" height={30} width={30}/>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -591,11 +591,11 @@ export default function Home() {
           <div className='flex flex-col gap-4 text-left lg:text-right'>
             <h3 className='font-bold text-xl'>Navigate</h3>
             <ul className='space-y-2 text-blue-200'>
-              <li><a href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</a></li>
-              <li><a href="/map" className='hover:text-[#feb47b] transition-colors'>Virtual Map</a></li>
-              <li><a href="/tours" className='hover:text-[#feb47b] transition-colors'>Tours</a></li>
+              <li><Link href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</Link></li>
+              <li><Link href="/map" className='hover:text-[#feb47b] transition-colors'>Virtual Map</Link></li>
+              <li><Link href="/tours" className='hover:text-[#feb47b] transition-colors'>Tours</Link></li>
               {/* <li><a href="/metrics" className='hover:text-[#feb47b] transition-colors'>Project Metrics</a></li> */}
-              <li><a href="/faq" className='hover:text-[#feb47b] transition-colors'>FAQ</a></li>
+              <li><Link href="/faq" className='hover:text-[#feb47b] transition-colors'>FAQ</Link></li>
             </ul>
           </div>
         </div>
@@ -604,8 +604,8 @@ export default function Home() {
         <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center text-sm text-blue-300'>
           <p>© 2025 DEO Project. All Rights Reserved.</p>
           <div className='flex gap-4 mt-4 lg:mt-0'>
-            <a href="/privacy" className='hover:text-white transition-colors'>Privacy Policy</a>
-            <a href="/terms" className='hover:text-white transition-colors'>Terms of Service</a>
+            <Link href="/privacy" className='hover:text-white transition-colors'>Privacy Policy</Link>
+            <Link href="/terms" className='hover:text-white transition-colors'>Terms of Service</Link>
           </div>
         </div>
       </footer>

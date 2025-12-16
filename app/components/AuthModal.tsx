@@ -5,6 +5,7 @@
  import { FaEye, FaEyeSlash, FaTimes } from "react-icons/fa";
  import { ChevronDown } from 'lucide-react';
  import Image from "next/image";
+import Link from "next/link";
  import GoogleIcon from "@/public/icons/google-icon.svg";
  import FacebookIcon from "@/public/icons/facebook-icon";
  import { createClient } from "@/lib/supabase/client";
@@ -370,7 +371,7 @@
  
                      <label className="mt-4 flex cursor-pointer items-center gap-2">
                        <input type="checkbox" checked={agree} onChange={() => setAgree(!agree)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 font-[500]" />
-                       <p className="text-sm text-white">I agree to the <a href="/terms" className="text-[#66B2FF] hover:underline font-[500]">Terms & Conditions *</a></p>
+                       <p className="text-sm text-white">I agree to the <Link href="/terms" className="text-[#66B2FF] hover:underline font-[500]">Terms & Conditions *</Link></p>
                      </label>
                    </>
                  )}
