@@ -18,6 +18,7 @@ import Image from 'next/image';
 import UploadModal from '@/app/components/UploadModal'; 
 import Navigation from '@/app/components/ProfileNav';
 import devIcon from '@/public/icons/dev-icon.svg'
+import SettingsModal from '@/app/components/SettingsModal';
 
 // --- Types ---
 interface ActivityItemProps {
@@ -39,6 +40,7 @@ interface UserProfile {
   username: string;
   full_name: string;
   avatar_url: string;
+  bio?: string;
 }
 
 // --- Mock Data (Kept same as yours) ---
@@ -241,60 +243,89 @@ export default function UserProfilePage() {
   };
 
   // 2. Handle Username Update
-  const handleUpdateProfile = async () => {
+  const handleUpdateProfile = async (
+    newUsername: string, 
+    newBio: string, 
+    isPrivate: boolean, 
+    newAvatarFile: File | null
+  ) => {
     if (!profile) return;
     setIsSaving(true);
     setUpdateError("");
 
-    // Simple validation
-    const formattedUsername = newUsername.trim().toLowerCase().replace(/\s+/g, '_');
+    // 1. Sanitize input again just to be safe
+    const formattedUsername = newUsername.trim().toLowerCase().replace(/[^a-z0-9_.]/g, '');
     
-    if (formattedUsername.length < 3) {
-        setUpdateError("Username must be at least 3 chars");
+    // 2. Validate Length (3-15 chars)
+    if (formattedUsername.length < 3 || formattedUsername.length > 15) {
+        alert("Username must be between 3 and 15 characters.");
         setIsSaving(false);
         return;
     }
 
     try {
-        // Check uniqueness (unless it's the same username)
         if (formattedUsername !== profile.username) {
-            const { data: existing } = await supabase
+             const { data: existing } = await supabase
                 .from('profiles')
                 .select('username')
                 .eq('username', formattedUsername)
                 .single();
-
-            if (existing) {
-                setUpdateError("Username already taken");
-                setIsSaving(false);
-                return;
-            }
+            if (existing) throw new Error("Username taken");
         }
 
-        // Update database
+        // TODO: Handle 'newAvatarFile' upload logic here
+
         const { error } = await supabase
             .from('profiles')
-            .update({ username: formattedUsername })
+            .update({ 
+              username: formattedUsername,
+              bio: newBio,
+              // is_private: isPrivate 
+            })
             .eq('id', profile.id);
 
         if (error) throw error;
 
-        // Update local state
-        setProfile({ ...profile, username: formattedUsername });
-        setNewUsername(formattedUsername);
-        setIsEditing(false);
-        setIsSettingsOpen(false); // Close dropdown
+        setProfile({ ...profile, username: formattedUsername, bio: newBio });
+        setIsSettingsOpen(false);
+
+        if (formattedUsername !== profile.username) {
+           router.push(`/${formattedUsername}`);
+        }
+
     } catch (err) {
-        setUpdateError("Failed to update. Try again.");
+        alert("Failed to update profile. Username might be taken.");
     } finally {
         setIsSaving(false);
     }
   };
 
+  // 4. ADD DELETE FUNCTION
+  const handleDeleteAccount = async () => {
+    if (!profile) return;
+    const confirmed = window.confirm("Are you sure? This will delete your profile data permanently.");
+    
+    if (confirmed) {
+      try {
+        // 1. Delete profile row (Cascading deletes should handle images/reviews if set up in DB)
+        const { error } = await supabase.from('profiles').delete().eq('id', profile.id);
+        if (error) throw error;
+        
+        // 2. Sign out
+        await supabase.auth.signOut();
+        router.push('/');
+      } catch (err) {
+        console.error(err);
+        alert("Error deleting account.");
+      }
+    }
+  }
+
   const displayName = profile?.full_name || user?.user_metadata?.full_name || 'User';
   const displayUsername = profile?.username || 'User Not Found';
   const userAvatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${displayName}`;
 
+  const isOwnProfile = currentUser && profile && currentUser.id === profile.id;
   if (loading) {
       return (
           <div className="min-h-screen flex items-center justify-center bg-white">
@@ -312,6 +343,18 @@ export default function UserProfilePage() {
       />
 
       <Navigation />
+
+      <SettingsModal 
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        initialAvatarUrl={userAvatarUrl}
+        initialUsername={profile?.username || ""}
+        initialBio={profile?.bio || ""}
+        onSave={handleUpdateProfile}
+        onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
+        isSaving={isSaving}
+      />
 
       <div className="w-full max-w-7xl bg-red-500/0 flex gap-8 p-4 md:p-8 mt-24">
 
@@ -343,33 +386,12 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* --- Username & Edit Mode --- */}
-                {isEditing ? (
-                   <div className="flex flex-col items-start gap-2 max-w-[250px]">
-                      <div className="flex items-center gap-2 w-full">
-                        <input 
-                            type="text" 
-                            value={newUsername}
-                            onChange={(e) => setNewUsername(e.target.value)}
-                            className="text-xl font-bold border-b-2 border-blue-500 focus:outline-none bg-transparent w-full"
-                            autoFocus
-                        />
-                        <button onClick={handleUpdateProfile} disabled={isSaving} className="p-1.5 bg-green-100 text-green-600 rounded-full hover:bg-green-200">
-                            <Save size={18}/>
-                        </button>
-                        <button onClick={() => { setIsEditing(false); setNewUsername(profile?.username || ""); }} className="p-1.5 bg-red-100 text-red-600 rounded-full hover:bg-red-200">
-                            <X size={18}/>
-                        </button>
-                      </div>
-                      {updateError && <p className="text-xs text-red-500 font-medium">{updateError}</p>}
-                   </div>
-                ) : (
                     <div className="group flex items-center gap-2">
                         <h1 className="text-[1.5rem] font-bold text-gray-900 truncate">
                             {displayUsername}
                         </h1>
                         {/* <p className="text-sm text-gray-500 font-medium pt-1">({displayName})</p> */}
                     </div>
-                )}
                 
                 {/* Level Progress */}
                 <div className="flex items-center gap-2 mt-2">
@@ -379,13 +401,14 @@ export default function UserProfilePage() {
                   <span className="text-xs font-bold text-gray-400">Lvl 630</span>
                 </div>
                 {/* --- DESKTOP BIO (Hidden on mobile, Visible on MD+) --- */}
-                <p className="hidden md:block text-sm text-gray-600 mt-3 leading-relaxed">
-                    I like to travel, and explore the various parishes throughout Barbados. 🇧🇧
+                <p className="hidden md:block text-sm font-[500] text-gray-600 mt-3 leading-relaxed whitespace-pre-wrap">
+                    {profile?.bio || ""}
                 </p>
               </div>
             </div>
             
             {/* Settings Dropdown */}
+            {isOwnProfile && (
             <div className="relative shrink-0 ml-2">
               <button 
                 onClick={() => setIsSettingsOpen(!isSettingsOpen)}
@@ -393,37 +416,13 @@ export default function UserProfilePage() {
               >
                 <Settings size={24} />
               </button>
-
-              {isSettingsOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
-                   <div className="p-1.5">
-                    <button
-                        onClick={() => {
-                            setIsEditing(true);
-                            setIsSettingsOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-xl transition-colors text-left"
-                        >
-                        <Edit2 size={16} className="text-blue-500"/>
-                        Edit Username
-                    </button>
-                    <div className="h-[1px] bg-gray-100 my-1 mx-2"></div>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-colors text-left"
-                    >
-                      <LogOut size={16} />
-                      Log Out
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
+            )}
           </div>
           {/* --- MOBILE BIO (Visible on mobile, Hidden on MD+) --- */}
           {/* This places it physically under the flex container of the user header */}
-          <p className="md:hidden text-sm text-gray-600 mb-3 leading-relaxed">
-             I like to travel, and explore the various parishes throughout Barbados. 🇧🇧
+          <p className="md:hidden text-sm font-[500] text-gray-600 mb-3 leading-relaxed whitespace-pre-wrap">
+             {profile?.bio || ""}
           </p>
 
           {/* Tabs */}

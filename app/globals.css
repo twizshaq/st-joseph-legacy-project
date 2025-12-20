@@ -197,3 +197,15 @@ body {
   -webkit-backdrop-filter: blur(40px);
   /* Explicit for Safari */
 }
+
+@keyframes scroll {
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  0% {
+    transform: translateY(17px);
+    opacity: 0;
+  }
+}

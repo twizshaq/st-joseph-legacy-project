@@ -17,8 +17,10 @@ import { GalleryModal } from "@/app/components/GalleryModal";
 import Footer from "@/app/components/FooterModal"
 import { ReviewSkeleton } from "@/app/components/ReviewSkeleton";
 import { SiteCardSkeleton } from "@/app/components/SiteCardSkeleton";
+import { WaveformAudioPlayer } from "@/app/components/CustomAudioPlayer"
 
 // Import your icons and data
+
 import vrIcon from "@/public/icons/vr-icon.svg";
 import camIcon from "@/public/icons/camera-icon.svg";
 import ticketIcon from "@/public/icons/ticket-icon.svg";
@@ -155,33 +157,100 @@ const fetchReviews = useCallback(async () => {
     }
   };
 
-  const quizData = [
-  {
-  q: "Best time to surf here?",
-  options: ["Winter (Nov-Apr)", "Summer (Jun-Aug)"],
-  answer: 0
-  },
-  {
-  q: "Which coast is this?",
-  options: ["West Coast", "East Coast"],
-  answer: 1
-  }
-];
+  // 1. REPLACE your existing Quiz states with these:
+const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
+const [loadingQuiz, setLoadingQuiz] = useState(true);
+const [pointsSaved, setPointsSaved] = useState(false);
+const [alreadyCompleted, setAlreadyCompleted] = useState(false);
 
-  const handleAnswer = (selectedIndex: number) => {
-    if (selectedIndex === quizData[qIndex].answer) {
-    setScore(s => s + 1);
+// 2. ADD this function to fetch and shuffle questions
+// --- 1. FETCH QUIZ & CHECK STATUS ---
+  const initializeQuiz = useCallback(async () => {
+    setLoadingQuiz(true);
+
+    // A. Fetch the questions (we always need these to render the result screen text correctly)
+    const { data: questions } = await supabase
+      .from('site_quizzes')
+      .select('*')
+      .eq('site_id', 1);
+
+    if (questions) {
+      // Shuffle and pick 2
+      const shuffled = [...questions].sort(() => 0.5 - Math.random());
+      setQuizQuestions(shuffled.slice(0, 2));
     }
-    if (qIndex + 1 < quizData.length) {
+
+    // B. Check if User already finished this quiz
+    // (We need the user object, so we check if 'user' is present in state, 
+    // or we can use supabase.auth.getUser() directly to be safe)
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    
+    if (currentUser) {
+      const { data: completion } = await supabase
+        .from('quiz_completions')
+        .select('*')
+        .eq('site_id', 1)
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (completion) {
+        // FOUND: Restore their score and jump to result
+        setScore(completion.score);
+        setQuizStage('result');
+        setPointsSaved(true);
+        setAlreadyCompleted(true);
+      }
+    }
+    
+    setLoadingQuiz(false);
+  }, [supabase]);
+
+  // --- 2. USE EFFECT ---
+  // Run initialization once on mount
+  useEffect(() => {
+    fetchReviews();
+    initializeQuiz();
+  }, [fetchReviews, initializeQuiz]);
+
+
+  // --- 3. HANDLE ANSWER ---
+  const handleAnswer = async (selectedIndex: number) => {
+    const isCorrect = selectedIndex === quizQuestions[qIndex].correct_answer;
+    const newScore = isCorrect ? score + 1 : score;
+    
+    if (isCorrect) setScore(s => s + 1);
+
+    if (qIndex + 1 < quizQuestions.length) {
       setQIndex(i => i + 1);
     } else {
+      // --- QUIZ FINISHED ---
       setQuizStage('result');
-  }};
 
-  const restartQuiz = () => {
-    setScore(0);
-    setQIndex(0);
-    setQuizStage('start');
+      if (user) {
+        // 1. Try to record the completion in the new table
+        const { error: insertError } = await supabase
+          .from('quiz_completions')
+          .insert({
+            user_id: user.id,
+            site_id: 1,
+            score: newScore
+          });
+
+        // 2. Only give points if the insert succeeded (meaning they haven't done it before)
+        // This prevents double-points on refresh or hacks
+        if (!insertError && newScore > 0) {
+            await supabase.rpc('increment_points', { 
+              user_id: user.id, 
+              amount: newScore * 50 
+            });
+            setPointsSaved(true);
+        } else if (insertError?.code === '23505') {
+            // Error 23505 is "Unique Constraint Violation" (Already done)
+            setAlreadyCompleted(true);
+            setPointsSaved(true);
+        }
+      }
+    }
   };
 
   const reviewsPerPage = 5;
@@ -253,7 +322,7 @@ const fetchReviews = useCallback(async () => {
 
   return (
     <div className='flex flex-col items-center self-center min-h-[100dvh] text-black bg-red-500/0 overflow-hidden'>
-      <div className="relative flex flex-col justify-center items-center w-[100vw] max-w-[2000px] h-[55vh] text-white gap-[20px] overflow-hidden group">
+      <div className="relative flex flex-col justify-center items-center w-[100vw] max-w-[2000px] h-[100svh] text-white gap-[20px] overflow-hidden group">
 
         {/* --- DYNAMIC BACKGROUND MEDIA --- */}
         
@@ -305,52 +374,86 @@ const fetchReviews = useCallback(async () => {
         )}
 
         {/* Dark Overlay */}
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/80 via-black/20 to-black/30 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/80 via-black/20 pointer-events-none to-black/30" />
 
-        {/* Content */}
-        <div className='z-10 absolute w-[1400px] max-w-[90vw] bottom-[45px] pointer-events-none'>
-          <p className="font-black text-[3rem] max-md:text-[2rem] text-start leading-[1.1] z-10 mb-[6px] text-shadow-[0px_4px_20px_rgba(0,0,0,0.5)] drop-shadow-sm">
-            Soup Bowl
-          </p>
-          <p className="text-[1rem] max-md:text-[1rem] text-start leading-[1.4] z-10 max-w-[600px] text-shadow-[0px_2px_10px_rgba(0,0,0,0.5)] opacity-90">
-            Known worldwide for its powerful reef breaks, Soup Bowl is a surfer’s paradise and a photographer’s dream on the rugged east coast.
-          </p>
-        </div>
-
-        {/* --- MEDIA SWITCHER (Bottom Right) --- */}
-        <div className='absolute bottom-[45px] right-[5vw] xl:right-[calc(50%-700px)] z-20 flex gap-2 pointer-events-auto'>
+        {/* --- HERO CONTENT WRAPPER --- */}
+        {/* 1. Outer wrapper stays 'pointer-events-none' so the top 80% of the screen works for 360 rotation */}
+        <div className='absolute bottom-0 w-[1400px] max-w-[90vw] h-full pointer-events-none flex flex-col justify-end pb-[45px]'>
           
-          <button 
-            onClick={() => setActiveMedia('video')}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md border border-white/20 transition-all duration-300
-              ${activeMedia === 'video' ? 'bg-white text-black' : 'bg-black/40 text-white hover:bg-black/60'}
-            `}
-          >
-            <span className="text-sm font-bold">Video</span>
-          </button>
+          {/* 2. INNER CONTAINER: Added 'pointer-events-auto' here.
+               This makes the entire bottom row (text + buttons) "solid" to the mouse/touch. 
+               Dragging here will SCROLL the page, not rotate the background. */}
+          <div className="w-full flex flex-col md:flex-row max-sm:mb-[-20px] items-end md:justify-between relative pointer-events-auto">
 
-          <button 
-            onClick={() => setActiveMedia('image')}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md border border-white/20 transition-all duration-300
-              ${activeMedia === 'image' ? 'bg-white text-black' : 'bg-black/40 text-white hover:bg-black/60'}
-            `}
-          >
-            <span className="text-sm font-bold">Photos</span>
-          </button>
+            {/* 1. HERO TEXT */}
+            <div className='z-10 mb-6 md:mb-0 self-start'>
+              <p className="font-black text-[3rem] max-md:text-[2rem] text-start leading-[1.1] z-10 mb-[6px] text-shadow-[0px_4px_20px_rgba(0,0,0,0.5)] drop-shadow-sm">
+                Soup Bowl
+              </p>
+              <p className="text-[1rem] max-md:text-[1rem] text-start leading-[1.4] z-10 max-w-[400px] text-shadow-[0px_2px_10px_rgba(0,0,0,0.5)] opacity-90">
+                Known worldwide for its powerful reef breaks, Soup Bowl is a surfer’s paradise and a photographer’s dream on the rugged east coast.
+              </p>
+            </div>
 
-          <button 
-            onClick={() => setActiveMedia('360')}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md border border-white/20 transition-all duration-300
-              ${activeMedia === '360' ? 'bg-white text-black' : 'bg-black/40 text-white hover:bg-black/60'}
-            `}
-          >
-            <Image src={vrIcon} alt="" height={18} className={`${activeMedia === '360' ? 'invert' : 'invert-0'}`}/>
-            <span className="text-sm font-bold">360°</span>
-          </button>
+            {/* 2. ANIMATED SCROLL ARROW */}
+            {/* Kept pointer-events-none so it doesn't block the scroll/360 if you touch exactly on the tiny arrow */}
+            <div className='absolute left-0 bottom-[0px] md:bottom-[2px] md:left-1/2 md:-translate-x-1/2 flex flex-col items-center gap-0 opacity-80 z-20 pointer-events-none animate-bounce'>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white drop-shadow-md max-sm:ml-[3px] ml-[2px]">Scroll</span>
+                
+                <svg 
+                  className="w-6 h-6 text-white drop-shadow-lg" 
+                  fill="none" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="2.5" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path d="M19 13l-7 7-7-7" />
+                </svg>
+            </div>
 
+            {/* 3. MEDIA SWITCHER */}
+            {/* No need for specific pointer-events here anymore, it inherits 'auto' from the parent div above */}
+            <div className='z-20 flex gap-2'>
+              <div className='bg-white/10 active:scale-[.98] backdrop-blur-[20px] w-fit h-fit rounded-full p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                <button 
+                  onClick={() => setActiveMedia('video')}
+                  className={`
+                    flex items-center px-4 py-2 rounded-full cursor-pointer transition-colors
+                    ${activeMedia === 'video' ? 'bg-[#007BFF]/90 text-white' : 'bg-black/40 text-white hover:bg-black/60'}
+                  `}
+                >
+                  <span className="text-sm font-bold">Video</span>
+                </button>
+              </div>
+
+              <div className='bg-white/10 active:scale-[.98] backdrop-blur-[20px] w-fit h-fit rounded-full p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                <button 
+                  onClick={() => setActiveMedia('image')}
+                  className={`
+                    flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-colors
+                    ${activeMedia === 'image' ? 'bg-[#007BFF]/80 text-white' : 'bg-black/40 text-white hover:bg-black/60'}
+                  `}
+                >
+                  <span className="text-sm font-bold">Photo</span>
+                </button>
+              </div>
+
+              <div className='bg-white/10 active:scale-[.98] backdrop-blur-[20px] w-fit h-fit rounded-full p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                <button 
+                  onClick={() => setActiveMedia('360')}
+                  className={`
+                    flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-colors
+                    ${activeMedia === '360' ? 'bg-[#007BFF]/80 text-white' : 'bg-black/40 text-white hover:bg-black/60'}
+                  `}
+                >
+                  <span className="text-sm font-bold">360</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
         </div>
 
       </div>
@@ -625,31 +728,31 @@ const fetchReviews = useCallback(async () => {
                     Knowledge Check
                   </h3>
                   <p className="text-blue-100 text-sm font-medium mb-5 text-center max-w-[85%]">
-                    Complete <span className="text-white font-bold border-b-2 border-white/20">2 questions</span> on the local geography.
+                    Complete <span className="text-white font-bold border-b-2 border-white/20">2 questions</span> on the local geography to earn points.
                   </p>
                   <button 
                     onClick={() => setQuizStage('question')}
-                    className="group cursor-pointer relative bg-white text-indigo-700 rounded-full py-3 pl-5 pr-6 font-bold text-[1rem] shadow-[0_0px_15px_rgba(0,0,0,0.2)] flex items-center gap-2 hover:scale-105 transition-transform active:scale-95"
+                    disabled={loadingQuiz || quizQuestions.length === 0}
+                    className="group cursor-pointer relative bg-white text-indigo-700 rounded-full py-3 pl-5 pr-6 font-bold text-[1rem] shadow-[0_0px_15px_rgba(0,0,0,0.2)] flex items-center gap-2 hover:scale-105 transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span>Begin Quest</span>
+                    <span>{loadingQuiz ? 'Loading...' : 'Begin Quest'}</span>
                     <div className="text-[1.3rem]"><TbBulb/></div>
                   </button>
                 </div>
               )}
 
               {/* --- STAGE: QUESTION --- */}
-              {quizStage === 'question' && (
-                <div  className="w-full px-6 z-10 flex flex-col items-center gap-6 animate-in slide-in-from-right-8 fade-in duration-500">
+              {quizStage === 'question' && quizQuestions.length > 0 && (
+                <div className="w-full px-6 z-10 flex flex-col items-center gap-6 animate-in slide-in-from-right-8 fade-in duration-500">
                   <div className="flex flex-col items-center gap-2">
                     <p className="text-white font-bold text-xl md:text-2xl text-center leading-tight drop-shadow-md">
-                      {quizData[qIndex].q}
+                      {quizQuestions[qIndex].question}
                     </p>
                   </div>
                   <div className="flex w-full gap-3">
-                    {quizData[qIndex].options.map((opt, i) => (
+                    {quizQuestions[qIndex].options.map((opt: string, i: number) => (
                       <div key={i} className='bg-white/5 active:scale-[.98] backdrop-blur-[3px] min-h-[70px] rounded-[30px] w-[100%] px-auto p-[2.5px] shadow-[0_0px_15px_rgba(0,0,0,0.1)] cursor-pointer'>
                       <button
-                        key={i}
                         onClick={() => handleAnswer(i)}
                         className="
                           flex-1 py-4 px-3 
@@ -664,86 +767,89 @@ const fetchReviews = useCallback(async () => {
                     ))}
                   </div>
                   <div className="absolute bottom-[20px] flex gap-1.5">
-                      {quizData.map((_, i) => (
+                      {quizQuestions.map((_, i) => (
                         <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === qIndex ? 'w-8 bg-white shadow-[0_0_10px_white]' : 'w-4 bg-white/30'}`} />
                       ))}
-                    </div>
+                  </div>
                 </div>
               )}
 
               {/* --- STAGE: RESULT --- */}
-            {quizStage === 'result' && (
-              <div className="flex flex-col items-center justify-center w-full px-6 mt-[-30px] z-10 animate-in zoom-in fade-in duration-500">
-                <div className='flex items-center gap-[20px]'>
-                <div className="relative mb-3">
-                  <div className={`rotate-6 mb-[4px] rounded-[23px] w-[100%] px-auto p-[2.5px] shadow-[0px_0px_30px_rgba(0,0,0,0)] ${score > 0 ? 'bg-gradient-to-br from-yellow-500 via-amber-500/65 to-amber-300' : 'bg-gradient-to-br from-gray-300 via-gray-500/65 to-gray-400'}`}>
-                    <div className={`
-                      w-13 h-13 rounded-[20px] flex items-center justify-center text-[1.3rem]
-                      ${score > 0 ? 'bg-gradient-to-br from-yellow-300 to-amber-500' : 'bg-gradient-to-br from-gray-300 to-gray-400'}
-                    `}>
-                        {score === quizData.length ? '🏆' : score > 0 ? '✨' : '☁️'}
-                    </div>
-                  </div>
-                    {score > 0 && <div className="absolute inset-0 bg-yellow-400/60 blur-xl -z-10 animate-pulse"></div>}
-                </div>
-
-                  <div className="flex flex-col">
-                    <h3 className="text-white font-black text-2xl tracking-tight uppercase drop-shadow-md">
-                      {score === quizData.length ? 'Quest Complete!' : 'Completed'}
-                    </h3>
-                    <p className="text-indigo-100 text-sm font-medium mb-5 opacity-90">
-                      You got <span className="text-white font-bold">{score}</span> out of {quizData.length} correct.
-                    </p>
-                  </div>
-                </div>
-
-                <div className='bg-white/10 backdrop-blur-[3px] active:scale-[.98] rounded-[28px] w-[100%] px-auto p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] cursor-pointer'>
-                  <div className="w-full bg-white/10 rounded-[25px] p-4 flex flex-row items-center justify-between shadow-[0px_0px_20px_rgba(0,0,0,0.2)] relative overflow-hidden group">
-                    <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
-                    
-                    <div className="flex flex-col items-start">
-                      <span className="text-indigo-200 text-[10px] font-[700] uppercase tracking-widest">Total Earned</span>
-                      <span className="text-white text-xs opacity-70 font-[500]">Experience</span>
+              {quizStage === 'result' && (
+                <div className="flex flex-col items-center justify-center w-full px-6 mt-[-30px] z-10 animate-in zoom-in fade-in duration-500">
+                  <div className='flex items-center gap-[20px]'>
+                    {/* ... (Keep your Trophy/Icon div exactly the same) ... */}
+                    <div className="relative mb-3">
+                      <div className={`rotate-6 mb-[4px] rounded-[23px] w-[100%] px-auto p-[2.5px] shadow-[0px_0px_30px_rgba(0,0,0,0)] ${score > 0 ? 'bg-gradient-to-br from-yellow-500 via-amber-500/65 to-amber-300' : 'bg-gradient-to-br from-gray-300 via-gray-500/65 to-gray-400'}`}>
+                        <div className={`w-13 h-13 rounded-[20px] flex items-center justify-center text-[1.3rem] ${score > 0 ? 'bg-gradient-to-br from-yellow-300 to-amber-500' : 'bg-gradient-to-br from-gray-300 to-gray-400'}`}>
+                            {score === quizQuestions.length ? '🏆' : score > 0 ? '✨' : '☁️'}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      <span className="text-4xl font-black text-white drop-shadow-sm leading-none">
-                        +{score * 50}
-                      </span>
-                      <span className="text-[10px] font-bold text-yellow-900 Scottish bg-yellow-400 px-1.5 py-0.5 rounded-[8px] mb-auto mt-1">
-                        PTS
-                      </span>
+                    <div className="flex flex-col">
+                      {/* Change text if already completed previously */}
+                      <h3 className="text-white font-black text-2xl tracking-tight uppercase drop-shadow-md">
+                        {alreadyCompleted ? 'Quest Archived' : (score === quizQuestions.length ? 'Quest Complete!' : 'Completed')}
+                      </h3>
+                      <p className="text-indigo-100 text-sm font-medium mb-5 opacity-90">
+                        You got <span className="text-white font-bold">{score}</span> out of {quizQuestions.length} correct.
+                      </p>
                     </div>
                   </div>
-                </div>
 
-                  <div className="mt-4 mb-[-40px] flex items-center justify-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-widest">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    Result Recorded
+                  {/* ... (Keep Score Card exact same) ... */}
+                  <div className='bg-white/10 backdrop-blur-[3px] active:scale-[.98] rounded-[28px] w-[100%] px-auto p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] cursor-pointer'>
+                    <div className="w-full bg-white/10 rounded-[25px] p-4 flex flex-row items-center justify-between shadow-[0px_0px_20px_rgba(0,0,0,0.2)] relative overflow-hidden group">
+                      <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
+                      <div className="flex flex-col items-start">
+                        <span className="text-indigo-200 text-[10px] font-[700] uppercase tracking-widest">
+                          {alreadyCompleted ? 'Total Earned' : 'Points Earned'}
+                        </span>
+                        <span className="text-white text-xs opacity-70 font-[500]">Experience</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-4xl font-black text-white drop-shadow-sm leading-none">+{score * 50}</span>
+                        <span className="text-[10px] font-bold text-yellow-900 Scottish bg-yellow-400 px-1.5 py-0.5 rounded-[8px] mb-auto mt-1">PTS</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer Status Message */}
+                  <div className="mt-6 mb-[-40px] flex items-center justify-center gap-2 text-white/60 text-[10px] font-bold uppercase tracking-widest">
+                    {alreadyCompleted ? (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-blue-300"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Already Completed</span>
+                      </>
+                    ) : pointsSaved ? (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="text-green-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Result Recorded</span>
+                      </>
+                    ) : (
+                      <span>Saving...</span>
+                    )}
                   </div>
                 </div>
-            )}
+              )}
+              </div>
             </div>
           </div>
-        </div>
-
       </div>
-
     </div>
 
       <div className='gap-[50px] mb-[80px] bg-blue-500/0 self-center w-[1400px] max-w-[90vw]'>
         <div className='flex flex-col w-full bg-red-500/0'>
-          <p className='font-bold text-[2rem] mb-8'>Local Stories</p>
+          <p className='font-bold text-[2rem] mb-8 self-center'>Local Stories</p>
           
-          <div className='flex flex-wrap gap-x-20 gap-y-12'>
+          <div className='flex flex-wrap gap-x-10 gap-y-12'>
             {stories.map((story,index)=>(
-            <div className='flex flex-col gap-5' key={index}>
-              <p className='font-semibold text-xl'>{story.title}</p>
-                <audio controls>
-                  <source src={story.src} type="audio/mpeg"/>
-                    Your browser does not support the audio element.
-                </audio>
-            </div>
+            <WaveformAudioPlayer 
+              key={index} 
+              title={story.title} 
+              src={story.src} 
+            />
             ))}
           </div>
         </div>
@@ -971,7 +1077,7 @@ const fetchReviews = useCallback(async () => {
             {/* Dynamic Map of Nearby Sites */}
             {loadingSites ? (
               // Show 5 Skeletons while loading
-              <div className=''>
+              <div className='flex gap-6'>
                 <SiteCardSkeleton />
                 <SiteCardSkeleton />
                 <SiteCardSkeleton />
@@ -1020,9 +1126,9 @@ const fetchReviews = useCallback(async () => {
             )))}
             
             {/* Empty State if no sites found */}
-            {nearbySites.length === 0 && (
+            {/* {nearbySites.length === 0 && (
                <div className="text-gray-400 italic p-5">Loading nearby locations...</div>
-            )}
+            )} */}
 
           </div>
         </div>

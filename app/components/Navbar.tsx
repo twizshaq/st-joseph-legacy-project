@@ -267,7 +267,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
 
         <div className='fixed right-[13px] top-[15px] cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
             <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-              <div className='bg-black/40 backdrop-blur-sm rounded-full px-[7px] pl-[13px] py-[5px] z-[50]'>
+              <div className='bg-black/40 backdrop-blur-sm rounded-full px-[7px] pl-[10px] py-[5px] z-[50]'>
                 {isLoading ? (
                   // Maintain height to prevent layout shift
                   <div className="h-10 w-10" /> 
@@ -279,7 +279,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                         ref={mobileNotiButtonRef}
                         onClick={toggleMobileNotiPanel}
                         data-noti-button
-                        className="cursor-pointer w-10 h-10 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        className="cursor-pointer w-10 h-10 active:scale-[.95] flex items-center justify-center hover:opacity-80 transition-opacity"
                       >
                         <Image src="/icons/noti-icon.svg" alt="Notifications" width={40} height={40} className="h-[36px] object-contain" />
                         {unreadCount > 0 && (
@@ -292,7 +292,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                       </button>
                     </div>
                     <Link href={profileLink} className='cursor-pointer whitespace-nowrap'>
-                      <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[1px]'>
+                      <div className='w-10 h-10 active:scale-[.95] flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)] -mr-[1px]'>
                         <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
                           <Image src={avatarUrl} alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" />
                         </div>
