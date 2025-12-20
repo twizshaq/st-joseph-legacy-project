@@ -240,7 +240,7 @@ export default function Home() {
                 {/* LEFT: Copy */}
                 <div className="flex-1 max-w-[700px] max-sm:mt-[100px] flex flex-col">
                     <h2 className="font-bold text-[2rem] max-sm:text-[1.5rem] mb-[14px] mt-[]">Unveiling Our Legacy</h2>
-                    <p className="max-w-[1000px] text-justify">
+                    <p className="max-w-[1000px]">
                         "Unveiling Our Legacy" is a community initiative led by the St. Joseph District Emergency Organisation (DEO). We have mapped key landmarks across the parish, from the Parris Hill Mural to historic churches and natural wonders. It is time for you to unlock:
                     </p>
                     <br />
@@ -249,10 +249,10 @@ export default function Home() {
                             <b>Our Culture:</b> Dive deep into the stories that make St. Joseph unique.
                         </li>
                         <li>
-                            <b className='text-justify'>Our Community:</b> Hear the voices of the community and learn directly from them . Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
+                            <b className=''>Our Community:</b> Hear the voices of the community and learn directly from them . Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
                         </li>
                         <li>
-                            <b className='text-justify'>Build Resilience:</b> Don't just look at the land, understand it. Critical data on local hazards (land slippage, coastal risks) and disaster management tips specific to that spot.
+                            <b className=''>Build Resilience:</b> Don't just look at the land, understand it. Critical data on local hazards (land slippage, coastal risks) and disaster management tips specific to that spot.
                         </li>
                     </div>
 

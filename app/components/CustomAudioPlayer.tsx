@@ -12,36 +12,36 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
   const [isDragging, setIsDragging] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // --- 1. SEEDED WAVEFORM GENERATION ---
-  // We use the 'src' (audio url) to seed the random generator.
-  // This guarantees that identical audio files produce identical waveforms.
-  const barHeights = React.useMemo(() => {
+  // --- CHANGED: Initialize as empty array to avoid Server/Client mismatch ---
+  const [barHeights, setBarHeights] = useState<number[]>([]);
+
+  // --- CHANGED: Generate bars ONLY in useEffect (Client Side) ---
+  useEffect(() => {
     const totalBars = 70;
     
     // 1. Create a hash from the audio source string
     let seed = 0;
-    const seedString = src || "default"; // Fallback if src is empty
+    const seedString = src || "default"; 
     for (let i = 0; i < seedString.length; i++) {
       seed = ((seed << 5) - seed) + seedString.charCodeAt(i);
-      seed |= 0; // Convert to 32bit integer
+      seed |= 0; 
     }
 
-    // 2. A predictable random number generator using the seed
     const seededRandom = () => {
       const x = Math.sin(seed++) * 10000;
       return x - Math.floor(x);
     };
 
-    return Array.from({ length: totalBars }, (_, i) => {
-      // 3. Use seededRandom() instead of Math.random()
-      // We keep the sine wave structure for the "musical" look
+    const generatedHeights = Array.from({ length: totalBars }, (_, i) => {
       const structure = Math.sin(i * 0.1) * 10 + Math.sin(i * 0.5) * 5;
       const noise = seededRandom() * 10;
       return Math.max(4, Math.min(32, 10 + Math.abs(structure) + noise));
     });
-  }, [src]); // Only recalculate if the audio source changes
 
-  // --- 2. RESIZE OBSERVER ---
+    setBarHeights(generatedHeights);
+  }, [src]); 
+
+  // --- RESIZE OBSERVER ---
   useEffect(() => {
     if (!containerRef.current) return;
     const resizeObserver = new ResizeObserver((entries) => {
@@ -53,7 +53,7 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
     return () => resizeObserver.disconnect();
   }, []);
 
-  // --- 3. AUDIO CONTROLS ---
+  // --- AUDIO CONTROLS ---
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -66,7 +66,6 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
     if (!isDragging && audioRef.current) {
       const current = audioRef.current.currentTime;
       const total = audioRef.current.duration;
-      // Fallback update for duration if metadata missed it
       if (total && total !== duration && Number.isFinite(total)) {
         setDuration(total);
       }
@@ -82,7 +81,7 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
     }
   };
 
-  // --- 4. TOUCH / DRAG LOGIC ---
+  // --- TOUCH / DRAG LOGIC ---
   const getClientX = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) => {
     if ('touches' in e) {
       return e.touches[0].clientX;
@@ -128,7 +127,6 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
     if (isDragging) {
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('mouseup', handleEnd);
-      // 'passive: false' is crucial for preventing scroll while scrubbing on touch
       document.addEventListener('touchmove', handleMove, { passive: false });
       document.addEventListener('touchend', handleEnd);
     }
@@ -149,7 +147,6 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
   };
 
   return (
-    // Outer Container: 90vw on mobile, fixed 400px on desktop (md:)
     <div className='w-[90vw] md:w-[400px] rounded-[33px] p-[2px] h-full bg-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'>
       <div className="w-full h-full bg-black/3 rounded-[30px] p-3 transition-all group/player select-none">
         <audio
@@ -186,14 +183,15 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
               onMouseDown={handleInteractionStart}
               onTouchStart={handleInteractionStart}
               className="relative h-[32px] w-full cursor-pointer group/wave overflow-hidden"
-              style={{ touchAction: 'none' }} // Prevents page scrolling while dragging on mobile
+              style={{ touchAction: 'none' }} 
             >
               {/* LAYER 1: Background Gray Bars */}
               <div className="absolute inset-0 flex items-center gap-[2px] w-full pointer-events-none">
                 {barHeights.map((height, index) => (
                   <div
                     key={`bg-${index}`}
-                    style={{ height: `${height}px` }}
+                    // --- CHANGED: Added .toFixed(2) just in case, though useEffect already fixes it ---
+                    style={{ height: `${height.toFixed(2)}px` }}
                     className="w-[2px] bg-gray-500/40 rounded-full flex-shrink-0 transition-colors duration-300 group-hover/wave:bg-gray-500/60"
                   />
                 ))}
@@ -204,7 +202,6 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
                   className="absolute left-0 top-0 h-full overflow-hidden pointer-events-none transition-[width] duration-100 ease-linear will-change-[width]"
                   style={{ width: `${progress}%` }}
               >
-                  {/* We force this inner container to be the full width of the parent */}
                   <div 
                       className="flex items-center gap-[2px] h-full"
                       style={{ width: containerWidth ? `${containerWidth}px` : '100%' }}
@@ -212,7 +209,8 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
                       {barHeights.map((height, index) => (
                           <div
                           key={`fg-${index}`}
-                          style={{ height: `${height}px` }}
+                          // --- CHANGED: Added .toFixed(2) here as well ---
+                          style={{ height: `${height.toFixed(2)}px` }}
                           className="w-[2px] bg-blue-500/90 rounded-full flex-shrink-0"
                           />
                       ))}
