@@ -186,7 +186,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
       ================================================================= */}
       <div className='fixed top-[40px] left-1/2 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
           <div className='bg-white/10 max-sm:bg-white/0 max-sm:backdrop-blur-[0px] backdrop-blur-[10px] rounded-full p-[3px] max-sm:shadow-[0px_0px_10px_rgba(0,0,0,0)] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-            <nav className="hidden md:flex font-bold text-black bg-[#000]/40 rounded-full justify-around items-center py-0 px-4 h-[62px] pl-[30px] pr-[10px] gap-[25px] border-[0px] border-white/60 z-50 text-white">
+            <nav className="hidden [@media(min-width:768px)_and_(min-height:500px)]:flex font-bold text-black bg-[#000]/40 rounded-full justify-around items-center py-0 px-4 h-[62px] pl-[30px] pr-[10px] gap-[25px] border-[0px] border-white/60 z-50 text-white">
               <Link href="/" className={`cursor-pointer whitespace-nowrap ${pathname === '/' ? 'text-[#007BFF]' : ''}`}>Home</Link>
               <Link href="/virtual-map" className={`cursor-pointer whitespace-nowrap ${pathname === '/virtual-map' ? 'text-[#007BFF]' : ''}`}>Virtual Map</Link>
               <Link href="/all-sites" className={`cursor-pointer whitespace-nowrap ${pathname === '/all-sites' ? 'text-[#007BFF]' : ''}`}>View Sites</Link>
@@ -247,7 +247,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
       {/* =================================================================
         MOBILE-ONLY ELEMENTS
       ================================================================= */}
-      <div className="md:hidden">
+      <div className="[@media(min-width:768px)_and_(min-height:500px)]:hidden">
         <div className='fixed top-[16px] left-[10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
           <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
             <button onClick={toggleMenu} className="z-50 p-[11px] rounded-full bg-black/40 backdrop-blur-sm text-black" aria-label="Toggle menu">

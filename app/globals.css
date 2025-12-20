@@ -15,6 +15,7 @@
 @theme {
   --breakpoint-ttk-wrap: 1180px;
   --breakpoint-ttk-wrap2: 1280px;
+  --breakpoint-desktop: (min-width: 768px) and (min-height: 500px);
 }
 
 @media (prefers-color-scheme: dark) {
