@@ -154,14 +154,14 @@ export const ReviewModal = ({ isOpen, onClose, onReviewSubmit, user, siteId }: R
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 font-bold cursor-pointer text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors duration-200"
+                className="px-6 py-3 active:scale-[.98] font-bold cursor-pointer text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors duration-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-8 py-3 font-bold cursor-pointer text-white bg-[#007BFF] hover:bg-blue-600 rounded-full transition-colors duration-200 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                className="px-8 py-3 font-bold active:scale-[.98] cursor-pointer text-white bg-[#007BFF] hover:bg-[#007BFF] rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(0,123,225,0.4)]"
               >
                 {isSubmitting ? 'Posting...' : 'Comment'}
               </button>

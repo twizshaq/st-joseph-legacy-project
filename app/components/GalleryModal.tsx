@@ -455,8 +455,11 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
       </div>
 
       {/* Thumbnails */}
-      <div className="flex-shrink-0 h-auto pb-8 pt-6 w-full z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
-        <div ref={thumbnailScrollRef} className="flex gap-4 overflow-x-auto px-6 md:justify-center hide-scrollbar snap-x items-center py-[10px]">
+      <div className="flex-shrink-0 h-auto pb-8 pt-6 w-full z-50 pointer-events-auto flex justify-center" onClick={(e) => e.stopPropagation()}>
+        <div 
+          ref={thumbnailScrollRef} 
+          className="flex gap-4 overflow-x-auto px-6 max-w-full hide-scrollbar snap-x items-center py-[10px]"
+        >
           {items.map((item, index) => (
             <button 
               key={index} 

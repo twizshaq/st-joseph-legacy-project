@@ -1,78 +1,185 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { createClient } from '@supabase/supabase-js';
+
+// Assets
 import FacebookIcon from "@/public/icons/facebook-icon";
+import loadingIcon from '@/public/loading-icon.png';
 
-const Footer = () => {
-  return (
-    <footer className='relative bg-blue-900 text-white w-full mt-[100px]'>
-      {/* Creative Gradient Top Border */}
-      <div className="absolute top-0 left-0 right-0 h-[4px] bg-gradient-to-r from-blue-900 via-[#006DDE] to-blue-900 shadow-[0_0_10px_#006DDE]" />
+export default function Footer() {
+    const [email, setEmail] = useState("");
+    const [submissionMessage, setSubmissionMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
-      <div className='max-w-[1500px] mx-auto px-[4vw] py-10 flex flex-col md:flex-row justify-between items-center gap-8'>
-        
-        {/* Left: Branding & Tagline */}
-        <div className='text-center md:text-left'>
-          <h3 className='font-bold text-2xl tracking-tight'>Unveiling Our Legacy <span className="text-[#feb47b]"></span></h3>
-          <p className='text-blue-300 text-sm mt-1'>Documenting. Protecting. Unveiling.</p>
-        </div>
+    const handleJoinClick = async () => {
+        if (!isValid) return;
+        setIsSubmitting(true);
+        setSubmissionMessage("");
 
-        {/* Right Group: Nav stacked over Socials */}
-        <div className='flex flex-col md:flex-col-reverse items-center md:items-end gap-6 md:gap-2'>
-          
-          {/* Navigation Pills */}
-          <nav className='flex flex-wrap justify-center md:justify-end'>
-            {[
-              { name: 'Home', path: '/' },
-              { name: 'Virtual Map', path: '/virtual-map' },
-              { name: 'All Sites', path: '/all-sites' },
-              { name: 'Tours', path: '/tours' },
-            ].map((link) => (
-              <Link 
-                key={link.name} 
-                href={link.path}
-                className='px-4 py-2 rounded-full text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-300'
-              >
-                {link.name}
-              </Link>
-            ))}
-          </nav>
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        if (!supabaseUrl || !supabaseAnonKey) {
+            setSubmissionMessage("Configuration error. Please try again later.");
+            setIsSubmitting(false);
+            return;
+        }
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-          {/* Social Icons */}
-          <div className='flex items-center gap-2'>
-            <Link href="https://www.instagram.com/dem.barbados" target="_blank" className='group'>
-              <div className='p-2 rounded-full transition-colors duration-300 hover:bg-white/10'>
-                <Image src="/icons/instagram-icon.svg" alt="Instagram" height={30} width={30}/>
-              </div>
-            </Link>
-            <Link href="https://www.facebook.com/dem246/" target="_blank" className='group'>
-               <div className='p-2 rounded-full transition-colors duration-300 hover:bg-white/10'>
-                <FacebookIcon color="#FFFFFF" height={30} width={30} />
-              </div>
-            </Link>
-          </div>
+        try {
+            // Attempt to insert the new email
+            const { error } = await supabase
+                .from('subscribers')
+                .insert({ email: email.trim() });
 
-        </div>
-      </div>
+            if (error) {
+                // Throw the error to be caught by the catch block
+                throw error;
+            }
 
-      {/* Bottom: Legal */}
-      <div className='relative bg-black/10 w-full'>
-        
-        {/* Tapered Shadow Border */}
-        <div className="w-[90vw] mx-auto h-[1px] bg-white/7 shadow-[0px_0px_6px_rgba(0,0,0,0.1)]" />
+            // Success!
+            setSubmissionMessage("Thank you for subscribing!");
+            setEmail(""); // Clear the input field
 
-        <div className='max-w-[1500px] mx-auto px-[4vw] py-4 flex flex-col-reverse md:flex-row justify-between items-center text-xs text-blue-400'>
-          <p>© 2025 DEO Project. All Rights Reserved.</p>
-          <div className='flex gap-6 mb-2 md:mb-0'>
-            <Link href="/privacy" className='hover:text-white transition-colors'>Privacy Policy</Link>
-            <Link href="/terms" className='hover:text-white transition-colors'>Terms of Service</Link>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
+        } catch (error: any) {
+            if (error.code === '23505') { // '23505' is the code for a unique constraint violation
+                setSubmissionMessage("This email is already subscribed.");
+            } else {
+                console.error('Subscription error:', error);
+                setSubmissionMessage("An error occurred. Please try again.");
+            }
+        } finally {
+            // This will run whether the submission succeeds or fails
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <footer className='bg-blue-900 text-white w-full mt-[100px] py-12 px-[4vw]'>
+            <div className='max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10'>
+                {/* Column 1: Identity & Contact */}
+                <div className='flex flex-col gap-4'>
+                    <h3 className='font-bold text-xl'>Unveiling Our Legacy</h3>
+                    <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
+                    <div>
+                        <h4 className='font-semibold mb-2'>Contact Us</h4>
+                        <Link href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>stjoseph.legacy@deo.gov.bb</Link>
+                        <p className='text-blue-200 text-sm'>(246) 123-4567</p>
+                    </div>
+                    <div>
+                        <div className='flex items-center gap-4 mt-3'>
+                            <Link href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                                <Image src="/icons/instagram-icon.svg" alt="" height={35} width={35} />
+                            </Link>
+                            <Link href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                                <FacebookIcon color="#FFFFFF" height={30} width={30} />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Column 3: Get Involved + Stay Connected */}
+                <div className='flex flex-col-reverse items-start lg:items-center gap-[40px] lg:ml-[25px] ml-0'>
+                    {/* Get Involved */}
+                    <div className='flex flex-col gap-4 w-full'>
+                        <h3 className='font-bold text-xl lg:text-center'>Get Involved</h3>
+                        <ul className='space-y-2 text-blue-200 lg:text-center'>
+                            <li>
+                                <Link
+                                    href="https://forms.gle/DKHMGcmQttoztAgr9"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className='hover:text-[#feb47b] transition-colors'
+                                >
+                                    Volunteer Sign-up
+                                </Link>
+                            </li>
+                        </ul>
+                        <button className='relative lg:self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
+                            {/* <a
+            href="/donate"
+            className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
+          > */}
+                            <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
+                                <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
+                                    Contribute
+                                </span>
+                                <Image src="/icons/handheart-icon.svg" alt="Loading..." width={18} height={18} className='invert' />
+                            </div>
+                            {/* </a> */}
+                        </button>
+                    </div>
+
+                    {/* Stay Connected */}
+                    <div className='flex flex-col gap-4 items-start lg:items-center w-full'>
+                        <h3 className='font-bold text-xl'>Stay Connected</h3>
+                        <p className='text-blue-200 text-sm lg:text-center'>Subscribe to our newsletter for project updates and email blasts.</p>
+                        <div className="h-hit w-fit flex items-center justify-end relative mb-[0px]">
+                            <input
+                                type="email"
+                                className="border-[2px] border-white/10 backdrop-blur-[5px] text-white font-semibold rounded-[30px] py-[15px] pl-[20px] pr-[130px] max-w-[80vw] w-[350px] outline-none bg-black/20"
+                                placeholder="Your Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={isSubmitting}
+                            />
+                            <button
+                                onClick={handleJoinClick}
+                                disabled={isSubmitting || !isValid}
+                                className={`
+                absolute rounded-full py-[10px] px-[22px] mr-[7px] font-semibold
+                transition-colors
+                ${isSubmitting
+                                        ? 'bg-transparent'
+                                        : isValid
+                                            ? 'bg-[#007BFF] hover:[#002347] text-white filter shadow-[0_0_7px_rgba(0,123,255,0.5)]'
+                                            : 'bg-[#777]/30 text-white/30'
+                                    }
+                ${isSubmitting || !isValid ? "cursor-not-allowed" : "cursor-pointer"}
+              `}
+                            >
+                                {isSubmitting && (
+                                    <div className="absolute inset-0 flex justify-end items-center right-[10px]">
+                                        <Image src={loadingIcon} alt="Loading..." className="animation" width={26} height={26} />
+                                    </div>
+                                )}
+                                <span className={isSubmitting ? 'invisible' : 'visible'}>
+                                    Subscribe
+                                </span>
+                            </button>
+                        </div>
+                        {submissionMessage && (
+                            <p className={`text-sm mt-2 lg:text-center font-bold w-full ${submissionMessage.includes('Thank you') ? 'text-green-400' : 'text-red-400'}`}>
+                                {submissionMessage}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Column 2: Navigation */}
+                <div className='flex flex-col gap-4 text-left lg:text-right'>
+                    <h3 className='font-bold text-xl'>Navigate</h3>
+                    <ul className='space-y-2 text-blue-200'>
+                        <li><Link href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</Link></li>
+                        <li><Link href="/map" className='hover:text-[#feb47b] transition-colors'>Virtual Map</Link></li>
+                        <li><Link href="/tours" className='hover:text-[#feb47b] transition-colors'>Tours</Link></li>
+                        {/* <li><a href="/metrics" className='hover:text-[#feb47b] transition-colors'>Project Metrics</a></li> */}
+                        <li><Link href="/faq" className='hover:text-[#feb47b] transition-colors'>FAQ</Link></li>
+                    </ul>
+                </div>
+            </div>
+
+            {/* Bottom Bar */}
+            <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center text-sm text-blue-300'>
+                <p>© 2025 DEO Project. All Rights Reserved.</p>
+                <div className='flex gap-4 mt-4 lg:mt-0'>
+                    <Link href="/privacy" className='hover:text-white transition-colors'>Privacy Policy</Link>
+                    <Link href="/terms" className='hover:text-white transition-colors'>Terms of Service</Link>
+                </div>
+            </div>
+        </footer>
+    );
 };
-
-export default Footer;

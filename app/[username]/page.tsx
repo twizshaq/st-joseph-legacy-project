@@ -42,6 +42,7 @@ interface UserProfile {
   full_name: string;
   avatar_url: string;
   bio?: string;
+  is_private: boolean;
 }
 
 // --- Mock Data ---
@@ -191,10 +192,6 @@ export default function UserProfilePage() {
       fetchProfileData();
   }, [usernameFromUrl, supabase]);
 
-  const handleUpdateProfile = async (newUsername: string, newBio: string, isPrivate: boolean, newAvatarFile: File | null) => {
-    // Implement update logic (kept brief for layout focus)
-    setIsSettingsOpen(false);
-  };
   const handleLogout = async () => { await supabase.auth.signOut(); router.push('/'); };
   const handleDeleteAccount = async () => { /* Delete logic */ };
 
@@ -204,6 +201,73 @@ export default function UserProfilePage() {
   const isOwnProfile = currentUser && profile && currentUser.id === profile.id;
 
   if (loading) return null;
+
+  const handleUpdateProfile = async (
+    newUsername: string, 
+    newBio: string, 
+    isPrivate: boolean, 
+    newAvatarFile: File | null
+  ) => {
+    if (!currentUser) return;
+    setIsSaving(true);
+
+    try {
+      let finalAvatarUrl = profile?.avatar_url;
+
+      // 1. Upload new avatar if provided
+      if (newAvatarFile) {
+        const fileExt = newAvatarFile.name.split('.').pop();
+        const filePath = `${currentUser.id}/${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, newAvatarFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+
+        finalAvatarUrl = publicUrl;
+      }
+
+      // 2. Update Profile Table
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          username: newUsername,
+          bio: newBio,
+          is_private: isPrivate, // Make sure your DB has this column
+          avatar_url: finalAvatarUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', currentUser.id);
+
+      if (updateError) throw updateError;
+
+      // 3. Update Local State to reflect changes immediately
+      setProfile(prev => prev ? ({
+        ...prev,
+        username: newUsername,
+        bio: newBio,
+        avatar_url: finalAvatarUrl || prev.avatar_url
+      }) : null);
+
+      setIsSettingsOpen(false);
+      
+      // Optional: Force a router refresh if the URL username needs to change
+      if (profile?.username !== newUsername) {
+         router.push(`/profile/${newUsername}`);
+      }
+
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] mt-[100px] relative overflow-x-hidden">

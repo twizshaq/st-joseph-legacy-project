@@ -7,6 +7,7 @@ import searchIcon from '@/public/icons/search-icon.svg';
 import sortIcon from '@/public/icons/sort-icon.svg';
 import Footer from "@/app/components/FooterModal"
 
+
 export type SiteCard = {
   id: number;
   name: string;

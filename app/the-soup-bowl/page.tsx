@@ -18,6 +18,7 @@ import Footer from "@/app/components/FooterModal"
 import { ReviewSkeleton } from "@/app/components/ReviewSkeleton";
 import { SiteCardSkeleton } from "@/app/components/SiteCardSkeleton";
 import { WaveformAudioPlayer } from "@/app/components/CustomAudioPlayer"
+import { ReportModal } from "@/app/components/ReportModal";
 
 // Import your icons and data
 
@@ -319,6 +320,43 @@ const [alreadyCompleted, setAlreadyCompleted] = useState(false);
 
     fetchNearby();
   }, []);
+
+  const [reportModalState, setReportModalState] = useState<{ isOpen: boolean; reviewId: number | null }>({
+  isOpen: false,
+  reviewId: null
+});
+
+  // --- DELETE LOGIC ---
+  const handleDeleteReview = useCallback(async (reviewId: number) => {
+    // 1. Optimistic UI update: Remove it from the list immediately
+    const previousReviews = [...reviews];
+    setReviews(prev => prev.filter(r => r.id !== reviewId));
+
+    // 2. Delete from Supabase
+    const { error } = await supabase
+      .from('site_reviews')
+      .delete()
+      .eq('id', reviewId)
+      .eq('user_id', user?.id); // Extra safety: ensure only author can delete
+
+    if (error) {
+      console.error("Error deleting:", error);
+      // Revert if failed
+      setReviews(previousReviews);
+      alert("Failed to delete review.");
+    }
+  }, [reviews, supabase, user?.id]);
+
+  // --- REPORT LOGIC ---
+  const handleReportReview = useCallback((reviewId: number) => {
+  if (!user) {
+    setAuthAlertOpen(true);
+    return;
+  }
+
+    // Instead of prompt(), we open our custom modal
+    setReportModalState({ isOpen: true, reviewId: reviewId });
+    }, [user]);
 
   return (
     <div className='flex flex-col items-center self-center min-h-[100dvh] text-black bg-red-500/0 overflow-hidden'>
@@ -701,10 +739,10 @@ const [alreadyCompleted, setAlreadyCompleted] = useState(false);
               `}
             >
               {/* --- GRAPHICS LAYER --- */}
-              <div className="absolute inset-0 opacity-[0.08]" 
+              <div className="absolute inset-0 opacity-[0.04]" 
                 style={{ 
-                  backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)', 
-                  backgroundSize: '40px 40px' 
+                  backgroundImage: 'repeating-linear-gradient(45deg, white, white 1px, transparent 1px, transparent 20px)',
+                  // No backgroundSize needed here, the pattern repeats automatically
                 }} 
               />
               <div className="absolute -top-[50%] left-[20%] w-[300px] h-[300px] bg-indigo-300/20 blur-[90px] rounded-full pointer-events-none" />
@@ -749,15 +787,15 @@ const [alreadyCompleted, setAlreadyCompleted] = useState(false);
                       {quizQuestions[qIndex].question}
                     </p>
                   </div>
-                  <div className="flex w-full gap-3">
+                  <div className="flex flex-col pb-[10px] w-full gap-3">
                     {quizQuestions[qIndex].options.map((opt: string, i: number) => (
-                      <div key={i} className='bg-white/5 active:scale-[.98] backdrop-blur-[3px] min-h-[70px] rounded-[30px] w-[100%] px-auto p-[2.5px] shadow-[0_0px_15px_rgba(0,0,0,0.1)] cursor-pointer'>
+                      <div key={i} className='bg-white/5 active:scale-[.98] backdrop-blur-[3px] rounded-[28px] w-[100%] px-auto p-[2.5px] shadow-[0_0px_15px_rgba(0,0,0,0.1)] cursor-pointer'>
                       <button
                         onClick={() => handleAnswer(i)}
                         className="
-                          flex-1 py-4 px-3 
+                          flex-1 py-5 px-3 
                           bg-indigo-900/50 cursor-pointer h-[100%] w-[100%] hover:bg-white text-white hover:text-indigo-800
-                          rounded-[27px] font-bold text-sm leading-tight
+                          rounded-[25px] font-bold text-sm leading-tight
                           transition-all duration-200
                         "
                       >
@@ -839,11 +877,11 @@ const [alreadyCompleted, setAlreadyCompleted] = useState(false);
       </div>
     </div>
 
-      <div className='gap-[50px] mb-[80px] bg-blue-500/0 self-center w-[1400px] max-w-[90vw]'>
+      <div className='gap-[50px] mb-[80px] bg-blue-500/0  self-center w-[1400px] max-w-[90vw]'>
         <div className='flex flex-col w-full bg-red-500/0'>
           <p className='font-bold text-[2rem] mb-8 self-center'>Local Stories</p>
           
-          <div className='flex flex-wrap gap-x-10 gap-y-12'>
+          <div className='flex flex-wrap gap-x-10 gap-y-12 justify-center'>
             {stories.map((story,index)=>(
             <WaveformAudioPlayer 
               key={index} 
@@ -993,9 +1031,13 @@ const [alreadyCompleted, setAlreadyCompleted] = useState(false);
 
           return (
             <ReviewCard 
-              key={review.id} 
+              key={review.id}
+              currentUserId={user?.id}
+              onDelete={handleDeleteReview}
+              onReport={handleReportReview}
               experience={{
-                // Prefer the live profile name/avatar, fallback to the snapshot
+                id: review.id,
+                user_id: review.user_id,
                 username: liveProfile.username || review.reviewer_name || 'Anonymous',
                 user_avatar: liveProfile.avatar_url || review.reviewer_avatar,
                 
@@ -1054,6 +1096,12 @@ const [alreadyCompleted, setAlreadyCompleted] = useState(false);
           onReviewSubmit={fetchReviews}
           user={user}
           siteId={1}
+        />
+        <ReportModal 
+          isOpen={reportModalState.isOpen}
+          reviewId={reportModalState.reviewId}
+          user={user}
+          onClose={() => setReportModalState({ isOpen: false, reviewId: null })}
         />
         <AuthAlertModal
           isOpen={isAuthAlertOpen}

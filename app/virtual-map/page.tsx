@@ -335,9 +335,9 @@ const SearchResults = React.memo(function SearchResults({
                         lng={selectedSite.coordinates[0]} 
                       />
                           {/* <p className='text-white font-bold text-[1rem] bg-red-500 py-[20px] w-fit px-[20px]'>Like</p> */}
-                          {/* <div className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'> */}
+                          <div className='active:scale-[.98]'>
                           <LikeButton/>
-                          {/* </div> */}
+                          </div>
                           {/* <HeartIcon size={80} color="#fff" className='bg-black/40 p-3'/> */}
                           <Link href={`/${selectedSite.slug}`} passHref>
                             <div className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>

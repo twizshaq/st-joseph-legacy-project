@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TiStarFullOutline, TiStarOutline } from "react-icons/ti";
+import { MoreVertical, Trash2, Flag } from 'lucide-react'; // Import icons
 import Link from 'next/link';
 import Image from 'next/image';
 
 interface Experience {
+  id: number;           // Need review ID for actions
+  user_id: string;      // Need author ID to check ownership
   username: string;
   description: string;
   upload_date: number;
@@ -11,12 +14,22 @@ interface Experience {
   rating: number;
 }
 
-export const ReviewCard = ({ experience }: { experience: Experience }) => {
+interface ReviewCardProps {
+  experience: Experience;
+  currentUserId?: string | null; // Passed from parent
+  onDelete?: (id: number) => void; // Callback to handle deletion
+  onReport?: (id: number) => void; // Callback to handle reporting
+}
+
+export const ReviewCard = ({ experience, currentUserId, onDelete, onReport }: ReviewCardProps) => {
   const descriptionRef = useRef<HTMLParagraphElement | null>(null);
   const [needsReadMore, setNeedsReadMore] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showOptions, setShowOptions] = useState(false); // State for dropdown
 
-  // Fallback: If no specific avatar is in the DB, generate a unique one based on the name
+  // Check if current user is the author
+  const isAuthor = currentUserId === experience.user_id;
+
   const avatarUrl = experience.user_avatar 
     ? experience.user_avatar 
     : `https://api.dicebear.com/9.x/initials/svg?seed=${experience.username}`;
@@ -28,6 +41,8 @@ export const ReviewCard = ({ experience }: { experience: Experience }) => {
     }
   }, [experience.description]);
 
+  
+
   return (
     <div className='rounded-[43px] p-[2px] h-full bg-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'>
       <div className='snap-center shrink-0 relative flex flex-col w-[85vw] md:w-[420px] min-h-[180px] p-5 bg-black/3 rounded-[40px]'>
@@ -37,9 +52,7 @@ export const ReviewCard = ({ experience }: { experience: Experience }) => {
           
           {/* User Profile */}
           <div className='flex items-center gap-3'>
-            <Link href={`/profile/${experience.username}`} className='relative group cursor-pointer'>
-              
-              {/* --- NAVBAR STYLE RING APPLIED HERE --- */}
+            <Link href={`/${experience.username}`} className='relative group cursor-pointer'>
               <div className='w-[50px] h-[50px] rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
                 <div className='relative w-full h-full rounded-full overflow-hidden bg-white'>
                   <Image 
@@ -47,19 +60,16 @@ export const ReviewCard = ({ experience }: { experience: Experience }) => {
                     alt={experience.username}
                     fill
                     className="object-cover"
-                    unoptimized // Helps if there are domain config issues, but try to fix next.config.js first
+                    unoptimized 
                   />
                 </div>
               </div>
-
             </Link>
             <div className='flex flex-col'>
               <p className='font-bold text-slate-800 text-[1.1rem] leading-none capitalize'>{experience.username}</p>
-              {/* 3. DYNAMIC STAR LOGIC */}
               <div className='flex items-center gap-0.5 mt-1'>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span key={i} className="flex text-[1.2rem]">
-                    {/* If index is less than rating, show YELLOW FULL star. Else show GRAY EMPTY star. */}
                     {i < experience.rating ? (
                       <span className="text-amber-400"><TiStarFullOutline /></span>
                     ) : (
@@ -73,6 +83,47 @@ export const ReviewCard = ({ experience }: { experience: Experience }) => {
               </div>
             </div>
           </div>
+
+          {/* --- OPTIONS BUTTON --- */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowOptions(!showOptions)}
+              className="p-1.5 rounded-full cursor-pointer active:scale-[.95] hover:bg-black/5 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <MoreVertical size={20} />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showOptions && (
+              <>
+                {/* Backdrop to close menu when clicking outside */}
+                <div className="fixed inset-0 z-10" onClick={() => setShowOptions(false)} />
+                <div className='absolute right-0 rounded-[27px] p-[2px] z-20 h-fit bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'>
+                  <div className="bg-black/3 rounded-[25px] overflow-hidden p-[5px] gap-1 animate-in fade-in zoom-in-95 duration-200">
+                    
+                    {/* Delete Option (Only for Author) */}
+                    {isAuthor && (
+                      <button 
+                        onClick={() => { onDelete?.(experience.id); setShowOptions(false); }}
+                        className="w-full text-left px-4 py-2.5 cursor-pointer active:scale-[.98] rounded-[17px] text-sm font-semibold text-red-500 hover:bg-red-300/50 active:bg-red-50 flex items-center gap-2 transition-colors"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    )}
+
+                    {/* Report Option (For everyone) */}
+                    <button 
+                      onClick={() => { onReport?.(experience.id); setShowOptions(false); }}
+                      className="w-full text-left px-4 py-2.5 cursor-pointer active:scale-[.98] rounded-[17px] text-sm font-medium text-slate-700 hover:bg-slate-50 active:bg-slate-50 flex items-center gap-2 transition-colors"
+                    >
+                      <Flag size={14} /> Report
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
         </div>
 
         {/* Body Text */}
