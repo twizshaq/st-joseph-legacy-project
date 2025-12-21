@@ -61,13 +61,13 @@ export default function Footer() {
         <footer className='bg-blue-900 text-white w-full mt-[100px] py-12 px-[4vw]'>
             <div className='max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10'>
                 {/* Column 1: Identity & Contact */}
-                <div className='flex flex-col gap-4'>
+                <div className='flex flex-col gap-4 max-sm:items-center'>
                     <h3 className='font-bold text-xl'>Unveiling Our Legacy</h3>
                     <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
                     <div>
-                        <h4 className='font-semibold mb-2'>Contact Us</h4>
-                        <Link href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>stjoseph.legacy@deo.gov.bb</Link>
-                        <p className='text-blue-200 text-sm'>(246) 123-4567</p>
+                        <h4 className='font-semibold mb-2 max-sm:text-center'>Contact Us</h4>
+                        <Link href="mailto:stjoseph.legacy@deo.gov.bb max-sm:text-center" className='text-blue-200 text-sm hover:underline'>stjoseph.legacy@deo.gov.bb</Link>
+                        <p className='text-blue-200 text-sm max-sm:text-center'>(246) 123-4567</p>
                     </div>
                     <div>
                         <div className='flex items-center gap-4 mt-3'>
@@ -82,11 +82,11 @@ export default function Footer() {
                 </div>
 
                 {/* Column 3: Get Involved + Stay Connected */}
-                <div className='flex flex-col-reverse items-start lg:items-center gap-[40px] lg:ml-[25px] ml-0'>
+                <div className='flex flex-col-reverse items-center lg:items-center gap-[40px]'>
                     {/* Get Involved */}
                     <div className='flex flex-col gap-4 w-full'>
-                        <h3 className='font-bold text-xl lg:text-center'>Get Involved</h3>
-                        <ul className='space-y-2 text-blue-200 lg:text-center'>
+                        <h3 className='font-bold text-xl text-center'>Get Involved</h3>
+                        <ul className='space-y-2 text-blue-200 text-center'>
                             <li>
                                 <Link
                                     href="https://forms.gle/DKHMGcmQttoztAgr9"
@@ -98,7 +98,7 @@ export default function Footer() {
                                 </Link>
                             </li>
                         </ul>
-                        <button className='relative lg:self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
+                        <button className='relative self-center active:scale-[.9] cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
                             {/* <a
             href="/donate"
             className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
@@ -114,9 +114,9 @@ export default function Footer() {
                     </div>
 
                     {/* Stay Connected */}
-                    <div className='flex flex-col gap-4 items-start lg:items-center w-full'>
+                    <div className='flex flex-col gap-4 items-center lg:items-center w-full'>
                         <h3 className='font-bold text-xl'>Stay Connected</h3>
-                        <p className='text-blue-200 text-sm lg:text-center'>Subscribe to our newsletter for project updates and email blasts.</p>
+                        <p className='text-blue-200 text-sm text-center max-sm:max-w-[400px]'>Subscribe to our newsletter for project updates and email blasts.</p>
                         <div className="h-hit w-fit flex items-center justify-end relative mb-[0px]">
                             <input
                                 type="email"
@@ -160,7 +160,7 @@ export default function Footer() {
                 </div>
 
                 {/* Column 2: Navigation */}
-                <div className='flex flex-col gap-4 text-left lg:text-right'>
+                <div className='flex flex-col gap-4 text-center lg:text-right'>
                     <h3 className='font-bold text-xl'>Navigate</h3>
                     <ul className='space-y-2 text-blue-200'>
                         <li><Link href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</Link></li>
@@ -173,7 +173,7 @@ export default function Footer() {
             </div>
 
             {/* Bottom Bar */}
-            <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center text-sm text-blue-300'>
+            <div className='max-w-7xl mx-auto mt-10 pt-8 border-t border-blue-800 flex flex-col lg:flex-row lg:justify-between items-center lg:items-center text-sm text-blue-300'>
                 <p>© 2025 DEO Project. All Rights Reserved.</p>
                 <div className='flex gap-4 mt-4 lg:mt-0'>
                     <Link href="/privacy" className='hover:text-white transition-colors'>Privacy Policy</Link>

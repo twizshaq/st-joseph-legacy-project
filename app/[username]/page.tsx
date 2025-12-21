@@ -17,10 +17,6 @@ import UploadModal from '@/app/components/UploadModal';
 import Navigation from '@/app/components/ProfileNav';
 import SettingsModal from '@/app/components/SettingsModal';
 
-// --- Icons & Assets (Using Lucide where assets missing) ---
-// Assuming you have these or use replacements
-import devIcon from '@/public/icons/dev-icon.svg'
-
 // --- Types ---
 interface ActivityItemProps {
   type: 'rank' | 'visit' | 'upload';
@@ -95,7 +91,7 @@ const tabStats: Record<string, { value: string; label: string; color: string }[]
 // --- Components ---
 
 const StatCard = ({ value, label, color }: { value: string | number, label: string, color: string }) => (
-  <div className="bg-white rounded-[30px] p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] flex flex-col items-start justify-center min-h-[140px] relative overflow-hidden group hover:scale-[1.02] transition-transform">
+  <div className="bg-white rounded-[30px] px-6 py-4 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] flex flex-col items-start justify-center relative overflow-hidden group hover:scale-[1.02] transition-transform h-full w-full">
     <div className="z-10">
       <div className="text-[2rem] font-black text-slate-800 leading-none mb-2">{value}</div>
       <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{label}</div>
@@ -121,7 +117,7 @@ const ActivityCard = ({ item }: { item: ActivityItemProps }) => {
   }
 
   return (
-    <div className="bg-white rounded-[24px] p-1 shadow-[0_2px_15px_rgba(0,0,0,0.03)] mb-4 hover:shadow-lg transition-all duration-300">
+    <div className="bg-white rounded-[30px] p-1 shadow-[0_0px_15px_rgba(0,0,0,0.03)] mb-4 transition-all duration-300">
         <div className="flex items-start justify-between p-5">
             <div className="flex gap-5">
                 {/* Icon Circle */}
@@ -214,7 +210,6 @@ export default function UserProfilePage() {
     try {
       let finalAvatarUrl = profile?.avatar_url;
 
-      // 1. Upload new avatar if provided
       if (newAvatarFile) {
         const fileExt = newAvatarFile.name.split('.').pop();
         const filePath = `${currentUser.id}/${Date.now()}.${fileExt}`;
@@ -232,13 +227,12 @@ export default function UserProfilePage() {
         finalAvatarUrl = publicUrl;
       }
 
-      // 2. Update Profile Table
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
           username: newUsername,
           bio: newBio,
-          is_private: isPrivate, // Make sure your DB has this column
+          is_private: isPrivate, 
           avatar_url: finalAvatarUrl,
           updated_at: new Date().toISOString(),
         })
@@ -246,7 +240,6 @@ export default function UserProfilePage() {
 
       if (updateError) throw updateError;
 
-      // 3. Update Local State to reflect changes immediately
       setProfile(prev => prev ? ({
         ...prev,
         username: newUsername,
@@ -256,7 +249,6 @@ export default function UserProfilePage() {
 
       setIsSettingsOpen(false);
       
-      // Optional: Force a router refresh if the URL username needs to change
       if (profile?.username !== newUsername) {
          router.push(`/profile/${newUsername}`);
       }
@@ -270,190 +262,206 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] mt-[100px] relative overflow-x-hidden">
-      
-      {/* 1. Global Background Gradient (Simulating the blue top in screenshot) */}
-      {/* <div className="fixed top-0 left-0 w-full h-[50vh] pointer-events-none -z-10" /> */}
+  <div className="min-h-screen relative overflow-x-hidden bg-slate-50">
+    {/* Modals */}
+    <UploadModal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} />
+    <SettingsModal
+      isOpen={isSettingsOpen}
+      onClose={() => setIsSettingsOpen(false)}
+      initialAvatarUrl={userAvatarUrl}
+      initialUsername={profile?.username || ""}
+      initialBio={profile?.bio || ""}
+      onSave={handleUpdateProfile}
+      onLogout={handleLogout}
+      onDeleteAccount={handleDeleteAccount}
+      isSaving={isSaving}
+    />
 
-      {/* 2. Modals */}
-      <UploadModal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} />
-      <SettingsModal 
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        initialAvatarUrl={userAvatarUrl}
-        initialUsername={profile?.username || ""}
-        initialBio={profile?.bio || ""}
-        onSave={handleUpdateProfile}
-        onLogout={handleLogout}
-        onDeleteAccount={handleDeleteAccount}
-        isSaving={isSaving}
-      />
-
-      {/* 3. Navigation Component */}
+    {/* NAV */}
+    <div className="relative z-50">
       <Navigation />
+    </div>
 
-      {/* 
-         4. Main Content Wrapper 
-         KEY CHANGE: Added `md:pl-28` to create a gutter on the left 
-         for the Fixed Navigation so it never overlaps content.
-      */}
-      <div className="relative z-10 w-full max-w-[1450px] mx-auto px-5 md:pl-28 pt-[80px] pb-20">
-
-        {/* --- GRID LAYOUT --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-            {/* --- LEFT SIDEBAR (Profile Card) --- */}
-            <div className="lg:col-span-4 flex flex-col gap-6">
+    {/* Give the nav real breathing room */}
+    <div className="pt-[110px] max-sm:pt-[80px]">
+      
+      {/* HEADER BAND */}
+      <div className="relative">
+        {/* soft gradient band */}
+        <div className="absolute inset-0 h-[220px]" />
+        
+        <div className="relative w-full max-w-[1450px] mx-auto px-5 pb-10">
+          <div className="pt-6">
+            <div className="bg-white/70 backdrop-blur rounded-[35px] border border-white shadow-[0px_10px_30px_rgba(0,0,0,0.05)] p-5 sm:p-7">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                 
-                {/* Profile Card */}
-                <div className="bg-white rounded-[35px] pt-12 pb-8 px-8 text-center shadow-[0_20px_40px_rgba(0,0,0,0.08)] relative mt-16">
-                    
-                    {/* Floating Settings Button */}
-                    {isOwnProfile && (
-                        <button 
-                            onClick={() => setIsSettingsOpen(true)}
-                            className="absolute top-4 right-4 p-2 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-                        >
-                            <Settings size={20} />
-                        </button>
+                {/* Left: identity */}
+                <div className="flex items-start gap-5">
+                  <div className="relative p-2 rounded-full bg-white">
+                    <div className="relative w-24 h-24 border-white border-[3px] rounded-full overflow-hidden shadow-[0px_0px_20px_rgba(0,0,0,0.15)]">
+                      <Image src={userAvatarUrl} alt="User" fill className="object-cover" />
+                    </div>
+
+                    <div className="absolute bg-[#007BFF] bottom-[2px] right-[10px] rotate-[-7deg] text-white px-3 py-1 rounded-full text-xs font-bold border-[2px] border-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]">
+                      lvl 0
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <h1 className="text-2xl sm:text-3xl font-black text-slate-800 leading-tight">
+                      {displayUsername}
+                    </h1>
+                    <p className="text-[1rem] font-[600] text-slate-400">Site Explorer</p>
+
+                    {profile?.bio && (
+                      <p className="mt-2 max-w-[55ch] text-sm font-medium text-slate-600 leading-relaxed">
+                        {profile.bio}
+                      </p>
                     )}
-
-                    {/* Avatar (Overlapping Top) */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 p-2 bg-white rounded-full">
-                        <div className="relative w-28 h-28 rounded-full overflow-hidden border-[4px] border-slate-100 shadow-md">
-                            <Image 
-                                src={userAvatarUrl} 
-                                alt="User" 
-                                fill 
-                                className="object-cover" 
-                            />
-                        </div>
-                    </div>
-
-                    {/* User Text Info */}
-                    <h1 className="text-3xl font-black text-slate-800 mt-6 mb-1">{displayUsername}</h1>
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Site Explorer</p>
-                    
-                    {/* Badges */}
-                    <div className="flex justify-center gap-2 mb-6">
-                         <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold border border-blue-100 flex items-center gap-1">
-                            <Image src={devIcon} alt="dev" width={12} height={12} />
-                            Developer
-                        </span>
-                        <span className="bg-amber-50 text-amber-600 px-3 py-1 rounded-full text-xs font-bold border border-amber-100">
-                            Level 12
-                        </span>
-                    </div>
-
-                    {/* Bio */}
-                    <div className="bg-slate-50/80 rounded-2xl p-4 mb-6 text-left">
-                        <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                            {profile?.bio || "No bio yet."}
-                        </p>
-                    </div>
-
-                    {/* Metadata Footer */}
-                    <div className="flex justify-center gap-6 pt-2 border-t border-slate-100 text-xs font-bold text-slate-400">
-                        <div className="flex items-center gap-1.5">
-                            <Calendar size={14} /> 2024
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <MapPin size={14} /> BARBADOS
-                        </div>
-                    </div>
+                  </div>
                 </div>
 
-                {/* Dark 'Weekly Quest' Card */}
-                <div className="bg-[#1E293B] rounded-[30px] p-8 text-white shadow-xl relative overflow-hidden group">
-                    {/* Decorative blurred blob */}
-                    <div className="absolute top-0 right-0 w-[150px] h-[150px] bg-blue-500 rounded-full blur-[80px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                    
-                    <div className="relative z-10">
-                        <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-4 text-amber-400 border border-white/5">
-                            <Trophy size={24} />
-                        </div>
-                        
-                        <h3 className="text-xl font-bold mb-1">Weekly Quest</h3>
-                        <p className="text-slate-400 text-sm font-medium mb-6">Visit 3 new sites this week to earn the Pathfinder Badge.</p>
-                        
-                        {/* Progress Bar */}
-                        <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full w-[65%] bg-amber-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)]"></div>
-                        </div>
-                    </div>
+                {/* Right: actions */}
+                <div className="flex items-center gap-3 justify-start sm:justify-end">
+                  <button
+                    onClick={() => setIsUploadModalOpen(true)}
+                    className="px-4 py-2 rounded-full bg-white text-slate-700 border border-slate-100 shadow-sm hover:bg-slate-50 font-bold text-sm"
+                  >
+                    Upload
+                  </button>
+
+                  {isOwnProfile && (
+                    <button
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="p-2 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                    >
+                      <Settings size={20} />
+                    </button>
+                  )}
                 </div>
 
+              </div>
             </div>
-
-            {/* --- RIGHT CONTENT (Stats & Feed) --- */}
-            <div className="lg:col-span-8 flex flex-col gap-10 mt-6 lg:mt-0">
-                
-                {/* 1. Stats Row (Bento Grid Style) */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    {tabStats[activeTab]?.map((stat, idx) => (
-                        <StatCard 
-                            key={idx} 
-                            value={stat.value} 
-                            label={stat.label} 
-                            color={stat.color} 
-                        />
-                    ))}
-                </div>
-
-                {/* 2. Tabs Selector */}
-                <div className="flex gap-2">
-                    <div className="bg-white p-1.5 rounded-full inline-flex shadow-sm border border-slate-100">
-                        {['All', 'Tours', 'Badges', 'Media'].map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`
-                                    px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-200
-                                    ${activeTab === tab 
-                                        ? 'bg-[#1E293B] text-white shadow-md' 
-                                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-                                    }
-                                `}
-                            >
-                                {tab}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* 3. Activity Feed */}
-                <div className="space-y-8 animate-in slide-in-from-bottom-5 duration-500 fade-in">
-                    {activeTab === 'All' ? (
-                        <>
-                             {/* Sectioned by Date */}
-                             {activityData.map((section, idx) => (
-                                <div key={idx}>
-                                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">
-                                        {section.label}
-                                    </h3>
-                                    <div className="space-y-0">
-                                        {section.items.map((item, itemIdx) => (
-                                            <ActivityCard key={itemIdx} item={item} />
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </>
-                    ) : (
-                        <div className="py-20 flex flex-col items-center justify-center text-center opacity-60">
-                            <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-3">
-                                <Share2 className="text-slate-400" />
-                            </div>
-                            <p className="text-slate-500 font-bold">No {activeTab.toLowerCase()} yet</p>
-                        </div>
-                    )}
-                </div>
-
-            </div>
-
+          </div>
         </div>
+      </div>
 
+      {/* MAIN CONTENT */}
+      <div className="relative z-10 w-full max-w-[1450px] mx-auto px-5 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8 items-start">
+
+          {/* LEFT SIDEBAR (sticky on desktop) */}
+          <aside className="lg:sticky lg:top-[130px] flex flex-col gap-6">
+            
+            {/* Quick Stats / Summary Card */}
+            <div className="bg-white rounded-[30px] border border-slate-100 shadow-[0px_10px_30px_rgba(0,0,0,0.04)] p-5">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-black text-slate-800">Profile Overview</p>
+                <div className="text-xs font-bold text-slate-400">Public</div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                {(tabStats["All"] ?? []).map((s, i) => (
+                  <div key={i} className="rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                    <p className="text-lg font-black text-slate-800 leading-none">{s.value}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{s.label}</p>
+                    <div className={`mt-3 h-1.5 w-10 rounded-full ${s.color}`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Optional: small card for achievements / links */}
+            <div className="bg-white rounded-[30px] border border-slate-100 shadow-[0px_10px_30px_rgba(0,0,0,0.03)] p-5">
+              <p className="text-sm font-black text-slate-800 mb-3">Highlights</p>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                  <span className="text-sm font-bold text-slate-700">Top Badge</span>
+                  <span className="text-xs font-black text-slate-500">—</span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                  <span className="text-sm font-bold text-slate-700">Favorite Spot</span>
+                  <span className="text-xs font-black text-slate-500">—</span>
+                </div>
+              </div>
+            </div>
+
+          </aside>
+
+          {/* RIGHT CONTENT */}
+          <main className="flex flex-col gap-8">
+
+            {/* Stats Row */}
+            <div className="flex flex-col sm:flex-row gap-6 w-full">
+              {tabStats[activeTab]?.map((stat, idx) => (
+                <div key={idx} className="flex-1 w-full">
+                  <StatCard value={stat.value} label={stat.label} color={stat.color} />
+                </div>
+              ))}
+            </div>
+
+            {/* Tabs + Feed wrapper card */}
+            <div className="bg-white rounded-[35px] border border-slate-100 shadow-[0px_10px_30px_rgba(0,0,0,0.04)] p-5 sm:p-7">
+              
+              {/* Tabs */}
+              <div className="flex justify-between items-center gap-4 flex-wrap">
+                <div className="bg-slate-50 p-1.5 rounded-full inline-flex border border-slate-100">
+                  {['All', 'Tours', 'Badges', 'Media'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`
+                        px-6 py-2.5 rounded-full cursor-pointer text-sm font-bold transition-all duration-200
+                        ${activeTab === tab 
+                          ? 'bg-[#007BFF] text-white shadow-sm' 
+                          : 'text-slate-500 hover:text-slate-800 hover:bg-white'
+                        }
+                      `}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Optional: filter/search */}
+                <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-400">
+                  Latest activity
+                </div>
+              </div>
+
+              {/* Feed */}
+              <div className="mt-6 space-y-8 animate-in slide-in-from-bottom-5 duration-500 fade-in">
+                {activeTab === 'All' ? (
+                  <>
+                    {activityData.map((section, idx) => (
+                      <div key={idx}>
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">
+                          {section.label}
+                        </h3>
+                        <div className="space-y-0">
+                          {section.items.map((item, itemIdx) => (
+                            <ActivityCard key={itemIdx} item={item} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <div className="py-20 flex flex-col items-center justify-center text-center opacity-60">
+                    <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-3">
+                      <Share2 className="text-slate-400" />
+                    </div>
+                    <p className="text-slate-500 font-bold">No {activeTab.toLowerCase()} yet</p>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </main>
+        </div>
       </div>
     </div>
-  );
+  </div>
+);
+
 }
