@@ -996,7 +996,7 @@ const [alreadyCompleted, setAlreadyCompleted] = useState(false);
                       <button className='cursor-pointer'>
                         <div className='flex gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[10px]'>
                           <span><PenIcon color='#fff'/></span>
-                          <p className='text-white font-bold'>Add a Comment</p>
+                          <p className='text-white font-bold'>Comment</p>
                         </div>
                       </button>
                     </div>
