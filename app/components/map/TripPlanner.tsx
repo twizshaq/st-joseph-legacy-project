@@ -8,7 +8,7 @@ import MapIcon from "@/public/icons/map-icon";
 import TrashIcon from "@/public/icons/trash-icon";
 import { Reorder, useDragControls } from "framer-motion";
 import { format } from 'date-fns';
-import DatePicker from './DatePicker';
+import DatePicker from '../DatePicker';
 import AddIco from '@/public/icons/add-icon'
 import { FaPlus } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
@@ -85,6 +85,8 @@ function InternalAddPlaceOverlay({
       e.nativeEvent.stopImmediatePropagation();
     }
   };
+
+  
 
   return (
     <div className={`absolute inset-0 z-[50] flex flex-col justify-end isolate pointer-events-none ${isOpen ? 'pointer-events-auto' : ''}`}>

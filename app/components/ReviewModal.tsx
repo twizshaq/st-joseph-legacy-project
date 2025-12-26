@@ -89,10 +89,19 @@ export const ReviewModal = ({ isOpen, onClose, onReviewSubmit, user, siteId, tou
       setRating(0);
       setReviewText("");
 
+    // ... inside handleSubmit ...
+
     } catch (err: any) {
-      console.error("Supabase insert error:", err.message);
-      // Fallback error if something else goes wrong (like network issues)
-      setError(err.message || "Failed to submit review. Please try again.");
+      console.error("Supabase insert error:", err);
+
+      // Error code '23505' is the Postgres code for "Unique Constraint Violation"
+      if (err.code === '23505' || err.message?.includes('duplicate key')) {
+        setError("You have already reviewed this. Only one review is allowed per tour.");
+      } else {
+        // Fallback for other errors
+        setError("Failed to submit review. Please try again.");
+      }
+      
     } finally {
       setIsSubmitting(false);
     }
@@ -150,7 +159,7 @@ export const ReviewModal = ({ isOpen, onClose, onReviewSubmit, user, siteId, tou
 
             {/* Error Message Display */}
             {error && (
-              <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/50 text-red-200 text-sm font-medium text-center">
+              <div className="mb-4 mt-[-15px] p-3 rounded-[25px] bg-red-500/20 border border-red-500/50 text-red-200 text-sm font-medium text-center">
                 {error}
               </div>
             )}

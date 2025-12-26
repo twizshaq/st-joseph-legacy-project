@@ -10,7 +10,7 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
   
   // REFS
   const progressRef = useRef(0);
-  const isSeekingRef = useRef(false); // New: Prevents UI updates while audio is "thinking"
+  const isSeekingRef = useRef(false);
   
   // STATE
   const [isPlaying, setIsPlaying] = useState(false);
@@ -22,12 +22,10 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
 
   // --- 1. THE LOOP ---
   const updateAnimation = useCallback(() => {
-    // Only sync UI with Audio if we are NOT dragging AND NOT currently seeking
     if (audioRef.current && !isDragging && !isSeekingRef.current) {
       const current = audioRef.current.currentTime;
       const total = audioRef.current.duration;
       
-      // FIX FOR DURATION: Continually check if duration has loaded
       if (total && total !== duration && Number.isFinite(total)) {
         setDuration(total);
       }
@@ -43,8 +41,6 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
 
   // --- 2. LIFECYCLE FOR ANIMATION ---
   useEffect(() => {
-    // Always run the loop if playing, even if dragging (so we can update duration)
-    // But the logic inside updateAnimation handles the visual locking
     if (isPlaying) {
       animationRef.current = requestAnimationFrame(updateAnimation);
     }
@@ -53,9 +49,26 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
     };
   }, [isPlaying, updateAnimation]);
 
-  // --- 3. BAR GENERATION (VISUALS) ---
+  // --- 3. RESIZE OBSERVER (MOVED UP) ---
+  // We need this to run before bar generation so we know how many bars to make
   useEffect(() => {
-    const totalBars = 70;
+    if (!containerRef.current) return;
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) setContainerWidth(entry.contentRect.width);
+    });
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  // --- 4. BAR GENERATION (DYNAMIC) ---
+  useEffect(() => {
+    if (containerWidth === 0) return;
+
+    // Calculate how many bars fit: Bar (2px) + Gap (2px) = 4px per unit
+    const barWidth = 2;
+    const gap = 2;
+    const totalBars = Math.floor(containerWidth / (barWidth + gap));
+
     let seed = 0;
     const seedString = src || "default"; 
     for (let i = 0; i < seedString.length; i++) {
@@ -66,23 +79,15 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
       const x = Math.sin(seed++) * 10000;
       return x - Math.floor(x);
     };
+
     const generatedHeights = Array.from({ length: totalBars }, (_, i) => {
       const structure = Math.sin(i * 0.1) * 10 + Math.sin(i * 0.5) * 5;
       const noise = seededRandom() * 10;
       return Math.max(4, Math.min(32, 10 + Math.abs(structure) + noise));
     });
+    
     setBarHeights(generatedHeights);
-  }, [src]); 
-
-  // --- 4. RESIZE OBSERVER ---
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) setContainerWidth(entry.contentRect.width);
-    });
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, []);
+  }, [src, containerWidth]); // Re-run when width changes
 
   // --- 5. CONTROLS ---
   const togglePlay = () => {
@@ -110,7 +115,6 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
 
   const handleInteractionStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true);
-    // Important: Don't stop animation loop, just rely on isDragging guard
     const newProgress = calculateProgress(getClientX(e));
     setProgress(newProgress);
     progressRef.current = newProgress;
@@ -132,7 +136,6 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
         const newTime = (progressRef.current / 100) * (duration || audioRef.current?.duration || 0);
         
         if (audioRef.current && Number.isFinite(newTime)) {
-          // Tell the loop to ignore updates until the audio engine catches up
           isSeekingRef.current = true; 
           audioRef.current.currentTime = newTime;
         }
@@ -161,9 +164,6 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Determine what time to show.
-  // If dragging OR seeking, show the Target Time (progressRef).
-  // Otherwise, show the actual Audio Time.
   const displayTime = (isDragging || isSeekingRef.current) 
     ? (progressRef.current / 100) * duration 
     : (audioRef.current?.currentTime || 0);
@@ -175,14 +175,11 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
           ref={audioRef}
           src={src}
           preload="metadata"
-          // Multiple handlers to ensure we catch the duration eventually
           onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
           onDurationChange={(e) => setDuration(e.currentTarget.duration)}
           onCanPlay={(e) => setDuration(e.currentTarget.duration)}
-          // Handlers to manage the "Seeking" state
           onSeeking={() => { isSeekingRef.current = true; }}
           onSeeked={() => { isSeekingRef.current = false; }}
-          // Playback state
           onEnded={() => { setIsPlaying(false); setProgress(0); }}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
@@ -205,7 +202,7 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
               ref={containerRef}
               onMouseDown={handleInteractionStart}
               onTouchStart={handleInteractionStart}
-              className="relative h-[32px] w-full cursor-pointer group/wave touch-none" // ADDED touch-none CLASS
+              className="relative h-[32px] w-full cursor-pointer group/wave touch-none" 
               style={{ touchAction: 'none' }} 
             >
               {/* LAYER 1: Background Bars */}
@@ -220,6 +217,7 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
                   className="absolute left-0 top-0 h-full overflow-hidden pointer-events-none"
                   style={{ width: `${progress}%` }}
               >
+                  {/* Important: Width must be fixed to containerWidth to prevent squishing during mask */}
                   <div className="flex items-center gap-[2px] h-full" style={{ width: containerWidth ? `${containerWidth}px` : '100%' }}>
                       {barHeights.map((h, i) => (
                           <div key={`fg-${i}`} style={{ height: `${h.toFixed(2)}px` }} className="w-[2px] bg-blue-500 rounded-full flex-shrink-0" />

@@ -7,8 +7,8 @@ import alertIcon from '@/public/icons/alert-icon.svg';
 import loadingIcon from '@/public/loading-icon.png';
 import vrIcon from "@/public/icons/vr-icon.svg"
 import enlargeIcon from '@/public/icons/enlarge-icon.svg';
-import Map from '@/app/components/Map';
-import Compass from '@/app/components/Compass';
+import Map from '@/app/components/map/Map';
+import Compass from '@/app/components/map/Compass';
 import Link from 'next/link';
 import FacebookIcon from "@/public/icons/facebook-icon";
 import { createClient } from '@supabase/supabase-js';

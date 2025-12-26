@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Save, LogOut, Trash2, Camera, Lock, Globe } from 'lucide-react';
+import { Save, LogOut, Trash2, Camera, Lock, Globe, AlertTriangle } from 'lucide-react';
 import { FaTimes } from "react-icons/fa";
 
 interface SettingsModalProps {
@@ -33,6 +33,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   
   const [avatarPreview, setAvatarPreview] = useState<string>(initialAvatarUrl || '');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  
+  // --- NEW: DELETE CONFIRMATION STATE ---
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -43,11 +47,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       setIsPrivate(initialIsPrivate);
       setAvatarPreview(initialAvatarUrl || '');
       setAvatarFile(null);
+      setShowDeleteConfirm(false); // Reset confirmation on open
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen, initialUsername, initialBio, initialAvatarUrl, initialIsPrivate]);
+
+  const hasChanges = 
+    username !== initialUsername || 
+    bio !== initialBio || 
+    isPrivate !== initialIsPrivate || 
+    avatarFile !== null;
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -62,14 +73,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
-  // --- NEW: USERNAME HANDLER ---
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.toLowerCase();
-    
-    // 1. Remove any character that is NOT a-z, 0-9, underscore, or dot
     val = val.replace(/[^a-z0-9_.]/g, '');
-    
-    // 2. Enforce Max Length of 15
     if (val.length <= 15) {
       setUsername(val);
     }
@@ -107,8 +113,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           <div className="space-y-4">
-            
-            {/* --- UPDATED USERNAME INPUT --- */}
             <div className="space-y-2">
               <div className="flex justify-between ml-1">
                 <label className="font-bold text-white/70">Username</label>
@@ -119,7 +123,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               <input 
                 type="text" 
                 value={username}
-                onChange={handleUsernameChange} // Using new handler
+                onChange={handleUsernameChange}
                 className="w-full font-[500] rounded-[20px] border-[2px] border-gray-300/10 bg-[#999]/10 p-3 text-white placeholder-white/40 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="username"
               />
@@ -154,24 +158,67 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 mt-2">
-            <button 
-              onClick={() => onSave(username, bio, isPrivate, avatarFile)}
-              disabled={isSaving || username.length < 3} // Disable if too short
-              className="w-full py-3 bg-blue-500 hover:bg-blue-600 active:scale-[0.98] text-white rounded-[20px] font-bold transition-all flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(59,130,246,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSaving ? <span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"/> : <Save size={18} />}
-              Save Changes
-            </button>
-            <div className="h-[1px] bg-white/10 w-full my-1"></div>
+          <div className="flex flex-col gap-3 mt-4">
+            
             <div className="grid grid-cols-2 gap-3">
-              <button onClick={onLogout} className="py-3 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-2xl font-bold transition-colors flex items-center justify-center gap-2">
+              <button onClick={onLogout} className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-[20px] font-bold transition-colors flex items-center justify-center gap-2">
                 <LogOut size={18} /> Log Out
               </button>
-              <button onClick={onDeleteAccount} className="py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-2xl font-bold transition-colors flex items-center justify-center gap-2">
-                <Trash2 size={18} /> Delete
+              
+              <button 
+                onClick={() => onSave(username, bio, isPrivate, avatarFile)}
+                disabled={!hasChanges || isSaving || username.length < 3}
+                className={`w-full py-3 rounded-[20px] font-bold transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed
+                  ${hasChanges 
+                    ? 'bg-blue-500 hover:bg-blue-600 active:scale-[0.98] text-white shadow-[0_4px_14px_rgba(59,130,246,0.4)]' 
+                    : 'bg-white/5 text-white/30'
+                  }
+                `}
+              >
+                {isSaving ? <span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"/> : <Save size={18} />}
+                {hasChanges ? 'Save' : 'Save'}
               </button>
             </div>
+
+            <div className="h-[1px] bg-white/10 w-full my-2"></div>
+
+            {/* --- UPDATED DANGER ZONE WITH CONFIRMATION --- */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-bold text-red-400/70 ml-1 uppercase tracking-wider">Danger Zone</h3>
+              
+              {!showDeleteConfirm ? (
+                // State 1: Default Delete Button
+                <button 
+                  onClick={() => setShowDeleteConfirm(true)} 
+                  className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 border-[1px] border-red-500/20 text-red-400 hover:text-red-300 rounded-[20px] font-bold transition-colors flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={18} /> Delete Account
+                </button>
+              ) : (
+                // State 2: Confirmation UI
+                <div className="bg-red-500/10 border-[1px] border-red-500/30 rounded-[20px] p-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center gap-2 text-red-400 mb-3 justify-center">
+                    <AlertTriangle size={18} />
+                    <span className="font-bold text-sm">Are you sure? This is permanent.</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button 
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="py-2 bg-transparent hover:bg-white/5 text-white/70 hover:text-white rounded-xl font-bold transition-colors text-sm"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={onDeleteAccount}
+                      className="py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors text-sm shadow-md"
+                    >
+                      Yes, Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
 
         </div>
