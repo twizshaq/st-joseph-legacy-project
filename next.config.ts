@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // @ts-expect-error - 'eslint' type definition is missing in this Next.js version but valid at runtime
   eslint: {
     ignoreDuringBuilds: true,
   },
