@@ -303,9 +303,21 @@ export default function SoupBowlPage() {
       <Portal>
         {galleryOpen && <GalleryModal items={GALLERY_ITEMS} initialIndex={selectedIndex} onClose={() => setGalleryOpen(false)} />}
       </Portal>
-      <ReviewModal isOpen={isReviewOpen} onClose={() => setReviewOpen(false)} onReviewSubmit={fetchReviews} user={user} siteId={SITE_ID} />
-      <ReportModal isOpen={reportState.isOpen} reviewId={reportState.reviewId} user={user} onClose={() => setReportState({ isOpen: false, reviewId: null })} />
-      <AuthAlertModal isOpen={isAuthOpen} onClose={() => setAuthOpen(false)} />
+      <ReviewModal 
+        isOpen={isReviewOpen} 
+        onClose={() => setReviewOpen(false)} 
+        onReviewSubmit={fetchReviews} 
+        user={user} 
+        siteId={SITE_ID} />
+      <ReportModal 
+        isOpen={reportState.isOpen} 
+        reviewId={reportState.reviewId} 
+        user={user} 
+        tableName="review_reports"
+        onClose={() => setReportState({ isOpen: false, reviewId: null })} />
+      <AuthAlertModal 
+        isOpen={isAuthOpen} 
+        onClose={() => setAuthOpen(false)} />
     </div>
   );
 };

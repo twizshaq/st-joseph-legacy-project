@@ -75,14 +75,20 @@ export default function BookingForm({ tour, user }: { tour: Tour, user: any }) {
           <div ref={dropdownRef} className="relative">
             <button onClick={() => setIsGuestDropdownOpen(!isGuestDropdownOpen)} className="cursor-pointer flex items-center gap-2 p-1 pr-1 pl-4 bg-[#F5F5F5] hover:bg-[#E0E0E0] active:bg-[#E0E0E0] rounded-[20px] h-13 w-full sm:w-auto">
               <ProfileIcon size={24} color="#000000a5" />
-              <span className="w-3 text-center font-[600] pr-0 text-[#000]/70 text-[1.1rem]">{guestCount}</span>
+              <span className="w-3 text-center font-[600] pr-0 text-[#000]/70 text-[1.1rem]">{guestCount === 10 ? "10 +" : guestCount}</span>
               <div className="pr-1"><svg className={`h-7 w-7 opacity-70 transition-transform ${isGuestDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg></div>
             </button>
             {isGuestDropdownOpen && (
-              <div className='absolute bg-white/10 mt-[5px] backdrop-blur-[10px] rounded-[27px] p-[3px] z-[99] shadow-lg'>
-                <div className="bg-black/40 rounded-[25px] max-h-48 overflow-y-auto pb-2 pt-2">
-                  {[1,2,3,4,5,6,7,8].map(n => (
-                    <button key={n} className="block w-[90%] mx-auto cursor-pointer text-white p-2 hover:bg-white/20 rounded-[17px] font-[600]" onClick={() => {setGuestCount(n); setIsGuestDropdownOpen(false)}}>{n}</button>
+              <div className='absolute ml-[7px] bg-white/10 mt-[5px] backdrop-blur-[10px] rounded-[28px] p-[3px] z-[99] shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'>
+                <div className="bg-black/40 rounded-[25px] w-[85px] max-h-48 overflow-y-auto pb-2 pt-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                    <button 
+                      key={n} 
+                      className="block w-[90%] mx-auto cursor-pointer text-white p-2 hover:bg-white/20 active:bg-white/20 active:scale-[.95] rounded-[17px] font-[600]" 
+                      onClick={() => {setGuestCount(n); setIsGuestDropdownOpen(false)}}
+                    >
+                      {n === 10 ? "10 +" : n}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -95,7 +101,7 @@ export default function BookingForm({ tour, user }: { tour: Tour, user: any }) {
       </div>
 
       <div className="mt-0 flex justify-center">
-        <button onClick={handleBook} disabled={isBooking} className={`active:scale-97 w-full cursor-pointer rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md ${isBooking ? 'opacity-50' : ''}`}>
+        <button onClick={handleBook} disabled={isBooking} className={`active:scale-97 w-full cursor-pointer rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.1)] ${isBooking ? 'opacity-50' : ''}`}>
           <div className='flex justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full py-[15px]'>
             <span className='text-white font-bold text-[1.1rem]'>{isBooking ? "Processing..." : "Book Tour"}</span>
           </div>

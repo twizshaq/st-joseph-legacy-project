@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Save, LogOut, Trash2, Camera, Lock, Globe, AlertTriangle } from 'lucide-react';
 import { FaTimes } from "react-icons/fa";
+import Image from 'next/image';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -98,7 +99,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="flex flex-col items-center justify-center -mt-2">
             <div onClick={handleImageClick} className="relative w-24 h-24 rounded-full cursor-pointer group shadow-[0_0_15px_rgba(0,0,0,0.3)] border-2 border-white/20 overflow-hidden">
               {avatarPreview ? (
-                 <img src={avatarPreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                 <Image src={avatarPreview} alt="Profile Preview" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
                   <span className="text-2xl font-bold text-white/50">{username?.[0]?.toUpperCase() || 'U'}</span>

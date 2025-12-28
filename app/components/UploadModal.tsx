@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Image as ImageIcon, ChevronDown, MapPin, Trash2, Plus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
  import { FaTimes } from "react-icons/fa";
+ import Image from 'next/image';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -189,7 +190,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
             <div key={index} className="relative h-54 flex-shrink-0 snap-center rounded-[20px] overflow-hidden border border-white/10 group bg-black/20">
                 {/* Media Preview - h-full w-auto preserves aspect ratio based on height */}
                 {files[index].type.startsWith('image/') ? (
-                    <img 
+                    <Image
                         src={url} 
                         alt="preview" 
                         className="h-full w-auto object-contain" 

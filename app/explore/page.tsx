@@ -238,7 +238,7 @@ export default function ExplorePage() {
                         <CustomVideoPlayer src={selectedMedia!.src} />
                     ) : (
                         <div className="relative group w-full h-full flex items-center justify-center">
-                            <img 
+                            <Image 
                                 src={selectedMedia!.src} 
                                 alt="Full view" 
                                 className="max-h-full w-auto max-w-full rounded-[20px] shadow-2xl object-contain"
@@ -350,7 +350,7 @@ export default function ExplorePage() {
                                             <Play size={20} fill="white" className="opacity-90" />
                                         </div>
                                     )}
-                                    <img 
+                                    <Image  
                                         src={item.src} 
                                         alt="media" 
                                         className="relative w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" 

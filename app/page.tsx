@@ -242,7 +242,7 @@ export default function Home() {
                 <div className="flex-1 max-w-[700px] max-sm:mt-[100px] flex flex-col">
                     <h2 className="font-bold text-[2rem] max-sm:text-[1.5rem] mb-[14px] mt-[]">Unveiling Our Legacy</h2>
                     <p className="max-w-[1000px]">
-                        "Unveiling Our Legacy" is a community initiative led by the St. Joseph District Emergency Organisation (DEO). We have mapped key landmarks across the parish, from the Parris Hill Mural to historic churches and natural wonders. It is time for you to unlock:
+                        &quot;Unveiling Our Legacy&quot; is a community initiative led by the St. Joseph District Emergency Organisation (DEO). We have mapped key landmarks across the parish, from the Parris Hill Mural to historic churches and natural wonders. It is time for you to unlock:
                     </p>
                     <br />
                     <div className="list-disc pl-6 md:pl-12 space-y-2">
@@ -250,10 +250,10 @@ export default function Home() {
                             <b>Our Culture:</b> Dive deep into the stories that make St. Joseph unique.
                         </li>
                         <li>
-                            <b className=''>Our Community:</b> Hear the voices of the community and learn directly from them . Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
+                            <b>Our Community:</b> Hear the voices of the community and learn directly from them. Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
                         </li>
                         <li>
-                            <b className=''>Build Resilience:</b> Don't just look at the land, understand it. Critical data on local hazards (land slippage, coastal risks) and disaster management tips specific to that spot.
+                            <b>Build Resilience:</b> Don&apos;t just look at the land, understand it. Critical data on local hazards (land slippage, coastal risks) and disaster management tips specific to that spot.
                         </li>
                     </div>
 
@@ -401,9 +401,9 @@ export default function Home() {
                 <div className="bg-red-500/0 px-[5vw]">
                     <p className="font-bold text-[2rem] max-sm:text-[1.5rem]">Featured Sites</p>
                     <p className="max-w-[700px]">
-                        Not sure where to begin? We’ve curated a selection of Featured Sites that perfectly capture the spirit of our project. These locations represent the best of St. Joseph—blending breathtaking heritage with the vital 'earth-knowledge' needed to keep our community strong.
+                        Not sure where to begin? We&apos;ve curated a selection of Featured Sites that perfectly capture the spirit of our project. These locations represent the best of St. Joseph—blending breathtaking heritage with the vital &quot;earth-knowledge&quot; needed to keep our community strong.
                         <br /> <br />
-                        When driving around St. Joseph each featured stop is equipped with a physical QR code. When scanned, it reveals the 'hidden layer' of the location: the stories of the ancestors who built it, and the modern safety insights provided by the DEO to protect it. Whether you are a lifelong resident or a first-time visitor, these sites offer a deeper look about the location
+                        When driving around St. Joseph each featured stop is equipped with a physical QR code. When scanned, it reveals the &quot;hidden laye&quot; of the location: the stories of the ancestors who built it, and the modern safety insights provided by the DEO to protect it. Whether you are a lifelong resident or a first-time visitor, these sites offer a deeper look about the location
 
                     </p>
                 </div>

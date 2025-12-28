@@ -178,7 +178,7 @@ const MediaGrid = () => (
   <div className="columns-2 md:columns-3 gap-4 space-y-4">
     {mediaData.map((src, i) => (
       <div key={i} className="relative group rounded-[20px] overflow-hidden break-inside-avoid">
-        <img src={src} alt="User upload" className="w-full h-auto object-cover" />
+        <Image src={src} alt="User upload" className="w-full h-auto object-cover" />
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <div className="flex items-center gap-1 text-white font-bold">
                 <Heart size={16} fill="white" /> <span>24</span>
@@ -233,7 +233,7 @@ const ActivityCard = ({ item }: { item: ActivityItemProps }) => {
                           <div className="flex gap-2 mt-4">
                               {item.images.map((src, i) => (
                                   <div key={i} className="relative w-12 h-12 rounded-[12px] overflow-hidden border border-slate-100 shadow-sm hover:scale-110 transition-transform">
-                                      <img src={src} alt="content" className="object-cover w-full h-full" />
+                                      <Image src={src} alt="content" className="object-cover w-full h-full" />
                                   </div>
                               ))}
                           </div>

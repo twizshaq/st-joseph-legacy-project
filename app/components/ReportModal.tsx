@@ -10,9 +10,10 @@ interface ReportModalProps {
   onClose: () => void;
   user: User | null;
   reviewId: number | null;
+  tableName?: string;
 }
 
-export const ReportModal = ({ isOpen, onClose, user, reviewId }: ReportModalProps) => {
+export const ReportModal = ({ isOpen, onClose, user, reviewId, tableName = "review_reports" }: ReportModalProps) => {
   const supabase = createClient();
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,19 +49,23 @@ export const ReportModal = ({ isOpen, onClose, user, reviewId }: ReportModalProp
     setError(null);
 
     const { error: insertError } = await supabase
-      .from('review_reports')
+      .from(tableName) 
       .insert({
         review_id: reviewId,
         reporter_id: user.id,
-        reason: reason
+        reason: reason.trim()
       });
 
     setIsSubmitting(false);
 
     if (insertError) {
       console.error("Report error:", insertError.message);
-      setError("Failed to send report. Please try again.");
-    }};
+      setError("Failed to send report: " + insertError.message);
+    } else {
+      alert("Report submitted successfully.");
+      onClose();
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -84,7 +89,7 @@ export const ReportModal = ({ isOpen, onClose, user, reviewId }: ReportModalProp
           <p className="mb-6 text-slate-300">Help us keep the community safe. Why are you reporting this?</p>
 
           <form onSubmit={handleSubmit}>
-            <div className="mb-6">
+            <div className="mb-2">
               <label htmlFor="reportReason" className="block font-semibold mb-2 text-sm uppercase tracking-wider text-slate-400">Reason</label>
               <textarea
                 id="reportReason"
@@ -97,7 +102,7 @@ export const ReportModal = ({ isOpen, onClose, user, reviewId }: ReportModalProp
               />
             </div>
 
-            {error && <p className="text-red-400 text-sm mb-4 bg-red-900/20 p-2 rounded-lg text-center">{error}</p>}
+            {error && <p className="text-red-400 text-sm mb-3 bg-red-900/0 p-2 rounded-lg text-center">{error}</p>}
 
             <div className="flex justify-end gap-3">
               <button

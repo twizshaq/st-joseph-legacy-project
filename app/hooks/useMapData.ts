@@ -39,7 +39,7 @@ export function useMapData() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   // 2. Fetch Sites
   useEffect(() => {
@@ -60,7 +60,7 @@ export function useMapData() {
       }
     };
     fetchSites();
-  }, []);
+  }, [supabase]);
 
   // 3. Actions
   const toggleLike = async (siteId: number) => {

@@ -93,7 +93,7 @@ export const AuthAlertModal = ({ isOpen, onClose }: AuthAlertModalProps) => {
           </div>
           
           <p className="flex-grow font-semibold">
-            You must be signed in to write/report a review.
+            You must be signed in to write a review.
           </p>
 
           <button 

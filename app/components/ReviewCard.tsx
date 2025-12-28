@@ -44,7 +44,7 @@ export const ReviewCard = ({ experience, currentUserId, onDelete, onReport }: Re
   
 
   return (
-    <div className='rounded-[43px] p-[2px] h-full bg-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'>
+    <div className='rounded-[43px] p-[2px] h-full bg-white/10 shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'>
       <div className='snap-center shrink-0 relative flex flex-col w-[85vw] md:w-[420px] min-h-[180px] p-5 bg-black/3 rounded-[40px]'>
         
         {/* Card Header: User & Media Stack */}
