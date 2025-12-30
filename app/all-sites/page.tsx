@@ -8,6 +8,7 @@ import sortIcon from '@/public/icons/sort-icon.svg';
 import Footer from "@/app/components/FooterModal"
 import Portal from "@/app/components/Portal" 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from 'react';
 
 export type SiteCard = {
   id: number;
@@ -19,7 +20,7 @@ export type SiteCard = {
   likes_count: number;
 };
 
-const AllSites = () => {
+const AllSitesContent = () => {
   // --- STATE ---
   const [activeDot, setActiveDot] = useState(0);
   const [siteCards, setSiteCards] = useState<SiteCard[]>([]);
@@ -392,6 +393,19 @@ const AllSites = () => {
       </div>
       <Footer />
     </div>
+  );
+};
+
+const AllSites = () => {
+  return (
+    // You can customize the fallback UI to match your existing loader
+    <Suspense fallback={
+      <div className="flex items-center justify-center w-full h-screen">
+         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    }>
+      <AllSitesContent />
+    </Suspense>
   );
 };
 
