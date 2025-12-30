@@ -100,7 +100,7 @@ export default function FeedbackPage() {
               </div>
               <h2 className="text-2xl font-black text-slate-800 mb-2">Feedback Received!</h2>
               <p className="text-slate-500 max-w-xs mb-8">
-                Thanks for taking the time to share your thoughts. We'll take a look shortly.
+                Thanks for taking the time to share your thoughts. We&apos;ll take a look shortly.
               </p>
               <button 
                 onClick={() => {

@@ -22,7 +22,7 @@ export default function CreditsPage() {
           The People Behind <br/> the Project
         </h1>
         <p className="text-xl text-gray-600">
-          "Unveiling Our Legacy" was built to connect the community with its history. 
+          &quot;Unveiling Our Legacy&quot; was built to connect the community with its history. 
           This platform is the result of collaboration between the District Emergency Organisation, 
           technology partners, and the people of St. Joseph.
         </p>
