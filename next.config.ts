@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    // 1. REMOVE the "domains" array entirely
     remotePatterns: [
       {
         protocol: 'https',
@@ -33,12 +32,15 @@ const nextConfig: NextConfig = {
         hostname: 'drive.google.com',
         pathname: '/**',
       },
-      // IMPORTANT: Add your Supabase domain here 
-      // Replace 'YOUR_PROJECT_ID' with your actual Supabase project ID
       {
         protocol: 'https',
         hostname: '*.supabase.co',
         pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        pathname: '/**',
       },
     ],
   },

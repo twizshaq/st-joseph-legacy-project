@@ -233,7 +233,7 @@ const ActivityCard = ({ item }: { item: ActivityItemProps }) => {
                           <div className="flex gap-2 mt-4">
                               {item.images.map((src, i) => (
                                   <div key={i} className="relative w-12 h-12 rounded-[12px] overflow-hidden border border-slate-100 shadow-sm hover:scale-110 transition-transform">
-                                      <Image src={src} alt="content" className="object-cover w-full h-full" />
+                                      <Image width={20} height={20} src={src} alt="content" className="object-cover w-full h-full" />
                                   </div>
                               ))}
                           </div>
@@ -288,7 +288,7 @@ export default function UserProfilePage() {
 
   const displayName = profile?.full_name || 'User';
   const displayUsername = profile?.username || 'explorer';
-  const userAvatarUrl = profile?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${displayUsername}`;
+  const userAvatarUrl = profile?.avatar_url || `https://api.dicebear.com/9.x/initials/svg?seed=${displayUsername}`;
   const isOwnProfile = currentUser && profile && currentUser.id === profile.id;
 
   // Content is visible if it's your own profile OR if the profile is NOT private
@@ -361,7 +361,7 @@ export default function UserProfilePage() {
                 <div className="flex items-start gap-6">
                   <div className="relative">
                     <div className="relative w-28 h-28 max-sm:w-26 max-sm:h-26 border-white border-[3px] rounded-full overflow-hidden shadow-[0px_0px_30px_rgba(0,0,0,0.15)]">
-                      <Image src={userAvatarUrl} alt="User" fill className="object-cover" />
+                      <Image src={userAvatarUrl} alt="User" fill className="object-cover" unoptimized/>
                     </div>
                     <div className="absolute bg-[#007BFF] bottom-[-7px] right-[10px] rotate-[-5deg] text-white px-3 py-1 rounded-full text-xs font-bold border-[2px] border-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
                       lvl 12

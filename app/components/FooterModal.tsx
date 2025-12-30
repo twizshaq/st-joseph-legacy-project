@@ -30,29 +30,23 @@ export default function Footer() {
         const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
         try {
-            // Attempt to insert the new email
             const { error } = await supabase
                 .from('subscribers')
                 .insert({ email: email.trim() });
 
-            if (error) {
-                // Throw the error to be caught by the catch block
-                throw error;
-            }
+            if (error) throw error;
 
-            // Success!
             setSubmissionMessage("Thank you for subscribing!");
-            setEmail(""); // Clear the input field
+            setEmail("");
 
         } catch (error: any) {
-            if (error.code === '23505') { // '23505' is the code for a unique constraint violation
+            if (error.code === '23505') {
                 setSubmissionMessage("This email is already subscribed.");
             } else {
                 console.error('Subscription error:', error);
                 setSubmissionMessage("An error occurred. Please try again.");
             }
         } finally {
-            // This will run whether the submission succeeds or fails
             setIsSubmitting(false);
         }
     };
@@ -60,19 +54,25 @@ export default function Footer() {
     return (
         <footer className='bg-blue-900 text-white w-full mt-[100px] py-12 px-[4vw]'>
             <div className='max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10'>
-                {/* Column 1: Identity & Contact */}
-                <div className='flex flex-col gap-4 max-sm:items-center'>
+                
+                {/* Column 1: Identity & Contact 
+                    FIX: Added 'items-center text-center' for mobile, and 'lg:items-start lg:text-left' for desktop.
+                */}
+                <div className='flex flex-col gap-4 items-center text-center lg:items-start lg:text-left'>
                     <h3 className='font-bold text-xl'>Unveiling Our Legacy</h3>
                     <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
-                    <div>
-                        <h4 className='font-semibold mb-2 max-sm:text-center'>Contact Us</h4>
-                        <Link href="mailto:stjoseph.legacy@deo.gov.bb max-sm:text-center" className='text-blue-200 text-sm hover:underline'>stjoseph.legacy@deo.gov.bb</Link>
-                        <p className='text-blue-200 text-sm max-sm:text-center'>(246) 123-4567</p>
+                    <div className="flex flex-col gap-1"> 
+                        <h4 className='font-semibold mb-2'>Contact Us</h4>
+                        {/* FIX: Removed invalid max-md class from href */}
+                        <Link href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>
+                            stjoseph.legacy@deo.gov.bb
+                        </Link>
+                        <p className='text-blue-200 text-sm'>(246) 123-4567</p>
                     </div>
                     <div>
                         <div className='flex items-center gap-4 mt-3'>
                             <Link href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
-                                <Image src="/icons/instagram-icon.svg" alt="" height={35} width={35} />
+                                <Image src="/icons/instagram-icon.svg" alt="Instagram Icon" height={35} width={35} />
                             </Link>
                             <Link href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
                                 <FacebookIcon color="#FFFFFF" height={30} width={30} />
@@ -81,7 +81,7 @@ export default function Footer() {
                     </div>
                 </div>
 
-                {/* Column 3: Get Involved + Stay Connected */}
+                {/* Column 2: Get Involved + Stay Connected */}
                 <div className='flex flex-col-reverse items-center lg:items-center gap-[40px]'>
                     {/* Get Involved */}
                     <div className='flex flex-col gap-4 w-full'>
@@ -98,18 +98,13 @@ export default function Footer() {
                                 </Link>
                             </li>
                         </ul>
-                        <button className='relative self-center active:scale-[.9] cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
-                            {/* <a
-            href="/donate"
-            className='mt-2 bg-[linear-gradient(to_right,#ff7e5f,#feb47b)] text-white font-bold py-3 rounded-full text-center shadow-lg'
-          > */}
+                        <button className='relative self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-full p-[3px] w-[180px] py-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.15)]'>
                             <div className='flex flex-row gap-[10px] justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[15px] py-[12px]'>
                                 <span className='text-white font-bold text-[1.1rem] bg-clip-text bg-[linear-gradient(to_right,#007BFF,#feb47b)]'>
                                     Contribute
                                 </span>
-                                <Image src="/icons/handheart-icon.svg" alt="Loading..." width={18} height={18} className='invert' />
+                                <Image src="/icons/handheart-icon.svg" alt="Contribute" width={18} height={18} className='invert' />
                             </div>
-                            {/* </a> */}
                         </button>
                     </div>
 
@@ -130,16 +125,16 @@ export default function Footer() {
                                 onClick={handleJoinClick}
                                 disabled={isSubmitting || !isValid}
                                 className={`
-                absolute rounded-full py-[10px] px-[22px] mr-[7px] font-semibold
-                transition-colors
-                ${isSubmitting
+                                    absolute rounded-full py-[10px] px-[22px] mr-[7px] font-semibold
+                                    transition-colors
+                                    ${isSubmitting
                                         ? 'bg-transparent'
                                         : isValid
                                             ? 'bg-[#007BFF] hover:[#002347] text-white filter shadow-[0_0_7px_rgba(0,123,255,0.5)]'
                                             : 'bg-[#777]/30 text-white/30'
                                     }
-                ${isSubmitting || !isValid ? "cursor-not-allowed" : "cursor-pointer"}
-              `}
+                                    ${isSubmitting || !isValid ? "cursor-not-allowed" : "cursor-pointer"}
+                                `}
                             >
                                 {isSubmitting && (
                                     <div className="absolute inset-0 flex justify-end items-center right-[10px]">
@@ -159,15 +154,14 @@ export default function Footer() {
                     </div>
                 </div>
 
-                {/* Column 2: Navigation */}
+                {/* Column 3: Navigation */}
                 <div className='flex flex-col gap-4 text-center lg:text-right'>
                     <h3 className='font-bold text-xl'>Navigate</h3>
                     <ul className='space-y-2 text-blue-200'>
-                        <li><Link href="/about" className='hover:text-[#feb47b] transition-colors'>About the Project</Link></li>
+                        <li><Link href="/credits" className='hover:text-[#feb47b] transition-colors'>Behind the Project</Link></li>
                         <li><Link href="/map" className='hover:text-[#feb47b] transition-colors'>Virtual Map</Link></li>
-                        <li><Link href="/tours" className='hover:text-[#feb47b] transition-colors'>Tours</Link></li>
-                        {/* <li><a href="/metrics" className='hover:text-[#feb47b] transition-colors'>Project Metrics</a></li> */}
-                        <li><Link href="/faq" className='hover:text-[#feb47b] transition-colors'>FAQ</Link></li>
+                        <li><Link href="/tours" className='hover:text-[#feb47b] transition-colors'>Book Tour</Link></li>
+                        <li><Link href="/feedback" className='hover:text-[#feb47b] transition-colors'>Feedback</Link></li>
                     </ul>
                 </div>
             </div>

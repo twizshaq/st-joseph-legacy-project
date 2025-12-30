@@ -22,6 +22,8 @@ interface SearchResultsProps {
   isLiked: boolean;
   onToggleLike: () => void;
   onSaveTrip: (data: TripData) => void;
+  searchQuery?: string;
+  onSearchChange?: (val: string) => void;
 }
 
 const MOCK_GALLERY = [
@@ -43,7 +45,9 @@ export const SearchResults = React.memo(function SearchResults({
   mobileSearchOpen,
   isLiked, 
   onToggleLike,
-  onSaveTrip
+  onSaveTrip,
+  searchQuery,
+  onSearchChange
 }: SearchResultsProps) {
   
   const [isPlanningTrip, setIsPlanningTrip] = useState(false);
@@ -96,6 +100,8 @@ export const SearchResults = React.memo(function SearchResults({
             <Image src={searchIcon} alt='Search Icon' height={25} />
           </span>
           <input
+            value={searchQuery}
+            onChange={(e) => onSearchChange?.(e.target.value)}
             ref={mobileSearchInputRef}
             type='text'
             placeholder='Search St Joseph'
@@ -179,7 +185,7 @@ export const SearchResults = React.memo(function SearchResults({
                 {/* Main Content Card */}
                 <div className='flex flex-col rounded-[16px] overflow-hidden pb-3 gap-5'>
                   {/* Description Section */}
-                  <div className='flex flex-col gap-2 text-sm text-[#E0E0E0] bg-blue-500/0 mt-[90px]'>
+                  <div className='flex flex-col gap-2 text-sm text-[#E0E0E0] mt-[90px]'>
                     <p className='font-bold text-[1.2rem] px-4'>Description</p>
                     <p className='text-black font-[500] px-4 text-white'>{selectedSite.description}</p>
                   </div>
@@ -209,7 +215,7 @@ export const SearchResults = React.memo(function SearchResults({
                   <div className='bg-white/10 h-[2px] w-[65%] self-center'></div>
                   <p className='font-bold text-[1.2rem] px-4'>Media</p>
                   
-                  <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] bg-green-500/0 hide-scrollbar'>
+                  <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] hide-scrollbar'>
                     
                     {/* Item 1: Large */}
                     <div className='active:scale-[.98] snap-start relative min-h-[250px] min-w-[180px] rounded-[30px] overflow-hidden bg-neutral-800'>

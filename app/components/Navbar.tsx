@@ -169,22 +169,24 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
     // ... (This logic remains the same)
   }, [isMenuOpen]);
 
-  // Helper to get user's avatar URL with a fallback
-  const avatarUrl = user?.user_metadata?.avatar_url || "/icons/default-avatar.svg";
+  // Helper: Get username or fallback for the seed
+  const usernameSeed = user?.user_metadata?.username || user?.email || 'User';
 
-  // --- HELPER: Get Dynamic Username for Link ---
-  // Try to find a username, full name, or fallback to email part
-  const rawUsername = user?.user_metadata?.username
-                      
-  // Construct the link. If no user, default to /profile or /login
-  const profileLink = rawUsername ? `/${rawUsername}` : '/profile';
+  // Update: Use DiceBear if no avatar_url is found
+  const avatarUrl = user?.user_metadata?.avatar_url 
+    ? user?.user_metadata?.avatar_url 
+    : `https://api.dicebear.com/9.x/initials/svg?seed=${usernameSeed}`;
+
+  const profileLink = usernameSeed !== 'User' && user?.user_metadata?.username 
+    ? `/${user.user_metadata.username}` 
+    : '/profile';
 
   return (
     <>
       {/* =================================================================
         DESKTOP NAVIGATION
       ================================================================= */}
-      <div className='fixed top-[40px] left-1/2 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
+      <div className='fixed top-[40px] left-1/2 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[100]'>
           <div className='bg-white/10 max-sm:bg-white/0 max-sm:backdrop-blur-[0px] backdrop-blur-[10px] rounded-full p-[3px] max-sm:shadow-[0px_0px_10px_rgba(0,0,0,0)] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
             <nav className="hidden [@media(min-width:768px)_and_(min-height:500px)]:flex font-bold text-black bg-[#000]/40 rounded-full justify-around items-center py-0 px-4 h-[62px] pl-[30px] pr-[10px] gap-[25px] border-[0px] border-white/60 z-50 text-white">
               <Link href="/" className={`cursor-pointer whitespace-nowrap active:scale-[.95] ${pathname === '/' ? 'text-[#007BFF]' : ''}`}>Home</Link>
@@ -217,7 +219,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                   <Link href={profileLink} className='cursor-pointer active:scale-[.95] whitespace-nowrap'>
                     <div className='w-10 h-10 flex items-center justify-center rounded-full bg-[linear-gradient(to_right,#007BFF,#66B2FF)] p-[2px] shadow-[4px_4px_10px_rgba(0,0,0,0.2)]'>
                       <div className='bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden'>
-                        <Image src={avatarUrl} alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full" />
+                        <Image src={avatarUrl} alt="User profile picture" width={40} height={40} className="w-full h-full object-cover rounded-full"/>
                       </div>
                     </div>
                   </Link>
@@ -273,7 +275,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
         MOBILE-ONLY ELEMENTS
       ================================================================= */}
       <div className="[@media(min-width:768px)_and_(min-height:500px)]:hidden">
-        <div className='fixed top-[16px] left-[10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[50]'>
+        <div className='fixed top-[16px] left-[10px] cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[100]'>
           <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
             <button onClick={toggleMenu} className="z-50 p-[11px] rounded-full bg-black/40 backdrop-blur-sm text-black" aria-label="Toggle menu">
               {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -283,7 +285,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
         {isMenuOpen && <div className='fixed bottom-0 bg-white/80 backdrop-blur-md h-[50px] w-[100vw]'/>}
         {isMenuOpen && <div className='fixed top-0 bg-white/80 backdrop-blur-md h-[50px] w-[100vw]'/>}
 
-        <div className={`fixed inset-0 bg-white/80 backdrop-blur-md z-40 flex flex-col items-center justify-center gap-8 text-2xl font-bold text-black transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`fixed inset-0 bg-white/80 backdrop-blur-md z-[99] flex flex-col items-center justify-center gap-8 text-2xl font-bold text-black transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <Link href="/" onClick={closeMenu} className={`active:scale-[.95] ${pathname === '/' ? 'text-[#007BFF]' : ''}`}>Home</Link>
           <Link href="/virtual-map" onClick={closeMenu} className={`active:scale-[.95] ${pathname === '/virtual-map' ? 'text-[#007BFF]' : ''}`}>Virtual Map</Link>
           <Link href="/all-sites" onClick={closeMenu} className={`active:scale-[.95] ${pathname === '/all-sites' ? 'text-[#007BFF]' : ''}`}>View Sites</Link>

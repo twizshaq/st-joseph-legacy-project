@@ -1,26 +1,34 @@
+'use client'
+
 import React, { useState, useRef, useEffect } from 'react';
 import { format } from "date-fns";
-import CustomCalendar from "@/app/components/tours/CustomCalendar"; // Update your path
-import { ProfileIcon } from "@/public/icons/profile-icon"; // Update your path
-import ArrowIcon from '@/public/icons/arrow-icon'; // Update your path
+import CustomCalendar from "@/app/components/tours/CustomCalendar"; 
+import { ProfileIcon } from "@/public/icons/profile-icon"; 
+import ArrowIcon from '@/public/icons/arrow-icon'; 
 import { Tour } from '@/app/types/tours';
 import { createClient } from '@/lib/supabase/client';
 
-export default function BookingForm({ tour, user }: { tour: Tour, user: any }) {
+interface BookingFormProps {
+  tour: Tour;
+  user: any;
+  guestCount: number;
+  onGuestChange: (n: number) => void;
+}
+
+export default function BookingForm({ tour, user, guestCount, onGuestChange }: BookingFormProps) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
-  const [guestCount, setGuestCount] = useState(1);
+  
   const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
   
   const supabase = createClient();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Click Outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -75,7 +83,20 @@ export default function BookingForm({ tour, user }: { tour: Tour, user: any }) {
           <div ref={dropdownRef} className="relative">
             <button onClick={() => setIsGuestDropdownOpen(!isGuestDropdownOpen)} className="cursor-pointer flex items-center gap-2 p-1 pr-1 pl-4 bg-[#F5F5F5] hover:bg-[#E0E0E0] active:bg-[#E0E0E0] rounded-[20px] h-13 w-full sm:w-auto">
               <ProfileIcon size={24} color="#000000a5" />
-              <span className="w-3 text-center font-[600] pr-0 text-[#000]/70 text-[1.1rem]">{guestCount === 10 ? "10 +" : guestCount}</span>
+              
+              {/* --- UPDATED SECTION START --- */}
+              <span className="flex items-center justify-center font-[600] text-[#000]/70 text-[1.1rem] min-w-[26px]">
+                {guestCount === 10 ? (
+                  <div className="relative">
+                    10
+                    <span className="absolute top-[-2px] right-[-8px] text-[0.65rem] font-bold">+</span>
+                  </div>
+                ) : (
+                  guestCount
+                )}
+              </span>
+              {/* --- UPDATED SECTION END --- */}
+
               <div className="pr-1"><svg className={`h-7 w-7 opacity-70 transition-transform ${isGuestDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg></div>
             </button>
             {isGuestDropdownOpen && (
@@ -85,8 +106,9 @@ export default function BookingForm({ tour, user }: { tour: Tour, user: any }) {
                     <button 
                       key={n} 
                       className="block w-[90%] mx-auto cursor-pointer text-white p-2 hover:bg-white/20 active:bg-white/20 active:scale-[.95] rounded-[17px] font-[600]" 
-                      onClick={() => {setGuestCount(n); setIsGuestDropdownOpen(false)}}
+                      onClick={() => { onGuestChange(n); setIsGuestDropdownOpen(false); }}
                     >
+                      {/* You can also apply the styling here if desired, but "10 +" text is usually clearer for lists */}
                       {n === 10 ? "10 +" : n}
                     </button>
                   ))}

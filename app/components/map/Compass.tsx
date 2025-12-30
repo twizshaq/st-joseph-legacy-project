@@ -13,7 +13,7 @@ type CompassProps = {
 //    - The second generic, `CompassProps`, is the type of the props.
 const Compass = forwardRef<HTMLDivElement, CompassProps>(({ directionLetter }, ref) => {
   return (
-    <div className="w-[45px] h-[45px] flex items-center justify-center">
+    <div className="w-[45px] h-[45px] flex items-center justify-center cursor-pointer">
       {/* 
         The rotating dial. 
         - The `ref` is passed from the parent component (MapFull.tsx)

@@ -2,10 +2,10 @@ import React from 'react';
 
 export const SiteCardSkeleton = () => {
   return (
-    <div className='rounded-[57px] p-[3px] h-full bg-white shadow-[0px_0px_10px_rgba(0,0,0,0.05)] snap-center shrink-0'>
+    <div className='rounded-[57px] p-[3px] h-full bg-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)] snap-center shrink-0'>
       <div
         className="
-          relative bg-slate-50/30 min-h-[300px] max-h-[300px] min-w-[260px] max-w-[260px] 
+          relative bg-black/4 min-h-[300px] max-h-[300px] min-w-[260px] max-w-[260px] 
           rounded-[54px] flex flex-col justify-end p-4 overflow-hidden 
           animate-pulse
         "
