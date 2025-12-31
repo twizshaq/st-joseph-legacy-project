@@ -73,7 +73,7 @@ export default function CreditsCTA() {
         onPointerLeave={handlePointerLeave} // Hides on mouse exit
         
         // CRITICAL: Prevent mobile scrolling inside this box so dragging works
-        style={{ touchAction: 'none' }}
+        // style={{ touchAction: 'none' }}
 
         className="relative w-[100vw] bg-white border-[0px] border-white/60 shadow-[0px_0px_30px_rgba(0,0,0,0)] overflow-hidden px-6 py-24 md:py-32"
       >

@@ -222,8 +222,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
   return (
     <>
       {/* ======================= DESKTOP NAV ======================= */}
-      <div className='fixed top-[40px] left-1/2 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[100]'>
-        <div className='bg-white/10 max-sm:bg-white/0 max-sm:backdrop-blur-[0px] backdrop-blur-[10px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+      <div className='hidden [@media(min-width:768px)_and_(min-height:500px)]:block fixed top-[40px] left-1/2 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[100]'>
+        <div className='bg-white/10  max-sm:backdrop-blur-[0px] backdrop-blur-[10px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] '>
           <nav className="hidden [@media(min-width:768px)_and_(min-height:500px)]:flex font-bold text-black bg-[#000]/40 rounded-full justify-around items-center py-0 px-4 h-[62px] pl-[30px] pr-[10px] gap-[25px] border-[0px] border-white/60 z-50 text-white">
             <Link href="/" className={navLinkClass('/')}>Home</Link>
             <Link href="/virtual-map" className={navLinkClass('/virtual-map')}>Virtual Map</Link>
@@ -242,7 +242,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                   ref={desktopNotiButtonRef} 
                   onClick={toggleDesktopNotiPanel} 
                   data-noti-button 
-                  className="relative cursor-pointer w-10 h-10 flex items-center justify-center active:scale-[.95] hover:opacity-80 transition-opacity"
+                  className="relative cursor-pointer w-10 h-10 flex items-center justify-center active:scale-[.95] hover:opacity-80 transition-opacity ml-[-10px]"
                 >
                   <Image src="/icons/noti-icon.svg" alt="Notifications" width={36} height={36} className="h-[35px] object-contain" />
                   {unreadCount > 0 && (
