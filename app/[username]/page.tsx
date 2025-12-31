@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Settings, 
   Trophy, 
-  MapPin, 
+  MapPin,
   Image as ImageIcon, 
   Calendar,
   Share2,

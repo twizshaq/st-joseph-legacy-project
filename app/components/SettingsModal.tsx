@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Save, LogOut, Trash2, Camera, Lock, Globe, AlertTriangle } from 'lucide-react';
 import { FaTimes } from "react-icons/fa";
 import Image from 'next/image';
+import imageCompression from 'browser-image-compression'; // <--- 1. IMPORT THIS
+import * as nsfwjs from 'nsfwjs';
+import * as tf from '@tensorflow/tfjs';
+import { StatusAlert } from './StatusAlert';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -31,11 +35,96 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [username, setUsername] = useState(initialUsername);
   const [bio, setBio] = useState(initialBio);
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [showNsfwAlert, setShowNsfwAlert] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false); // loading state for AI
+
+  const modelRef = useRef<any>(null);
+
+  useEffect(() => {
+    const loadModel = async () => {
+      if (!modelRef.current) {
+        await tf.ready();
+        modelRef.current = await nsfwjs.load();
+      }
+    };
+    loadModel();
+  }, []);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Keep track of the old preview in case we need to revert
+    const oldPreview = avatarPreview;
+    const oldFile = avatarFile;
+
+    try {
+      // 1. COMPRESS
+      const options = {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 800,
+        useWebWorker: true,
+        fileType: 'image/jpeg' as const
+      };
+      const compressedFile = await imageCompression(file, options);
+      
+      // 2. SHOW PREVIEW IMMEDIATELY (Feels instant to the user)
+      const objectUrl = URL.createObjectURL(compressedFile);
+      setAvatarPreview(objectUrl);
+      setAvatarFile(compressedFile);
+
+      // 3. SCAN IN BACKGROUND (Silently)
+      const isSafe = await checkImageSafety(compressedFile);
+      
+      if (!isSafe) {
+        setShowNsfwAlert(true);
+        setAvatarPreview(oldPreview);
+        setAvatarFile(oldFile);
+        
+        // Clear error after 3 seconds
+        setTimeout(() => setImageError(null), 5000);
+      }
+      
+    } catch (error) {
+      console.error("Image processing failed:", error);
+    }
+  };
+
+  const checkImageSafety = async (file: File): Promise<boolean> => {
+    try {
+      if (!modelRef.current) {
+        modelRef.current = await nsfwjs.load();
+      }
+
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+
+      return new Promise((resolve) => {
+        img.onload = async () => {
+          const predictions = await modelRef.current.classify(img);
+          URL.revokeObjectURL(img.src);
+
+          // We check the top prediction
+          const topResult = predictions[0];
+          
+          // Neutral and Drawing are safe. 
+          // Porn, Hentai, and Sexy (above a certain threshold) are unsafe.
+          const safeLabels = ['Neutral', 'Drawing'];
+          const isSafe = safeLabels.includes(topResult.className);
+          
+          resolve(isSafe);
+        };
+      });
+    } catch (err) {
+      return true; // If AI fails, we allow it (safety fallback)
+    }
+  };
   
   const [avatarPreview, setAvatarPreview] = useState<string>(initialAvatarUrl || '');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   
-  // --- NEW: DELETE CONFIRMATION STATE ---
+  // --- DELETE CONFIRMATION STATE ---
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,7 +137,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       setIsPrivate(initialIsPrivate);
       setAvatarPreview(initialAvatarUrl || '');
       setAvatarFile(null);
-      setShowDeleteConfirm(false); // Reset confirmation on open
+      setShowDeleteConfirm(false); 
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -65,15 +154,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setAvatarPreview(objectUrl);
-      setAvatarFile(file);
-    }
-  };
-
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.toLowerCase();
     val = val.replace(/[^a-z0-9_.]/g, '');
@@ -83,6 +163,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   if (!isOpen) return null;
+
+  
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200">
@@ -97,9 +179,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           <div className="flex flex-col items-center justify-center -mt-2">
+
             <div onClick={handleImageClick} className="relative w-24 h-24 rounded-full cursor-pointer group shadow-[0_0_15px_rgba(0,0,0,0.3)] border-2 border-white/20 overflow-hidden">
               {avatarPreview ? (
-                 <Image src={avatarPreview} alt="Profile Preview" fill unoptimized className="object-cover" />
+                  <Image src={avatarPreview} alt="Profile" fill unoptimized className="object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
                   <span className="text-2xl font-bold text-white/50">{username?.[0]?.toUpperCase() || 'U'}</span>
@@ -112,6 +195,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <p className="text-xs text-white/50 mt-2 font-medium">Tap to change photo</p>
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
           </div>
+          {imageError && (
+            <div className="absolute top-10 left-1/2 -translate-x-1/2 z-[10000] bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg animate-in fade-in slide-in-from-top-4">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={16} />
+                {imageError}
+              </div>
+            </div>
+          )}
 
           <div className="space-y-4">
             <div className="space-y-2">
@@ -167,7 +258,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </button>
               
               <button 
-                onClick={() => onSave(username, bio, isPrivate, avatarFile)}
+                onClick={async () => {
+                  await onSave(username, bio, isPrivate, avatarFile);
+                  // Ensure this event listener matches what you put in Navbar.tsx
+                  window.dispatchEvent(new Event('profile-updated'));
+                }}
                 disabled={!hasChanges || isSaving || username.length < 3}
                 className={`w-full py-3 rounded-[20px] font-bold transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed
                   ${hasChanges 
@@ -183,12 +278,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
             <div className="h-[1px] bg-white/10 w-full my-2"></div>
 
-            {/* --- UPDATED DANGER ZONE WITH CONFIRMATION --- */}
             <div className="space-y-2">
               <h3 className="text-xs font-bold text-red-400/70 ml-1 uppercase tracking-wider">Danger Zone</h3>
               
               {!showDeleteConfirm ? (
-                // State 1: Default Delete Button
                 <button 
                   onClick={() => setShowDeleteConfirm(true)} 
                   className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 border-[1px] border-red-500/20 text-red-400 hover:text-red-300 rounded-[20px] font-bold transition-colors flex items-center justify-center gap-2"
@@ -196,7 +289,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   <Trash2 size={18} /> Delete Account
                 </button>
               ) : (
-                // State 2: Confirmation UI
                 <div className="bg-red-500/10 border-[1px] border-red-500/30 rounded-[20px] p-3 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="flex items-center gap-2 text-red-400 mb-3 justify-center">
                     <AlertTriangle size={18} />
@@ -224,6 +316,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
         </div>
       </div>
+      <StatusAlert 
+         isOpen={showNsfwAlert} 
+         onClose={() => setShowNsfwAlert(false)} 
+         message="Inappropriate image detected. Please try a different photo." 
+       />
     </div>
   );
 };

@@ -217,3 +217,101 @@ body {
     opacity: 0;
   }
 }
+
+
+/* --- Styles --- */
+/* You can put this in your global CSS file or keep it here depending on setup */
+
+/* @ts-ignore (React JSX css specific comment) */
+
+@keyframes marquee-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--translate-end, -50%), 0, 0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee-x 15s linear infinite;
+  animation-play-state: running;
+  will-change: transform;
+
+  /* Force GPU compositing (prevents iOS flicker at loop boundary) */
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Marquee mask fade (keep mask-image, but make it iOS-stable) */
+.marquee-mask {
+  --fade: 100px;
+
+  /* Needed for iOS/Safari */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent 100%
+  );
+
+  /* Standard */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent 100%
+  );
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+
+  /* Paint/composite stability on iOS at animation loop boundary */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: paint;
+  isolation: isolate;
+}
+
+/* FIX 4: Mobile flicker stabilizers */
+.fix-flicker {
+    /* Triggers Hardware Acceleration explicitly */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    
+    /* Helps with 3D space calculation on mobile */
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    
+    /* Ensures Z-index painting doesn't glitch */
+    -webkit-transform: translate3d(0,0,0); 
+    transform: translate3d(0,0,0);
+
+    /* Additional fixes */
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fix-flicker img {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+    transform: translate3d(0, 0, 0);
+  }
+}
