@@ -114,16 +114,16 @@ export default function DirectionsPopup({ name, lat, lng }: DirectionsPopupProps
           }}
           className="w-fit"
         >
-          <div className='bg-white/10 backdrop-blur-md p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] rounded-[28px] overflow-hidden'>
-            <div className="flex flex-col bg-black/30 text-white font-medium rounded-[25px]">
+          <div className='bg-white/10 backdrop-blur-[7px] p-[2.7px] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] rounded-[28px] overflow-hidden'>
+            <div className="flex flex-col bg-black/30 text-white font-medium rounded-[25px] p-[5px]">
                 
                 {/* Option 1: Apple Maps */}
                 <a 
                    href={appleUrl}
                    target="_blank" rel="noopener noreferrer"
-                   className="p-3.5 hover:bg-white/10 active:bg-white/20 text-center transition-colors rounded-t-[25px] border-b border-white/10 cursor-pointer flex items-center justify-center gap-2"
+                   className="p-3.5 hover:bg-black/40 active:bg-black/40 text-center transition-colors rounded-[20px] cursor-pointer flex items-center justify-center gap-2"
                 >
-                    {/* <Image src={applemapsIcon} alt="" height={25} width={25}/> */}
+                    <Image src={applemapsIcon} alt="Apple Maps" height={16} width={16} className="object-contain" />
                     <span className="text-sm">Apple Maps</span>
                 </a>
 
@@ -131,9 +131,9 @@ export default function DirectionsPopup({ name, lat, lng }: DirectionsPopupProps
                 <a 
                    href={googleUrl}
                    target="_blank" rel="noopener noreferrer"
-                   className="p-3.5 hover:bg-white/10 active:bg-white/20 text-center rounded-b-[25px] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                   className="p-3.5 hover:bg-black/40 active:bg-black/40 text-center rounded-[20px] transition-colors cursor-pointer flex items-center justify-center gap-2"
                 >
-                    {/* <Image src={googlemapsIcon} alt="" height={25} width={25} className='ml-[7px]'/> */}
+                    <Image src={googlemapsIcon} alt="Google Maps" height={16} width={16} className="object-contain" />
                     <span className="text-sm">Google Maps</span>
                 </a>
             </div>

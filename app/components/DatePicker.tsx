@@ -49,14 +49,14 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onChange, onClose
         onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} 
         className="cursor-pointer p-2 rounded-full hover:bg-white/20 active:bg-white/20 active:scale-95 transition-colors"
       >
-        <ArrowIcon className="-rotate-90 invert" />
+        <ArrowIcon className="-rotate-90" />
       </button>
       <span className="font-bold text-lg text-white">{format(currentMonth, 'MMMM yyyy')}</span>
       <button 
         onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} 
         className="cursor-pointer p-2 rounded-full hover:bg-white/20 active:bg-white/20 active:scale-95 transition-colors"
       >
-        <ArrowIcon className="rotate-90 invert" />
+        <ArrowIcon className="rotate-90" />
       </button>
     </div>
   );

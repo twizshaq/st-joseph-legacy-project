@@ -194,7 +194,11 @@ export const SearchResults = React.memo(function SearchResults({
                   <div className='px-4'>
                     <div className='flex gap-4 text-sm text-[#E0E0E0]'>
                       <div className='flex w-[100%] text-center items-center bg-black/0 gap-[5px]'>
-                        <DirectionsPopup name={selectedSite.name} lat={selectedSite.coordinates[1]} lng={selectedSite.coordinates[0]} />
+                        <DirectionsPopup
+                          name={selectedSite.name}
+                          lat={selectedSite.coordinates[1]}
+                          lng={selectedSite.coordinates[0]}
+                        />
                         
                         <div className='active:scale-[.98]'>
                           <LikeButton isLiked={isLiked} onClick={onToggleLike} />

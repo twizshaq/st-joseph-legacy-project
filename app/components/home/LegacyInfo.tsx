@@ -41,7 +41,7 @@ export default function LegacyInfo() {
                     </div>
                 </div>
 
-                <h3 className="font-bold text-[2rem] max-sm:text-[1.5rem] mt-8 mb-2">About</h3>
+                {/* <h3 className="font-bold text-[2rem] max-sm:text-[1.5rem] mt-8 mb-2">About</h3>
                 <p className="">
                     commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                 </p>
@@ -57,7 +57,7 @@ export default function LegacyInfo() {
                     <li>Andromeda Gardens</li>
                     <li>Hunte&apos;s Gardens</li>
                     <li>Cotton Tower Signal Station</li>
-                </ul>
+                </ul> */}
             </div>
 
             {/* RIGHT: Desktop-Only Collage */}

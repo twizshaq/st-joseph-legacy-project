@@ -12,6 +12,9 @@ import DatePicker from '../DatePicker';
 import AddIco from '@/public/icons/add-icon'
 import { FaPlus } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
+import applemapsIcon from "@/public/icons/applemaps.svg"; 
+import googlemapsIcon from "@/public/icons/googlemaps.svg";
+import Portal from '../Portal';
 
 
 
@@ -45,6 +48,13 @@ const Icons = {
   ChevronDown: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>,
   Plus: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
 };
+
+
+
+
+
+
+
 
 // --- INTERNAL COMPONENT: The Overlay ---
 function InternalAddPlaceOverlay({ 
@@ -208,6 +218,12 @@ function InternalDatePickerOverlay({
   );
 }
 
+
+
+
+
+
+
 // --- MAIN COMPONENT ---
 export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobileSearchOpen, onHeaderClick }: TripPlannerProps) {
   const [isAdding, setIsAdding] = useState(false);
@@ -227,6 +243,22 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
   const [tripName, setTripName] = useState("My Trip to Barbados");
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItems, setSelectedItems] = useState<TripSite[]>([]);
+
+  const exportButtonRef = useRef<HTMLDivElement>(null);
+  const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0, width: 0 });
+
+  const toggleExportMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!showExportMenu && exportButtonRef.current) {
+      const rect = exportButtonRef.current.getBoundingClientRect();
+      setMenuPos({
+        bottom: window.innerHeight - rect.top + 10, // 10px above the button
+        left: rect.left,
+        width: rect.width
+      });
+    }
+    setShowExportMenu(!showExportMenu);
+  };
 
   // Scroll Shadow Logic
   const [isScrolled, setIsScrolled] = useState(false);
@@ -417,23 +449,55 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
           transition-opacity duration-300 ease-in-out
           ${mobileSearchOpen ? 'opacity-100 translate-y-0 delay-100' : 'opacity-0 translate-y-full pointer-events-none'}
         `}>
-          <div className='relative h-full'>
-            <button disabled={selectedItems.length === 0} onClick={() => setShowExportMenu(!showExportMenu)} className={`self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)]  w-[100%]`}>
+          <div className='relative h-full' ref={exportButtonRef}>
+            <button 
+              disabled={selectedItems.length === 0} 
+              onClick={toggleExportMenu} 
+              className={`self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] w-[100%]`}
+            >
               <div className='flex items-center gap-[7px] text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[35px] py-[15.4px]'>
                 <p className='text-white font-bold'>Export to Maps</p>
                 <MapIcon size={25} color="#fff" className=''/>
               </div>
             </button>
-            {showExportMenu && selectedItems.length > 0 && (
-                <div className="absolute bottom-[115%] left-0 right-0 bg-[#252525] border border-white/10 rounded-xl shadow-xl overflow-hidden p-1 animate-in zoom-in-95 duration-200 z-50">
-                    <button onClick={() => handleExport('google')} className="w-full text-left px-3 py-3 text-sm text-white hover:bg-white/10 rounded-lg font-medium">Google Maps</button>
-                    <button onClick={() => handleExport('apple')} className="w-full text-left px-3 py-3 text-sm text-white hover:bg-white/10 rounded-lg font-medium border-t border-white/5">Apple Maps</button>
+            
+            {showExportMenu && selectedItems.length > 0 &&  (
+              <Portal>
+                {/* Transparent Backdrop to close on click outside */}
+                <div 
+                  className="fixed inset-0 z-[9998]" 
+                  onClick={() => setShowExportMenu(false)} 
+                />
+                  <div style={{ 
+                        position: 'fixed', 
+                        bottom: `${menuPos.bottom}px`, 
+                        left: `${menuPos.left}px`, 
+                        width: `${menuPos.width}px`,
+                        zIndex: 9999 
+                      }} 
+                      className="bg-white/10 backdrop-blur-[7px] p-[2.7px] bg-[#252525] max-w-[162px] rounded-[30px] shadow-[0px_0px_20px_rgba(0,0,0,0.2)] overflow-hidden p-1 duration-200 z-50 flex flex-col">
+                    <div className="flex flex-col bg-black/30 text-white font-medium rounded-[27px] p-[5px]">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleExport('google'); setShowExportMenu(false); }} 
+                        className="p-3.5 hover:bg-black/40 active:bg-black/40 text-center rounded-[20px] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      ><Image src={googlemapsIcon} alt="Google Maps" height={16} width={16} className="object-contain" />
+                        Google Maps
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleExport('apple'); setShowExportMenu(false); }} 
+                        className="p-3.5 hover:bg-black/40 active:bg-black/40 text-center rounded-[20px] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      ><Image src={applemapsIcon} alt="Apple Maps" height={16} width={16} className="object-contain" />
+                        Apple Maps
+                      </button>
+                  </div>
                 </div>
+              </Portal>
             )}
           </div>
 
           <button 
-              onClick={handleSave} disabled={selectedItems.length === 0}
+              onClick={handleSave} 
+              disabled={selectedItems.length === 0}
               className='bg-white/10 active:scale-[.98] rounded-[26px] w-[100%] h-[62px] px-auto p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] cursor-pointer'
               aria-label="Save Trip"
             >
@@ -460,6 +524,10 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
     </div>
   );
 }
+
+
+
+
 
 const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite, index: number, onRemove: (id: number) => void }) => {
   const controls = useDragControls();
