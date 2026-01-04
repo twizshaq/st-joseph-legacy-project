@@ -5,15 +5,13 @@ import { createRoot, Root } from 'react-dom/client';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
-import { Feature, Point, FeatureCollection, Polygon, MultiPolygon } from 'geojson';
+import { FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
 import { useRouter } from 'next/navigation';
-import CustomMapMarker from './CustomMapMarker'; // Ensure this path is correct
+import CustomMapMarker from './CustomMapMarker';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const ZOOM_THRESHOLD = 15;
-
-// --- TYPE DEFINITIONS ---
 
 interface LocationProperties {
     name: string;
@@ -36,15 +34,12 @@ type MapProps = {
     onRotate?: (bearing: number) => void;
 };
 
-// --- THE COMPONENT ---
-
 const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = () => {} }, ref) => {
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const map = useRef<mapboxgl.Map | null>(null);
     const router = useRouter();
     const [mapLoaded, setMapLoaded] = useState(false);
 
-    // State and Ref for efficient marker re-rendering
     const [isAboveThreshold, setIsAboveThreshold] = useState(false);
     const markerDataRef = useRef<{
         root: Root;
@@ -60,24 +55,26 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
         }
     }));
 
-    // Effect to initialize the map instance
+    // --- INITIALIZATION EFFECT ---
     useEffect(() => {
         if (map.current || !mapContainer.current) return;
+
+        let isMounted = true; // FIX: Lock to prevent race condition
 
         const initializeMap = async () => {
             try {
                 const response = await fetch('/data/barbados_parishes.geojson');
-                if (!response.ok) throw new Error("Failed to fetch GeoJSON");
+                // FIX: Check if unmounted during fetch
+                if (!isMounted) return; 
                 
+                if (!response.ok) throw new Error("Failed to fetch GeoJSON");
                 const parishData: FeatureCollection<Polygon | MultiPolygon, ParishProperties> = await response.json();
                 
                 const stJosephFeature = parishData.features.find(
                     feature => feature.properties?.name === 'Saint Joseph'
                 );
 
-                if (!stJosephFeature) {
-                    throw new Error("Could not find the 'Saint Joseph' feature in the GeoJSON data.");
-                }
+                if (!stJosephFeature) return;
                 
                 const bbox = turf.bbox(stJosephFeature);
                 const mapBounds: [number, number, number, number] = [bbox[0], bbox[1], bbox[2], bbox[3]];
@@ -86,25 +83,27 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
                     container: mapContainer.current!,
                     style: 'mapbox://styles/mapbox/streets-v12',
                     attributionControl: false,
-                    center: [-59.5436, 13.1939], // Center of Barbados to prevent "USA flash"
+                    center: [-59.5436, 13.1939],
                     zoom: 11
                 });
 
                 const mapInstance = map.current;
 
                 const updateThreshold = () => {
+                    if (!mapInstance) return;
                     const currentZoom = mapInstance.getZoom();
                     setIsAboveThreshold(currentZoom >= ZOOM_THRESHOLD);
                 };
 
                 mapInstance.on('load', () => {
+                    if (!isMounted) return; // FIX: Ensure we don't set state on unmounted comp
                     mapInstance.fitBounds(mapBounds, { padding: 20, duration: 0 });
                     mapInstance.setMaxBounds(mapBounds);
                     mapInstance.setMinZoom(mapInstance.getZoom());
                     
                     mapInstance.on('rotate', () => onRotate(mapInstance.getBearing()));
                     mapInstance.on('zoom', updateThreshold);
-                    updateThreshold(); // Set initial state
+                    updateThreshold();
                     
                     setMapLoaded(true);
                 });
@@ -117,69 +116,69 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
         initializeMap();
 
         return () => {
+            isMounted = false; // FIX: Cancel any pending init
             map.current?.remove();
             map.current = null;
         };
     }, [onRotate]);
 
-    // Effect for creating and cleaning up markers
+    // --- MARKER EFFECT ---
     useEffect(() => {
-        if (!mapLoaded || !map.current) return;
+        // Guard against race conditions where data exists but map isn't ready
+        if (!mapLoaded || !map.current || !geojsonData) return;
+        
         const mapInstance = map.current;
 
-        const createdMarkers: {
-            marker: mapboxgl.Marker;
-            root: Root;
-            handleClick: () => void;
-        }[] = [];
+        // Cleanup function for this specific render cycle
+        const currentMarkers: { marker: mapboxgl.Marker; root: Root; handleClick: () => void }[] = [];
 
-        if (geojsonData) {
-            for (const feature of geojsonData.features) {
-                const properties = feature.properties as LocationProperties;
-                const coordinates = (feature.geometry as Point).coordinates as [number, number];
+        // Safely add markers
+        for (const feature of geojsonData.features) {
+            const properties = feature.properties as LocationProperties;
+            const coordinates = (feature.geometry as Point).coordinates as [number, number];
 
-                const markerEl = document.createElement('div');
-                const root = createRoot(markerEl);
+            const markerEl = document.createElement('div');
+            const root = createRoot(markerEl);
 
-                root.render(
-                    <CustomMapMarker
-                        name={properties.name}
-                        pointimage={properties.pointimage}
-                        color={properties.colorhex}
-                        isTextMode={mapInstance.getZoom() >= ZOOM_THRESHOLD}
-                    />
-                );
+            root.render(
+                <CustomMapMarker
+                    name={properties.name}
+                    pointimage={properties.pointimage}
+                    color={properties.colorhex}
+                    isTextMode={mapInstance.getZoom() >= ZOOM_THRESHOLD}
+                />
+            );
 
-                const marker = new mapboxgl.Marker({ element: markerEl, anchor: 'bottom' })
-                    .setLngLat(coordinates)
-                    .addTo(mapInstance);
+            const marker = new mapboxgl.Marker({ element: markerEl, anchor: 'bottom' })
+                .setLngLat(coordinates)
+                .addTo(mapInstance);
 
-                const handleClick = () => router.push('/virtual-map');
-                marker.getElement().addEventListener('click', handleClick);
+            const handleClick = () => router.push('/virtual-map');
+            marker.getElement().addEventListener('click', handleClick);
 
-                createdMarkers.push({ marker, root, handleClick });
-            }
+            currentMarkers.push({ marker, root, handleClick });
         }
 
-        markerDataRef.current = createdMarkers.map(({ root }, index) => ({
+        // Update ref for zoom handling
+        markerDataRef.current = currentMarkers.map(({ root }, index) => ({
             root,
-            properties: geojsonData!.features[index].properties as LocationProperties
+            properties: geojsonData.features[index].properties as LocationProperties
         }));
 
+        // Cleanup previous markers
         return () => {
-            createdMarkers.forEach(({ marker, root, handleClick }) => {
+            currentMarkers.forEach(({ marker, root, handleClick }) => {
                 marker.getElement().removeEventListener('click', handleClick);
                 marker.remove();
-                setTimeout(() => root.unmount(), 0); // Defer unmount
+                setTimeout(() => root.unmount(), 0);
             });
             markerDataRef.current = [];
         };
-    }, [geojsonData, mapLoaded, router]);
+    }, [geojsonData, mapLoaded, router]); // Added mapLoaded to dependancy
 
-    // Effect for handling zoom-based marker re-rendering
+    // Effect for Zoom Text Toggle
     useEffect(() => {
         if (!mapLoaded) return;
-
         markerDataRef.current.forEach(({ root, properties }) => {
             root.render(
                 <CustomMapMarker

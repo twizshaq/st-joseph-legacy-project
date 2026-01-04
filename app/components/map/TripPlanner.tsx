@@ -388,24 +388,23 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
         </div>
 
         {/* Shadows */}
-        <div className={`
-          fixed top-0 left-0 right-0 w-full bg-[#676767] pointer-events-none
-          transition-all duration-400 ease-in-out z-[20] [mask-image:linear-gradient(to_bottom,black_30%,transparent)]
-          h-[100px] 
-          ${isScrolled ? 'opacity-100' : 'opacity-0'}
-        `}></div>
-        <div className={`
-          absolute bottom-0 left-0 right-0 rotate-[180deg] w-full bg-[#676767] pointer-events-none
-          transition-all duration-400 ease-in-out z-[20] [mask-image:linear-gradient(to_bottom,black_50%,transparent)]
-          ${mobileSearchOpen ? 'h-[100px]' : 'h-0 opacity-0'}
-        `}></div>
+        <div className={`absolute top-0 left-0 w-full h-[100px] bg-gradient-to-b from-[#686868] via-[#686868]/80 to-transparent z-20 ${mobileSearchOpen ? 'opacity-100' : 'opacity-0'}`} />
+        <div className={`absolute bottom-0 rotate-[180deg] left-0 w-full h-[100px] bg-gradient-to-b from-[#686868] via-[#686868]/80 to-transparent z-20 ${mobileSearchOpen ? 'opacity-100' : 'opacity-0'}`} />
 
         {/* Main List */}
-        <div onScroll={handleScroll} ref={scrollContainerRef} className="flex-1 overflow-y-auto h-[100%] justify-center items-center relative bg-red-500/0 custom-scrollbar p-4 space-y-2 relative">
+        <div 
+           onScroll={handleScroll} 
+           ref={scrollContainerRef} 
+           className={`
+              flex-1 overflow-y-auto h-[100%] justify-center items-center relative custom-scrollbar p-4 space-y-2
+              transition-all duration-300 ease-in
+              ${mobileSearchOpen ? 'opacity-100 delay-75' : 'opacity-0 pointer-events-none'}
+           `}
+        >
           
           <div className='flex gap-[10px] w-[100%] bg-red-500/0 mt-18'>
-            <div className='bg-blue-500/40 active:scale-[.98] rounded-[26px] w-[100%] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
-              <div className="flex items-center gap-4 bg-blue-900/60 p-3 rounded-[24px] shadow-[0px_0px_10px_rgba(0,0,0,0)]">
+            <div className='bg-blue-500/40 active:scale-[.98] rounded-[26px] w-[100%] p-[3px]'>
+              <div className="flex items-center gap-4 bg-blue-900/60 p-3 rounded-[24px]">
                 <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-blue-500/20">
                   <Icons.Location />
                 </div>
@@ -538,8 +537,12 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
       id={String(item.id)}
       dragListener={false} 
       dragControls={controls}
-      className="relative my-1 select-none" 
-      layout="position"
+      // OPTIMIZATION: layout="position" is expensive. Use "position" only if drag feels necessary, otherwise remove for huge gains. 
+      // If drag animations are non-negotiable, keep it, but know it has a cost.
+      // OPTIMIZATION: transition prop prevents default heavy spring physics on every minor render.
+      layout
+      transition={{ duration: 0.2, ease: "easeInOut" }} 
+      className="relative my-1 select-none will-change-transform transform-gpu" // Added hardware acceleration hints
     >
       <div className='bg-white/10 active:scale-[.98] rounded-[26px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)] transition-colors hover:bg-white/20 transform-gpu'>
         <div className="flex items-center gap-3 bg-black/30 px-3 pr-4 rounded-[23px] z-10 py-[10px]">
@@ -552,7 +555,8 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
                 fill
                 className='object-cover'
                 sizes="32px"
-                loading="eager"
+                // OPTIMIZATION: Only eager load first 3, lazy the rest
+                loading={index < 4 ? "eager" : "lazy"} 
               />
             ) : (
               <span>{index + 1}</span>
@@ -563,16 +567,21 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
             <h4 className="text-white font-medium text-sm truncate">{item.name}</h4>
           </div>
           
+          {/* Touch Area Fix for mobile dragging */}
           <div className="flex items-center gap-1 pl-2 border-l border-white/10 touch-none"> 
             
             <div 
-              onPointerDown={(e) => controls.start(e)}
-              className="text-white/40 hover:text-white cursor-grab active:cursor-grabbing p-2"
+              onPointerDown={(e) => {
+                  e.stopPropagation(); // Stop parent clicks
+                  controls.start(e);
+              }}
+              className="text-white/40 hover:text-white cursor-grab active:cursor-grabbing p-2 touch-none"
             >
               <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             </div>
 
             <button 
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => { 
                   e.stopPropagation(); 
                   onRemove(item.id); 
@@ -586,6 +595,11 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
       </div>
     </Reorder.Item>
   );
+}, (prev, next) => {
+   // OPTIMIZATION: Custom equality check for React.memo
+   // Only re-render if the item ID or index changed. 
+   // Prevents re-rendering all rows just because a function prop was recreated.
+   return prev.item.id === next.item.id && prev.index === next.index;
 });
 
 SortableTripItem.displayName = 'SortableTripItem';

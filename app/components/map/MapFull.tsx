@@ -73,20 +73,22 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         map.current.flyTo({ bearing: 0, pitch: is3D ? 60 : 0, duration: is3D ? 1000 : 500 });
     };
 
+    // --- INITIALIZATION EFFECT ---
     useEffect(() => {
         if (map.current || !mapContainer.current) return;
+
+        let isMounted = true; // FIX: Lock
 
         const initializeMap = async () => {
             try {
                 const response = await fetch('/data/barbados_parishes.geojson');
+                if (!isMounted) return; // FIX: Exit if unmounted
+
                 if (!response.ok) throw new Error("Failed to fetch GeoJSON");
                 const parishData: FeatureCollection<Polygon | MultiPolygon, ParishProperties> = await response.json();
                 const stJosephFeature = parishData.features.find(f => f.properties.name === 'Saint Joseph');
                 
-                if (!stJosephFeature) {
-                    console.error("Could not find 'Saint Joseph' in GeoJSON.");
-                    return;
-                }
+                if (!stJosephFeature) return;
                 
                 const shiftedStJosephFeature = turf.transformTranslate(stJosephFeature, 0.5, 135, { units: 'kilometers' });
                 const bbox = turf.bbox(shiftedStJosephFeature); 
@@ -103,15 +105,18 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     pitch: 0,
                 });
 
+                const mapInstance = map.current;
+
                 const updateThreshold = () => {
-                    const z = map.current!.getZoom();
+                    const z = mapInstance.getZoom();
                     setIsAboveThreshold(z >= ZOOM_THRESHOLD);
                 };
                 
-                map.current.on('load', () => {
-                    // FIX 1: Check if source exists before adding to prevent crash in Strict Mode.
-                    if (!map.current!.getSource('mapbox-dem')) {
-                        map.current!.addSource('mapbox-dem', {
+                mapInstance.on('load', () => {
+                    if (!isMounted) return;
+
+                    if (!mapInstance.getSource('mapbox-dem')) {
+                        mapInstance.addSource('mapbox-dem', {
                             'type': 'raster-dem',
                             'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
                             'tileSize': 512,
@@ -119,9 +124,8 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                         });
                     }
 
-                    // FIX 1: Check if layer exists before adding.
-                    if (!map.current!.getLayer('3d-buildings')) {
-                        map.current!.addLayer({
+                    if (!mapInstance.getLayer('3d-buildings')) {
+                        mapInstance.addLayer({
                             'id': '3d-buildings',
                             'source': 'composite',
                             'source-layer': 'building',
@@ -141,15 +145,15 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     }
 
                     updateThreshold();
-                    map.current!.on('click', (e) => {
+                    mapInstance.on('click', (e) => {
                        if (!e.defaultPrevented) onMarkerClickRef.current(null);
                     });
                     setMapLoaded(true);
                 });
-                map.current.on('zoom', updateThreshold);
 
-                map.current.on('rotate', () => {
-                    const newBearing = map.current!.getBearing();
+                mapInstance.on('zoom', updateThreshold);
+                mapInstance.on('rotate', () => {
+                    const newBearing = mapInstance.getBearing();
                     if (compassDialRef.current) compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
                     setDirectionLetter(getDirectionLetter(newBearing));
                 });
@@ -162,16 +166,19 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         initializeMap();
 
         return () => {
+            isMounted = false; // FIX: Prevent race conditions
             map.current?.remove();
             map.current = null;
         };
     }, []);
 
+    // --- MARKER EFFECT ---
     useEffect(() => {
+        // Ensure map is fully loaded AND data exists
         if (!mapLoaded || !geojsonData || !map.current) return;
         const mapInstance = map.current;
 
-        const newMarkers: {
+        const currentMarkers: {
             marker: mapboxgl.Marker;
             root: Root;
             name: string;
@@ -212,21 +219,17 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             
             marker.getElement().addEventListener('click', handleClick);
 
-            newMarkers.push({ marker, root, name, pointimage, colorhex, handleClick });
+            currentMarkers.push({ marker, root, name, pointimage, colorhex, handleClick });
         }
         
-        // Update the ref used by the isAboveThreshold effect
-        markerDataRef.current = newMarkers.map(({ root, name, pointimage, colorhex }) => ({
+        markerDataRef.current = currentMarkers.map(({ root, name, pointimage, colorhex }) => ({
              root, name, pointimage, colorhex
         }));
 
-        // FIX 2: Return a single, robust cleanup function.
         return () => {
-            newMarkers.forEach(({ marker, root, handleClick }) => {
-                // Remove event listener to prevent memory leaks
+            currentMarkers.forEach(({ marker, root, handleClick }) => {
                 marker.getElement().removeEventListener('click', handleClick);
                 marker.remove();
-                // Defer unmount to prevent race condition with React's render cycle
                 setTimeout(() => root.unmount(), 0);
             });
             markerDataRef.current = [];
@@ -248,17 +251,17 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
     }, [isAboveThreshold]);
 
     useEffect(() => {
-        if (!mapLoaded) return;
+        if (!mapLoaded || !map.current) return;
         
         const duration = 1200;
         if (is3D) {
-            map.current!.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
-            map.current!.setLayoutProperty('3d-buildings', 'visibility', 'visible');
-            map.current!.flyTo({ pitch: 60, bearing: map.current!.getBearing(), duration });
+            map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+            map.current.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+            map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
         } else {
-            map.current!.setTerrain(null);
-            map.current!.setLayoutProperty('3d-buildings', 'visibility', 'none');
-            map.current!.flyTo({ pitch: 0, bearing: map.current!.getBearing(), duration });
+            map.current.setTerrain(null);
+            map.current.setLayoutProperty('3d-buildings', 'visibility', 'none');
+            map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
         }
     }, [is3D, mapLoaded]);
 
