@@ -83,21 +83,7 @@ export default function AboutUsPage() {
             </video>
             
             {/* Dark Overlay - Optimized opacity for legibility */}
-            <div className="absolute top-0 left-0 w-full h-full bg-black/40" />
-            
-            <div className="max-w-4xl z-[10] mx-auto text-center mt-15">
-                <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight">
-                    St. Joseph District <br /> 
-                    <span className="">Emergency Organisation</span>
-                </h1>
-                <h2 className="text-xl md:text-2xl font-semibold tracking-wide text-yellow-600/90 mb-6 uppercase">
-                    Who We Are
-                </h2>
-                <p className="max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
-                    The St. Joseph DEO is one of 24 volunteer groups across Barbados, 
-                    serving as the community arm of the Department of Emergency Management (DEM).
-                </p>
-            </div>
+            {/* <div className="absolute top-0 left-0 w-full h-full bg-black/40" /> */}
         </div>
       {/* <section className="text-black pt-50 max-sm:pt-40 pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -114,11 +100,69 @@ export default function AboutUsPage() {
           </p>
         </div>
       </section> */}
+      
 
       {/* ---------------- SECTION 2: MISSION & IDENTITY ---------------- */}
       <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div className="max-w-4xl z-[10] mx-auto text-center mt-15">
+                <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight">
+                    St. Joseph District <br /> 
+                    <span className="">Emergency Organisation</span>
+                </h1>
+                <h2 className="text-xl md:text-2xl font-semibold tracking-wide text-yellow-600/90 mb-6 uppercase">
+                    Who We Are
+                </h2>
+                <p className="max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
+                    The St. Joseph DEO is one of 24 volunteer groups across Barbados, 
+                    serving as the community arm of the Department of Emergency Management (DEM).
+                </p>
+            </div>
+
+
+
+            {/* ---------------- SECTION 3: LEADERSHIP TEAM ---------------- */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-2 mt-5 text-slate-900">Executive Committee</h2>
+            <p className="text-blue-600 font-medium tracking-wide">2024 – 2026 Term</p>
+          </div>
+
+          {/* Officers (Featured Grid) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {executiveOfficers.map((member, idx) => (
+              <div key={idx} className="bg-white rounded-2xl text-center">
+                {/* <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full flex items-center justify-center mb-4 text-blue-600 font-bold text-xl">
+                  {member.name.charAt(0)}
+                </div> */}
+                <h3 className="font-bold text-lg text-slate-900">{member.name}</h3>
+                <p className="text-xs font-bold text-blue-500 uppercase tracking-widest mt-1">{member.role}</p>
+              </div>
+            ))}
+          </div>
+
+          <h3 className="text-2xl font-bold mb-16 mt-30 text-center text-slate-800">Specialist Leads</h3>
           
+          {/* Specialists (Compact List) */}
+          <div className="flex gap-4 bg-green-500/0 justify-between">
+            {specialistLeads.map((member, idx) => (
+              <div key={idx} className="group flex items-center w-fit gap-4 bg-red-500/0 text-center">
+                {/* <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                   <Shield className="w-4 h-4" />
+                </div> */}
+                <div>
+                    <h4 className="font-bold text-slate-800 text-sm">{member.name}</h4>
+                    <p className="text-xs text-slate-500">{member.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-start mt-30">
+
           <div className="relative order-2 md:order-1">
             <div className="absolute -top-10 -left-10 w-24 h-24 bg-yellow-100 rounded-full blur-2xl opacity-60"></div>
             <div className="relative z-10 space-y-6">
@@ -139,8 +183,9 @@ export default function AboutUsPage() {
               </div>
             </div>
           </div>
+          
 
-          <div className="order-1 md:order-2 h-[400px] w-full bg-slate-100 rounded-[50px] overflow-hidden shadow-[0px_0px_20px_rgba(0,0,0,0.1)] flex items-center justify-center border-4 border-white relative">
+          <div className="order-1 md:order-2 h-[300px] w-full bg-slate-100 rounded-[50px] overflow-hidden shadow-[0px_0px_20px_rgba(0,0,0,0.1)] flex items-center justify-center border-4 border-white relative">
             {/* Visual Placeholder for St. Joseph Map or Photo */}
             <div className="absolute inset-0 bg-gradient-to-tr from-slate-200 to-slate-100"></div>
             <div className="text-center relative z-10 text-slate-400">
@@ -152,48 +197,8 @@ export default function AboutUsPage() {
         </div>
       </section>
 
-      {/* ---------------- SECTION 3: LEADERSHIP TEAM ---------------- */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-2 text-slate-900">Executive Committee</h2>
-            <p className="text-blue-600 font-medium tracking-wide">2024 – 2026 Term</p>
-          </div>
-
-          {/* Officers (Featured Grid) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {executiveOfficers.map((member, idx) => (
-              <div key={idx} className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-100">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full flex items-center justify-center mb-4 text-blue-600 font-bold text-xl border-2 border-white shadow-sm">
-                  {member.name.charAt(0)}
-                </div>
-                <h3 className="font-bold text-lg text-slate-900">{member.name}</h3>
-                <p className="text-xs font-bold text-blue-500 uppercase tracking-widest mt-1">{member.role}</p>
-              </div>
-            ))}
-          </div>
-
-          <h3 className="text-2xl font-bold mb-8 text-center text-slate-800">Specialist Leads</h3>
-          
-          {/* Specialists (Compact List) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {specialistLeads.map((member, idx) => (
-              <div key={idx} className="group flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-400 transition-colors">
-                <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                   <Shield className="w-4 h-4" />
-                </div>
-                <div>
-                    <h4 className="font-bold text-slate-800 text-sm">{member.name}</h4>
-                    <p className="text-xs text-slate-500">{member.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ---------------- SECTION 4: ACTION CENTER (Based on provided Design) ---------------- */}
-      <section className="w-full flex justify-center pb-0 pt-10 mb-[-50px] px-2 overflow-hidden">
+      <section className="w-full flex justify-center pb-0 pt-0 mb-[-50px] px-2 overflow-hidden">
          <style dangerouslySetInnerHTML={{__html: `
             @keyframes float-slow {
             0%, 100% { transform: translateY(0px) rotate(var(--tw-rotate)); }
