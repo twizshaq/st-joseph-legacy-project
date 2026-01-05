@@ -92,7 +92,7 @@ const OurJourney = () => {
           {/* Center Line (Hidden on mobile, visible on md+) */}
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-px bg-slate-200" />
           {/* Mobile Line */}
-          <div className="md:hidden absolute -left-4 top-0 bottom-0 w-px bg-slate-200 rounded-full" />
+          <div className="md:hidden absolute -left-0 top-0 bottom-0 w-px bg-slate-200 rounded-full" />
 
           {/* --- DYNAMIC FILL LINES (Blue) --- */}
           {/* Center Line Fill (Desktop) */}
@@ -102,7 +102,7 @@ const OurJourney = () => {
           />
           {/* Mobile Line Fill (Mobile) */}
           <div 
-            className="md:hidden absolute  shadow-[0px_0px_1px_rgba(0,65,133,0)] rounded-full left-[-16.5px] top-0 w-[2px] bg-[#007BFF] z-0 ease-linear"
+            className="md:hidden absolute  shadow-[0px_0px_1px_rgba(0,65,133,0)] rounded-full left-[-.5px] top-0 w-[2px] bg-[#007BFF] z-0 ease-linear"
             style={{ height: `${lineHeight}px` }} 
           />
 
@@ -121,7 +121,7 @@ const OurJourney = () => {
                 
                 {/* Timeline Dot */}
                 {/* Added 'transition-colors' so it can interact nicely if needed, z-10 ensures it stays on top of the blue line */}
-                <div className="absolute -left-4 md:left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[#007DFF] rounded-full border-4 border-white shadow-md z-10 mt-6 md:mt-0" />
+                <div className="absolute -left-0 md:left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[#007DFF] rounded-full border-4 border-white shadow-md z-10 mt-6 md:mt-0" />
 
                 {/* Date Side (Desktop Only) */}
                 <div className={`hidden md:block w-1/2 text-center ${idx % 2 === 0 ? 'text-right pr-12' : 'text-left pl-12'}`}>
