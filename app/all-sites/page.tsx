@@ -10,6 +10,9 @@ import Portal from "@/app/components/Portal"
 import { useSearchParams } from "next/navigation";
 import { Suspense } from 'react';
 
+import { SiteCardSkeleton } from '@/app/components/SiteCardSkeleton';
+
+
 export type SiteCard = {
   id: number;
   name: string;
@@ -45,17 +48,14 @@ const AllSitesContent = () => {
   // Popup Position State
   const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
 
-  // --- 1. NEW: Scroll Effect ---
-  // This automatically scrolls smoothly to the top whenever 'currentPage' changes.
-  // Using useEffect decouples the scroll from the button click, preventing the "jump".
+  // --- 1. Scroll Effect ---
   const scrollToTopAnchor = () => {
-  // More stable than relying on current scroll position
-  if (headerRef.current) {
-    headerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    return;
-  }
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
+    if (headerRef.current) {
+      headerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const goToPage = (nextPage: number) => {
     if (pageCount === 0) return;
@@ -214,7 +214,7 @@ const AllSitesContent = () => {
   return (
     <div className='flex flex-col justify-center items-center text-black min-h-screen'>
       
-      {/* Header & Search Sections... (Unchanged) */}
+      {/* Header & Search Sections... */}
       <div ref={headerRef} className="relative flex flex-col justify-center items-center max-w-[2000px] w-full h-[55vh] text-white gap-[20px]">
         <video ref={videoRef} autoPlay muted playsInline onEnded={handleVideoEnded} className="absolute top-0 left-0 w-full h-full object-cover">
           <source src={videoSources[activeDot]} type="video/mp4" />
@@ -238,7 +238,7 @@ const AllSitesContent = () => {
             <button 
               ref={sortBtnRef}
               onClick={toggleSort}
-              className='flex gap-[10px] py-[10px] items-center justify-center absolute font-bold right-[20px] top-[10px] text-[#E0E0E0] hover:text-white active:text-white active:scale-[.98] transition-colors'
+              className='flex gap-[10px] py-[10px] cursor-pointer items-center justify-center absolute font-bold right-[20px] top-[10px] text-[#E0E0E0] transition-colors'
             >
               Sort <Image src={sortIcon} alt="" height={23} />
             </button>
@@ -313,22 +313,23 @@ const AllSitesContent = () => {
       <div className='bg-[#ddd]/80 h-[2px] w-[450px] max-w-[70vw] mt-[55px] rounded-full'></div>
 
       <div className="w-full mt-[40px] max-w-[1400px] mx-auto px-4 pb-20">
-        {loading ? (
-          <div className="flex items-center justify-center w-full h-[400px]">
-             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : filteredSites.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 max-[359px]:grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-10 sm:gap-x-8 sm:gap-y-16 justify-items-center mb-12">
-              {currentSites.map((card) => (
-                <div
-                  key={card.id}
-                  className="relative mx-auto w-[160px] h-[205px] max-[359px]:w-[260px] max-[359px]:h-[330px] sm:w-[260px] sm:h-[330px]"
-                >
-                  <div className="relative w-[260px] h-[330px] origin-top-left scale-[0.63] max-[359px]:scale-100 sm:scale-100">
-                  {/* Card rendering logic (unchanged) */}
+        
+        {/* Main Grid Container - 1 Col Mobile / 2 Col Tablet / etc. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-10 sm:gap-x-8 sm:gap-y-16 justify-items-center mb-12">
+          {loading ? (
+             // Show 8 skeletons while loading (Using the provided SiteCardSkeleton)
+             Array.from({ length: 8 }).map((_, i) => (
+               <SiteCardSkeleton key={i} />
+             ))
+          ) : filteredSites.length > 0 ? (
+             currentSites.map((card) => (
+              <div
+                key={card.id}
+                className="relative mx-auto w-[260px] h-[330px]"
+              >
+                <div className="relative w-[260px] h-[330px] origin-top-left scale-100">
                   <div className="absolute inset-0 bg-cover bg-center rounded-[57px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white" style={{ backgroundImage: `url(${card.image_url})` }}>
-                     <div className="rotate-[180deg] self-end">
+                    <div className="rotate-[180deg] self-end">
                       <div className="bg-blue-500/0 absolute w-[270px] top-[70px] rotate-[-180deg] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] opacity-100 h-[270px]"></div>
                     </div>
                   </div>
@@ -347,48 +348,52 @@ const AllSitesContent = () => {
                     </div>
                   </div>
                 </div>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))
+          ) : null}
+        </div>
 
-            {/* --- 2. UPDATED PAGINATION --- */}
-            <div className='flex flex-wrap justify-center gap-3 mt-4'>
-              <button 
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1 || siteCards.length === 0}
-                className='flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] bg-white/80 border border-slate-200/80 text-slate-500 rounded-2xl shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:scale-[1.05] hover:text-blue-600 transition-all disabled:cursor-default disabled:hover:scale-100 disabled:bg-slate-100 disabled:text-slate-400'
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
-              </button>
-
-              {pageNumbers.map((num) => (
-                <button
-                  key={num}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => goToPage(num)}
-                  className={`flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] font-bold rounded-2xl transition-all ${
-                    currentPage === num 
-                      ? 'bg-[#007BFF] text-white shadow-[0px_0px_15px_rgba(0,0,0,0.2)] hover:scale-[1.05]' 
-                      : 'bg-white/80 border border-slate-200/80 text-slate-500 shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:text-blue-600 hover:scale-[1.05]'
-                  }`}
-                >
-                  {num}
-                </button>
-              ))}
-              
-              <button 
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === pageCount || siteCards.length === 0}
-                className='flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] bg-white/80 border border-slate-200/80 text-slate-500 rounded-2xl shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:scale-[1.05] hover:text-blue-600 transition-all disabled:cursor-default disabled:hover:scale-100 disabled:bg-slate-100 disabled:text-slate-400'
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
-              </button>
-            </div>
-          </>
-        ) : (
+        {/* Empty State */}
+        {!loading && filteredSites.length === 0 && (
           <p className="font-bold text-center mt-10">No sites found.</p>
+        )}
+
+        {/* Pagination */}
+        {!loading && filteredSites.length > 0 && (
+          <div className='flex flex-wrap justify-center gap-3 mt-4'>
+            <button 
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className='flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] bg-white/80 border border-slate-200/80 text-slate-500 rounded-2xl shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:scale-[1.05] hover:text-blue-600 transition-all disabled:cursor-default disabled:hover:scale-100 disabled:bg-slate-100 disabled:text-slate-400'
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+
+            {pageNumbers.map((num) => (
+              <button
+                key={num}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => goToPage(num)}
+                className={`flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] font-bold rounded-2xl transition-all ${
+                  currentPage === num 
+                    ? 'bg-[#007BFF] text-white shadow-[0px_0px_15px_rgba(0,0,0,0.2)] hover:scale-[1.05]' 
+                    : 'bg-white/80 border border-slate-200/80 text-slate-500 shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:text-blue-600 hover:scale-[1.05]'
+                }`}
+              >
+                {num}
+              </button>
+            ))}
+            
+            <button 
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === pageCount}
+              className='flex items-center cursor-pointer justify-center w-11 h-11 active:scale-[.98] bg-white/80 border border-slate-200/80 text-slate-500 rounded-2xl shadow-[0px_0px_10px_rgba(0,0,0,0.1)] hover:bg-white hover:scale-[1.05] hover:text-blue-600 transition-all disabled:cursor-default disabled:hover:scale-100 disabled:bg-slate-100 disabled:text-slate-400'
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </div>
         )}
       </div>
       <Footer />
@@ -398,11 +403,12 @@ const AllSitesContent = () => {
 
 const AllSites = () => {
   return (
-    // You can customize the fallback UI to match your existing loader
     <Suspense fallback={
-      <div className="flex items-center justify-center w-full h-screen">
-         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
+       <div className="w-full mt-[60px] max-w-[1400px] mx-auto px-4 pb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-10 sm:gap-x-8 sm:gap-y-16 justify-items-center mb-12">
+             {Array.from({ length: 8 }).map((_, i) => <SiteCardSkeleton key={i} />)}
+          </div>
+       </div>
     }>
       <AllSitesContent />
     </Suspense>
