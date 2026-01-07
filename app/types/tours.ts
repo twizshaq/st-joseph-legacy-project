@@ -1,34 +1,30 @@
+export interface Stop {
+  id: string; // or number depending on DB
+  name: string;
+  description: string;
+}
+
 export interface TourImage {
   id: string;
   url: string;
-}
-
-export interface Stop {
-  id: string;
-  name: string;
-  description: string;
+  alt?: string;
 }
 
 export interface Review {
-  id: number; // Changed to number to match database typically
-  user_id: string;
-  reviewer_name: string;
+  id: string;
+  user: string;
   rating: number;
-  review_text: string;
-  created_at: string;
-  profiles?: {
-    username: string;
-    avatar_url: string;
-  };
+  content: string;
 }
 
 export interface Tour {
-  id: number;
+  id: string;
   name: string;
   description: string;
+  duration: number; // in hours
   price: number;
-  duration: string;
-  tour_image_url: string;
+  tour_image_url?: string;
   stops: Stop[];
   images: TourImage[];
+  reviews: Review[];
 }

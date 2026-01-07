@@ -20,8 +20,8 @@ const ProjectLead = () => {
                 
                 <div className="relative pl-6 border-l-4 border-blue-500">
                     <p className="text-xl text-slate-700 italic font-medium leading-relaxed">
-                        "We built this because we believe St. Joseph has a story worth telling 
-                        and a future worth protecting."
+                        &quot;We built this because we believe St. Joseph has a story worth telling 
+                        and a future worth protecting.&quot;
                     </p>
                 </div>
             </div>

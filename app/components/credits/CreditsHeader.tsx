@@ -14,7 +14,7 @@ const CreditsHeader = () => {
         </span>
       </h1>
       <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
-        "Unveiling Our Legacy" is a community project driven by a passionate team of volunteers. 
+        &quot;Unveiling Our Legacy&quot; is a community project driven by a passionate team of volunteers. 
         This project fuses local heritage with interactive technology, combining our parish’s 
         stories with essential disaster data to create an experience that is as innovative as it is essential.
       </p>

@@ -23,7 +23,7 @@ export default function Hero() {
                     St. Joseph: Unveiling Our Legacy
                 </h1>
                 <p className="text-center text-lg md:text-xl font-[500] text-gray-100 max-w-[600px] drop-shadow-[0px_0px_10px_rgba(0,0,0,0.1)]">
-                    Discover the Beauty. Master the Risk. A journey of our parish's rich history whilst building community resilience.
+                    Discover the Beauty. Master the Risk. A journey of our parish&apos;s rich history whilst building community resilience.
                 </p>
             </div>
         </div>

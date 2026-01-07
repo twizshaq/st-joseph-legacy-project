@@ -222,8 +222,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
   return `cursor-pointer whitespace-nowrap active:scale-[.95] transition-all py-1 ${
     isActive
       // White text, with a colored bottom border
-      ? 'border-b-2 border-[#40c9ff] pb-[3px]' 
-      : 'opacity-[.7] border-b-2 border-transparent pb-1 hover:text-white'
+      ? 'text-[#007BFF]' 
+      : 'opacity-[.9] hover:text-white'
   }`;
 };
 

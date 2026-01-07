@@ -13,7 +13,7 @@ const AboutCommunity = () => {
             <div className="absolute -top-10 -left-10 w-24 h-24 bg-yellow-100 rounded-full blur-2xl opacity-60"></div>
             <div className="relative z-10 space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
-                We Are Proud <span className="text-[#007DFF]">"Josephines"</span>
+                We Are Proud <span className="text-[#007DFF]">&quot;Josephines&quot;</span>
               </h2>
               <p className="text-lg text-slate-600 leading-relaxed">
                 We are your neighbours, your friends, and your family. While our primary mandate 
@@ -22,9 +22,9 @@ const AboutCommunity = () => {
               
               <div className="p-0 bg-blue-500/0 rounded-[30px] shadow-[0px_0px_20px_rgba(0,0,0,0)]">
                 <p className="text-slate-800 font-medium italic">
-                  "Our goal is to cultivate a more informed, engaged, 
+                  &quot;Our goal is to cultivate a more informed, engaged, 
                   and disaster-resilient St. Joseph by integrating cultural heritage 
-                  with modern risk management."
+                  with modern risk management.&quot;
                 </p>
               </div>
             </div>
