@@ -21,7 +21,7 @@ const Compass = forwardRef<HTMLDivElement, CompassProps>(({ directionLetter }, r
       */}
       <div
         ref={ref}
-        className="absolute w-full h-full"
+        className="absolute w-full h-full p-[4px]"
         style={{ willChange: 'transform' }}
       >
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">

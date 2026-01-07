@@ -280,8 +280,8 @@ export const SearchResults = memo(function SearchResults({
 // List Item
 const SiteListItem = memo(({ site, onClick }: { site: Site, onClick: () => void }) => (
    <li className="list-none">
-     <div className='bg-white/10 active:scale-[.97] active:bg-white/10 transition-all rounded-[32px] p-[3px] mb-1 transform-gpu'>
-       <button onClick={onClick} className='flex w-full text-left items-start rounded-[29px] bg-black/35 overflow-hidden p-2 gap-3 hover:bg-black/40 active:bg-black/40 transition-colors'>
+     <div className='bg-white/10 active:scale-[.97] active:bg-white/10 transition-all rounded-[35px] p-[3px] mb-1 transform-gpu'>
+       <button onClick={onClick} className='flex w-full text-left cursor-pointer items-start rounded-[32px] bg-black/35 overflow-hidden p-2 gap-3 hover:bg-black/40 active:bg-black/40 transition-colors'>
          <div className='relative min-w-[70px] h-[70px] rounded-[24px] overflow-hidden bg-white/10'>
            {site.imageUrl && <Image src={site.imageUrl} alt='' fill className='object-cover' sizes="80px" />}
          </div>

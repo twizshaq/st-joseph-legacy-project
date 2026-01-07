@@ -262,8 +262,8 @@ export default function ToursPage() {
       {/* --- HOUSE RULES & REVIEWS & FOOTER (Unchanged) --- */}
       <div className="w-[1500px] max-w-[90vw] mt-[100px]">
         <div className="flex flex-col mb-[30px]">
-          <p className="font-[700] text-[1.75rem]">Things to Know</p>
-          <p className="max-w-[600px]">Essential guidelines for a safe and respectful visit.</p> 
+          <p className="font-[700] text-[1.75rem]">Things to Know, Before you go</p>
+          <p className="max-w-[600px]">Please review these details to ensure you have the best experience in the St Joseph</p> 
         </div>
         <div className="flex justify-between gap-[30px] max-ttk-wrap2:flex-wrap max-ttk-wrap:justify-start max-sm:gap-y-[30px]">
           {houseRules.map((rule, i) => (

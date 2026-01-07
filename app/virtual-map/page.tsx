@@ -105,16 +105,29 @@ export default function FullScreenMapPage() {
   const zoomControls = useMemo(() => (
       <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
             <div className='rounded-full bg-black/40 flex flex-col w-[45px] overflow-hidden'>
-               <button onClick={() => mapRef.current?.zoomIn()} className='cursor-pointer px-[10px] py-[20px] pt-[25px] relative active:bg-white/10 flex justify-center items-center hover:bg-white/5'>
+               <button onClick={() => mapRef.current?.zoomIn()} className='cursor-pointer px-[10px] py-[20px] pt-[25px] relative active:bg-black/20 flex justify-center items-center hover:bg-black/20'>
                   <div className='bg-white h-[3px] w-[90%] rounded-full'></div>
                   <div className='absolute bg-white h-[3px] w-[50%] rounded-full rotate-[90deg]'></div>
                </button>
-               <button onClick={() => mapRef.current?.zoomOut()} className='cursor-pointer px-[12px] py-[20px] pb-[23px] active:bg-white/10 hover:bg-white/5'>
+               <button onClick={() => mapRef.current?.zoomOut()} className='cursor-pointer px-[12px] py-[20px] pb-[23px] active:bg-black/20 hover:bg-black/20'>
                   <div className='bg-white h-[3px] w-[100%] rounded-full'></div>
                </button>
             </div>
       </div>
   ), []);
+
+  const helpButton = useMemo(() => (
+  <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+    <div className='rounded-full bg-black/40 flex flex-col w-[45px] h-[45px] overflow-hidden'>
+      <button 
+        onClick={() => console.log("Help clicked")} 
+        className='w-full h-full cursor-pointer flex justify-center items-center active:bg-black/20 hover:bg-black/20 transition-colors'
+      >
+        <span className='text-white text-xl font-bold font-mono leading-none'>?</span>
+      </button>
+    </div>
+  </div>
+), []);
 
   return (
     <div className="h-[100dvh] overflow-hidden relative bg-[#b9d3c2]">
@@ -122,8 +135,9 @@ export default function FullScreenMapPage() {
          <MapFull ref={mapRef} onMarkerClick={handleMarkerClick} geojsonData={geojsonData} /> 
       </div>
 
-      <div className='absolute bottom-[20px] right-[20px] hidden sm:block z-[40] whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
-         {zoomControls}
+      <div className='absolute bottom-[20px] right-[20px] hidden sm:flex flex-col gap-2 z-[40] items-center'>
+        {zoomControls}
+        {helpButton}
       </div>
 
       <div className='absolute bottom-[20px] left-[20px] whitespace-nowrap rounded-full p-[3px] w-[400px] hidden sm:block z-[50]'>
@@ -149,11 +163,12 @@ export default function FullScreenMapPage() {
 
       {/* MOBILE DRAWER */}
       <div className='absolute pointer-events-none bottom-[20px] right-[15px] sm:hidden flex flex-col items-end gap-[0px] w-[calc(100vw-25px)] z-[50]'>
-         <div className={`pointer-events-auto absolute right-1 bottom-[0px] whitespace-nowrap rounded-full p-[3px] -mr-[2px] transition-all duration-300 ease-in-out ${mobileSearchOpen ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100'}`}>
-             <div className='absolute bottom-[80px] right-0'>
-               {zoomControls}
-             </div>
-         </div>
+        <div className={`pointer-events-auto absolute right-1 bottom-[0px] whitespace-nowrap rounded-full p-[3px] -mr-[2px] transition-all duration-300 ease-in-out ${mobileSearchOpen ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100'}`}>
+          <div className='absolute bottom-[80px] right-0 flex flex-col gap-2 items-center'>
+            {zoomControls}
+            {helpButton}
+          </div>
+        </div>
 
          {/* Mobile Search Container */}
          <div className='pointer-events-auto cursor-pointer whitespace-nowrap rounded-full p-[3px] w-full'>

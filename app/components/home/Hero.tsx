@@ -19,11 +19,11 @@ export default function Hero() {
             <div className="absolute top-0 left-0 w-full h-full bg-black/40" />
             
             <div className="relative z-10 flex flex-col items-center max-w-[90vw] animate-fade-in-up">
-                <h1 className="font-black text-[3rem] text-center leading-[1.1] mb-4 drop-shadow-lg">
-                    Discover the Untold Stories <br /> of St. Joseph
+                <h1 className="font-black text-[3rem] text-center leading-[1.1] mb-4 drop-shadow-[0px_0px_10px_rgba(0,0,0,0.1)]">
+                    St. Joseph: Unveiling Our Legacy
                 </h1>
-                <p className="text-center text-lg md:text-xl font-medium text-gray-100 max-w-[600px] drop-shadow-md">
-                    A community project to document and protect our cultural heritage
+                <p className="text-center text-lg md:text-xl font-[500] text-gray-100 max-w-[600px] drop-shadow-[0px_0px_10px_rgba(0,0,0,0.1)]">
+                    Discover the Beauty. Master the Risk. A journey of our parish's rich history whilst building community resilience.
                 </p>
             </div>
         </div>

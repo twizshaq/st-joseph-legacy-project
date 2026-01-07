@@ -268,11 +268,39 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
     return (
         <div className='h-full w-full relative'>
             <div ref={mapContainer} className='h-full w-full' />
-            <div className='fixed bottom-[130px] max-sm:bottom-auto max-sm:top-[85px] flex flex-col max-sm:flex-row max-sm:right-[14px] right-[21px] max-sm:items-center items-end gap-[5px]'>
+            <div 
+    className='
+        fixed 
+        gap-[5px]
+        flex
+
+        /* --- Default (Desktop/Portrait Tablet) --- */
+        flex-col 
+        items-end 
+        right-[21px] 
+        bottom-[185px]
+
+        /* --- Your Custom Desktop Query --- */
+        
+        /* --- Portrait Mobile --- */
+        max-sm:bottom-auto 
+        max-sm:top-[80px] 
+        max-sm:flex-row 
+        max-sm:right-[14px] 
+        max-sm:items-center 
+        
+        /* --- FIX: Rotated Mobile (Landscape) --- */
+        /* Targets devices in landscape that are smaller than a laptop */
+        landscape:max-lg:flex-row
+        landscape:max-lg:items-center
+        landscape:max-lg:bottom-[18px]
+        landscape:max-lg:right-[80px]
+    '
+>
                 <ThreeDToggle is3D={is3D} onToggle={handleToggle3D} />
                 <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
                     <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                        <button onClick={handleResetNorth} className="rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg w-[48px] h-[48px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
+                        <button onClick={handleResetNorth} className="rounded-full bg-black/40 active:bg-black/50 hover:bg-black/50 w-[45px] h-[45px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
                             <Compass ref={compassDialRef} directionLetter={directionLetter} />
                         </button>
                     </div>

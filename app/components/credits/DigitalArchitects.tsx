@@ -21,7 +21,7 @@ const DigitalArchitects = () => {
               <div className='snap-center shrink-0 relative flex flex-col w-[100%] p-5 bg-black/3 rounded-[40px]'>
                 {/* <div key={idx} className="group relative bg-white p-8 rounded-2xl shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all duration-300 text-center">
                     <div className="w-12 h-12 mx-auto bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300"> */}
-                        <Code2 className="w-6 h-6" />
+                        {/* <Code2 className="w-6 h-6" /> */}
                     {/* </div> */}
                     <h3 className="text-xl font-bold text-slate-800">{name}</h3>
                     <p className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-2">Web Design & Dev</p>

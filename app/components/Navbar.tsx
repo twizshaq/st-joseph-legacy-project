@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { NotificationPanel } from '@/app/components/NotificationPanel';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import LeaderboardIcon from '@/public/icons/leaderboard-icon';
 
 // --- Icons ---
 const MenuIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -216,8 +217,15 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
   
   const profileLink = navbarProfile?.username ? `/${navbarProfile.username}` : '/profile';
   
-  const navLinkClass = (path: string) => 
-    `cursor-pointer whitespace-nowrap active:scale-[.95] ${pathname === path ? 'text-[#007BFF]' : ''}`;
+  const navLinkClass = (path: string) => {
+  const isActive = pathname === path;
+  return `cursor-pointer whitespace-nowrap active:scale-[.95] transition-all py-1 ${
+    isActive
+      // White text, with a colored bottom border
+      ? 'border-b-2 border-[#40c9ff] pb-[3px]' 
+      : 'opacity-[.7] border-b-2 border-transparent pb-1 hover:text-white'
+  }`;
+};
 
   return (
     <>
@@ -226,9 +234,11 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
         <div className='bg-white/10  max-sm:backdrop-blur-[0px] backdrop-blur-[10px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] '>
           <nav className="hidden [@media(min-width:768px)_and_(min-height:500px)]:flex font-bold text-black bg-[#000]/40 rounded-full justify-around items-center py-0 px-4 h-[62px] pl-[30px] pr-[10px] gap-[25px] border-[0px] border-white/60 z-50 text-white">
             <Link href="/" className={navLinkClass('/')}>Home</Link>
-            <Link href="/virtual-map" className={navLinkClass('/virtual-map')}>Virtual Map</Link>
-            <Link href="/all-sites" className={navLinkClass('/all-sites')}>View Sites</Link>
+            <Link href="/virtual-map" className={navLinkClass('/virtual-map')}>Virtual Map </Link>
+            <Link href="/all-sites" className={navLinkClass('/all-sites')}>Sites</Link>
             <Link href="/tours" className={navLinkClass('/tours')}>Tours</Link>
+            <Link href="/about-us" className={navLinkClass('/about-us')}>The DEO</Link>
+            <Link href="/Contributors" className={navLinkClass('/Contributors')}>Built By</Link>
             
             <div className='bg-white/80 h-[60%] w-[2px] rounded-full'></div>
 
@@ -238,6 +248,16 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                </div>
             ) : user ? (
               <div className="flex items-center gap-3">
+                <Link href="/leaderboard" className='relative mr-[15px]'>
+                    <LeaderboardIcon size={30} color="white" />
+                    {unreadCount > 0 && (
+                     <div className='absolute bottom-[-3px] right-[-5px] rounded-full active:scale-[.95] p-[2px] bg-gradient-to-r from-[#FF9D00] to-[#FFC766]'>
+                      <div className='min-w-[18px] min-h-[18px] bg-gradient-to-r from-[#FFC766] to-[#FF9D00] rounded-full flex items-center justify-center'>
+                        <span className="text-white drop-shadow-[0px_0px_2px_rgba(0,0,0,0.3)] text-[10px] font-bold">{unreadCount}</span>
+                      </div>
+                    </div>
+                  )}
+                  </Link>
                 <button 
                   ref={desktopNotiButtonRef} 
                   onClick={toggleDesktopNotiPanel} 
@@ -277,9 +297,13 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
               </div>
             ) : (
               <div className="flex items-center gap-5">
-                <button onClick={onLoginClick} className='active:scale-[.95] transition-colors'>Login</button>
-                <div className='rounded-full p-[2px] bg-gradient-to-r from-[#007BFF] to-[#66B2FF] shadow-md'>
-                  <button onClick={onSignUpClick} className='bg-gradient-to-l from-[#007BFF] to-[#66B2FF] rounded-full px-[15px] py-[8.4px]'>Sign Up</button>
+                {/* <button onClick={onLoginClick} className='active:scale-[.95] transition-colors'>Login</button> */}
+                <Link href="/leaderboard">
+                  <LeaderboardIcon size={26} color="white" />
+                </Link>
+                {/* <LeaderboardIcon size={26} color="white" /> */}
+                <div className='rounded-full p-[2px] bg-gradient-to-r from-[#007BFF] to-[#66B2FF] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-[.97]'>
+                  <button onClick={onLoginClick} className='bg-gradient-to-l from-[#007BFF] to-[#66B2FF] cursor-pointer rounded-full px-[15px] py-[8.4px]'>Login</button>
                 </div>
               </div>
             )}
@@ -296,10 +320,12 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
         </div>
         
         <div className={`fixed inset-0 bg-white/80 backdrop-blur-md z-[99] flex flex-col items-center justify-center gap-8 text-2xl font-bold text-black transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-          <Link href="/" onClick={closeMenu} className={navLinkClass('/')}>Home</Link>
-          <Link href="/virtual-map" onClick={closeMenu} className={navLinkClass('/virtual-map')}>Virtual Map</Link>
-          <Link href="/all-sites" onClick={closeMenu} className={navLinkClass('/all-sites')}>View Sites</Link>
-          <Link href="/tours" onClick={closeMenu} className={navLinkClass('/tours')}>Tours</Link>
+             <Link href="/" className={navLinkClass('/')}>Home</Link>
+            <Link href="/virtual-map" className={navLinkClass('/virtual-map')}>Virtual Map</Link>
+            <Link href="/all-sites" className={navLinkClass('/all-sites')}>View Sites</Link>
+            <Link href="/tours" className={navLinkClass('/tours')}>Tours</Link>
+            <Link href="/about-us" className={navLinkClass('/about-us')}>The DEO</Link>
+            <Link href="/Contributors" className={navLinkClass('/Contributors')}>Contributors</Link>
         </div>
 
         <div className='fixed right-[13px] top-[15px] z-[100] rounded-full bg-white/10 p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] backdrop-blur-[3px]'>
@@ -307,13 +333,23 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
             {isLoading ? ( 
               <div className="w-10 h-10" /> 
             ) : user ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <Link href="/leaderboard" className='relative ml-[2px]'>
+                    <LeaderboardIcon size={30} color="white" />
+                    {unreadCount > 0 && (
+                     <div className='absolute bottom-[-3px] right-[-5px] rounded-full active:scale-[.95] p-[2px] bg-gradient-to-r from-[#FF9D00] to-[#FFC766]'>
+                      <div className='min-w-[18px] min-h-[18px] bg-gradient-to-r from-[#FFC766] to-[#FF9D00] rounded-full flex items-center justify-center'>
+                        <span className="text-white drop-shadow-[0px_0px_2px_rgba(0,0,0,0.3)] text-[10px] font-bold">{unreadCount}</span>
+                      </div>
+                    </div>
+                  )}
+                  </Link>
                 <button ref={mobileNotiButtonRef} onClick={toggleMobileNotiPanel} data-noti-button className="relative w-10 h-10 flex items-center justify-center active:scale-[.95]">
                   <Image src="/icons/noti-icon.svg" alt="Notifications" width={40} height={40} className="h-[36px] object-contain" />
                   {unreadCount > 0 && (
                      <div className='absolute top-[2px] right-[2px] rounded-full active:scale-[.95] p-[2px] bg-gradient-to-r from-[#007BFF] to-[#66B2FF]'>
                       <div className='min-w-[18px] min-h-[18px] bg-gradient-to-r from-[#66B2FF] to-[#007BFF] rounded-full flex items-center justify-center'>
-                        <span className="text-white text-[10px] font-bold">{unreadCount}</span>
+                        <span className="text-white text-[10px] drop-shadow-[0px_0px_2px_rgba(0,0,0,0.3)] font-bold">{unreadCount}</span>
                       </div>
                     </div>
                   )}
@@ -336,10 +372,13 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                 </Link>
               </div>
             ) : (
-               <div className="flex items-center gap-5">
-                 <button onClick={onLoginClick} className='text-white pl-[13px] font-bold'>Login</button>
-                 <div className='rounded-full p-[2px] bg-gradient-to-r from-[#007BFF] to-[#66B2FF] shadow-md -mr-[2px]'>
-                   <button onClick={onSignUpClick} className='bg-gradient-to-l from-[#007BFF] to-[#66B2FF] rounded-full px-[15px] py-[6.4px] text-white font-bold'>Sign Up</button>
+               <div className="flex items-center gap-4">
+                 {/* <button onClick={onLoginClick} className='text-white pl-[13px] font-bold'>Login</button> */}
+                  <Link href="/leaderboard" className='ml-[10px]'>
+                    <LeaderboardIcon size={26} color="white" />
+                  </Link>
+                 <div className='rounded-full p-[2px] bg-gradient-to-r from-[#007BFF] to-[#66B2FF] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-[.97] -mr-[2px]'>
+                   <button onClick={onLoginClick} className='bg-gradient-to-l from-[#007BFF] to-[#66B2FF] rounded-full px-[15px] py-[6.4px] text-white font-bold'>Login</button>
                  </div>
                </div>
             )}
