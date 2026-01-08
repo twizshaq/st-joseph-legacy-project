@@ -12,11 +12,13 @@ const HeroSection = () => {
             <div className="inline-flex items-center self-center lg:self-start px-3 py-1 rounded-full bg-black/[0.03] border border-black/[0.03] mb-6">
               <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/40">Exclusive Experiences</span>
             </div>
-            <h1 className="text-[3.5rem] md:text-[4.5rem] lg:text-[5rem] font-bold leading-[0.95] tracking-tighter text-black">
-              St. Joseph&apos;s <br /> <span className="text-black/40">Hidden Wonders.</span>
+            <h1 className="text-[3.5rem] md:text-[5rem] lg:text-[3rem] font-bold leading-[0.95] tracking-tighter text-black">
+              St.Joseph's Hidden Wonders: <br /><span className="text-black/40">Resilience, Culture & History.</span>
             </h1>
             <p className="mt-8 text-lg md:text-xl text-black/60 leading-relaxed max-w-[500px] mx-auto lg:mx-0">
-              Journey through the rugged beauty of Barbados. Guided expeditions through secret trails, coastal cliffs, and forgotten history.
+              Journey through the rugged beauty of Barbados with our guided expeditions. Our curated tours take you through secret trails, dramatic coastal cliffs, and the forgotten history of the island’s most untamed parish. Discover how St. Joseph manages its unique geological challenges while preserving its rich Bajan heritage. Get to learn our community from persons in the community <br/> <br/>
+We specialize in small group tours to ensure a personalized and low-impact experience. Explore our three signature tour options below and book your journey today. <br/> <br/>
+Your journey supports the community. 10% of every booking fee goes directly to the St. Joseph District Emergency Organization (DEO), helping to fund local disaster preparedness and community safety initiatives.
             </p>
           </div>
 
