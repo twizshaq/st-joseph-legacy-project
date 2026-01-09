@@ -205,15 +205,18 @@ export default function ExplorePage() {
             >
                 {/* Close Button */}
                 <button 
-                    onClick={() => setSelectedMedia(null)}
-                    className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white z-50 transition-colors"
-                >
-                    <X size={24} />
-                </button>
+                    onClick={(e) => {
+                        e.stopPropagation(); // Prevents the click from "bubbling" up to parent elements
+                        setSelectedMedia(null);
+                }}
+                    className="absolute top-5 right-5 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white z-50 transition-colors cursor-pointer"
+            >
+                <X size={25} />
+</button>
 
                 {/* Profile Header */}
                 <div 
-                    className="absolute top-4 left-4 right-4 md:left-8 md:right-8 z-50 flex items-center justify-between"
+                    className="absolute top-10 left-4 right-10 md:left-8 md:right-8 z-50 flex items-center justify-between"
                     onClick={(e) => e.stopPropagation()} 
                 >
                     <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md p-2 pr-6 rounded-full border border-white/10">
@@ -238,7 +241,7 @@ export default function ExplorePage() {
                         <CustomVideoPlayer src={selectedMedia!.src} />
                     ) : (
                         <div className="relative group w-full h-full flex items-center justify-center">
-                            <Image 
+                            <Image width={240} height={120}
                                 src={selectedMedia!.src} 
                                 alt="Full view" 
                                 className="max-h-full w-auto max-w-full rounded-[20px] shadow-2xl object-contain"
@@ -278,7 +281,7 @@ export default function ExplorePage() {
                     {/* Sticky Search Header */}
                     <div className='fixed top-[0px] z-[30] w-[100vw] ml-[-16px] h-[150px] bg-white/80 backdrop-blur-[3px]'></div>
                     
-                    <div className="sticky top-75 p-4 max-sm:top-13 bg-white/0 z-30 pt-0 pb-4 -mx-4 px-4 mb-4">
+                    <div className="sticky top-45 p-4 max-sm:top-13 bg-white/0 z-30 pt-0 pb-4 -mx-4 px-4 mb-4">
                         <div 
                             style={{ 
                                 opacity: 1 - scrollProgress,
@@ -350,7 +353,8 @@ export default function ExplorePage() {
                                             <Play size={20} fill="white" className="opacity-90" />
                                         </div>
                                     )}
-                                    <Image  
+                                    <Image width={120} height={60}                            
+                                    
                                         src={item.src} 
                                         alt="media" 
                                         className="relative w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" 
