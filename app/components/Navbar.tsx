@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -61,20 +61,20 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
   // ------------------------------------------------------------------
   // 1. DATA FETCHING HELPER
   // ------------------------------------------------------------------
-  const fetchNavbarProfile = async (userId: string) => {
+  const fetchNavbarProfile = useCallback(async (userId: string) => {
     try {
       const { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
-      
+
       return data;
     } catch (error) {
       console.error('Error fetching navbar profile:', error);
       return null;
     }
-  };
+  }, [supabase]);
 
   // ------------------------------------------------------------------
   // 2. AUTH & INITIALIZATION LOGIC
@@ -126,7 +126,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
     setupAuth();
 
     return () => { mounted = false; };
-  }, [supabase, router]);
+  }, [supabase, router, fetchNavbarProfile]);
 
 
   // ------------------------------------------------------------------
@@ -146,7 +146,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
 
     window.addEventListener('profile-updated', handleUpdateEvent);
     return () => window.removeEventListener('profile-updated', handleUpdateEvent);
-  }, [user]);
+  }, [user, fetchNavbarProfile]);
 
 
   // ------------------------------------------------------------------

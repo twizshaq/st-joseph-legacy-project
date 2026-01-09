@@ -169,7 +169,7 @@ export const WaveformAudioPlayer = ({ title, src }: { title: string; src: string
     : (audioRef.current?.currentTime || 0);
 
   return (
-    <div className='w-[90vw] md:w-[400px] rounded-[33px] p-[2px] h-full bg-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'>
+    <div className='w-[90vw] md:w-[400px] rounded-[33px] p-[2px] h-full bg-white shadow-[0px_0px_10px_rgba(0,0,0,0.09)]'>
       <div className="w-full h-full bg-black/5 rounded-[30px] p-3 transition-all group/player select-none">
         <audio
           ref={audioRef}

@@ -49,7 +49,8 @@ export default function BookingForm({ tour, user, guestCount, onGuestChange }: B
         full_name: fullName, email, phone, notes,
         booking_date: selectedDate.toISOString(),
         guest_count: guestCount,
-        total_price: tour.price * guestCount
+        total_local_price: tour.local_price * guestCount,
+        total_visitor_price: tour.visitor_price * guestCount
       }]);
       if (error) throw error;
       alert("Booking successful!");

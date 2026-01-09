@@ -22,7 +22,8 @@ export interface Tour {
   name: string;
   description: string;
   duration: number; // in hours
-  price: number;
+  local_price: number;
+  visitor_price: number;
   tour_image_url?: string;
   stops: Stop[];
   images: TourImage[];

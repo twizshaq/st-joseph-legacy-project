@@ -4,7 +4,7 @@ import houseIcon from '@/public/icons/house-icon.svg';
 
 const rulesData = [
  
-  { title: "Physical Requirements & Accessibility", description: "Uneven Terrain: St. Joseph is hilly. Guests should be comfortable walking on slopes, grass, and unpaved, sometimes muddy paths.Limited Accessibility:  Due to the geological nature of St. Joseph (steep ridges and natural trails), not all sites offer complete wheelchair access. Please check the specific Tour Descriptions for accessibility ratings or contact us for tailored arrangements." },
+  { title: "Physical Requirements & Accessibility", description: "Uneven Terrain: St. Joseph is hilly. Guests should be comfortable walking on slopes, grass, and unpaved, sometimes muddy paths. Limited Accessibility: Please check the specific Tour Descriptions for accessibility ratings or contact us for tailored arrangements." },
   { title: "Dress Code ", description: "Footwear: Closed-toe shoes with good grip (sneakers or hiking sandals) are highly recommended. " },
   { title: "What is Included", description: "✔ Expert Local Guide | ✔ All Entry Fees" },
   { title: "What is Not Included", description: "✖ Lunch Costs | ✖ Gratuities | ✖ Hotel Pickup (Available for extra cost)" },

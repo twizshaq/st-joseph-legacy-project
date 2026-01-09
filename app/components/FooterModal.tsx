@@ -158,7 +158,7 @@ export default function Footer() {
                 <div className='flex flex-col gap-4 text-center lg:text-right'>
                     <h3 className='font-bold text-xl'>Navigate</h3>
                     <ul className='space-y-2 text-blue-200'>
-                        <li><Link href="/credits" className='hover:text-[#feb47b] transition-colors'>Behind the Project</Link></li>
+                        <li><Link href="/contributors" className='hover:text-[#feb47b] transition-colors'>Behind the Project</Link></li>
                         <li><Link href="/feedback" className='hover:text-[#feb47b] transition-colors'>Leave Feedback</Link></li>
                         <li><Link href="/tours" className='hover:text-[#feb47b] transition-colors'>Book a Tour</Link></li>
                         <li><Link href="/map" className='hover:text-[#feb47b] transition-colors'>Virtual Map</Link></li>
