@@ -28,7 +28,7 @@ export interface LocalStoriesData {
 export interface SafetyInfo {
   heading: string;      // e.g., "Disaster Ready"
   subheading: string;   // e.g., "Safety Guidelines"
-  description: string;  // Main paragraph text
+  description: ReactNode;  // Main paragraph text
   guidelines: string[]; // Array of strings for the bullet points
   emergencyNumbers: ReactNode; // ReactNode allows for <br/> tags
 }
@@ -50,7 +50,7 @@ export interface SiteContent {
   id: number;
   name: string;
   tagline: string;
-  description: string; 
+  description: string;
   sections: ContentSection[];
   heroMedia: {
     video: string;
