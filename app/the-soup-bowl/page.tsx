@@ -82,14 +82,14 @@ const SOUP_BOWL_DATA: SiteContent = {
   },
 
   heroMedia: {
-    video: "https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4",
+    video: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test1.mp4",
     image: "https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg",
-    photo360: "https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/Andromeda_20250920_110344_00_008.jpg"
+    photo360: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test2.jpg"
   },
   gallery: [
   { type: 'image', src: 'https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg' }, // 0
   { type: 'video', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4' }, // 1
-  { type: '360', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/Andromeda_20250920_110344_00_008.jpg' }, // 2
+  { type: '360', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test2.jpg' }, // 2
   { type: 'image', src: 'https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg' }, // 3
   { type: 'image', src: 'https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg' }, // 4
   { type: 'image', src: 'https://i.pinimg.com/736x/b2/1a/4e/b21a4edd98d5deeae826a459aeeb1b26.jpg' }, // 5
