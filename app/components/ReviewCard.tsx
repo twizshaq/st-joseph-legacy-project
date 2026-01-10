@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 interface Experience {
-  id: number;           // Need review ID for actions
+  id: string;           // Need review ID for actions
   user_id: string;      // Need author ID to check ownership
   username: string;
   description: string;
@@ -17,8 +17,8 @@ interface Experience {
 interface ReviewCardProps {
   experience: Experience;
   currentUserId?: string | null; // Passed from parent
-  onDelete?: (id: number) => void; // Callback to handle deletion
-  onReport?: (id: number) => void; // Callback to handle reporting
+  onDelete?: (id: string) => void; // Callback to handle deletion
+  onReport?: (id: string) => void; // Callback to handle reporting
 }
 
 export const ReviewCard = ({ experience, currentUserId, onDelete, onReport }: ReviewCardProps) => {

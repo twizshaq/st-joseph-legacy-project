@@ -86,7 +86,7 @@ export default function Sponsors() {
     if (!sponsors.length) return null;
 
     return (
-        <div className='w-full mt-[50px] flex flex-col items-center'>
+        <div className='w-full mt-[50px] flex flex-col items-center text-slate-800'>
             <div className='flex flex-col items-center mb-6 px-4 text-center'>
                 <p className="font-bold text-[2rem] max-sm:text-[1.5rem]">Our Sponsors</p>
                 <p className="text-gray-600">Generous Support provided by</p>

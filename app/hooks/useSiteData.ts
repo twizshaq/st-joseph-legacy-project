@@ -2,15 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
 
-export function useSiteData(siteId: number) {
+export function useSiteData(siteId: number, currentLat: number, currentLng: number) {
   const supabase = createClient();
+  
+  // 1. State Definitions
   const [user, setUser] = useState<User | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
   const [nearbySites, setNearbySites] = useState<any[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [loadingSites, setLoadingSites] = useState(true);
 
-  // 1. Auth State
+  // 2. Auth Logic
   useEffect(() => {
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -23,7 +25,7 @@ export function useSiteData(siteId: number) {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
-  // 2. Fetch Reviews
+  // 3. DEFINE fetchReviews (This was missing or misplaced)
   const fetchReviews = useCallback(async () => {
     setLoadingReviews(true);
     const { data } = await supabase
@@ -31,20 +33,23 @@ export function useSiteData(siteId: number) {
       .select('*, profiles(username, avatar_url)')
       .eq('site_id', siteId)
       .order('created_at', { ascending: false });
+      
     setReviews(data || []);
     setLoadingReviews(false);
   }, [supabase, siteId]);
 
-  useEffect(() => { fetchReviews(); }, [fetchReviews]);
+  // 4. Trigger fetchReviews on mount
+  useEffect(() => { 
+    fetchReviews(); 
+  }, [fetchReviews]);
 
-  // 3. Fetch Nearby (Calculated on client for simplicity)
+  // 5. Fetch Nearby Logic (With Dynamic Coordinates)
   useEffect(() => {
     const fetchNearby = async () => {
+      // Return early if no coordinates provided to prevent errors
+      if (!currentLat || !currentLng) return;
+
       setLoadingSites(true);
-      // Hardcoded coordinates for current site (Soup Bowl) to calc distance
-      // Ideally passed in as props, but keeping logic here for now
-      const currentLat = 13.214743;
-      const currentLng = -59.523950;
 
       const { data } = await supabase.from('location_pins').select('*').neq('id', siteId);
 
@@ -52,7 +57,7 @@ export function useSiteData(siteId: number) {
         const sorted = data
           .filter((s) => s.latitude && s.longitude)
           .map((s) => {
-            const R = 6371;
+            const R = 6371; // Earth radius in km
             const dLat = (s.latitude - currentLat) * (Math.PI / 180);
             const dLon = (s.longitude - currentLng) * (Math.PI / 180);
             const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(currentLat*Math.PI/180) * Math.cos(s.latitude*Math.PI/180) * Math.sin(dLon/2)*Math.sin(dLon/2);
@@ -71,7 +76,16 @@ export function useSiteData(siteId: number) {
       setLoadingSites(false);
     };
     fetchNearby();
-  }, [supabase, siteId]);
+  }, [supabase, siteId, currentLat, currentLng]);
 
-  return { user, reviews, nearbySites, loadingReviews, loadingSites, fetchReviews, supabase };
+  // 6. Return everything
+  return { 
+    user, 
+    reviews, 
+    nearbySites, 
+    loadingReviews, 
+    loadingSites, 
+    fetchReviews, // Now this exists!
+    supabase 
+  };
 }

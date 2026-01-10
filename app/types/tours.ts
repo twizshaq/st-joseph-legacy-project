@@ -13,8 +13,14 @@ export interface TourImage {
 export interface Review {
   id: string;
   user: string;
+  user_id: string;
   rating: number;
-  content: string;
+  review_text: string;
+  created_at: string;
+  profiles?: {            // Fixes: Property 'profiles' does not exist
+    username: string;
+    avatar_url: string;
+  };
 }
 
 export interface Tour {

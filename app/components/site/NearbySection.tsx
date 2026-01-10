@@ -11,6 +11,7 @@ interface NearbySite {
   description: string;
   category: string;
   image_url: string;
+  distance?: number;
 }
 
 interface NearbySectionProps {
@@ -55,6 +56,20 @@ export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
                   className="relative bg-cover bg-center min-h-[310px] max-h-[310px] min-w-[260px] max-w-[260px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10 transition-transform duration-300 active:scale-[0.98]"
                   style={{ backgroundImage: `url(${card.image_url})` }}
                 >
+                  {typeof card.distance === 'number' && (
+                    <div className='absolute top-5 right-5 z-40'>
+                      <div className='rounded-full p-[2px] bg-white/10 shadow-[0px_0px_20px_rgba(0,0,0,0.3)] backdrop-blur-[2px]'>
+                        <div className='bg-black/30 rounded-full px-[12px] py-[5px]'>
+                          <p className='text-center font-bold text-[0.75rem] text-white'>
+                            {card.distance < 1 
+                              ? `${(card.distance * 1000).toFixed(0)}m away` // Show meters if under 1km
+                              : `${card.distance.toFixed(1)} km away`         // Show km if over 1km
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <Link href={`/${card.slug}`} passHref className="h-full flex flex-col justify-end">
                     <div className="absolute inset-0 bg-black/30 rounded-[50px] transition-opacity group-hover:bg-black/40" />
                     

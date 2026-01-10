@@ -8,12 +8,12 @@ import PenIcon from "@/public/icons/pen-icon";
 import { ReviewCard } from "@/app/components/ReviewCard";
 import { ReviewModal } from "@/app/components/ReviewModal";
 import { AuthAlertModal } from "@/app/components/AuthAlertModal";
-import { ReportModal } from "@/app/components/ReportModal";
+import { ReportModal } from "@/app/components/ReportModal"; 
 import { ReviewSkeleton } from "@/app/components/ReviewSkeleton";
 
 interface ReviewsSectionProps {
   user: User | null;
-  reviews: any[]; // Replace 'any' with your actual Review type from Supabase definitions if available
+  reviews: any[]; 
   loading: boolean;
   onRefresh: () => void;
   supabase: any;
@@ -32,13 +32,15 @@ export const ReviewsSection = ({
   // Local State for Modals
   const [isReviewOpen, setReviewOpen] = useState(false);
   const [isAuthOpen, setAuthOpen] = useState(false);
-  const [reportState, setReportState] = useState<{isOpen: boolean, reviewId: number | null}>({ 
+  
+  // FIX 1: Change reviewId type from 'number | null' to 'string | null'
+  const [reportState, setReportState] = useState<{isOpen: boolean, reviewId: string | null}>({ 
     isOpen: false, 
     reviewId: null 
   });
 
-  // Delete Logic
-  const handleDeleteReview = async (reviewId: number) => {
+  // FIX 2: Change parameter type from 'number' to 'string'
+  const handleDeleteReview = async (reviewId: string) => {
     if (confirm("Delete this review?")) {
        await supabase.from('site_reviews').delete().eq('id', reviewId).eq('user_id', user?.id);
        onRefresh(); 

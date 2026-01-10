@@ -1,25 +1,34 @@
 import React, { ReactNode } from 'react';
+import { ContentSection } from '@/app/types/site';
 
 interface InfoSectionProps {
-  Roots_and_Routes: ReactNode;
-  sixty_Seconds_of_Secrets: ReactNode;
+  sections: ContentSection[];
   // history: ReactNode;
   sidebarSlot?: ReactNode; 
 }
 
-export const InfoSection = ({ Roots_and_Routes, sidebarSlot, sixty_Seconds_of_Secrets }: InfoSectionProps) => {
+export const InfoSection = ({ sections, sidebarSlot }: InfoSectionProps) => {
   return (
     <div className='flex flex-wrap bg-blue-500/0 gap-12 max-w-[1400px] mx-auto max-sm:w-[90vw] justify-between my-20'>
       <div className='max-w-[800px] flex flex-col gap-8'>
-        <section>
-          <h2 className='font-bold text-[2rem] mb-4'>Roots & Routes</h2>
-          <h3 className='font-bold text-[1.3rem] mb-4'>Explore the history and heritage of the Soup Bowl.</h3>
-          <p className='text-[1rem] leading-relaxed text-slate-700 whitespace-pre-line'>{Roots_and_Routes}</p>
-        </section>
-        <section>
-          <h2 className='font-bold text-[1.3rem] mb-4'>60 Seconds of Secrets</h2>
-          <p className='text-lg leading-relaxed text-slate-700 whitespace-pre-line'>{sixty_Seconds_of_Secrets}</p>
-        </section>
+
+        {/* Main Content Area - Loops through all sections */}
+        <div className="lg:col-span-2 space-y-10">
+          
+          {sections.map((section, index) => (
+            <div key={index} className="content-block">
+              {/* Only render title if it's not empty string (optional) */}
+              {section.title && (
+                 <h2 className="text-[1.8rem] max-sm:text-[1.6rem] font-bold mb-4">{section.title}</h2>
+              )}
+              <div className="prose text-[1rem] leading-relaxed">
+                {section.content}
+              </div>
+            </div>
+          ))}
+
+        </div>
+
       </div>
       
       {sidebarSlot && (

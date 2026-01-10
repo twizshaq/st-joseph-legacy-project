@@ -25,7 +25,7 @@ export default function TourGallery({ images }: { images: TourImage[] }) {
   const slides = images.length > 1 ? [...images, images[0]] : images;
 
   return (
-    <div className="relative w-full h-[300px] lg:w-[100%]">
+    <div className="relative w-[400px] h-[465px]">
       <div className="relative h-full w-full rounded-[35px] overflow-hidden group">
         <div className="flex h-full w-full"
           style={{ transform: `translateX(-${currentImageIndex * 100}%)`, transition: isTransitionEnabled ? 'transform 500ms ease-in-out' : 'none' }}>

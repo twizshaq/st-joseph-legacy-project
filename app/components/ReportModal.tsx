@@ -9,7 +9,7 @@ interface ReportModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
-  reviewId: number | null;
+  reviewId: string | null;
   tableName?: string;
 }
 

@@ -2,25 +2,26 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { CustomVideoPlayer } from "@/app/components/CustomVideoPlayer";
 import { WaveformAudioPlayer } from "@/app/components/site/CustomAudioPlayer";
 import arrowIcon from "@/public/icons/arrow-icon.svg"; // Ensure you have this or use an SVG
-import { Story } from '@/app/types/site';
+import { LocalStoriesData, Story } from '@/app/types/site';
 
 interface LocalStoriesProps {
-  stories: Story[];
+  data: LocalStoriesData;
 }
 
-export const LocalStories = ({ stories }: LocalStoriesProps) => {
+export const LocalStories = ({ data }: LocalStoriesProps) => {
   const [isOpen, setIsOpen] = useState(true);
 
-  if (!stories || stories.length === 0) return null;
+  if (!data || !data.items || data.items.length === 0) return null;
 
   return (
-    <div className='max-w-[90vw] w-[450px] relative z-10'>
+    <div className='max-w-[90vw] w-[450px] relative z-1'>
       {/* Decorative Glow behind the widget */}
       <div className='absolute top-10 right-10 w-32 h-32 bg-fuchsia-400/20 rounded-full blur-3xl -z-10 pointer-events-none'></div>
 
-      <div className='rounded-[35px] active:scale-[.995] border border-fuchsia-500/30 bg-white/95 backdrop-blur-sm overflow-hidden transition-all duration-300 shadow-[0_0px_20px_rgb(0,0,0,.1)]'>
+      <div className='rounded-[35px] border border-fuchsia-500/30 bg-white/95 backdrop-blur-sm overflow-hidden transition-all duration-300 shadow-[0_0px_20px_rgb(0,0,0,.1)] '>
         
         {/* --- HEADER --- */}
         <button
@@ -42,8 +43,8 @@ export const LocalStories = ({ stories }: LocalStoriesProps) => {
             </div>
             {/* Text Labels */}
             <div className="flex flex-col items-start">
-              <span className='font-bold text-[1.15rem] text-slate-800 leading-tight'>Local Stories</span>
-              <span className='text-[0.8rem] text-slate-400 font-medium'>Listen, Watch, Discover</span>
+              <span className='font-bold text-[1.15rem] text-slate-800 leading-tight'>{data.title}</span>
+              <span className='text-[0.8rem] text-slate-400 font-medium'>{data.tagline}</span>
             </div>
           </div>
           
@@ -59,7 +60,7 @@ export const LocalStories = ({ stories }: LocalStoriesProps) => {
         {/* --- CONTENT AREA --- */}
         <div className={`${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden bg-white relative transition-all duration-500 ease-in-out`}>
           <div className='px-6 pb-6 pt-6 relative z-10 flex flex-col gap-8'>
-            {stories.map((story) => (
+            {data.items.map((story) => (
               <StoryItem key={story.id} story={story} />
             ))}
           </div>
@@ -90,12 +91,10 @@ const StoryItem = ({ story }: { story: Story }) => {
         )}
 
         {story.type === 'video' && (
-           <div className="relative aspect-video w-full bg-black">
-              <video 
+           <div className="relative aspect-video w-full">
+              <CustomVideoPlayer 
                 src={story.src} 
                 poster={story.thumbnail} 
-                controls 
-                className="w-full h-full object-cover"
               />
            </div>
         )}

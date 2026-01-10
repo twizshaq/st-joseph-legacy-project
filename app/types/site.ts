@@ -19,6 +19,20 @@ export interface Story {
   thumbnail?: string;    // Optional, mainly for video posters
 }
 
+export interface LocalStoriesData {
+  title: string;
+  tagline: string;
+  items: Story[];
+}
+
+export interface SafetyInfo {
+  heading: string;      // e.g., "Disaster Ready"
+  subheading: string;   // e.g., "Safety Guidelines"
+  description: string;  // Main paragraph text
+  guidelines: string[]; // Array of strings for the bullet points
+  emergencyNumbers: ReactNode; // ReactNode allows for <br/> tags
+}
+
 export interface SiteFactsData {
   Category: ReactNode;
   Best_For: ReactNode;
@@ -27,19 +41,28 @@ export interface SiteFactsData {
   Nearby_Must_See: ReactNode;
 }
 
+export interface ContentSection {
+  title: string;
+  content: ReactNode;
+}
+
 export interface SiteContent {
   id: number;
   name: string;
   tagline: string;
-  description: string;
-  Roots_and_Routes: ReactNode; 
-  sixty_Seconds_of_Secrets: ReactNode;
+  description: string; 
+  sections: ContentSection[];
   heroMedia: {
     video: string;
     image: string;
     photo360: string;
   };
   gallery: GalleryItem[];
-  stories: Story[];
+  stories: LocalStoriesData;
   facts: SiteFactsData;
+  safety: SafetyInfo;
+  location: {
+    lat: number;
+    lng: number;
+  }
 }

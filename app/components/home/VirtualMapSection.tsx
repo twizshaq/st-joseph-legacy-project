@@ -75,7 +75,7 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
     }, []);
 
     return (
-        <div className='bg-pink-500/0 flex flex-col xl:items-center lg:items-center md:items-center w-[90vw] mt-[0px]'>
+        <div className='text-slate-800 flex flex-col xl:items-center lg:items-center md:items-center w-[90vw] mt-[100px]'>
             <p className='font-bold text-[2rem] max-sm:text-[1.5rem] text-center'>Virtual Map of St. Joseph</p>
             <p className='max-w-[800px] text-center'>Explore St. Joseph with our interactive Virtual Map—your digital guide for planning routes or exploring from home. Click locations for details, build your own tour, or book one of our available guided tours.</p>
 

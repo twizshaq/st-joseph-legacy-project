@@ -10,8 +10,8 @@ interface FeaturedSitesProps {
 
 export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps) {
     return (
-        <div className="bg-green-500/0 max-w-[1500px] w-full mt-[100px] flex flex-col">
-            <div className="bg-red-500/0 px-[5vw]">
+        <div className="max-w-[1500px] w-full mt-[100px] flex flex-col text-slate-800">
+            <div className="px-[5vw]">
                 <p className="font-bold text-[2rem] max-sm:text-[1.5rem]">Featured Sites</p>
                 <p className="max-w-[700px]">
                     Not sure where to begin? We&apos;ve curated a selection of Featured Sites that perfectly capture the spirit of our project. These locations represent the best of St. Joseph—blending breathtaking heritage with the vital &quot;earth-knowledge&quot; needed to keep our community strong.
@@ -19,7 +19,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
                     When driving around St. Joseph each featured stop is equipped with a physical QR code. When scanned, it reveals the &quot;hidden laye&quot; of the location: the stories of the ancestors who built it, and the modern safety insights provided by the DEO to protect it. Whether you are a lifelong resident or a first-time visitor, these sites offer a deeper look about the location
                 </p>
             </div>
-            <div className='bg-red-500/0 w-fit self-end mr-[5vw] font-bold mb-[-10px] mt-[20px]'>
+            <div className='w-fit self-end mr-[5vw] font-bold mb-[-10px] mt-[20px]'>
                 <Link href="/all-sites">View All Sites</Link>
             </div>
 

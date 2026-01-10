@@ -37,8 +37,6 @@ export default function ToursPage() {
   const displayLocalPrice = selectedTour ? (selectedTour.local_price * guestCount) : 0;
   const displayVisitorPrice = selectedTour ? (selectedTour.visitor_price * guestCount) : 0;
 
-  const [isExpanded, setIsExpanded] = React.useState(false);
-
   return (
     <div className="flex flex-col items-center overflow-x-hidden text-black">
       
@@ -56,30 +54,22 @@ export default function ToursPage() {
       {isLoading || !selectedTour ? (
         <TourDetailsSkeleton />
       ) : (
-        <div className="p-3 mt-8 w-[90vw] max-w-[1500px] bg-red-500/0 flex justify-between flex-col lg:flex-row gap-6 shadow-[0px_0px_20px_rgba(0,0,0,0)] rounded-[45px]">
-          <div className="flex flex-col bg-red-500/0 w-[40%] max-sm:w-[100%]">
+        <div className="bg-white p-3 mt-8 w-[1200px] max-w-[95vw] flex flex-col lg:flex-row gap-6 shadow-[0px_0px_20px_rgba(0,0,0,.1)] rounded-[45px]">
+          
           <TourGallery images={selectedTour.images} />
 
-          <div className="w-full flex flex-col gap-4">
+          <div className="w-full lg:w-1/3 flex flex-col gap-4">
             
             {/* Header Info */}
             <div>
-              <p className="font-bold text-2xl mt-[20px]">{selectedTour.name}</p>
+              <p className="text-gray-500">Tour</p>
+              <p className="font-bold text-2xl lg:text-3xl">{selectedTour.name}</p>
               <div className="flex flex-wrap gap-2 mt-2">
-                <p className="px-4 py-1 text-[.9rem] font-medium bg-[#000]/5 rounded-full text-gray-800">
+                <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">
                   {selectedTour.duration} Hours
                 </p>
-                <p className="px-4 py-1 text-[.9rem] font-medium bg-[#000]/5 rounded-full text-gray-800">
-                  ${displayLocalPrice.toLocaleString()} BDS Visitor
-                </p>
-                <p className="px-4 py-1 text-[.9rem] font-medium bg-[#000]/5 rounded-full text-gray-800">
-                  ${displayVisitorPrice.toLocaleString()} BDS Local
-                </p>
-                <p className="px-4 py-1 text-[.9rem] font-medium bg-[#000]/5 rounded-full text-gray-800">
-                  All Entry Fees
-                </p>
-                <p className="px-4 py-1 text-[.9rem] font-medium bg-[#000]/5 rounded-full text-gray-800">
-                supports local initiatives
+                <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">
+                  ${displayLocalPrice.toLocaleString()} USD
                 </p>
               </div>
               <div className="bg-gray-200/90 w-full mt-4 mb-0 h-px"/>
@@ -89,20 +79,9 @@ export default function ToursPage() {
             <div className="flex flex-col gap-6">
               <div>
                 <p className="text-xl font-bold">Description</p>
-                <p className={`text-gray-700 mt-1 ${!isExpanded ? "line-clamp-2" : ""}`}>
-                  {selectedTour.description}
-                </p>
-                <button 
-                  onClick={() => setIsExpanded(!isExpanded)} 
-                  className="text-sm cursor-pointer font-semibold underline mt-1 hover:text-gray-600"
-                >
-                  {isExpanded ? "Read Less" : "Read More"}
-                </button>
+                <p className="text-gray-700 mt-1">{selectedTour.description}</p>
               </div>
               
-            </div>
-          </div>
-        </div>
               <div>
                 <p className="text-xl font-bold mb-4">Trip Info</p>
                 <div className="flex flex-col">
@@ -126,6 +105,8 @@ export default function ToursPage() {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
 
           <BookingForm 
             tour={selectedTour} 

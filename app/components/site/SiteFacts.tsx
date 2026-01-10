@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence, Transition } from 'framer-motion'; 
 import { createPortal } from 'react-dom';
 
+// Placeholder imports - ensure these point to your actual assets
 import clockIcon from "@/public/icons/clock-icon.svg";
 import camIcon from "@/public/icons/camera-icon.svg";
 import ticketIcon from "@/public/icons/ticket-icon.svg";
@@ -12,11 +13,12 @@ import { SiteFactsData } from '@/app/types/site';
 
 // --- Configuration ---
 
-// Layout/shared-element transitions (for layoutId animations)
-const layoutTransition: Transition = { type: "spring", stiffness: 260, damping: 32, mass: 0.9 };
-
-// Simple fades/scales should feel consistent everywhere
-const fadeTransition: Transition = { duration: 0.2, ease: [0.22, 1, 0.36, 1] };
+const transitionSpec: Transition = { 
+  type: "spring", 
+  stiffness: 200, 
+  damping: 25, 
+  mass: 0.8 
+};
 
 interface FactData {
   id: string;
@@ -34,30 +36,21 @@ export const SiteFacts = ({ facts }: SiteFactsProps) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const previousBodyOverflow = useRef<string | null>(null);
 
-  // FIX 1: Manage Scroll Lock in Parent (More Robust)
-  // Store the previous body overflow value and restore it when the modal closes.
-  // This avoids leaving the page in a locked or odd interaction state.
+  // Scroll Lock Management
   useEffect(() => {
     if (selectedId) {
-      // capture only once per open
-      if (previousBodyOverflow.current === null) {
-        previousBodyOverflow.current = document.body.style.overflow;
-      }
+      // Save current setting
+      previousBodyOverflow.current = document.body.style.overflow;
+      // Lock scroll
       document.body.style.overflow = 'hidden';
     } else {
-      // restore
-      if (previousBodyOverflow.current !== null) {
-        document.body.style.overflow = previousBodyOverflow.current;
-        previousBodyOverflow.current = null;
-      }
+      // Restore scroll when modal closes
+      document.body.style.overflow = previousBodyOverflow.current || '';
     }
 
+    // Safety cleanup on unmount
     return () => {
-      // ensure restore on unmount
-      if (previousBodyOverflow.current !== null) {
-        document.body.style.overflow = previousBodyOverflow.current;
-        previousBodyOverflow.current = null;
-      }
+      document.body.style.overflow = previousBodyOverflow.current || '';
     };
   }, [selectedId]);
 
@@ -82,12 +75,13 @@ export const SiteFacts = ({ facts }: SiteFactsProps) => {
           <FactCard 
             key={card.id}
             {...card} 
+            isSelected={selectedId === card.id}
             onClick={() => setSelectedId(card.id)}
           />
         ))}
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence>
         {selectedCard && (
           <FullScreenOverlay 
             key={`overlay-${selectedCard.id}`}
@@ -100,66 +94,69 @@ export const SiteFacts = ({ facts }: SiteFactsProps) => {
   );
 };
 
-// --- Standard Card (Small) ---
+// --- Standard Card (List View) ---
 
 interface FactCardProps extends FactData {
   onClick: () => void;
+  isSelected: boolean;
 }
 
-const FactCard = ({ id, icon, label, value, theme, onClick }: FactCardProps) => {
+const FactCard = ({ id, icon, label, value, theme, onClick, isSelected }: FactCardProps) => {
   const styles = getThemeStyles(theme);
   const isLongContent = typeof value === 'object' || (typeof value === 'string' && value.length > 60);
 
   return (
-    <motion.div 
-      layoutId={`card-${id}`}
-      transition={layoutTransition}
-      onClick={isLongContent ? onClick : undefined}
-      // FIX 2: Removed 'bg-white' here. 
-      // Rely on `styles.card` (e.g., bg-orange/10) to show the theme color.
-      className={`relative rounded-[42px] p-[3px] h-full ${styles.card} ${isLongContent ? 'cursor-pointer transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 active:scale-[.99]' : ''}`}
-    >
-      <div className='group relative flex flex-row items-stretch gap-5 p-2 bg-white/80 h-full rounded-[40px] overflow-hidden'>
-        
-        {/* Pattern: Increased opacity to 0.15 so it is visible */}
-        <div className="absolute inset-0 opacity-[0.15] z-0 pointer-events-none" style={{ backgroundImage: styles.gradient, backgroundSize: '14px 14px' }} />
+    // 'invisible' hides the card visually but keeps its layout space. 
+    // This prevents the grid from collapsing or jumping.
+    <div className={`h-full ${isSelected ? 'invisible' : 'visible'}`}>
+      <motion.div 
+        layoutId={`card-container-${id}`}
+        transition={transitionSpec}
+        onClick={isLongContent ? onClick : undefined}
+        className={`relative rounded-[42px] p-[4px] h-full ${styles.card} ${isLongContent ? 'cursor-pointer' : ''}`}
+        whileHover={!isSelected && isLongContent ? { y: -4, scale: 1.01 } : {}}
+      >
+        <div className='group relative flex flex-row items-stretch gap-5 p-2 bg-white/90 h-full rounded-[40px] overflow-hidden'>
+          <div className="absolute inset-0 opacity-[0.15] z-0 pointer-events-none" 
+               style={{ backgroundImage: styles.gradient, backgroundSize: '14px 14px' }} />
 
-        <motion.div layoutId={`icon-${id}`} transition={layoutTransition} className={`relative z-10 flex items-center justify-center min-w-[80px] max-w-[80px] max-h-[80px] rounded-[30px] ${styles.iconBg}`}>
-          <Image src={icon} alt={label} width={32} height={32} />
-        </motion.div>
+          <motion.div 
+            layoutId={`icon-${id}`} 
+            transition={transitionSpec} 
+            className={`relative z-10 flex items-center justify-center min-w-[80px] w-[80px] h-[80px] rounded-[30px] ${styles.iconBg}`}
+          >
+            <Image src={icon} alt={label} width={32} height={32} />
+          </motion.div>
 
-        <div className='relative z-10 flex flex-col justify-start py-1 w-full'>
-          <motion.p layoutId={`label-${id}`} transition={layoutTransition} className={`text-[0.75rem] font-bold uppercase tracking-widest mb-1 ${styles.labelColor}`}>
-            {label}
-          </motion.p>
-          
-          {/* Relative container to hold both the text and the absolute "Read More" */}
-          <div className='relative text-[1rem] leading-[1.4] font-semibold text-slate-800'>
+          <div className='relative z-10 flex flex-col justify-start py-1 w-full'>
+            <motion.p 
+              layoutId={`label-${id}`} 
+              transition={transitionSpec} 
+              className={`text-[0.75rem] font-bold uppercase tracking-widest mb-1 ${styles.labelColor}`}
+            >
+              {label}
+            </motion.p>
             
-            {/* The text remains clamped to 2 lines */}
-            <div className="line-clamp-2">
-              {value}
+            <div className='relative text-[1rem] leading-[1.4] font-semibold text-slate-800'>
+              <div className="line-clamp-2">
+                {value}
+              </div>
+              
+              {isLongContent && (
+                <motion.span 
+                  layoutId={`more-${id}`} 
+                  transition={transitionSpec} 
+                  className={`absolute bottom-[2px] right-0 bg-white pl-4 mr-[7px] text-[0.75rem] font-bold underline cursor-pointer ${styles.labelColor}`}
+                  style={{ maskImage: 'linear-gradient(to right, transparent, black 20%)' }}
+                >
+                  Read More
+                </motion.span>
+              )}
             </div>
-
-            {/* The Read More link is positioned over the bottom-right corner */}
-            {isLongContent && (
-              <motion.span 
-                layoutId={`more-${id}`} 
-                transition={layoutTransition} 
-                className={`absolute bottom-[3px] right-0 bg-white px-4 text-[0.75rem] font-bold underline cursor-pointer ${styles.labelColor}`}
-                style={{
-                  // This creates a fade effect so the text doesn't look cut off abruptly behind the link
-                  maskImage: 'linear-gradient(to right, transparent, black 13%)',
-                  WebkitMaskImage: 'linear-gradient(to right, transparent, black 13%)',
-                }}
-              >
-                Read More
-              </motion.span>
-            )}
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
 
@@ -168,7 +165,6 @@ const FactCard = ({ id, icon, label, value, theme, onClick }: FactCardProps) => 
 const FullScreenOverlay = ({ card, onClose }: { card: FactData, onClose: () => void }) => {
   const styles = getThemeStyles(card.theme);
 
-  // Listen for Escape key to close
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', handleEsc);
@@ -177,63 +173,78 @@ const FullScreenOverlay = ({ card, onClose }: { card: FactData, onClose: () => v
 
   return (
     <Portal>
+      {/* 
+         FIX: Added pointerEvents: 'none' to the exit variant.
+         This ensures that as soon as the close animation starts (fading out),
+         the overlay allows clicks to pass through to the page below immediately.
+      */}
       <motion.div 
-        initial={{ opacity: 0, pointerEvents: 'none' }}
-        animate={{ opacity: 1, pointerEvents: 'auto' }}
-        exit={{ opacity: 0, pointerEvents: 'none' }}
-        transition={fadeTransition}
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] pointer-events-auto"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0, pointerEvents: 'none' }} 
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[4px] cursor-pointer"
         onClick={onClose}
       >
         <motion.div 
-          layoutId={`card-${card.id}`} 
-          transition={layoutTransition}
-          // FIX 2: Removed 'bg-white' from here too. The theme color will now show.
-          // Added 'bg-white' specifically to the inner container below if needed, 
-          // or rely on the theme's tint.
-          className={`relative w-full max-w-[600px] max-h-[85vh] overflow-y-auto rounded-[52px] p-[4px] ${styles.card} shadow-2xl pointer-events-auto`}
+          layoutId={`card-container-${card.id}`} 
+          transition={transitionSpec}
+          // Added 'cursor-default' so clicking the white card itself doesn't trigger the backdrop close
+          className={`relative w-full max-w-[600px] max-h-[85vh] flex flex-col rounded-[42px] p-[4px] ${styles.card} shadow-2xl cursor-default`}
           onClick={(e) => e.stopPropagation()} 
         >
-          {/* Inner Content Container - bg-white/95 to make text readable but keep subtle color behind it */}
-          <div className={`relative flex flex-col gap-6 p-6 bg-white min-h-full rounded-[48px]`}>
-             
+          <div className={`relative flex flex-col w-full h-full bg-white rounded-[40px] overflow-hidden`}>
+            
             {/* Pattern Background */}
-            <div className="absolute inset-0 opacity-[0.15] z-0 pointer-events-none" style={{ backgroundImage: styles.gradient, backgroundSize: '14px 14px' }} />
+            <div className="absolute inset-0 opacity-[0.15] z-0 pointer-events-none" 
+                 style={{ backgroundImage: styles.gradient, backgroundSize: '14px 14px' }} />
 
-            <div className="relative z-10 flex items-center justify-between">
+            <div className="relative z-10 flex items-center justify-between p-6 pb-2 shrink-0">
               <div className="flex items-center gap-4">
-                <motion.div layoutId={`icon-${card.id}`} transition={layoutTransition} className={`flex items-center justify-center w-[60px] h-[60px] rounded-[20px] ${styles.iconBg}`}>
+                <motion.div 
+                  layoutId={`icon-${card.id}`} 
+                  transition={transitionSpec} 
+                  className={`flex items-center justify-center w-[60px] h-[60px] rounded-[20px] ${styles.iconBg}`}
+                >
                   <Image src={card.icon} alt={card.label} width={28} height={28} className='opacity-80' />
                 </motion.div>
-                <motion.p layoutId={`label-${card.id}`} transition={layoutTransition} className={`text-[1rem] font-bold uppercase tracking-widest ${styles.labelColor}`}>
+                
+                <motion.p 
+                  layoutId={`label-${card.id}`} 
+                  transition={transitionSpec} 
+                  className={`text-[1rem] font-bold uppercase tracking-widest ${styles.labelColor}`}
+                >
                   {card.label}
                 </motion.p>
               </div>
 
               <motion.button 
-                initial={{ opacity: 0, scale: 0.92 }}
+                initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.92 }}
-                transition={fadeTransition}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onClose} 
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-20 cursor-pointer"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer"
               >
-                <span className="font-bold text-gray-500 px-2 text-lg">✕</span>
+                ✕
               </motion.button>
             </div>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...fadeTransition, delay: 0.05 }}
-              className='relative z-10 text-[1.25rem] leading-[1.6] font-medium text-slate-800 whitespace-pre-line'
-            >
-              {card.value}
-            </motion.div>
-            
-            <motion.p layoutId={`more-${card.id}`} transition={layoutTransition} className="hidden" />
+            <div className="relative z-10 flex-1 overflow-y-auto p-6 pt-2">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ delay: 0.1, duration: 0.2 }}
+                className='text-[1.25rem] leading-[1.6] font-medium text-slate-800 whitespace-pre-line'
+              >
+                {card.value}
+              </motion.div>
+            </div>
+
+            <motion.div layoutId={`more-${card.id}`} className="absolute bottom-0 opacity-0 pointer-events-none" />
 
           </div>
         </motion.div>
@@ -253,20 +264,20 @@ const Portal = ({ children }: { children: React.ReactNode }) => {
 const getThemeStyles = (theme: 'orange' | 'blue' | 'green') => {
   const themes = {
     orange: {
-      card: 'bg-[#FF8400]/10', // Light Orange Background
-      gradient: 'radial-gradient(#FF8F00 1px, transparent 1px)', // Orange Dots
+      card: 'bg-[#FF8400]/10', 
+      gradient: 'radial-gradient(#FF8F00 1px, transparent 1px)', 
       iconBg: 'bg-orange-100',
       labelColor: 'text-orange-600',
     },
     blue: {
-      card: 'bg-[#2563EB]/10', // Light Blue Background
-      gradient: 'radial-gradient(#2563EB 1px, transparent 1px)', // Blue Dots
+      card: 'bg-[#2563EB]/10', 
+      gradient: 'radial-gradient(#2563EB 1px, transparent 1px)', 
       iconBg: 'bg-blue-100',
       labelColor: 'text-blue-600',
     },
     green: {
-      card: 'bg-[#15803d]/10', // Light Green Background
-      gradient: 'radial-gradient(#15803d 1px, transparent 1px)', // Green Dots
+      card: 'bg-[#15803d]/10', 
+      gradient: 'radial-gradient(#15803d 1px, transparent 1px)', 
       iconBg: 'bg-green-100',
       labelColor: 'text-green-600',
     }

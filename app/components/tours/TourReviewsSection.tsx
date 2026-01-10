@@ -13,7 +13,7 @@ export default function TourReviewsSection({ tour, user }: { tour: Tour | null, 
   const [loading, setLoading] = useState(true);
   const [isReviewOpen, setReviewOpen] = useState(false);
   const [isAuthOpen, setAuthOpen] = useState(false);
-  const [reportState, setReportState] = useState<{isOpen: boolean, id: number | null}>({isOpen: false, id: null});
+  const [reportState, setReportState] = useState<{isOpen: boolean, id: string | null}>({isOpen: false, id: null});
   
   const supabase = createClient();
 
@@ -33,7 +33,7 @@ export default function TourReviewsSection({ tour, user }: { tour: Tour | null, 
   fetchReviews();
 }, [fetchReviews]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     setReviews(p => p.filter(r => r.id !== id));
     await supabase.from('tour_reviews').delete().eq('id', id);
   };
