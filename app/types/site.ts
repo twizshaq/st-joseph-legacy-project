@@ -15,7 +15,7 @@ export interface Story {
   type: StoryType;       // Required for switch(story.type)
   title: string;
   src: string;
-  caption?: string;      // Optional (?) means it can be undefined
+  caption?: ReactNode;      // Optional (?) means it can be undefined
   thumbnail?: string;    // Optional, mainly for video posters
 }
 
