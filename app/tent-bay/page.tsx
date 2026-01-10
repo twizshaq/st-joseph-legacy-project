@@ -51,7 +51,7 @@ const TENT_BAY_DATA: SiteContent = {
         },
         {
             title: "⏱️ 60 Seconds of Secrets",
-            content: <><strong>Tent Bay</strong> is where you see the &quot;real&quot; East Coast. Here, fishing isn't a hobby; it’s a generational lineage. You’ll see fishermen "reading" the waves to time their entry through the narrow reef passage known as the "Gap." The community is tight-knit—if you visit the fish market, you aren't just a tourist; you’re a witness to a way of life that hasn't changed much since the last train left the tracks in 1937.</>
+            content: <><strong>Tent Bay</strong> is where you see the &quot;real&quot; East Coast. Here, fishing isn&apos;t a hobby; it’s a generational lineage. You’ll see fishermen &quot;reading&quot; the waves to time their entry through the narrow reef passage known as the &quot;Gap.&quot; The community is tight-knit—if you visit the fish market, you aren&apos;t just a tourist; you’re a witness to a way of life that hasn&apos;t changed much since the last train left the tracks in 1937.</>
         },
         {
             title: "Deeper Diver",

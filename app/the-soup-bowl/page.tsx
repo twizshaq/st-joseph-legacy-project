@@ -83,21 +83,21 @@ const SOUP_BOWL_DATA: SiteContent = {
 
   heroMedia: {
     video: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test1.mp4",
-    image: "https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg",
+    image: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG",
     photo360: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test2.jpg"
   },
   gallery: [
-  { type: 'image', src: 'https://i.pinimg.com/736x/ac/c5/16/acc5165e07eba2b8db85c8a7bcb2eda6.jpg' }, // 0
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG' }, // 0
   { type: 'video', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4' }, // 1
   { type: '360', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test2.jpg' }, // 2
-  { type: 'image', src: 'https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg' }, // 3
-  { type: 'image', src: 'https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg' }, // 4
-  { type: 'image', src: 'https://i.pinimg.com/736x/b2/1a/4e/b21a4edd98d5deeae826a459aeeb1b26.jpg' }, // 5
-  { type: 'image', src: 'https://i.pinimg.com/736x/a5/71/41/a57141ad568104a6b1e49acedddd1eca.jpg' }, // 6
-  { type: 'image', src: 'https://i.pinimg.com/736x/d8/51/26/d85126e7178f37e0f8cb5a73d495707d.jpg' }, // 7
-  { type: 'image', src: 'https://i.pinimg.com/736x/3f/82/ac/3f82ac4cde04c3143ed4f2580d64820c.jpg' }, // 8
-  { type: 'image', src: 'https://i.pinimg.com/736x/4c/20/00/4c20006b09ffc0b4f31278d3009f7390.jpg' }, // 9
-  { type: 'image', src: 'https://i.pinimg.com/736x/ee/f1/ed/eef1ed5ee44a821046bcd209a3e1fbcc.jpg' }, // 10
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG' }, // 3
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG' }, // 4
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG' }, // 5
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG' }, // 6
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-1.JPG' }, // 7
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG' }, // 8
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG' }, // 9
+  { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-1.JPG' }, // 10
 ],
   stories: {
     title: "Local Stories",
