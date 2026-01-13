@@ -2,7 +2,7 @@ import React from 'react';
 
 export const ReviewSkeleton = () => {
   return (
-    <div className='rounded-[43px] p-[3px] h-full bg-white shadow-[0px_0px_10px_rgba(0,0,0,0.05)] snap-center shrink-0'>
+    <div className='rounded-[43px] p-[3px] h-full bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.07)] snap-center shrink-0'>
       <div className='relative flex flex-col w-[85vw] md:w-[420px] p-5 bg-slate-50/50 rounded-[40px] animate-pulse'>
         
         {/* Header: Avatar & Info */}

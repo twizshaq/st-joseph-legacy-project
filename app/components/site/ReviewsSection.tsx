@@ -48,7 +48,7 @@ export const ReviewsSection = ({
   };
 
   return (
-    <section className='relative flex flex-col items-center w-[1400px] max-w-[90vw] mb-[120px] mx-auto'>
+    <section className='relative flex flex-col items-center w-[1400px] max-w-[90vw] mb-[70px] mx-auto'>
       
       {/* Header & Add Button */}
       <div className='w-full flex flex-col md:flex-row justify-between max-sm:items-center items-end md:items-center gap-6 mb-5 z-10'>
@@ -75,7 +75,7 @@ export const ReviewsSection = ({
         <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-100/30 blur-[100px] -z-10 rounded-full' />
         
         {loading ? (
-          <div className='flex gap-6 overflow-x-auto hide-scrollbar'>
+          <div className='flex pb-12 pt-4 gap-6 px-4 overflow-x-auto overflow-y-visible bg-green-500/0 hide-scrollbar'>
             <ReviewSkeleton/><ReviewSkeleton/><ReviewSkeleton/>
           </div>
         ) : reviews.length === 0 ? (
@@ -84,7 +84,7 @@ export const ReviewsSection = ({
             <p>No Reviews Yet. Be the first!</p>
           </div>
         ) : (
-          <div className='flex overflow-x-auto pb-12 pt-4 gap-6 px-4 hide-scrollbar snap-x'>
+          <div className='flex overflow-x-auto overflow-y-visible pb-12 pt-4 gap-6 px-4 hide-scrollbar snap-x'>
             {reviews.slice(0, 10).map((r) => (
               <div key={r.id} className="snap-center">
                 <ReviewCard 

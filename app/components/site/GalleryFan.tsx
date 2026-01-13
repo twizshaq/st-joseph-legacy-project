@@ -30,35 +30,35 @@ export const GalleryFan = ({ items }: { items: any[] }) => {
           {/* Center Card (Index 0) */}
           <div 
             onClick={() => { setSelectedIndex(0); setGalleryOpen(true); }}
-            className='bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-20 shadow-[0px_0px_20px_rgba(0,0,0,.3)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
+            className='bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-20 shadow-[0px_0px_20px_rgba(0,0,0,.2)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
             style={{ backgroundImage: `url(${items[0]?.src})` }}
           ></div>
 
           {/* Right Inner Card (Index 3) */}
           <div 
             onClick={() => { setSelectedIndex(3); setGalleryOpen(true); }}
-            className='absolute right-[220px] bottom-[80px] rotate-[7deg] bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-10 shadow-[0px_0px_20px_rgba(0,0,0,.3)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
+            className='absolute right-[220px] bottom-[80px] rotate-[7deg] bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-10 shadow-[0px_0px_20px_rgba(0,0,0,.2)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
             style={{ backgroundImage: `url(${items[3]?.src})` }}
           ></div>
 
           {/* Left Inner Card (Index 4) */}
           <div 
             onClick={() => { setSelectedIndex(4); setGalleryOpen(true); }}
-            className='absolute left-[220px] bottom-[80px] rotate-[-7deg] bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-10 shadow-[0px_0px_20px_rgba(0,0,0,.3)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
+            className='absolute left-[220px] bottom-[80px] rotate-[-7deg] bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-10 shadow-[0px_0px_20px_rgba(0,0,0,.2)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
             style={{ backgroundImage: `url(${items[4]?.src})` }}
           ></div>
 
           {/* Left Outer Card (Index 5) */}
           <div 
             onClick={() => { setSelectedIndex(5); setGalleryOpen(true); }}
-            className='absolute left-[400px] bottom-[0px] rotate-[7deg] bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-10 shadow-[0px_0px_20px_rgba(0,0,0,.3)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
+            className='absolute left-[400px] bottom-[0px] rotate-[7deg] bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-10 shadow-[0px_0px_20px_rgba(0,0,0,.2)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
             style={{ backgroundImage: `url(${items[5]?.src})` }}
           ></div>
 
           {/* Right Outer Card (Index 6) */}
           <div 
             onClick={() => { setSelectedIndex(6); setGalleryOpen(true); }}
-            className='absolute right-[400px] bottom-[0px] rotate-[-7deg] bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-10 shadow-[0px_0px_20px_rgba(0,0,0,.3)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
+            className='absolute right-[400px] bottom-[0px] rotate-[-7deg] bg-cover bg-center border-2 border-white w-[232px] h-[310px] rounded-[50px] z-10 shadow-[0px_0px_20px_rgba(0,0,0,.2)] transition-transform duration-300 hover:-translate-y-6 active:-translate-y-6 cursor-pointer'
             style={{ backgroundImage: `url(${items[6]?.src})` }}
           ></div>
 

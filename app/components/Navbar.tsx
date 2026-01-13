@@ -237,8 +237,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
             <Link href="/virtual-map" className={navLinkClass('/virtual-map')}>Virtual Map </Link>
             <Link href="/all-sites" className={navLinkClass('/all-sites')}>Sites</Link>
             <Link href="/tours" className={navLinkClass('/tours')}>Tours</Link>
-            <Link href="/about-us" className={navLinkClass('/about-us')}>The DEO</Link>
-            <Link href="/Contributors" className={navLinkClass('/Contributors')}>Built By</Link>
+            {/* <Link href="/about-us" className={navLinkClass('/about-us')}>Our Team</Link> */}
+            <Link href="/team" className={navLinkClass('/team')}>Our Team</Link>
             
             <div className='bg-white/80 h-[60%] w-[2px] rounded-full'></div>
 
@@ -320,12 +320,11 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
         </div>
         
         <div className={`fixed inset-0 bg-white/80 backdrop-blur-md z-[99] flex flex-col items-center justify-center gap-8 text-2xl font-bold text-black transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-             <Link href="/" className={navLinkClass('/')}>Home</Link>
-            <Link href="/virtual-map" className={navLinkClass('/virtual-map')}>Virtual Map</Link>
-            <Link href="/all-sites" className={navLinkClass('/all-sites')}>View Sites</Link>
-            <Link href="/tours" className={navLinkClass('/tours')}>Tours</Link>
-            <Link href="/about-us" className={navLinkClass('/about-us')}>The DEO</Link>
-            <Link href="/Contributors" className={navLinkClass('/Contributors')}>Contributors</Link>
+             <Link href="/" className={navLinkClass('/')} onClick={closeMenu}>Home</Link>
+            <Link href="/virtual-map" className={navLinkClass('/virtual-map')} onClick={closeMenu}>Virtual Map</Link>
+            <Link href="/all-sites" className={navLinkClass('/all-sites')} onClick={closeMenu}>View Sites</Link>
+            <Link href="/tours" className={navLinkClass('/tours')} onClick={closeMenu}>Tours</Link>
+            <Link href="/team" className={navLinkClass('/team')} onClick={closeMenu}>Our Team</Link>
         </div>
 
         <div className='fixed right-[13px] top-[15px] z-[100] rounded-full bg-white/10 p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] backdrop-blur-[3px]'>

@@ -46,7 +46,7 @@ const SOUP_BOWL_DATA: SiteContent = {
       content:<><div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>Explore the history and heritage of the Soup Bowl.</div> In Barbados, we say: &quot;The sea ain&apos;t got no back door.&quot; This reflects a deep-seated respect for the Atlantic&apos;s power. At Soup Bowl, you don&apos;t conquer the ocean; you just hope she lets you dance.</>
     },
     {
-      title: "Sixty Seconds of Secrets",
+      title: "60 Seconds of Secrets",
       content:<><strong>Soup Bowl</strong> is located in the community of Cleavers Hill in Bathsheba is widely considered the crown jewel of Caribbean surfing. It offers a dramatic contrast to the calm, white-sand beaches of the West Coast, characterized instead by raw Atlantic power and prehistoric-looking rock formations.</>
     },
     {

@@ -21,7 +21,7 @@ interface NearbySectionProps {
 
 export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
   return (
-    <section className='relative flex flex-col items-center w-[1400px] max-w-[90vw] max-sm:max-w-[100vw] mx-auto mb-20'>
+    <section className='relative flex flex-col items-center w-[1400px] max-w-[90vw] max-sm:max-w-[100vw] mx-auto mb-0'>
       
       {/* Header */}
       <div className='w-full px-[5.4vw] md:px-0 mb-[10px] self-start'>
