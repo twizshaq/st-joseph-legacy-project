@@ -21,44 +21,20 @@ export default function AboutAndCreditsPage() {
   return (
     <div className="min-h-screen w-full overflow-x-hidden font-sans text-slate-800 flex flex-col items-center">
 
-      {/* ================= ABOUT ================= */}
-
-      {/* 1. Hero */}
-      <AboutHero />
-
-      {/* 2. Mission */}
-      <AboutMission />
-
-      {/* 3. Leadership */}
-      <AboutLeadership />
-
-      {/* 4. Community & Values */}
-      <AboutCommunity />
-
-      {/* ================= CREDITS ================= */}
-
-      {/* Soft transition divider */}
-      <div className="w-full max-w-[1400px] my-32 px-6">
-        <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-      </div>
-
-      {/* 6. Credits Intro */}
+      {/* 1. Credits Intro */}
       <CreditsHeader />
 
-      {/* 7. Project Lead */}
+      {/* 2. Project Lead */}
       <ProjectLead />
 
-      {/* 8. Dev Team */}
+      {/* 3. Dev Team */}
       <DigitalArchitects />
 
-      {/* 9. Sponsors */}
+      {/* 4. Sponsors */}
       <SponsorsSection />
 
-      {/* 10. Journey Timeline */}
+      {/* 5. Journey Timeline */}
       <OurJourney />
-
-      {/* 11. Call to Action */}
-      <ConnectCTA />
 
       {/* ================= FOOTER ================= */}
       <Footer />

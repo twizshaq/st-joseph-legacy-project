@@ -237,8 +237,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
             <Link href="/virtual-map" className={navLinkClass('/virtual-map')}>Virtual Map </Link>
             <Link href="/all-sites" className={navLinkClass('/all-sites')}>Sites</Link>
             <Link href="/tours" className={navLinkClass('/tours')}>Tours</Link>
-            {/* <Link href="/about-us" className={navLinkClass('/about-us')}>Our Team</Link> */}
-            <Link href="/team" className={navLinkClass('/team')}>Our Team</Link>
+            <Link href="/about-us" className={navLinkClass('/about-us')}>The DEO</Link>
+            <Link href="/team" className={navLinkClass('/team')}>Team</Link>
             
             <div className='bg-white/80 h-[60%] w-[2px] rounded-full'></div>
 
@@ -324,7 +324,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
             <Link href="/virtual-map" className={navLinkClass('/virtual-map')} onClick={closeMenu}>Virtual Map</Link>
             <Link href="/all-sites" className={navLinkClass('/all-sites')} onClick={closeMenu}>View Sites</Link>
             <Link href="/tours" className={navLinkClass('/tours')} onClick={closeMenu}>Tours</Link>
-            <Link href="/team" className={navLinkClass('/team')} onClick={closeMenu}>Our Team</Link>
+            <Link href="/about-us" className={navLinkClass('/about-us')}>The DEO</Link>
+            <Link href="/team" className={navLinkClass('/team')} onClick={closeMenu}>Team</Link>
         </div>
 
         <div className='fixed right-[13px] top-[15px] z-[100] rounded-full bg-white/10 p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] backdrop-blur-[3px]'>

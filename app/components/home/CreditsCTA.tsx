@@ -147,7 +147,7 @@ export default function CreditsCTA() {
 
             {/* Re-enable pointer events for the button */}
             <div className="pointer-events-auto">
-              <Link href="/credits" className="mt-8 group relative block">
+              <Link href="/team" className="mt-8 group relative block">
                   <div className='relative cursor-pointer whitespace-nowrap rounded-full shadow-[0px_0px_20px_rgba(0,0,0,0.1)] transition-transform duration-200 transform active:scale-[.98] hover:scale-105 flex items-center'>
                     <button className={`active:scale-97 w-full cursor-pointer group rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.1)]`}>
                       <div className='bg-[linear-gradient(to_left,#007BFF,#66B2FF)] text-white rounded-full px-8 py-3.5 flex items-center gap-3'>

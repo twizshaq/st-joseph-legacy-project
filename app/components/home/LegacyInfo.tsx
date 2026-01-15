@@ -3,155 +3,241 @@ import Image from 'next/image';
 
 export default function LegacyInfo() {
     return (
-        <div className="w-[90vw] max-w-[1500px] text-slate-800 mx-auto mt-[70px] max-sm:mt-[-50px] flex flex-col lg:flex-row gap-12">
-            {/* LEFT: Copy */}
-            <div className="flex-1 max-w-[700px] max-sm:mt-[100px] flex flex-col">
-                <h2 className="font-bold text-[2rem] max-sm:text-[1.5rem] mb-[14px] mt-[]">Unveiling Our Legacy</h2>
-                <p className="max-w-[1000px]">
-                    &quot;Unveiling Our Legacy&quot; is a community initiative led by the St. Joseph District Emergency Organisation (DEO). We have mapped key landmarks across the parish, from the Parris Hill Mural to historic churches and natural wonders. It is time for you to unlock:
-                </p>
-                <br />
-                <div className="list-disc pl-6 md:pl-12 space-y-2">
-                    <li>
-                        <b>Our Culture:</b> Dive deep into the stories that make St. Joseph unique.
-                    </li>
-                    <li>
-                        <b>Our Community:</b> Hear the voices of the community and learn directly from them. Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
-                    </li>
-                    <li>
-                        <b>Build Resilience:</b> Don&apos;t just look at the land, understand it. Critical data on local hazards (land slippage, coastal risks) and disaster management tips specific to that spot.
-                    </li>
-                </div>
-                <br />
-                {/* <br /> */}
-                <div>
-                    <p className="font-[700] text-[1.1rem]">Come Take A tour with us - Your Journey Through St. Joseph is Just a Scan Away</p>
-                    <br />
-                    <div className='list-disc pl-6 md:pl-12 space-y-2'>
-                        <li className="font-[700]">Step 1: Find a Landmark</li>
-                        <p>Look for the official &quot;Unveiling Our Legacy&quot; signs located at key historical and cultural points throughout St. Joseph. You’ll find them at places like the Parris Hill Mural, our historic churches, and major scenic lookouts.</p>
-                        <br />
-                        <li className="font-[700]">Step 2: Scan the QR Code</li>
-                        <p>Open the camera app on your smartphone and point it at the QR Code on the sign. A link will pop up—simply tap it to unlock a wealth of information curated by the St. Joseph DEO. No special app is required!</p>
-                        <br />
-                        <li className="font-[700]">Step 3: Discover & Prepare</li>
-                        <div>
-                            Once the page opens, you can:
-                            <div className='list-disc pl-6 md:pl-12 space-y-2 mt-[10px]'>
-                                <li>Listen or Read: Dive into the cultural stories and history of that specific spot.</li>
-                                <li>Get Safety Smart: View the &quot;Resilience Data&quot; for the area, including hazard tips and the location of the nearest emergency shelter.</li>
-                            </div>
-                        </div>
-                    </div>
-                    <br />
-                    <p>Can’t make it in person?</p>
-                    <p>You don’t have to be in St. Joseph to experience the magic. Use our Virtual Map right here on the website to click on any landmark and access the same rich content and safety resources from anywhere in the world.</p>
-                    {/* <li>
-                        <b>Our Community:</b> Hear the voices of the community and learn directly from them. Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
-                    </li>
-                    <li>
-                        <b>Build Resilience:</b> Don&apos;t just look at the land, understand it. Critical data on local hazards (land slippage, coastal risks) and disaster management tips specific to that spot.
-                    </li> */}
+        <div className="w-[90vw] max-w-[1500px] text-slate-800 mx-auto mt-[70px] max-sm:mt-[20px] pb-20">
+            
+            {/* --- TOP SECTION: Split Grid (Text Left | Images Right) --- */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center mb-[80px]">
+                
+                {/* LEFT COLUMN: Copy & List */}
+                <div className="flex flex-col text-left max-sm:text-center items-start max-sm:items-center">
+                    <h2 className="font-bold text-[2rem] max-sm:text-[1.5rem] mb-[14px]">
+                        Unveiling Our Legacy
+                    </h2>
+                    <p className="max-w-[650px] text-slate-600 leading-relaxed mb-8">
+                        &quot;Unveiling Our Legacy&quot; is a community initiative led by the St. Joseph District Emergency Organisation (DEO). We have mapped key landmarks across the parish, from the Parris Hill Mural to historic churches and natural wonders. It is time for you to unlock:
+                    </p>
+
+                    {/* Feature List (Mobile & Desktop Aligned) */}
+                    <ul className="space-y-8 max-w-[600px] w-full text-left">
+                        <li className="list-none flex flex-col gap-1">
+                            <p className="font-extrabold text-slate-900 text-lg border-l-4 border-blue-400 pl-4">
+                                Our Culture
+                            </p>
+                            <p className="text-slate-600 pl-5">
+                                Dive deep into the stories that make St. Joseph unique.
+                            </p>
+                        </li>
+                        
+                        <li className="list-none flex flex-col gap-1">
+                            <p className="font-extrabold text-slate-900 text-lg border-l-4 border-indigo-400 pl-4">
+                                Our Community
+                            </p>
+                            <p className="text-slate-600 pl-5">
+                                Hear the voices of the community and learn directly from them. Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
+                            </p>
+                        </li>
+                        
+                        <li className="list-none flex flex-col gap-1">
+                            <p className="font-extrabold text-slate-900 text-lg border-l-4 border-emerald-400 pl-4">
+                                Build Resilience
+                            </p>
+                            <p className="text-slate-600 pl-5">
+                                Don’t just look at the land — understand it. Access critical data on local hazards, coastal risks, and disaster‑management tips specific to each location.
+                            </p>
+                        </li>
+                    </ul>
                 </div>
 
-                {/* Mobile-Only Collage */}
-                <div className="block lg:hidden relative max-w-[90vw] w-[560px] bg-red-500/0 aspect-[14/13] self-center mt-12 max-sm:right-[14px]">
-                    <div className="absolute inset-0 pointer-events-none opacity-50">
-                        <div className="absolute w-[50%] h-[54%] top-[-5%] right-[5%] rounded-full bg-gradient-to-br from-[#2780F5]/30 to-[#F527B4]/50 blur-[80px]" />
-                        <div className="absolute w-[54%] h-[58%] bottom-[30%] left-[5%] rounded-full bg-gradient-to-tl from-yellow-300/30 to-orange-400/30 blur-[90px]" />
-                        <div className="absolute w-[50%] h-[54%] top-[50%] right-[5%] rounded-full bg-gradient-to-br from-[#00FF72]/30 to-[#A0F887]/30 blur-[80px]" />
-                        <div className="absolute w-[44%] h-[48%] bottom-[-8%] left-[5%] rounded-full bg-gradient-to-tl from-[#0077FF]/50 to-[#0077FF]/50 blur-[90px]" />
+                {/* RIGHT COLUMN: Original Collage (Exact styling restoration) */}
+                <div className="relative w-full max-w-[560px] aspect-[14/13] mx-auto bg-red-500/0 mt-12">
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute inset-0 pointer-events-none opacity-50">
+                            <div className="absolute w-[50%] h-[54%] top-[-5%] right-[5%] rounded-full bg-gradient-to-br from-[#2780F5]/30 to-[#F527B4]/50 blur-[80px]" />
+                            <div className="absolute w-[54%] h-[58%] bottom-[30%] left-[5%] rounded-full bg-gradient-to-tl from-yellow-300/30 to-orange-400/30 blur-[90px]" />
+                            <div className="absolute w-[50%] h-[54%] top-[50%] right-[5%] rounded-full bg-gradient-to-br from-[#00FF72]/30 to-[#A0F887]/30 blur-[80px]" />
+                            <div className="absolute w-[44%] h-[48%] bottom-[-8%] left-[5%] rounded-full bg-gradient-to-tl from-[#0077FF]/50 to-[#0077FF]/50 blur-[90px]" />
+                        </div>
                     </div>
-                    <div className="absolute w-[41%] h-[58%] top-[2%] right-[5%] rotate-[12deg]">
-                        <div className="relative w-full h-full rounded-[30px] border-3 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
+
+                    {/* Image 1 (Bathsheba) */}
+                    <div className="absolute w-[41%] h-[58%] top-[2%] right-[9%] rotate-[12deg] cursor-pointer transition-transform duration-300 ease-out hover:scale-[1.04] hover:rotate-[14deg] active:scale-[0.96] active:rotate-[10deg]">
+                        <div className="relative w-full h-full rounded-[50px] max-sm:rounded-[38px] border-4 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
                             <Image
                                 src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG"}
-                                alt=''
-                                layout="fill"
-                                style={{ objectFit: 'cover' }} // Or 'contain', 'fill', etc.
-                                />
+                                alt='Bathsheba'
+                                fill
+                                style={{ objectFit: 'cover' }}
+                            />
                         </div>
                     </div>
-                    <div className="absolute w-[46%] h-[42%] top-[22%] left-[8%] -rotate-[10deg]">
-                        <div className="relative w-full h-full rounded-[30px] border-3 border-white shadow-[0_2px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
+
+                    {/* Image 2 (Joes River Bridge 2) */}
+                    <div className="absolute w-[48%] h-[44%] top-[22%] left-[4%] -rotate-[10deg] cursor-pointer transition-transform duration-300 ease-out hover:scale-[1.04] hover:-rotate-[12deg] active:scale-[0.96] active:-rotate-[8deg]">
+                        <div className="relative w-full h-full rounded-[50px] max-sm:rounded-[38px] border-4 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
                             <Image
                                 src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG"}
-                                alt=''
-                                layout="fill"
-                                style={{ objectFit: 'cover' }} // Or 'contain', 'fill', etc.
-                                />
+                                alt='Bridge 2'
+                                fill
+                                style={{ objectFit: 'cover' }}
+                            />
                         </div>
                     </div>
-                    <div className="absolute w-[53%] h-[38%] bottom-[5%] right-[12%] -rotate-[2deg]">
-                        <div className="relative w-full h-full rounded-[30px] border-3 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
+
+                    {/* Image 3 (Joes River Bridge 1) */}
+                    <div className="absolute w-[53%] h-[38%] bottom-[5%] right-[16%] -rotate-[2deg] cursor-pointer transition-transform duration-300 ease-out hover:scale-[1.04] hover:rotate-0 active:scale-[0.96] active:-rotate-[4deg]">
+                        <div className="relative w-full h-full rounded-[50px] max-sm:rounded-[38px] border-4 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
                             <Image
                                 src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-1.JPG"}
-                                alt=''
-                                layout="fill"
-                                style={{ objectFit: 'cover' }} // Or 'contain', 'fill', etc.
-                                />
+                                alt='Bridge 1'
+                                fill
+                                style={{ objectFit: 'cover' }}
+                            />
                         </div>
                     </div>
                 </div>
-
-                {/* <h3 className="font-bold text-[2rem] max-sm:text-[1.5rem] mt-8 mb-2">About</h3>
-                <p className="">
-                    commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-                <p className="mt-4">
-                    commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-
-                <p className="mt-6">With some of the popular attractions being</p>
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                    <li>Tent Bay</li>
-                    <li>Soup Bowl</li>
-                    <li>Flower Forest Botanical Gardens</li>
-                    <li>Andromeda Gardens</li>
-                    <li>Hunte&apos;s Gardens</li>
-                    <li>Cotton Tower Signal Station</li>
-                </ul> */}
             </div>
 
-            {/* RIGHT: Desktop-Only Collage */}
-            <div className="hidden lg:block h-full relative flex-1 w-full max-w-[560px] aspect-[14/13] self-center my-12 lg:my-0">
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute inset-0 pointer-events-none opacity-50">
-                        <div className="absolute w-[50%] h-[54%] top-[-5%] right-[5%] rounded-full bg-gradient-to-br from-[#2780F5]/30 to-[#F527B4]/50 blur-[80px]" />
-                        <div className="absolute w-[54%] h-[58%] bottom-[30%] left-[5%] rounded-full bg-gradient-to-tl from-yellow-300/30 to-orange-400/30 blur-[90px]" />
-                        <div className="absolute w-[50%] h-[54%] top-[50%] right-[5%] rounded-full bg-gradient-to-br from-[#00FF72]/30 to-[#A0F887]/30 blur-[80px]" />
-                        <div className="absolute w-[44%] h-[48%] bottom-[-8%] left-[5%] rounded-full bg-gradient-to-tl from-[#0077FF]/50 to-[#0077FF]/50 blur-[90px]" />
+
+            {/* --- BOTTOM SECTION: The Journey Cards --- */}
+            <div className="flex flex-col items-center text-center">
+                <p className="font-[800] text-[1.1rem] md:text-[1.2rem] mt-[20px] max-w-[800px]">
+                    Come Take A Tour With Us — Your Journey Through St. Joseph Is Just a Scan Away
+                </p>
+                
+                <div className="relative mt-10 w-full max-w-[1200px] mx-auto">
+
+                    {/* Soft connector line (desktop) */}
+                    <div className="hidden md:block absolute left-0 right-0 top-[52px] h-[2px] bg-gradient-to-r from-emerald-200 via-sky-200 to-indigo-200 opacity-70" />
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+
+                        {/* Step 1 */}
+                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:-translate-y-[2px] h-full">
+                            <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
+
+                                {/* Decorative blue glow */}
+                                {/* <div className="absolute -top-24 -right-24 w-[260px] h-[260px] rounded-full bg-[#66B2FF]/30 blur-[90px] pointer-events-none" /> */}
+
+                                {/* Dot pattern */}
+                                <div
+                                    className="absolute inset-0 opacity-[0.10] pointer-events-none"
+                                    style={{ backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)', backgroundSize: '16px 16px' }}
+                                />
+
+                                <div className="relative z-10 flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                            <span className="text-[#007BFF] font-black">1</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-[0.7rem] font-extrabold tracking-[0.22em] text-[#007BFF]">STEP 1</p>
+                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">Find a Landmark</h4>
+                                        </div>
+                                    </div>
+
+                                    {/* Mini badge */}
+                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF4FF] border border-[#66B2FF]/40 text-[#007BFF] text-[0.72rem] font-extrabold">
+                                        In-person
+                                    </div>
+                                </div>
+
+                                <p className="relative z-10 text-[0.95rem] text-slate-700 leading-relaxed font-semibold">
+                                    Find an official <span className="font-extrabold">Unveiling Our Legacy</span> sign at a key historical, cultural, or scenic spot in St. Joseph.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:-translate-y-[2px] h-full">
+                            <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
+
+                                {/* Decorative blue glow */}
+                                {/* <div className="absolute -top-24 -right-24 w-[260px] h-[260px] rounded-full bg-[#66B2FF]/30 blur-[90px] pointer-events-none" /> */}
+
+                                {/* Dot pattern */}
+                                <div
+                                    className="absolute inset-0 opacity-[0.10] pointer-events-none"
+                                    style={{ backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)', backgroundSize: '16px 16px' }}
+                                />
+
+                                <div className="relative z-10 flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                            <span className="text-[#007BFF] font-black">2</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-[0.7rem] font-extrabold tracking-[0.22em] text-[#007BFF]">STEP 2</p>
+                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">Scan the QR Code</h4>
+                                        </div>
+                                    </div>
+
+                                    {/* Mini badge */}
+                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF4FF] border border-[#66B2FF]/40 text-[#007BFF] text-[0.72rem] font-extrabold">
+                                        No app
+                                    </div>
+                                </div>
+
+                                <p className="relative z-10 text-[0.95rem] text-slate-700 leading-relaxed font-semibold">
+                                    Open your camera, scan the QR code, and tap the link — <span className="font-extrabold">no app needed</span>.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:-translate-y-[2px] h-full">
+                            <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
+
+                                {/* Decorative blue glow */}
+                                {/* <div className="absolute -top-24 -right-24 w-[260px] h-[260px] rounded-full bg-[#66B2FF]/30 blur-[90px] pointer-events-none" /> */}
+
+                                {/* Dot pattern */}
+                                <div
+                                    className="absolute inset-0 opacity-[0.10] pointer-events-none"
+                                    style={{ backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)', backgroundSize: '16px 16px' }}
+                                />
+
+                                <div className="relative z-10 flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                            <span className="text-[#007BFF] font-black">3</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-[0.7rem] font-extrabold tracking-[0.22em] text-[#007BFF]">STEP 3</p>
+                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">Explore &amp; Prepare</h4>
+                                        </div>
+                                    </div>
+
+                                    {/* Mini badge */}
+                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF4FF] border border-[#66B2FF]/40 text-[#007BFF] text-[0.72rem] font-extrabold">
+                                        Be ready
+                                    </div>
+                                </div>
+
+                                <ul className="relative z-10 space-y-2">
+                                    <li className="flex items-start gap-2 text-[0.95rem] text-slate-700 font-semibold">
+                                        <span className="mt-[7px] w-[7px] h-[7px] rounded-full bg-[#66B2FF] shrink-0" />
+                                        Learn the story of the location
+                                    </li>
+                                    <li className="flex items-start gap-2 text-[0.95rem] text-slate-700 font-semibold">
+                                        <span className="mt-[7px] w-[7px] h-[7px] rounded-full bg-[#66B2FF] shrink-0" />
+                                        View local safety &amp; resilience data
+                                    </li>
+                                    <li className="flex items-start gap-2 text-[0.95rem] text-slate-700 font-semibold">
+                                        <span className="mt-[7px] w-[7px] h-[7px] rounded-full bg-[#66B2FF] shrink-0" />
+                                        Find nearby emergency shelters
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-                <div className="absolute w-[41%] h-[58%] top-[2%] right-[5%] rotate-[12deg]">
-                    <div className="relative w-full h-full rounded-[38px] border-4 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
-                        <Image
-                            src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG"}
-                            alt=''
-                            layout="fill"
-                            style={{ objectFit: 'cover' }} // Or 'contain', 'fill', etc.
-                            />
-                    </div>
-                </div>
-                <div className="absolute w-[46%] h-[42%] top-[22%] left-[8%] -rotate-[10deg]">
-                    <div className="relative w-full h-full rounded-[38px] border-4 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
-                        <Image
-                            src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG"}
-                            alt=''
-                            layout="fill"
-                            style={{ objectFit: 'cover' }} // Or 'contain', 'fill', etc.
-                            />
-                    </div>
-                </div>
-                <div className="absolute w-[53%] h-[38%] bottom-[5%] right-[12%] -rotate-[2deg]">
-                    <div className="relative w-full h-full rounded-[38px] border-4 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
-                        <Image
-                            src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-1.JPG"}
-                            alt=''
-                            layout="fill"
-                            style={{ objectFit: 'cover' }} // Or 'contain', 'fill', etc.
-                            />
-                    </div>
+
+                <div className="mt-12 w-full max-w-[800px]">
+                    <p className="font-extrabold text-[1.05rem] mb-2 text-slate-900">Can’t make it in person?</p>
+                    <p className="text-slate-600 leading-relaxed">
+                        You don’t have to be in St. Joseph to experience the magic. Use our Virtual Map on the website to tap any landmark and access the same stories and safety resources from anywhere.
+                    </p>
                 </div>
             </div>
         </div>

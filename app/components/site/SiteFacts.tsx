@@ -123,11 +123,11 @@ const FactCard = ({ id, icon, label, value, theme, onClick, isSelected }: FactCa
         layoutId={`card-container-${id}`}
         transition={transitionSpec}
         onClick={isLongContent ? onClick : undefined}
-        className={`relative rounded-[44px] p-[3px] h-full ${styles.card} active:scale-[0.995] hover:scale-[1.02] duration-100 shadow-[0px_14px_40px_rgba(2,6,23,0.10)]`}
+        className={`relative rounded-[42px] p-[3px] h-full ${styles.card} active:scale-[0.99] hover:scale-[1.02] duration-100 shadow-[0px_0px_20px_rgba(2,6,23,0.10)]`}
         // whileHover={!isSelected && isLongContent ? { y: -5, scale: 1.012 } : {}}
         // whileTap={!isSelected && isLongContent ? { scale: 0.995 } : {}}
       >
-        <div className='group relative flex flex-row items-stretch gap-2 p-2 bg-white/80 h-full rounded-[42px] overflow-hidden'>
+        <div className='group relative flex flex-row items-stretch gap-2 p-2 bg-white/80 h-full rounded-[40px] overflow-hidden'>
           <div
             className="absolute inset-0 opacity-[0.14] z-0 pointer-events-none"
             style={{ backgroundImage: styles.gradient, backgroundSize: '14px 14px' }}
@@ -157,7 +157,7 @@ const FactCard = ({ id, icon, label, value, theme, onClick, isSelected }: FactCa
               </div>
               
               {isLongContent && (
-                <div className="absolute bottom-0 right-[-8px] pl-12 pr-2 py-0 h-[1.5em] flex items-center">
+                <div className="absolute bottom-0 right-[-16px] pl-12 pr-2 py-0 h-[1.5em] flex items-center">
                   <motion.button
                     layoutId={`more-${id}`}
                     className={`flex items-center gap-1.5 pl-3 pr-2 py-1 mr-[10px] cursor-pointer rounded-full text-[0.75rem] font-bold shadow-[0px_0px_5px_rgba(0,0,0,0.1)] ring-1 ring-inset ring-black/5 ${styles.iconBg} ${styles.labelColor}`}
@@ -202,14 +202,14 @@ const FullScreenOverlay = ({ card, onClose }: { card: FactData, onClose: () => v
          the overlay allows clicks to pass through to the page below immediately.
       */}
       <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-gradient-to-b from-black/35 via-black/35 to-black/45 backdrop-blur-[6px] cursor-pointer"
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] cursor-pointer"
         onClick={onClose}
       >
         <div 
-          className={`relative w-full max-w-[640px] max-h-[85vh] flex flex-col rounded-[44px] p-[5px] ${styles.card} shadow-[0px_30px_90px_rgba(0,0,0,0.45)] cursor-default`}
+          className={`relative w-full max-w-[640px] max-h-[85vh] flex flex-col rounded-[44px] p-[3px] ${styles.expandedcard} shadow-[0px_30px_90px_rgba(0,0,0,0.45)] cursor-default`}
           onClick={(e) => e.stopPropagation()} 
         >
-          <div className={`relative flex flex-col w-full h-full bg-white/70 rounded-[40px] overflow-hidden`}>
+          <div className={`relative flex flex-col w-full h-full bg-white/90 rounded-[42px] overflow-hidden`}>
             
             {/* Pattern Background */}
             <div className="absolute inset-0 opacity-[0.15] z-0 pointer-events-none" 
@@ -228,7 +228,7 @@ const FullScreenOverlay = ({ card, onClose }: { card: FactData, onClose: () => v
 
               <button 
                 onClick={onClose} 
-                className="absolute top-6 right-6 flex items-center justify-center rounded-full text-white hover:text-red-500 active:text-red-500 transition-colors cursor-pointer"
+                className={`absolute top-6 right-6 flex items-center justify-center rounded-full ${styles.labelColor} hover:text-red-500 active:text-red-500 transition-colors cursor-pointer`}
               >
                 <FaTimes size={24} />
               </button>
@@ -260,20 +260,23 @@ const Portal = ({ children }: { children: React.ReactNode }) => {
 const getThemeStyles = (theme: 'orange' | 'blue' | 'green') => {
   const themes = {
     orange: {
-      card: 'bg-[#FF8400]/30', 
-      gradient: 'radial-gradient(#FF8F00 1px, transparent 1px)', 
+      card: 'bg-[#FFA345]/60', 
+      expandedcard: 'bg-[#FFA345]',
+      gradient: 'radial-gradient(#FFA345 1px, transparent 1px)', 
       iconBg: 'bg-orange-100',
       labelColor: 'text-orange-600',
     },
     blue: {
-      card: 'bg-[#2563EB]/30', 
-      gradient: 'radial-gradient(#2563EB 1px, transparent 1px)', 
+      card: 'bg-[#6193FF]/60',
+      expandedcard: 'bg-[#6193FF]',
+      gradient: 'radial-gradient(#6193FF 1px, transparent 1px)', 
       iconBg: 'bg-blue-100',
       labelColor: 'text-blue-600',
     },
     green: {
-      card: 'bg-[#10C253]/30', 
-      gradient: 'radial-gradient(#15803d 1px, transparent 1px)', 
+      card: 'bg-[#78DE98]/60',
+      expandedcard: 'bg-[#78DE98]',
+      gradient: 'radial-gradient(#78DE98 1px, transparent 2px)', 
       iconBg: 'bg-green-100',
       labelColor: 'text-green-600',
     }
