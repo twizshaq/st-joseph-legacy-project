@@ -106,13 +106,10 @@ export default function LegacyInfo() {
                 
                 <div className="relative mt-10 w-full max-w-[1200px] mx-auto">
 
-                    {/* Soft connector line (desktop) */}
-                    <div className="hidden md:block absolute left-0 right-0 top-[52px] h-[2px] bg-gradient-to-r from-emerald-200 via-sky-200 to-indigo-200 opacity-70" />
-
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
 
                         {/* Step 1 */}
-                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:-translate-y-[2px] h-full">
+                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:scale-[1.02] active:scale-[.99] h-full">
                             <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
 
                                 {/* Decorative blue glow */}
@@ -148,7 +145,7 @@ export default function LegacyInfo() {
                         </div>
 
                         {/* Step 2 */}
-                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:-translate-y-[2px] h-full">
+                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:scale-[1.02] active:scale-[.99] h-full">
                             <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
 
                                 {/* Decorative blue glow */}
@@ -184,7 +181,7 @@ export default function LegacyInfo() {
                         </div>
 
                         {/* Step 3 */}
-                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:-translate-y-[2px] h-full">
+                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:scale-[1.02] active:scale-[.99] h-full">
                             <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
 
                                 {/* Decorative blue glow */}

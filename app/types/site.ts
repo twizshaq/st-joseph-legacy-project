@@ -58,7 +58,7 @@ export interface SiteContent {
     photo360: string;
   };
   gallery: GalleryItem[];
-  stories: LocalStoriesData;
+  stories?: LocalStoriesData;
   facts: SiteFactsData;
   safety: SafetyInfo;
   location: {

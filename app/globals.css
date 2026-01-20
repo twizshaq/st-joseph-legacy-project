@@ -315,3 +315,28 @@ body {
     transform: translate3d(0, 0, 0);
   }
 }
+
+.fontshine {
+  background: linear-gradient(270deg, #e6e6e6,
+      #5E9FFF,
+      #ffffff,
+      #3965a6,
+      #5E9FFF);
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientloopAnimation 5s linear infinite;
+}
+
+@keyframes gradientloopAnimation {
+  0% {
+    background-position: 0% 0%;
+    /* Start position */
+  }
+
+  100% {
+    background-position: -400% 0%;
+    /* Move to the right by 100% of background size */
+  }
+}

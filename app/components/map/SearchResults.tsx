@@ -194,9 +194,22 @@ export const SearchResults = memo(function SearchResults({
 
                   <div className='bg-white/10 h-[2px] w-[65%] self-center mb-[17px]'/>
 
+                  <div className='px-4 flex items-center gap-3 pb-[0px] mb-[15px]'>
+                    <div className='w-[90%] flex self-center items-center gap-[10px]'>
+                      <div onClick={() => setIsPlanningTrip(true)} className='self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] -mr-[2px] w-[100%]'>
+                        <div className='flex flex-col text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[15px] py-[15.4px]'>
+                          <span className='text-white font-bold'>Create a custom trip</span>
+                        </div>
+                      </div>
+                    </div>
+                     <div className='shrink-0'><InfoPopup key={selectedSite.id} /></div>
+                  </div>
+
+                  {/* <div className='bg-white/10 h-[2px] w-[65%] self-center mb-[20px]' />s */}
+
                   {/* Media Section */}
                 <div className='flex flex-col gap-[15px] mb-[20px]'>
-                  <p className='font-bold text-[1.2rem] px-4'>Media</p>
+                  <p className='font-bold text-[1.2rem] px-4'>Photo Gallery</p>
                   
                   <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] hide-scrollbar'>
                     
@@ -253,19 +266,6 @@ export const SearchResults = memo(function SearchResults({
                     </button>
                   </div>
                 </div>
-
-                  <div className='bg-white/10 h-[2px] w-[65%] self-center mb-[20px]' />
-
-                  <div className='px-4 flex items-center gap-3 pb-[0px] mb-[-15px]'>
-                    <div className='w-[90%] flex self-center items-center gap-[10px]'>
-                      <div onClick={() => setIsPlanningTrip(true)} className='self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] -mr-[2px] w-[100%]'>
-                        <div className='flex flex-col text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[15px] py-[15.4px]'>
-                          <span className='text-white font-bold'>Create a custom trip</span>
-                        </div>
-                      </div>
-                    </div>
-                     <div className='shrink-0'><InfoPopup key={selectedSite.id} /></div>
-                  </div>
 
                 </div>
               </div>

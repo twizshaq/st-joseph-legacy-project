@@ -157,7 +157,9 @@ export default function SoupBowlPage() {
         sidebarSlot={
           <>
             <SiteSafety data={SOUP_BOWL_DATA.safety}/>
-            <LocalStories data={SOUP_BOWL_DATA.stories} />
+            {SOUP_BOWL_DATA.stories && (
+              <LocalStories data={SOUP_BOWL_DATA.stories} />
+            )}
             <SiteQuiz user={user} siteId={SOUP_BOWL_DATA.id} />
           </>
         }

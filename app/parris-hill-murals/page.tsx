@@ -32,6 +32,7 @@ import { ReportModal } from "@/app/components/ReportModal";
 import { HeroSection } from '@/app/components/site/HeroSection';
 import { InfoSection } from '@/app/components/site/InfoSection';
 import { GalleryFan } from '@/app/components/site/GalleryFan';
+import { LocalLegend } from '@/app/components/site/LocalLegend'
 
 // 1. Define Static Data (Or fetch this from a CMS/DB in a Server Component if using App Router)
 const PARRIS_HILL_DATA: SiteContent = {
@@ -43,30 +44,17 @@ const PARRIS_HILL_DATA: SiteContent = {
   sections: [
     {
       title: "Roots and Routes",
-      content:<><div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>Explore the history and heritage of the Soup Bowl.</div> In Barbados, we say: &quot;The sea ain&apos;t got no back door.&quot; This reflects a deep-seated respect for the Atlantic&apos;s power. At Soup Bowl, you don&apos;t conquer the ocean; you just hope she lets you dance.</>
-    },
-    {
-      title: "Sixty Seconds of Secrets",
-      content:<><strong>Soup Bowl</strong> is located in the community of Cleavers Hill in Bathsheba is widely considered the crown jewel of Caribbean surfing. It offers a dramatic contrast to the calm, white-sand beaches of the West Coast, characterized instead by raw Atlantic power and prehistoric-looking rock formations.</>
-    },
-    {
-      title: "Surf Conditions and Significance",
-      content:<>The Soup Bowl&apos;s reputation is built on its unique geological structure and exposure to the Atlantic.
-        <ul className="list-disc pl-5 space-y-3 mt-[15px]">
-          <li>
-            <strong>World-Class Break:</strong> The wave breaks over a <strong>shallow coral reef</strong>, creating a consistent, heavy, and fast right-hand reef break. This setup produces hollow, barrel-shaped waves that are both exhilarating and highly demanding.
-          </li>
-          
-          <li>
-            <strong>Consistency:</strong> Unlike many surf spots that rely on specific tropical systems, the Soup Bowl catches nearly every northerly and easterly swell generated in the North Atlantic, making it one of the most consistent surf zones in the Caribbean.
-          </li>
-
-          <li>
-            <strong>Global Recognition:</strong> The site regularly hosts international competitions, notably part of the World Surf League (WSL) Qualifying Series, solidifying its status as a premier global surfing destination. Eleven-time world champion Kelly Slater has frequently praised the quality of the waves here.
-          </li>
-        </ul>
+      content:<>Explore the history and heritage of the Parris Hill Mural.
+      <br /> <br />
+      <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>60 Second Secret</div>
+      This site is a rare example of large-scale, indigenous rock carving in the Eastern Caribbean. Unlike a traditional painted mural, these are sculptures etched directly into the natural limestone coral cliffs of St. Joseph. There are currently five scenes; from the Aesop&apos;s Fable Lion and the Mouse (reminding us that no one is too small to make an impact) to the whimsical "Cricket in the Jungle" (a tribute to The Tradewinds' song), the rock face is a celebration of Barbadian identity and universal fables.
+      <br /> <br />
+      <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>A Deeper Dive- Explore with the Artist</div>
+      This site is celebrated as a significant piece of public art. The work has evolved from the original murals to indigenous sculptures depicting scenes of folklore or the natural beauty of the parish.  The sculptures are the artistic vision of Christopher Chandler, a self-taught Barbadian "recycle artist" and sculptor. The primary works were completed around 2000, though Chandler has noted that the site is an ongoing "vision" rather than a finished decoration. 
+      <br /><br />
+      Like all great art, the interpretation is up to you, but we invite you to hear the stories from Christopher Chandler and see the progression of the work
       </>
-    },
+    }
   ],
   safety: {
     heading: "Harmony with the Elements",
@@ -99,19 +87,19 @@ const PARRIS_HILL_DATA: SiteContent = {
   { type: 'image', src: 'https://i.pinimg.com/736x/4c/20/00/4c20006b09ffc0b4f31278d3009f7390.jpg' }, // 9
   { type: 'image', src: 'https://i.pinimg.com/736x/ee/f1/ed/eef1ed5ee44a821046bcd209a3e1fbcc.jpg' }, // 10
 ],
-  stories: {
-    title: "Local Stories",
-    tagline: "Listen, Watch, Discover",
-    items: [
-      {
-        id: 1,
-        type: 'video',
-        title: "Local Legend",
-        src: "https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4",
-        caption: "A 2-minute history of the first surfers here."
-      },
-    ],
-  },
+  // stories: {
+  //   title: "Local Stories",
+  //   tagline: "Listen, Watch, Discover",
+  //   items: [
+  //     {
+  //       id: 1,
+  //       type: 'video',
+  //       title: "Local Legend",
+  //       src: "https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4",
+  //       caption: "A 2-minute history of the first surfers here."
+  //     },
+  //   ],
+  // },
   facts: {
     Category: "World-Class Surf Break & Natural Wonder", // Note: \n works because we added whitespace-pre-line in the CSS
     Best_For: "Surfing, Spectating, Photography, and Coastal Wandering.",
@@ -125,7 +113,7 @@ const PARRIS_HILL_DATA: SiteContent = {
   },
 };
 
-export default function SoupBowlPage() {
+export default function ParrisHillPage() {
   // 2. Data Fetching (Reviews/Auth/User)
   const { 
     user, 
@@ -157,13 +145,15 @@ export default function SoupBowlPage() {
         sidebarSlot={
           <>
             <SiteSafety data={PARRIS_HILL_DATA.safety}/>
-            <LocalStories data={PARRIS_HILL_DATA.stories} />
+            {PARRIS_HILL_DATA.stories && (
+              <LocalStories data={PARRIS_HILL_DATA.stories} />
+            )}
             <SiteQuiz user={user} siteId={PARRIS_HILL_DATA.id} />
           </>
         }
       />
 
-      {/* <LocalStories stories={PARRIS_HILL_DATA.stories} /> */}
+      <LocalLegend />
 
       <GalleryFan items={PARRIS_HILL_DATA.gallery} />
 
