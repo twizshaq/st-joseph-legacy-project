@@ -176,8 +176,8 @@ export default function SoupBowlPage() {
                     <>
                         <SiteSafety data={HIGHLAND_POTTERY_DATA.safety} />
                         {HIGHLAND_POTTERY_DATA.stories && (
-                                                              <LocalStories data={HIGHLAND_POTTERY_DATA.stories} />
-                                                            )}
+                            <LocalStories data={HIGHLAND_POTTERY_DATA.stories} />
+                        )}
                         <SiteQuiz user={user} siteId={HIGHLAND_POTTERY_DATA.id} />
                     </>
                 }

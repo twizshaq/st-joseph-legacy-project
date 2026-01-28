@@ -157,7 +157,9 @@ export default function SoupBowlPage() {
         sidebarSlot={
           <>
             <SiteSafety data={FLOWER_FOREST_DATA.safety}/>
-            <LocalStories data={FLOWER_FOREST_DATA.stories} />
+            {FLOWER_FOREST_DATA.stories && (
+              <LocalStories data={FLOWER_FOREST_DATA.stories} />
+            )}
             <SiteQuiz user={user} siteId={FLOWER_FOREST_DATA.id} />
           </>
         }

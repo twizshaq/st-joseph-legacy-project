@@ -165,8 +165,8 @@ export default function SoupBowlPage() {
                     <>
                         <SiteSafety data={TENT_BAY_DATA.safety} />
                         {TENT_BAY_DATA.stories && (
-                                      <LocalStories data={TENT_BAY_DATA.stories} />
-                                    )}
+                            <LocalStories data={TENT_BAY_DATA.stories} />
+                        )}
                         <SiteQuiz user={user} siteId={TENT_BAY_DATA.id} />
                     </>
                 }
