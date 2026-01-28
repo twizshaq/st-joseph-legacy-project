@@ -66,7 +66,7 @@ const TENT_BAY_DATA: SiteContent = {
         description:
             <>
                 <li>
-                    <b>The Atlantic Power:</b> Unlike the calm West Coast, Tent Bay has <b>extremely strong currents.</b>  Swimming is not advised; instead, enjoy the "natural pools" that form at low tide between the inner reefs.</li>
+                    <b>The Atlantic Power:</b> Unlike the calm West Coast, Tent Bay has <b>extremely strong currents.</b>  Swimming is not advised; instead, enjoy the &quot;natural pools&quot; that form at low tide between the inner reefs.</li>
                 <li>
                     <b>Tsunami Ready:</b> Tent Bay is in a coastal inundation zone. In the event of an earthquake or rapidly receding water, <b>immediately head uphill toward Hillcrest Community Centre</b>, which is the designated high-ground safe zone.
                 </li>
@@ -164,13 +164,13 @@ export default function SoupBowlPage() {
                 sidebarSlot={
                     <>
                         <SiteSafety data={TENT_BAY_DATA.safety} />
-                        <LocalStories data={TENT_BAY_DATA.stories} />
+                        {TENT_BAY_DATA.stories && (
+                                      <LocalStories data={TENT_BAY_DATA.stories} />
+                                    )}
                         <SiteQuiz user={user} siteId={TENT_BAY_DATA.id} />
                     </>
                 }
             />
-
-            {/* <LocalStories stories={TENT_BAY_DATA.stories} /> */}
 
             <GalleryFan items={TENT_BAY_DATA.gallery} />
 

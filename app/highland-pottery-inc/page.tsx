@@ -51,17 +51,17 @@ const HIGHLAND_POTTERY_DATA: SiteContent = {
         },
         {
             title: "⏱️ 60 Seconds of Secrets",
-            content: <><b>Chalky Mount</b> is the "backbone" of the Scotland District, a region geologically distinct from the rest of Barbados. While 85% of the island is covered in coral limestone, Chalky Mount is a rare exposure of the accretionary prism—sediment scraped from the ocean floor 70 million years ago and thrust upward.
+            content: <><b>Chalky Mount</b> is the &quot;backbone&quot; of the Scotland District, a region geologically distinct from the rest of Barbados. While 85% of the island is covered in coral limestone, Chalky Mount is a rare exposure of the accretionary prism—sediment scraped from the ocean floor 70 million years ago and thrust upward.
                 This unique geology gave birth to the Chalky Mount Potteries.  Because it is made of clay and sandstone rather than solid rock, the landscape is constantly changing due to erosion.</>
         },
         {
             title: "Deeper Diver",
             content: <>
-                Since the 1700s, families have harvested the local red clay to craft "monkeys" (water jugs), "conaree" jars, and flower pots. The village remains one of the longest-standing industrial areas on the island, where master potters still use traditional wheels to keep a centuries-old Bajan legacy alive.<br /> <br />
+                Since the 1700s, families have harvested the local red clay to craft &quot;monkeys&quot; (water jugs), &quot;conaree&quot; jars, and flower pots. The village remains one of the longest-standing industrial areas on the island, where master potters still use traditional wheels to keep a centuries-old Bajan legacy alive.<br /> <br />
 
-                The hike up Chalky Mount is often described as walking on the edge of the world. The ridge is narrow, with the land falling away sharply on both sides into lush, green "V" shaped valleys.<br /> <br />
+                The hike up Chalky Mount is often described as walking on the edge of the world. The ridge is narrow, with the land falling away sharply on both sides into lush, green &quot;V&quot; shaped valleys.<br /> <br />
 
-                The "Chalk" in the name is actually a bit of a misnomer; the white appearance comes from weathered clay and sandstone. As you climb toward the Keith Laurie Memorial Cross, you are standing on some of the oldest earth in the Caribbean, witnessing a landscape that predates the last Ice Age.
+                The &quot;Chalk&quot; in the name is actually a bit of a misnomer; the white appearance comes from weathered clay and sandstone. As you climb toward the Keith Laurie Memorial Cross, you are standing on some of the oldest earth in the Caribbean, witnessing a landscape that predates the last Ice Age.
             </>
         },
     ],
@@ -77,7 +77,7 @@ const HIGHLAND_POTTERY_DATA: SiteContent = {
                     <b>The Clay Trap:</b> When dry, the clay is like concrete; when wet, it is like grease. <b>Avoid the ridges during or immediately after heavy rain.</b>
                 </li>
                 <li>
-                    <b>Road Safety:</b> Be mindful of "slipping" roads in this area. Report any new cracks in the pavement to the District Emergency Organisation (DEO).
+                    <b>Road Safety:</b> Be mindful of &quot;slipping&quot; roads in this area. Report any new cracks in the pavement to the District Emergency Organisation (DEO).
                 </li>
             </>,
         guidelines: [
@@ -118,8 +118,8 @@ const HIGHLAND_POTTERY_DATA: SiteContent = {
                 src: "/data/cat-meow-9-fx-306185.mp3",
                 caption:
                     <>
-                        My hands are never clean, but my heart is always full. This clay is part of our skin. My father taught me, and his father taught him. We don't just make pots; we make the earth talk.
-                        <span className="font-bold"> — A local potter on the endurance of the Chalky Mount tradition."</span>
+                        My hands are never clean, but my heart is always full. This clay is part of our skin. My father taught me, and his father taught him. We don&apos;t just make pots; we make the earth talk.
+                        <span className="font-bold"> — A local potter on the endurance of the Chalky Mount tradition.&quot;</span>
                     </>,
             },
         ],
@@ -175,7 +175,9 @@ export default function SoupBowlPage() {
                 sidebarSlot={
                     <>
                         <SiteSafety data={HIGHLAND_POTTERY_DATA.safety} />
-                        <LocalStories data={HIGHLAND_POTTERY_DATA.stories} />
+                        {HIGHLAND_POTTERY_DATA.stories && (
+                                                              <LocalStories data={HIGHLAND_POTTERY_DATA.stories} />
+                                                            )}
                         <SiteQuiz user={user} siteId={HIGHLAND_POTTERY_DATA.id} />
                     </>
                 }
