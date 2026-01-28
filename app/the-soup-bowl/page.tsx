@@ -73,8 +73,7 @@ const SOUP_BOWL_DATA: SiteContent = {
     subheading: "Your guide to staying safe and respecting the landscape.",
     description: "East coast seas are unpredictable. Avoid swimming during high swells. Monitor weather advisories.",
     guidelines: [
-       "Use designated zones for photography.",
-       "Park away from soft shoulders."
+       <>Use designated zones for photography. <br /><br />Park away from soft shoulders.</>
     ],
     emergencyNumbers: (
        <>• 211 Police <br /> • 511 Ambulance <br /> • 311 Fire</>
