@@ -29,7 +29,7 @@ export interface SafetyInfo {
   heading: string;      // e.g., "Disaster Ready"
   subheading: string;   // e.g., "Safety Guidelines"
   description: ReactNode;  // Main paragraph text
-  guidelines: ReactNode[]; // Array of ReactNodes for the bullet points
+  guidelines: ReactNode; // Array of strings for the bullet points
   emergencyNumbers: ReactNode; // ReactNode allows for <br/> tags
 }
 

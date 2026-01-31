@@ -43,10 +43,9 @@ const SOUP_BOWL_DATA: SiteContent = {
     sections: [
         {
             title: "Roots and Routes",
-            content: <><div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>Explore the history and heritage of the Soup Bowl.</div> In Barbados, we say: <span className="italic font-medium">&quot;The sea ain&apos;t got no back door&quot;.</span>  This reflects a deep-seated respect for the Atlantic&apos;s power. At Soup Bowl, you don&apos;t conquer the ocean; you just hope she lets you dance.
+            content: <><div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>Explore the history and heritage of the Soup Bowl.</div> In Barbados, we say: &quot;The sea ain&apos;t got no back door.&quot; This reflects a deep-seated respect for the Atlantic&apos;s power. At Soup Bowl, you don&apos;t conquer the ocean; you just hope she lets you dance.
                 <br /> <br />
-                <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>⏱️60 Seconds of Secrets
-                </div>
+                <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>60 Second Secret</div>
                 <strong>Soup Bowl</strong> is located in the community of Cleavers Hill in Bathsheba is widely considered the crown jewel of Caribbean surfing. It offers a dramatic contrast to the calm, white-sand beaches of the West Coast, characterized instead by raw Atlantic power and prehistoric-looking rock formations.
             </>
         },
@@ -74,19 +73,7 @@ const SOUP_BOWL_DATA: SiteContent = {
         subheading: "Your guide to staying safe and respecting the landscape.",
         description: "East coast seas are unpredictable. Avoid swimming during high swells. Monitor weather advisories.",
         guidelines: [
-            <>
-                <span className="font-bold">Swimming:</span> <span className='font-normal'>Because of powerful undertows, rip currents, and sharp coral reefs, swimming in the open ocean here is extremely dangerous and generally discouraged.</span>
-            </>,
-            <>
-                <span className="font-bold">Natural Warning Signs: Be Tsunami Smart</span>
-                <br />
-                <span className="font-semibold text-amber-600">Act immediately if you:</span>
-                <ol className='list-decimal pl-5 space-y-1'>
-                    <li className='font-normal'> <span className="font-bold">FEEL:</span> Strong shaking that makes it hard to stand.</li>
-                    <li className='font-normal'> <span className="font-bold">SEE:</span> The ocean withdrawing an unusual distance, exposing the sea floor.</li>
-                    <li className='font-normal'> <span className="font-bold">HEAR:</span> A loud, roaring sound (like a jet engine or train) from the Atlantic.</li>
-                </ol>
-            </>
+            <>Use designated zones for photography. <br /><br />Park away from soft shoulders.</>
         ],
         emergencyNumbers: (
             <>• 211 Police <br /> • 511 Ambulance <br /> • 311 Fire</>
@@ -127,9 +114,9 @@ const SOUP_BOWL_DATA: SiteContent = {
     facts: {
         Category: "World-Class Surf Break & Natural Wonder", // Note: \n works because we added whitespace-pre-line in the CSS
         Best_For: "Surfing, Spectating, Photography, and Coastal Wandering.",
-        Amenities: "Local rum shops and restaurants are nearby. Public restrooms are available at the Bathsheba Park facility and Hillcrest.",
-        Accessibility: "Viewing areas and paved roads are accessible. Note: Reaching the water's edge involves slippery rocks and uneven sand.",
-        Nearby_Must_See: "Joes River Bridge and Hillcrest Viewpoint",
+        Amenities: "Small local rum shops and restaurants are nearby. Public restrooms are available at the Bathsheba Park facility and Hillcrest.",
+        Accessibility: "The main viewing areas and Bathsheba Park are accessible via paved roads. However, reaching the water's edge requires navigating uneven, often slippery rock and sand.",
+        Nearby_Must_See: "Andromeda Botanical Gardens and the Hillcrest",
     },
     location: {
         lat: 13.214743,
