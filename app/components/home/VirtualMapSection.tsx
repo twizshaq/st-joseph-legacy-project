@@ -34,9 +34,9 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
     const mapRef = useRef<MapControlsHandle | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const compassDialRef = useRef<HTMLDivElement | null>(null);
-    
+
     // PERF FIX: Track the last letter in a ref to check against before setting state
-    const lastDirectionLetterRef = useRef('N'); 
+    const lastDirectionLetterRef = useRef('N');
     const [directionLetter, setDirectionLetter] = useState('N');
 
     const geojsonData = useMemo((): FeatureCollection<Point> | null => {
@@ -56,7 +56,7 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
     const handleZoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
     const handleZoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
     const handleResetNorth = useCallback(() => mapRef.current?.resetNorth(), []);
-    
+
     // PERF FIX: Optimized rotation handler
     const handleMapRotate = useCallback((newBearing: number) => {
         // 1. Direct DOM manipulation for smooth rotation (Zero React overhead)
@@ -67,7 +67,7 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
         // 2. Logic optimization: Only update React State if the letter actually changed.
         // This prevents the component from re-rendering 60 times a second while rotating.
         const newLetter = getDirectionLetter(newBearing);
-        
+
         if (lastDirectionLetterRef.current !== newLetter) {
             lastDirectionLetterRef.current = newLetter;
             setDirectionLetter(newLetter);
@@ -75,7 +75,7 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
     }, []);
 
     return (
-        <div className='text-slate-800 flex flex-col xl:items-center lg:items-center md:items-center w-[90vw] mt-[100px]'>
+        <div className='text-slate-800 flex flex-col xl:items-center lg:items-center md:items-center w-[90vw] xl:mt-[40px] mt-[50px]'>
             <p className='font-bold text-[2rem] max-sm:text-[1.5rem] text-center'>Virtual Map of St. Joseph</p>
             <p className='max-w-[800px] text-center'>Explore St. Joseph with our interactive Virtual Map—your digital guide for planning routes or exploring from home. Click locations for details, build your own tour, or book one of our available guided tours.</p>
 
@@ -112,16 +112,16 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
                     </div>
                 </div>
 
-            <Link href="/feedback">
-                <div className='absolute bottom-[20px] right-[20px] whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
-                    <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                        <button className='rounded-full active:bg-black/30 cursor-pointer bg-black/40 backdrop-blur-[5px] flex flex-row text-white font-bold px-[15px] py-[10px] gap-[10px] z-[40]'>
-                            <AlertIcon size={23} color="white" />
-                            <p className=''>Feedback</p>
-                        </button>
+                <Link href="/feedback">
+                    <div className='absolute bottom-[20px] right-[20px] whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+                        <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+                            <button className='rounded-full active:bg-black/30 cursor-pointer bg-black/40 backdrop-blur-[5px] flex flex-row text-white font-bold px-[15px] py-[10px] gap-[10px] z-[40]'>
+                                <AlertIcon size={23} color="white" />
+                                <p className=''>Feedback</p>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </Link>
+                </Link>
 
                 <Link href="/virtual-map" target="_blank" rel="noopener noreferrer">
                     <div className='absolute top-[20px] right-[20px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>

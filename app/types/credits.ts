@@ -15,12 +15,12 @@ export interface Sponsor {
 // --- Data ---
 
 export const digitalArchitects: string[] = [
-  "Shaquon",
-  "Lamar",
-  "Akeem",
-  "Joshua",
-  "Sonique",
-  "Chesney"
+  "Shaquon Hamilton",
+  "Lamar Cox",
+  "Akeem Smith",
+  "Joshua Blackman",
+  "Sonique Jordan-Alleyne",
+  "Chesney Stay"
 ];
 
 export const platinumSponsors: Sponsor[] = [

@@ -17,23 +17,23 @@ export default function Home() {
     return (
         <div className='flex flex-col items-center min-h-[100dvh] text-black bg-[#fff] overflow-x-hidden'>
             <Hero />
-            
+
             <LegacyInfo />
-            
-            <VirtualMapSection 
-                sites={sites} 
-                siteCards={siteCards} 
-            />
-            
-            <FeaturedSites 
-                siteCards={siteCards} 
-                loading={loading} 
+
+            <VirtualMapSection
+                sites={sites}
+                siteCards={siteCards}
             />
 
-            <CreditsCTA />
+            <FeaturedSites
+                siteCards={siteCards}
+                loading={loading}
+            />
+
+            {/* <CreditsCTA /> */}
 
             <Sponsors />
-            
+
             <Footer />
         </div>
     );

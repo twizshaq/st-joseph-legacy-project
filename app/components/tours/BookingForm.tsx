@@ -1,135 +1,402 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react';
-import { format } from "date-fns";
-import CustomCalendar from "@/app/components/tours/CustomCalendar"; 
-import { ProfileIcon } from "@/public/icons/profile-icon"; 
-import ArrowIcon from '@/public/icons/arrow-icon'; 
-import { Tour } from '@/app/types/tours';
-import { createClient } from '@/lib/supabase/client';
+import React, { useState, useMemo } from 'react'
+import { format } from "date-fns"
+import { createClient } from '@/lib/supabase/client'
+import { Tour } from '@/app/types/tours'
+
+// Icons and Components
+import { Plus, Minus, Calendar as CalendarIcon, Check, X, Trash2 } from 'lucide-react'
+import CustomCalendar from "@/app/components/tours/CustomCalendar"
+import ArrowIcon from '@/public/icons/arrow-icon'
+
+// --- Configuration ---
+
+const PRICING = {
+    local: {
+        child: 25,
+        adult: 50,
+        senior: 0,
+        currency: 'BBD'
+    },
+    tourist: {
+        child: 80,
+        adult: 100,
+        senior: 0,
+        currency: 'USD'
+    }
+}
+
+const PROMO_CODES: Record<string, number> = {
+    'WELCOME10': 0.10, // 10% off
+    'BARBADOS20': 0.20, // 20% off
+    'FAMILY': 0.15      // 15% off
+}
+
+type TicketType = 'child' | 'adult' | 'senior'
 
 interface BookingFormProps {
-  tour: Tour;
-  user: any;
-  guestCount: number;
-  onGuestChange: (n: number) => void;
+    tour: Tour;
+    user?: any;
 }
 
-export default function BookingForm({ tour, user, guestCount, onGuestChange }: BookingFormProps) {
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [notes, setNotes] = useState("");
-  
-  const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
-  const [isBooking, setIsBooking] = useState(false);
-  
-  const supabase = createClient();
-  const dropdownRef = useRef<HTMLDivElement>(null);
+export function BookingForm({ tour, user }: BookingFormProps) {
+    const supabase = createClient();
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsGuestDropdownOpen(false);
-      }
+    // --- State: User Selection ---
+    const [userType, setUserType] = useState<'local' | 'tourist'>('local')
+    const [tickets, setTickets] = useState({
+        child: 0,
+        adult: 1,
+        senior: 0,
+    })
+
+    // --- State: Booking Details ---
+    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+    const [fullName, setFullName] = useState("")
+    const [phone, setPhone] = useState("")
+    const [email, setEmail] = useState("")
+    const [notes, setNotes] = useState("")
+
+    // --- State: Promo Code ---
+    const [promoCodeInput, setPromoCodeInput] = useState("")
+    const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; value: number } | null>(null)
+    const [promoMessage, setPromoMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+
+    // --- State: Processing ---
+    const [isBooking, setIsBooking] = useState(false)
+
+    // --- Helpers ---
+    const updateTicket = (type: TicketType, increment: boolean) => {
+        setTickets((prev) => ({
+            ...prev,
+            [type]: Math.max(0, prev[type] + (increment ? 1 : -1)),
+        }))
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
-  const handleBook = async () => {
-    if (!fullName || !email || !phone) return alert("Fill all fields.");
-    setIsBooking(true);
-    try {
-      const { error } = await supabase.from('bookings').insert([{
-        tour_id: tour.id,
-        user_id: user?.id || null,
-        full_name: fullName, email, phone, notes,
-        booking_date: selectedDate.toISOString(),
-        guest_count: guestCount,
-        total_local_price: tour.local_price * guestCount,
-        total_visitor_price: tour.visitor_price * guestCount
-      }]);
-      if (error) throw error;
-      alert("Booking successful!");
-      setFullName(""); setEmail(""); setPhone(""); setNotes("");
-    } catch (e:any) {
-      alert("Error: " + e.message);
-    } finally {
-      setIsBooking(false);
+    // --- Promo Code Logic ---
+
+    const handleApplyPromo = () => {
+        if (!promoCodeInput) return;
+        const code = promoCodeInput.toUpperCase().trim();
+
+        if (PROMO_CODES[code]) {
+            setAppliedDiscount({ code, value: PROMO_CODES[code] });
+            setPromoMessage({ text: `Code ${code} applied!`, type: 'success' });
+        } else {
+            setAppliedDiscount(null);
+            setPromoMessage({ text: 'Invalid promo code', type: 'error' });
+        }
     }
-  };
 
-  return (
-    <div className="w-full lg:w-1/3 h-full relative flex flex-col gap-4">
-      <div>
-        <button className="cursor-pointer bg-[#F5F5F5] hover:bg-[#E0E0E0] active:bg-[#E0E0E0] flex w-full text-left p-4 rounded-[30px]" onClick={() => setIsCalendarOpen(true)}>
-          <div className="flex flex-col">
-            <p className="flex items-center text-sm">Select a date & time <ArrowIcon className="rotate-180" color="#000" /></p>
-            <p className="font-bold text-lg mt-[-2px]">{format(selectedDate, 'MMMM d, yyyy')}</p>
-          </div>
-          <p className="absolute right-4 self-end font-[500] text-[#656565] text-[1.1rem]">{format(selectedDate, 'p')}</p>
-        </button>
-        <div className="absolute z-20">
-          {isCalendarOpen && <CustomCalendar selectedDate={selectedDate} onChange={(d) => {setSelectedDate(d); setIsCalendarOpen(false)}} onClose={() => setIsCalendarOpen(false)} />}
-        </div>
-      </div>
+    const handleRemovePromo = () => {
+        setAppliedDiscount(null);
+        setPromoCodeInput("");
+        setPromoMessage(null);
+    }
 
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-row items-center gap-3">
-          <input type="text" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-          
-          <div ref={dropdownRef} className="relative">
-            <button onClick={() => setIsGuestDropdownOpen(!isGuestDropdownOpen)} className="cursor-pointer flex items-center gap-2 p-1 pr-1 pl-4 bg-[#F5F5F5] hover:bg-[#E0E0E0] active:bg-[#E0E0E0] rounded-[20px] h-13 w-full sm:w-auto">
-              <ProfileIcon size={24} color="#000000a5" />
-              
-              {/* --- UPDATED SECTION START --- */}
-              <span className="flex items-center justify-center font-[600] text-[#000]/70 text-[1.1rem] min-w-[26px]">
-                {guestCount === 10 ? (
-                  <div className="relative">
-                    10
-                    <span className="absolute top-[-2px] right-[-8px] text-[0.65rem] font-bold">+</span>
-                  </div>
-                ) : (
-                  guestCount
-                )}
-              </span>
-              {/* --- UPDATED SECTION END --- */}
+    // Reset promo when switching user types (optional, prevents currency confusion)
+    const handleUserTypeChange = (type: 'local' | 'tourist') => {
+        setUserType(type);
+        setAppliedDiscount(null);
+        setPromoCodeInput("");
+        setPromoMessage(null);
+    }
 
-              <div className="pr-1"><svg className={`h-7 w-7 opacity-70 transition-transform ${isGuestDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg></div>
-            </button>
-            {isGuestDropdownOpen && (
-              <div className='absolute ml-[7px] bg-white/10 mt-[5px] backdrop-blur-[10px] rounded-[28px] p-[3px] z-[99] shadow-[0px_0px_10px_rgba(0,0,0,0.1)]'>
-                <div className="bg-black/40 rounded-[25px] w-[85px] max-h-48 overflow-y-auto pb-2 pt-2">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                    <button 
-                      key={n} 
-                      className="block w-[90%] mx-auto cursor-pointer text-white p-2 hover:bg-white/20 active:bg-white/20 active:scale-[.95] rounded-[17px] font-[600]" 
-                      onClick={() => { onGuestChange(n); setIsGuestDropdownOpen(false); }}
-                    >
-                      {/* You can also apply the styling here if desired, but "10 +" text is usually clearer for lists */}
-                      {n === 10 ? "10 +" : n}
-                    </button>
-                  ))}
+    // --- Calculations ---
+    const totals = useMemo(() => {
+        const prices = PRICING[userType];
+
+        const subtotal =
+            (tickets.child * prices.child) +
+            (tickets.adult * prices.adult) +
+            (tickets.senior * prices.senior);
+
+        const addonsCost = 0;
+
+        const totalBeforeDiscount = subtotal + addonsCost;
+        let discountAmount = 0;
+
+        if (appliedDiscount) {
+            discountAmount = totalBeforeDiscount * appliedDiscount.value;
+        }
+
+        return {
+            subtotal,
+            addonsCost,
+            discountAmount,
+            total: Math.max(0, totalBeforeDiscount - discountAmount),
+            currency: prices.currency
+        }
+    }, [tickets, userType, appliedDiscount]);
+
+    const totalGuests = tickets.child + tickets.adult + tickets.senior;
+
+    // --- Supabase Submission ---
+    const handleBook = async () => {
+        if (!fullName || !email || !phone) return alert("Please fill in your name, email, and phone number.");
+        if (totalGuests === 0) return alert("Please select at least one ticket.");
+
+        setIsBooking(true);
+
+        try {
+            const ticketDetails = `Type: ${userType.toUpperCase()} | Tickets: ${tickets.adult} Adult, ${tickets.child} Child, ${tickets.senior} Senior`;
+
+            let promoDetails = "";
+            if (appliedDiscount) {
+                promoDetails = `\nPromo Applied: ${appliedDiscount.code} (-${(appliedDiscount.value * 100)}%)`;
+            }
+
+            const finalNotes = `${ticketDetails}${promoDetails}\n\nUser Notes: ${notes}`;
+
+            const { error } = await supabase.from('bookings').insert([{
+                tour_id: tour.id,
+                user_id: user?.id || null,
+                full_name: fullName,
+                email,
+                phone,
+                notes: finalNotes,
+                booking_date: selectedDate.toISOString(),
+                guest_count: totalGuests,
+                total_local_price: userType === 'local' ? totals.total : 0,
+                total_visitor_price: userType === 'tourist' ? totals.total : 0
+            }]);
+
+            if (error) throw error;
+
+            alert("Booking successful!");
+            // Reset form
+            setFullName(""); setEmail(""); setPhone(""); setNotes("");
+            handleRemovePromo(); // Clears promo states
+            setTickets({ child: 0, adult: 1, senior: 0 });
+
+        } catch (e: any) {
+            alert("Error: " + e.message);
+        } finally {
+            setIsBooking(false);
+        }
+    };
+
+    return (
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 lg:w-[700px] relative">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Book Your Tour</h2>
+
+            <p className="text-gray-600 mb-2">I am a...</p>
+
+            {/* User Type Toggle */}
+            <div className="bg-gray-100 p-1 rounded-2xl flex mb-4">
+                <button
+                    onClick={() => handleUserTypeChange('local')}
+                    className={`flex-1 py-2 px-4 rounded-2xl text-sm font-medium transition-all ${userType === 'local' ? 'bg-[linear-gradient(to_left,#007BFF,#66B2FF)] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                    Local
+                </button>
+                <button
+                    onClick={() => handleUserTypeChange('tourist')}
+                    className={`flex-1 py-2 px-4 rounded-2xl text-sm font-medium transition-all ${userType === 'tourist' ? 'bg-[linear-gradient(to_left,#007BFF,#66B2FF)] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                    Tourist
+                </button>
+            </div>
+
+            <div className="flex items-start gap-2 text-xs text-gray-600 mb-6">
+                <p className="text-[13px]">🎉 locals enjoy discounted rates! Valid Barbados ID required.</p>
+            </div>
+
+            <h3 className="text-gray-600 mb-4">Select Tickets</h3>
+
+            {/* Ticket Selectors */}
+            <div className="space-y-3 mb-6">
+                {/* Child */}
+                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <div>
+                        <div className="font-bold text-gray-900">Child (5-17)</div>
+                        <div className="text-sm text-gray-500">
+                            <span className="font-medium text-black">${PRICING[userType].child} {PRICING[userType].currency}</span>{' '}
+                            {userType === 'local' && <span className="line-through">$80</span>}
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => updateTicket('child', false)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-white border border-gray-300 hover:bg-gray-50"><Minus className="w-4 h-4" /></button>
+                        <span className="w-4 text-center font-medium">{tickets.child}</span>
+                        <button onClick={() => updateTicket('child', true)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-[linear-gradient(to_right,#007BFF,#66B2FF)] text-white hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                    </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-        <input type="tel" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-        <input type="email" className="p-3 px-4 bg-[#F5F5F5] rounded-[20px] h-13 w-full outline-none font-medium" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <textarea placeholder="Notes" className="resize-none w-full outline-none h-24 font-medium p-3 px-4 bg-[#F5F5F5] rounded-[20px]" value={notes} onChange={(e) => setNotes(e.target.value)}></textarea>
-      </div>
 
-      <div className="mt-0 flex justify-center">
-        <button onClick={handleBook} disabled={isBooking} className={`active:scale-97 w-full cursor-pointer rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_10px_rgba(0,0,0,0.1)] ${isBooking ? 'opacity-50' : ''}`}>
-          <div className='flex justify-center bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full py-[15px]'>
-            <span className='text-white font-bold text-[1.1rem]'>{isBooking ? "Processing..." : "Book Tour"}</span>
-          </div>
-        </button>
-      </div>
-    </div>
-  );
+                {/* Adult */}
+                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <div>
+                        <div className="font-bold text-gray-900">Adult (18 - 64)</div>
+                        <div className="text-sm text-gray-500">
+                            <span className="font-medium text-black">${PRICING[userType].adult} {PRICING[userType].currency}</span>{' '}
+                            {userType === 'local' && <span className="line-through">$100</span>}
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => updateTicket('adult', false)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-white border border-gray-300 hover:bg-gray-50"><Minus className="w-4 h-4" /></button>
+                        <span className="w-4 text-center font-medium">{tickets.adult}</span>
+                        <button onClick={() => updateTicket('adult', true)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-[linear-gradient(to_right,#007BFF,#66B2FF)] text-white hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                    </div>
+                </div>
+
+                {/* Senior */}
+                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <div>
+                        <div className="font-bold text-gray-900">Senior (65+)</div>
+                        <div className="text-sm font-bold text-[#00a911]">FREE</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => updateTicket('senior', false)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-white border border-gray-300 hover:bg-gray-50"><Minus className="w-4 h-4" /></button>
+                        <span className="w-4 text-center font-medium">{tickets.senior}</span>
+                        <button onClick={() => updateTicket('senior', true)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-[linear-gradient(to_right,#007BFF,#66B2FF)] text-white hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Promo Code - Updated Logic */}
+            <div className="mb-6">
+                <label className="block text-gray-600 mb-2">Promo Code</label>
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        placeholder="Enter code (e.g. WELCOME10)"
+                        value={promoCodeInput}
+                        onChange={(e) => setPromoCodeInput(e.target.value)}
+                        disabled={!!appliedDiscount} // Disable input when code is applied
+                        className={`flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black/5
+                        ${appliedDiscount ? 'text-gray-500 cursor-not-allowed bg-gray-100' : ''}`}
+                    />
+
+                    {!appliedDiscount ? (
+                        <button
+                            onClick={handleApplyPromo}
+                            className="bg-[linear-gradient(to_left,#007BFF,#66B2FF)] text-white px-6 py-2 rounded-2xl font-medium hover:bg-gray-800 transition-colors"
+                        >
+                            Apply
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleRemovePromo}
+                            className="bg-red-500 text-white px-3 py-2 rounded-2xl text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-2 whitespace-nowrap"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            Remove
+                        </button>
+                    )}
+                </div>
+
+                {promoMessage && (
+                    <div className={`mt-2 text-sm flex items-center gap-1 ${promoMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
+                        {promoMessage.type === 'success' ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                        {promoMessage.text}
+                    </div>
+                )}
+            </div>
+
+            {/* Summary */}
+            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-6 space-y-2">
+                <div className="flex justify-between text-gray-600">
+                    <span>Tickets ({totalGuests})</span>
+                    <span className="font-medium text-black">${totals.subtotal.toFixed(2)}</span>
+                </div>
+
+                {/* Discount Row (Only visible if discount applied) */}
+                {appliedDiscount && (
+                    <div className="flex justify-between text-green-600 animate-in fade-in slide-in-from-top-1">
+                        <span className="flex items-center gap-2">
+                            Discount <span className="text-xs bg-green-100 px-2 py-0.5 rounded-2xl">{appliedDiscount.code}</span>
+                        </span>
+                        <span className="font-medium">-${totals.discountAmount.toFixed(2)}</span>
+                    </div>
+                )}
+
+                <div className="flex justify-between text-gray-600 pb-2 border-b border-gray-200">
+                    <span>Add-ons</span>
+                    <span className="font-medium text-black">${totals.addonsCost.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold pt-1">
+                    <span>Total</span>
+                    <span>${totals.total.toFixed(2)} {totals.currency}</span>
+                </div>
+            </div>
+
+            {/* Personal Details & Date Selection */}
+            <div className="space-y-4 mb-6">
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Full Name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input
+                        type="tel"
+                        placeholder="Phone Number"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                {/* Date Picker */}
+                <div className="relative">
+                    <button
+                        onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                        className="w-full flex items-center justify-between bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 hover:bg-gray-100 transition-colors"
+                    >
+                        <div className="flex items-center gap-2 font-bold text-gray-900">
+                            <CalendarIcon className="w-5 h-5" />
+                            {format(selectedDate, 'MMMM d, yyyy')}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900">{format(selectedDate, 'p')}</span>
+                            <ArrowIcon className={`transition-transform duration-200 ${isCalendarOpen ? '' : 'rotate-180'}`} color="#000" />
+                        </div>
+                    </button>
+
+                    {isCalendarOpen && (
+                        <div className="absolute top-full left-0 mt-2 z-20 shadow-xl rounded-2xl overflow-hidden">
+                            <CustomCalendar
+                                selectedDate={selectedDate}
+                                onChange={(d) => { setSelectedDate(d); setIsCalendarOpen(false) }}
+                                onClose={() => setIsCalendarOpen(false)}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                <div>
+                    <textarea
+                        placeholder="Notes"
+                        rows={4}
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div
+                onClick={handleBook}
+                className={`cursor-pointer rounded-2xl p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-[.98] ${isBooking ? 'pointer-events-none opacity-50' : ''}`}
+            >
+                <div className='flex justify-center items-center gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-2xl px-[20px] py-[10px]'>
+                    <p className='text-white font-bold'>{isBooking ? "Processing..." : "Confirm & Book Tour"}</p>
+                </div>
+            </div>
+        </div>
+    )
 }
+
+export default BookingForm
