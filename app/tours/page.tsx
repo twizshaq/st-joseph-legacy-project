@@ -163,7 +163,6 @@ export default function ToursPage() {
                 tour={selectedTour}
                 user={userSession?.user}
             />
-
             <Footer />
         </div>
     );
