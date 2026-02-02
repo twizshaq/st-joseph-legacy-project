@@ -14,6 +14,7 @@ import { SiteContent } from '@/app/types/site';
 import { SiteSafety } from '@/app/components/site/SiteSafety';
 import { SiteFacts } from '@/app/components/site/SiteFacts';
 import { SiteQuiz } from '@/app/components/site/SiteQuiz';
+import { LocalLegend } from '@/app/components/site/LocalLegend';
 
 // 3. Shared Components
 import { ReviewCard } from "@/app/components/ReviewCard";
@@ -148,15 +149,15 @@ export default function SoupBowlPage() {
                 sidebarSlot={
                     <>
                         <SiteSafety data={PARRIS_HILL_DATA.safety} />
-                        {PARRIS_HILL_DATA.stories && (
+                        {/* {PARRIS_HILL_DATA.stories && (
                             <LocalStories data={PARRIS_HILL_DATA.stories} />
-                        )}
+                        )} */}
                         <SiteQuiz user={user} siteId={PARRIS_HILL_DATA.id} />
                     </>
                 }
             />
 
-            {/* <LocalStories stories={PARRIS_HILL_DATA.stories} /> */}
+            <LocalLegend />
 
             <GalleryFan items={PARRIS_HILL_DATA.gallery} />
 

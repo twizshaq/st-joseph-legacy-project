@@ -51,7 +51,7 @@ const ERIC_HOLDER_COMPLEX_DATA: SiteContent = {
         },
         {
             title: "⏱️ 60 Seconds of Secrets",
-            content: <>This complex is named after <b>Eric Holder Jr.</b>, the first African American Attorney General of the United States, whose family roots are tied directly to the soil of St. Joseph. It represents a "New Barbados"—bringing essential services like law, communication, and education into a single, storm-resistant location for the rural community.<br />
+            content: <>This complex is named after <b>Eric Holder Jr.</b>, the first African American Attorney General of the United States, whose family roots are tied directly to the soil of St. Joseph. It represents a &quot;New Barbados&quot;—bringing essential services like law, communication, and education into a single, storm-resistant location for the rural community.<br />
                 <ul className="ml-10">
                     <li className="list-disc"><b>A Fortress in the Hills:</b> The building is specifically engineered with reinforced concrete and hurricane shutters to serve as a primary refuge.
                     </li>
@@ -67,8 +67,8 @@ const ERIC_HOLDER_COMPLEX_DATA: SiteContent = {
                 The Eric Holder Jr. Complex is the primary <b>Governmental Hub</b> for the parish. It houses:
 
                 <ul className="ml-10 mt-2">
-                    <li className="list-disc"><b>District "F" Police Station:</b> The main security point for the central-east coast.</li>
-                    <li className="list-disc"><b>Magistrate's Court:</b> Handling legal matters for the rural northern and eastern districts.</li>
+                    <li className="list-disc"><b>District &quot;F&quot; Police Station:</b> The main security point for the central-east coast.</li>
+                    <li className="list-disc"><b>Magistrate&apos;s Court:</b> Handling legal matters for the rural northern and eastern districts.</li>
                     <li className="list-disc"><b>Post Office:</b> Providing essential mail and payment services.</li>
                     <li className="list-disc"><b>St. Joseph Outpatient Clinic (Nearby):</b> While not in the building, the parish’s primary healthcare clinic is located just a short distance away to support the complex during emergencies.</li>
                 </ul>
@@ -82,7 +82,7 @@ const ERIC_HOLDER_COMPLEX_DATA: SiteContent = {
                 <ul className="ml-10 mt-2">
                     <li className="list-disc"><b>Category 1 Shelter (The Complex):</b> These are the only shelters opened <b>BEFORE</b> a hurricane strikes. They are structurally certified to withstand the direct impact of high-intensity winds and rain.
                     </li>
-                    <li className="list-disc"><b>Category 2 Shelter:</b> These are buildings that are inspected but only opened <b>AFTER</b> the storm has passed, provided they remain safe. They serve as "relief centers" for those whose homes were damaged during the event. Eg. Grantley Adams Memorial School,St. Bernard Primary School and St. Joseph Primary School </li>
+                    <li className="list-disc"><b>Category 2 Shelter:</b> These are buildings that are inspected but only opened <b>AFTER</b> the storm has passed, provided they remain safe. They serve as &quot;relief centers&quot; for those whose homes were damaged during the event. Eg. Grantley Adams Memorial School,St. Bernard Primary School and St. Joseph Primary School </li>
                     <li className="list-disc"><b>Rule of Thumb:</b>  If a hurricane is coming, only head to a <b>Category 1</b> location. For a full, up-to-date list of all Category 1 shelters across the island, visit the&nbsp;
                         <a href="https://dem.gov.bb/emergency/shelter" className="text-blue-500 underline" target="_blank">
                             Department of Emergency Management (DEM) Official Shelter List.
@@ -153,7 +153,7 @@ const ERIC_HOLDER_COMPLEX_DATA: SiteContent = {
     facts: {
         Category: "Civic Hub / Category 1 Emergency Shelter ", // Note: \n works because we added whitespace-pre-line in the CSS
         Best_For: "Photography & Fresh Seafood.",
-        Amenities: "Tamarind Hall Branch Library, Post Office, District “F” Magistrate’s Court, Police Station, and ATM.",
+        Amenities: "Tamarind Hall Branch Library, Post Office, District &ldquo;F&rdquo; Magistrate&rsquo;s Court, Police Station, and ATM.",
         Accessibility:
             <>
                 <b>Excellent.</b>This is one of the few fully wheelchair-accessible government hubs in the rural interior, featuring ramps and wide-access doorways.

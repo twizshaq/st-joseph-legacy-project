@@ -9,13 +9,14 @@ interface TourGalleryProps {
 export function TourGallery({ images }: TourGalleryProps) {
     // Guard clause if no images are provided
     if (!images || images.length === 0) {
-        return <div className="h-[400px] w-full bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">No images available</div>
+        return 
+        <div className="h-[400px] w-full bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">No images available</div>
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 h-[400px] w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 h-[300px] md:h-[400px] w-full">
             {/* Main Large Image (First Image) */}
-            <div className="md:col-span-2 h-full relative rounded-xl overflow-hidden group">
+            <div className="md:col-span-2 h-full relative rounded-[40px] overflow-hidden group">
                 <Image
                     src={images[0].url}
                     alt="Main Tour View"
@@ -30,7 +31,7 @@ export function TourGallery({ images }: TourGalleryProps) {
             <div className="hidden md:flex flex-col gap-4 h-full">
 
                 {/* Top Right Image */}
-                <div className="flex-1 relative rounded-xl overflow-hidden group">
+                <div className="flex-1 relative rounded-[40px] overflow-hidden group">
                     {images[1] ? (
                         <Image
                             src={images[1].url}
@@ -47,7 +48,7 @@ export function TourGallery({ images }: TourGalleryProps) {
                 </div>
 
                 {/* Bottom Right Image */}
-                <div className="flex-1 relative rounded-xl overflow-hidden group">
+                <div className="flex-1 relative rounded-[40px] overflow-hidden group">
                     {images[2] ? (
                         <Image
                             src={images[2].url}

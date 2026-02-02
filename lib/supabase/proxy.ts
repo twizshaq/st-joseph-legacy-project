@@ -35,3 +35,8 @@ export async function updateSession(request: NextRequest) {
 
   return response
 }
+
+export async function proxy(request: NextRequest) {
+  // This calls the helper function from the other file
+  return await updateSession(request)
+}

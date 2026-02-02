@@ -392,19 +392,19 @@ import Link from "next/link";
                  
                  <div className="relative my-6 flex items-center">
                    <div className="flex-grow border-t border-gray-300"></div>
-                   <span className="mx-4 flex-shrink text-sm text-white">Or {isLogin ? "log in" : "sign up"} with</span>
+                   <span className="mx-4 flex-shrink text-sm text-white/70">Or {isLogin ? "log in" : "sign up"} with</span>
                    <div className="flex-grow border-t border-gray-300"></div>
                  </div>
                  
                  <div className="flex justify-center gap-[20px]">
-                   <button type="button" onClick={handleGoogleSignIn} className="cursor-pointer flex w-full max-w-xs items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-2.5 px-4 font-semibold text-gray-700 transition hover:bg-gray-50 active:scale-[0.98]">
+                   <button type="button" onClick={handleGoogleSignIn} className="cursor-pointer flex w-full items-center justify-center gap-2 rounded-full border-[2px] border-gray-300/10 bg-[#999]/10 py-2.5 px-4 font-semibold text-white transition hover:bg-[#999]/40 active:scale-[0.98]">
                      <Image src={GoogleIcon} alt="Google Icon" height={30} />
                      Google
                    </button>
-                   <button type="button" onClick={handleGoogleSignIn} className="cursor-pointer flex w-full max-w-xs items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-2.5 px-4 font-semibold text-gray-700 transition hover:bg-gray-50 active:scale-[0.98]">
+                   {/* <button type="button" onClick={handleGoogleSignIn} className="cursor-pointer flex w-full max-w-xs items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-2.5 px-4 font-semibold text-gray-700 transition hover:bg-gray-50 active:scale-[0.98]">
                      <FacebookIcon color="#0866FF" height={25} width={25} />
                      Facebook
-                   </button>
+                   </button> */}
                  </div>
                </form>
              </div>

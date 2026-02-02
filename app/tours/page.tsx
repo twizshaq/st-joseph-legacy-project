@@ -59,15 +59,15 @@ export default function ToursPage() {
             {isLoading || !selectedTour ? (
                 <TourDetailsSkeleton />
             ) : (
-                <div className="p-3 mt-8 w-[1200px] justify-betwe/en max-w-[95vw] flex flex-row max-sm:flex-col gap-6  rounded-[45px]">
+                <div className="p-3 mt-8 w-[1400px] justify-betwe/en max-w-[95vw] flex flex-row max-sm:flex-col gap-20  rounded-[45px]">
                     <div className="flex-col w-full">
                         <TourGallery images={selectedTour.images} />
 
                         <div className="w-full flex flex-col gap-4">
 
                             {/* Header Info */}
-                            <div>
-                                <p className="text-gray-500">Tour</p>
+                            <div className="mb-7">
+                                {/* <p className="text-gray-500">Tour</p> */}
                                 <p className="font-bold text-2xl lg:text-3xl">{selectedTour.name}</p>
                                 <div className="flex flex-wrap gap-2 mt-2">
                                     <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">
@@ -77,19 +77,19 @@ export default function ToursPage() {
                                         ${displayLocalPrice.toLocaleString()} USD
                                     </p>
                                 </div>
-                                <div className="bg-gray-200/90 w-full mt-4 mb-0 h-px" />
+                                {/* <div className="bg-gray-200/90 w-full mt-4 mb-0 h-px" /> */}
                             </div>
 
                             {/* Description & Stops Preview */}
                             <div className="flex flex-col gap-6">
-                                <div className="bg-[#f9fafb] border border-gray-100 rounded-xl p-6 m/b-6">
+                                <div className="bg-[#f2f2f2] rounded-[40px] p-6 m/b-6">
                                     <p className="text-xl font-bold">Description</p>
                                     <span className="">Explore the Andromeda Botanic Gardens and the historic Atlantis Hotel at Tent Bay. Trace the path of the old Barbados Railway and witness the power of the Atlantic at Bathsheba. See firsthand how coastal erosion is managed through engineering and nature-based solutions.</span>
                                     <p className="text-gray-700 mt-1">{selectedTour.description}</p>
                                 </div>
 
                                 <div>
-                                    <div className="bg-[#f9fafb] border border-gray-100 rounded-xl p-6 m/b-6">
+                                    <div className="bg-[#f2f2f2] rounded-[40px] p-6 m/b-6">
                                         <div className="flex items-center gap-2 mb-4">
                                             <Flame className="w-6 h-6 text-black" />
                                             <h2 className="text-xl font-bold text-gray-900">Intensity Rating</h2>
@@ -114,27 +114,7 @@ export default function ToursPage() {
 
                                 <div>
                                     {/* <p className="text-xl font-bold mb-4">Trip Route</p> */}
-                                    <TourMap stops={selectedTour.stops} />
-                                    <div className="flex flex-col">
-                                        {previewStops.map((stop, index) => (
-                                            <StopItem
-                                                key={stop.id}
-                                                stop={stop}
-                                                index={index}
-                                                totalStops={previewStops.length} // Visual fix for line connection in preview
-                                                isPreview={true}
-                                            />
-                                        ))}
-
-                                        {hasMoreStops && (
-                                            <button
-                                                onClick={() => setIsStopsModalOpen(true)}
-                                                className="font-[500] text-[1rem] self-center mt-[5px] max-sm:my-[15px] px-[17px] py-[7px] cursor-pointer bg-black/5 rounded-full hover:bg-[#E0E0E0] transition-colors"
-                                            >
-                                                View All Stops
-                                            </button>
-                                        )}
-                                    </div>
+                                    <TourMap />
                                 </div>
                             </div>
                         </div>
@@ -142,8 +122,8 @@ export default function ToursPage() {
                     <BookingForm
                         tour={selectedTour}
                         user={userSession?.user}
-                        guestCount={guestCount}
-                        onGuestChange={setGuestCount}
+                        // guestCount={guestCount}
+                        // onGuestChange={setGuestCount}
                     />
                 </div>
             )}

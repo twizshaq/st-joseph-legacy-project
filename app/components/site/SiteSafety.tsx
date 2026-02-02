@@ -11,6 +11,9 @@ interface SiteSafetyProps {
 export const SiteSafety = ({ data }: SiteSafetyProps) => {
   const [isOpen, setIsOpen] = useState(true);
 
+  const guidelinesRaw = data.guidelines ?? [];
+  const guidelines = Array.isArray(guidelinesRaw) ? guidelinesRaw : [guidelinesRaw];
+
   return (
     <div className='w-full max-w-[450px] relative z-10'>
       <div className='absolute top-10 left-10 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl -z-10 pointer-events-none'></div>
@@ -50,7 +53,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
             
             {/* DYNAMIC GUIDELINES LIST */}
             <ul className='space-y-3 mb-5'>
-              {data.guidelines.map((item, index) => (
+              {guidelines.map((item, index) => (
                 <li key={index} className="flex gap-3 items-start">
                   <span className="mt-1.5 min-w-[6px] h-[6px] rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
                   <span className="text-[0.9rem] text-slate-500 font-medium">{item}</span>

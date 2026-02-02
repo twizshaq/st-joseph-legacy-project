@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Tour } from '@/app/types/tours'
 
 // Icons and Components
-import { Plus, Minus, Calendar as CalendarIcon, Check, X, Trash2 } from 'lucide-react'
+import { Plus, Minus, Calendar as CalendarIcon, Check, X, Trash2, CalendarPlus } from 'lucide-react'
 import CustomCalendar from "@/app/components/tours/CustomCalendar"
 import ArrowIcon from '@/public/icons/arrow-icon'
 
@@ -179,22 +179,25 @@ export function BookingForm({ tour, user }: BookingFormProps) {
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 lg:w-[700px] relative">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Book Your Tour</h2>
+        <div className="bg-white rounded-[50px] border-[2px]/0 border-gray-200 shadow-[0px_0px_15px_rgba(0,0,0,.07)] p-4 md:p-6 lg:w-[700px] relative">
+            <div className='flex gap-2 items-center bg-red-500/0 mb-4 ml-[7px] max-sm:mt-[5px]'>
+                <CalendarPlus/>
+                <h2 className="text-2xl font-bold text-gray-900">Book Your Tour</h2>
+            </div>
 
-            <p className="text-gray-600 mb-2">I am a...</p>
+            {/* <p className="text-gray-600 mb-2">I am a...</p> */}
 
             {/* User Type Toggle */}
-            <div className="bg-gray-100 p-1 rounded-2xl flex mb-4">
+            <div className="bg-[#F2F2F2] p-[5px] rounded-[27px] flex mb-4">
                 <button
                     onClick={() => handleUserTypeChange('local')}
-                    className={`flex-1 py-2 px-4 rounded-2xl text-sm font-medium transition-all ${userType === 'local' ? 'bg-[linear-gradient(to_left,#007BFF,#66B2FF)] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                    className={`flex-1 py-[15px] px-4 rounded-[23px] cursor-pointer font-medium  ${userType === 'local' ? 'bg-[#007BFF] text-white' : 'text-gray-600 hover:text-gray-900'}`}
                 >
                     Local
                 </button>
                 <button
                     onClick={() => handleUserTypeChange('tourist')}
-                    className={`flex-1 py-2 px-4 rounded-2xl text-sm font-medium transition-all ${userType === 'tourist' ? 'bg-[linear-gradient(to_left,#007BFF,#66B2FF)] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                    className={`flex-1 py-[15px] px-4 rounded-[23px] cursor-pointer font-medium  ${userType === 'tourist' ? 'bg-[#007BFF]  text-white' : 'text-gray-600 hover:text-gray-900'}`}
                 >
                     Tourist
                 </button>
@@ -204,12 +207,12 @@ export function BookingForm({ tour, user }: BookingFormProps) {
                 <p className="text-[13px]">🎉 locals enjoy discounted rates! Valid Barbados ID required.</p>
             </div>
 
-            <h3 className="text-gray-600 mb-4">Select Tickets</h3>
+            <h3 className="text-gray-600 font-medium mb-4">Select Tickets</h3>
 
             {/* Ticket Selectors */}
             <div className="space-y-3 mb-6">
                 {/* Child */}
-                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div className="flex items-center justify-between bg-[#F2F2F2] p-4 rounded-[30px]">
                     <div>
                         <div className="font-bold text-gray-900">Child (5-17)</div>
                         <div className="text-sm text-gray-500">
@@ -218,14 +221,14 @@ export function BookingForm({ tour, user }: BookingFormProps) {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button onClick={() => updateTicket('child', false)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-white border border-gray-300 hover:bg-gray-50"><Minus className="w-4 h-4" /></button>
+                        <button onClick={() => updateTicket('child', false)} className="w-8 h-8 bg-[#000]/10 cursor-pointer flex items-center justify-center rounded-[12px] active:scale-[.95] active:bg-[#ccc]"><Minus className="w-5 h-5" /></button>
                         <span className="w-4 text-center font-medium">{tickets.child}</span>
-                        <button onClick={() => updateTicket('child', true)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-[linear-gradient(to_right,#007BFF,#66B2FF)] text-white hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                        <button onClick={() => updateTicket('child', true)} className="w-8 h-8 bg-[#000]/10 cursor-pointer flex items-center justify-center rounded-[12px] active:scale-[.95] active:bg-[#ccc]"><Plus className="w-5 h-5" /></button>
                     </div>
                 </div>
 
                 {/* Adult */}
-                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div className="flex items-center justify-between bg-[#F2F2F2] p-4 rounded-[30px]">
                     <div>
                         <div className="font-bold text-gray-900">Adult (18 - 64)</div>
                         <div className="text-sm text-gray-500">
@@ -234,56 +237,57 @@ export function BookingForm({ tour, user }: BookingFormProps) {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button onClick={() => updateTicket('adult', false)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-white border border-gray-300 hover:bg-gray-50"><Minus className="w-4 h-4" /></button>
+                        <button onClick={() => updateTicket('adult', false)} className="w-8 h-8 bg-[#000]/10 cursor-pointer flex items-center justify-center rounded-[12px] active:scale-[.95] active:bg-[#ccc]"><Minus className="w-4 h-4" /></button>
                         <span className="w-4 text-center font-medium">{tickets.adult}</span>
-                        <button onClick={() => updateTicket('adult', true)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-[linear-gradient(to_right,#007BFF,#66B2FF)] text-white hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                        <button onClick={() => updateTicket('adult', true)} className="w-8 h-8 bg-[#000]/10 cursor-pointer flex items-center justify-center rounded-[12px] active:scale-[.95] active:bg-[#ccc]"><Plus className="w-4 h-4" /></button>
                     </div>
                 </div>
 
                 {/* Senior */}
-                <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div className="flex items-center justify-between bg-[#F2F2F2] p-4 rounded-[30px]">
                     <div>
                         <div className="font-bold text-gray-900">Senior (65+)</div>
                         <div className="text-sm font-bold text-[#00a911]">FREE</div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button onClick={() => updateTicket('senior', false)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-white border border-gray-300 hover:bg-gray-50"><Minus className="w-4 h-4" /></button>
+                        <button onClick={() => updateTicket('senior', false)} className="w-8 h-8 bg-[#000]/10 cursor-pointer flex items-center justify-center rounded-[12px] active:scale-[.95] active:bg-[#ccc]"><Minus className="w-4 h-4" /></button>
                         <span className="w-4 text-center font-medium">{tickets.senior}</span>
-                        <button onClick={() => updateTicket('senior', true)} className="w-8 h-8 flex items-center justify-center rounded-2xl bg-[linear-gradient(to_right,#007BFF,#66B2FF)] text-white hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                        <button onClick={() => updateTicket('senior', true)} className="w-8 h-8 bg-[#000]/10 cursor-pointer flex items-center justify-center rounded-[12px] active:scale-[.95] active:bg-[#ccc]"><Plus className="w-4 h-4" /></button>
                     </div>
                 </div>
             </div>
 
             {/* Promo Code - Updated Logic */}
             <div className="mb-6">
-                <label className="block text-gray-600 mb-2">Promo Code</label>
-                <div className="flex gap-2">
+                <label className="block font-medium text-gray-600 mb-2">Promo Code</label>
+                <div className="flex relative justify-end items-center bg-[#F2F2F2] rounded-[32px] p-[7px] w-full">
                     <input
                         type="text"
-                        placeholder="Enter code (e.g. WELCOME10)"
+                        placeholder="Enter code"
                         value={promoCodeInput}
                         onChange={(e) => setPromoCodeInput(e.target.value)}
                         disabled={!!appliedDiscount} // Disable input when code is applied
-                        className={`flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black/5
-                        ${appliedDiscount ? 'text-gray-500 cursor-not-allowed bg-gray-100' : ''}`}
+                        className={`flex-1 font-medium bg-red-500/0 rounded-[22px] px-4 pr-[130px] py-[11px] focus:outline-none
+                        ${appliedDiscount ? 'text-gray-500 bg-gray-100' : ''}`}
                     />
-
+                    <div className='absolute right-[5px]'>
                     {!appliedDiscount ? (
                         <button
                             onClick={handleApplyPromo}
-                            className="bg-[linear-gradient(to_left,#007BFF,#66B2FF)] text-white px-6 py-2 rounded-2xl font-medium hover:bg-gray-800 transition-colors"
+                            className="bg-[#007BFF] shadow-[0_0_7px_rgba(0,123,255,0.5)] text-center text-white w-[120px] h-[50px] py-[13px] rounded-full font-medium active:scale-[.95] active:bg-[#ccc] transition-colors"
                         >
                             Apply
                         </button>
                     ) : (
                         <button
                             onClick={handleRemovePromo}
-                            className="bg-red-500 text-white px-3 py-2 rounded-2xl text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-2 whitespace-nowrap"
+                            className="bg-red-500 text-white w-[120px] h-[50px] rounded-full font-medium hover:bg-red-600 transition-colors flex justify-center items-center gap-2 whitespace-nowrap"
                         >
                             <Trash2 className="w-4 h-4" />
                             Remove
                         </button>
                     )}
+                    </div>
                 </div>
 
                 {promoMessage && (
@@ -295,7 +299,7 @@ export function BookingForm({ tour, user }: BookingFormProps) {
             </div>
 
             {/* Summary */}
-            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-6 space-y-2">
+            <div className="bg-[#F2F2F2] border border-gray-100 rounded-[30px] p-4 mb-6 space-y-2">
                 <div className="flex justify-between text-gray-600">
                     <span>Tickets ({totalGuests})</span>
                     <span className="font-medium text-black">${totals.subtotal.toFixed(2)}</span>
@@ -329,7 +333,7 @@ export function BookingForm({ tour, user }: BookingFormProps) {
                         placeholder="Full Name"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-[#F2F2F2] font-medium rounded-[21px] px-4 py-[15px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -338,14 +342,14 @@ export function BookingForm({ tour, user }: BookingFormProps) {
                         placeholder="Phone Number"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-[#F2F2F2] font-medium rounded-[21px] px-4 py-[15px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <input
                         type="email"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-[#F2F2F2] font-medium rounded-[21px] px-4 py-[15px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
@@ -353,7 +357,7 @@ export function BookingForm({ tour, user }: BookingFormProps) {
                 <div className="relative">
                     <button
                         onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                        className="w-full flex items-center justify-between bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 hover:bg-gray-100 transition-colors"
+                        className="w-full flex items-center justify-between bg-[#F2F2F2] font-medium rounded-[21px] px-4 py-[15px] hover:bg-gray-100 transition-colors"
                     >
                         <div className="flex items-center gap-2 font-bold text-gray-900">
                             <CalendarIcon className="w-5 h-5" />
@@ -366,7 +370,7 @@ export function BookingForm({ tour, user }: BookingFormProps) {
                     </button>
 
                     {isCalendarOpen && (
-                        <div className="absolute top-full left-0 mt-2 z-20 shadow-xl rounded-2xl overflow-hidden">
+                        <div className="absolute top-full mx-auto mt-2 z-20">
                             <CustomCalendar
                                 selectedDate={selectedDate}
                                 onChange={(d) => { setSelectedDate(d); setIsCalendarOpen(false) }}
@@ -378,20 +382,20 @@ export function BookingForm({ tour, user }: BookingFormProps) {
 
                 <div>
                     <textarea
-                        placeholder="Notes"
+                        placeholder="Notes (Optional)"
                         rows={4}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        className="w-full bg-[#F2F2F2] font-medium rounded-[23px] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     ></textarea>
                 </div>
             </div>
 
             <div
                 onClick={handleBook}
-                className={`cursor-pointer rounded-2xl p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-[.98] ${isBooking ? 'pointer-events-none opacity-50' : ''}`}
+                className={`cursor-pointer rounded-full p-[2.5px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-[.98] ${isBooking ? 'pointer-events-none opacity-50' : ''}`}
             >
-                <div className='flex justify-center items-center gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-2xl px-[20px] py-[10px]'>
+                <div className='flex justify-center items-center gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[15px]'>
                     <p className='text-white font-bold'>{isBooking ? "Processing..." : "Confirm & Book Tour"}</p>
                 </div>
             </div>
