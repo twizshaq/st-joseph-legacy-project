@@ -45,14 +45,14 @@ const SOUP_BOWL_DATA: SiteContent = {
             title: "Roots and Routes",
             content: <><div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>Explore the history and heritage of the Soup Bowl.</div> In Barbados, we say: &quot;The sea ain&apos;t got no back door.&quot; This reflects a deep-seated respect for the Atlantic&apos;s power. At Soup Bowl, you don&apos;t conquer the ocean; you just hope she lets you dance.
                 <br /> <br />
-                <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>60 Second Secret</div>
+                <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>⏱️ 60 Seconds of Secrets</div>
                 <strong>Soup Bowl</strong> is located in the community of Cleavers Hill in Bathsheba is widely considered the crown jewel of Caribbean surfing. It offers a dramatic contrast to the calm, white-sand beaches of the West Coast, characterized instead by raw Atlantic power and prehistoric-looking rock formations.
             </>
         },
         {
-            title: "Surf Conditions and Significance",
+            title: "Deeper Dive",
             content: <>The Soup Bowl&apos;s reputation is built on its unique geological structure and exposure to the Atlantic.
-                <ul className="list-disc pl-5 space-y-3 mt-[15px]">
+                <ul className="list-disc pl-5 space-y-3 mt-[15px] ml-3">
                     <li>
                         <strong>World-Class Break:</strong> The wave breaks over a <strong>shallow coral reef</strong>, creating a consistent, heavy, and fast right-hand reef break. This setup produces hollow, barrel-shaped waves that are both exhilarating and highly demanding.
                     </li>
@@ -71,7 +71,23 @@ const SOUP_BOWL_DATA: SiteContent = {
     safety: {
         heading: "Harmony with the Elements",
         subheading: "Your guide to staying safe and respecting the landscape.",
-        description: "East coast seas are unpredictable. Avoid swimming during high swells. Monitor weather advisories.",
+        description: <>
+            <ul className="list-decimal ml-3">
+                <li>
+                    <b>Swimming:</b> Because of powerful undertows, rip currents, and sharp coral reefs, swimming in the open ocean here is extremely dangerous and generally discouraged.
+                </li>
+                <li>
+                    <b>Natural Warning Signs: Be Tsunami Smart</b>
+                    <br />
+                    <span className="text-orange-400">Act immediately if you:</span><br />
+                    <ul className="list-disc ml-9">
+                        <li><b>FEEL:</b> Strong shaking that makes it hard to stand.</li>
+                        <li><b>SEE:</b> The ocean withdrawing an unusual distance, exposing the sea floor.</li>
+                        <li><b>HEAR:</b> A loud, roaring sound (like a jet engine or train) from the Atlantic ocean.</li>
+                    </ul>
+                </li>
+            </ul>
+        </>,
         guidelines: [
             <>Use designated zones for photography.</>,
             <>Park away from soft shoulders.</>
@@ -119,10 +135,10 @@ const SOUP_BOWL_DATA: SiteContent = {
     },
     facts: {
         Category: "World-Class Surf Break & Natural Wonder", // Note: \n works because we added whitespace-pre-line in the CSS
-        Best_For: "Surfing, Spectating, Photography, and Coastal Wandering.",
-        Amenities: "Small local rum shops and restaurants are nearby. Public restrooms are available at the Bathsheba Park facility and Hillcrest.",
-        Accessibility: "The main viewing areas and Bathsheba Park are accessible via paved roads. However, reaching the water's edge requires navigating uneven, often slippery rock and sand.",
-        Nearby_Must_See: "Andromeda Botanical Gardens and the Hillcrest",
+        Best_For: "Pro Surfing, Spectating, Photography, and Coastal Wandering.",
+        Amenities: "Local rum shops and cafes nearby. Public restrooms at Bathsheba Park and Hillcrest.",
+        Accessibility: "Viewing areas and paved roads are accessible. Note: Reaching the water's edge involves slippery rocks and uneven sand.",
+        Nearby_Must_See: "Joe's River Bridge and Hillcrest Community Centre",
     },
     location: {
         lat: 13.214743,
