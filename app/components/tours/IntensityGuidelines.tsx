@@ -69,20 +69,20 @@ const IntensityCard = ({
                 background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)`,
                 borderColor: borderColor,
             }}>
-        <div
-            className="w-full rounded-[50px] bg-white/80 p-4"
-        >
-            <div className="flex flex-row items-center gap-6 h-full">
-                {/* Left Side: Illustration */}
-                {/* Reduced size to w-28 (7rem) and ensured it doesn't shrink */}
-                <div className="w-20 h-20 shrink-0 relative flex items-center justify-center">
-                    <Illustration color={figureColor} />
-                </div>
+            <div
+                className="w-full rounded-[50px] bg-white/80 p-4"
+            >
+                <div className="flex flex-row items-center gap-6 h-full">
+                    {/* Left Side: Illustration */}
+                    {/* Reduced size to w-28 (7rem) and ensured it doesn't shrink */}
+                    <div className="w-20 h-20 shrink-0 relative flex items-center justify-center">
+                        <Illustration color={figureColor} />
+                    </div>
 
-                {/* Right Side: Info */}
-                <div className="flex-1 text-left">
-                    {/* Badge moved inline */}
-                    {/* <div 
+                    {/* Right Side: Info */}
+                    <div className="flex-1 text-left">
+                        {/* Badge moved inline */}
+                        {/* <div
                         className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-2 bg-white/60 backdrop-blur-sm"
                         style={{ border: `1px solid ${accentColor}40` }}
                     >
@@ -94,38 +94,38 @@ const IntensityCard = ({
                         </span>
                     </div> */}
 
-                    <h3
-                        className="text-xl font-bold mb-1 leading-tight"
-                        style={{ color: accentColor }}
-                    >
-                        {title}
-                    </h3>
+                        <h3
+                            className="text-xl font-bold mb-1 leading-tight"
+                            style={{ color: accentColor }}
+                        >
+                            {title}
+                        </h3>
 
-                    <p 
-                        className="text-sm font-medium leading-snug mb-3 opacity-90"
-                        style={{ color: accentColor }}
-                    >
-                        {description}
-                    </p>
+                        <p
+                            className="text-sm font-medium leading-snug mb-3 opacity-90"
+                            style={{ color: accentColor }}
+                        >
+                            {description}
+                        </p>
 
-                    {/* Intensity Dots - Left Aligned */}
-                    <div className="flex gap-1.5">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <div
-                                key={i}
-                                className={`w-2 h-2 rounded-full transition-colors duration-300 ${i <= activeIcons ? '' : 'bg-transparent border'}`}
-                                style={{
-                                    backgroundColor: i <= activeIcons ? figureColor : 'transparent',
-                                    borderColor: figureColor,
-                                    opacity: i <= activeIcons ? 1 : 0.3,
-                                }}
-                            />
-                        ))}
+                        {/* Intensity Dots - Left Aligned */}
+                        <div className="flex gap-1.5">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div
+                                    key={i}
+                                    className={`w-2 h-2 rounded-full transition-colors duration-300 ${i <= activeIcons ? '' : 'bg-transparent border'}`}
+                                    style={{
+                                        backgroundColor: i <= activeIcons ? figureColor : 'transparent',
+                                        borderColor: figureColor,
+                                        opacity: i <= activeIcons ? 1 : 0.3,
+                                    }}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     )
 }
 
@@ -175,9 +175,10 @@ export function IntensityGuidelines() {
                 <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
                     Choose Your Pace
                 </h1>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                {/* <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
                     Plan your adventure based on physical effort and terrain:
-                </p>
+                </p> */}
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">  Please check the specific tour descriptions for accessibility ratings or contact us for tailored arrangements.<br /> Plan your adventure based on physical effort and terrain:</p>
             </div>
 
             {/* Changed Grid to 1 column on small, 2 on medium, 3 on large */}

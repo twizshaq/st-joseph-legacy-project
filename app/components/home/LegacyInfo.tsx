@@ -4,10 +4,10 @@ import Image from 'next/image';
 export default function LegacyInfo() {
     return (
         <div className="w-[90vw] max-w-[1500px] text-slate-800 mx-auto mt-[70px] max-sm:mt-[20px] pb-20">
-            
+
             {/* --- TOP SECTION: Split Grid (Text Left | Images Right) --- */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center mb-[80px]">
-                
+
                 {/* LEFT COLUMN: Copy & List */}
                 <div className="flex flex-col text-left max-sm:text-center items-start max-sm:items-center">
                     <h2 className="font-bold text-[2rem] max-sm:text-[1.5rem] mb-[14px]">
@@ -27,7 +27,7 @@ export default function LegacyInfo() {
                                 Dive deep into the stories that make St. Joseph unique.
                             </p>
                         </li>
-                        
+
                         <li className="list-none flex flex-col gap-1">
                             <p className="font-extrabold text-slate-900 text-lg border-l-4 border-indigo-400 pl-4">
                                 Our Community
@@ -36,7 +36,7 @@ export default function LegacyInfo() {
                                 Hear the voices of the community and learn directly from them. Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
                             </p>
                         </li>
-                        
+
                         <li className="list-none flex flex-col gap-1">
                             <p className="font-extrabold text-slate-900 text-lg border-l-4 border-emerald-400 pl-4">
                                 Build Resilience
@@ -103,123 +103,145 @@ export default function LegacyInfo() {
                 <p className="font-[800] text-[1.1rem] md:text-[1.2rem] mt-[20px] max-w-[800px]">
                     Come Take A Tour With Us — Your Journey Through St. Joseph Is Just a Scan Away
                 </p>
-                
-                <div className="relative mt-10 w-full max-w-[1200px] mx-auto">
 
+                <div className="relative mt-10 w-full max-w-[1200px] mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
 
-                        {/* Step 1 */}
-                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:scale-[1.02] active:scale-[.99] h-full">
-                            <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
-
-                                {/* Decorative blue glow */}
-                                {/* <div className="absolute -top-24 -right-24 w-[260px] h-[260px] rounded-full bg-[#66B2FF]/30 blur-[90px] pointer-events-none" /> */}
-
-                                {/* Dot pattern */}
+                        {/* STEP 1 */}
+                        <div
+                            className="group cursor-pointer rounded-[52px] p-[3px]
+                 shadow-[0px_0px_20px_rgba(0,0,0,.1)]
+                 transition-all duration-300 hover:-translate-y-1 active:scale-[.98]"
+                            style={{ background: 'linear-gradient(135deg, #EAF4FF 0%, #CFE6FF 100%)' }}
+                        >
+                            <div className="relative h-full rounded-[50px] bg-white/80 p-7 overflow-hidden">
                                 <div
-                                    className="absolute inset-0 opacity-[0.10] pointer-events-none"
-                                    style={{ backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)', backgroundSize: '16px 16px' }}
+                                    className="absolute inset-0 opacity-[0.08] pointer-events-none"
+                                    style={{
+                                        backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)',
+                                        backgroundSize: '16px 16px',
+                                    }}
                                 />
 
                                 <div className="relative z-10 flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF]
+                            flex items-center justify-center
+                            shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
                                             <span className="text-[#007BFF] font-black">1</span>
                                         </div>
                                         <div>
                                             <p className="text-[0.7rem] font-extrabold tracking-[0.22em] text-[#007BFF]">STEP 1</p>
-                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">Find a Landmark</h4>
+                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">
+                                                Find a Landmark
+                                            </h4>
                                         </div>
                                     </div>
 
-                                    {/* Mini badge */}
-                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF4FF] border border-[#66B2FF]/40 text-[#007BFF] text-[0.72rem] font-extrabold">
+                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
+                          bg-[#EAF4FF] border border-[#66B2FF]/40
+                          text-[#007BFF] text-[0.72rem] font-extrabold">
                                         In-person
                                     </div>
                                 </div>
 
-                                <p className="relative z-10 text-[0.95rem] text-slate-700 leading-relaxed font-semibold">
-                                    Find an official <span className="font-extrabold">Unveiling Our Legacy</span> sign at a key historical, cultural, or scenic spot in St. Joseph.
+                                <p>
+                                    Find an official Unveiling Our Legacy sign at a key historical, cultural, or scenic spot in St. Joseph.
                                 </p>
                             </div>
                         </div>
 
-                        {/* Step 2 */}
-                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:scale-[1.02] active:scale-[.99] h-full">
-                            <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
-
-                                {/* Decorative blue glow */}
-                                {/* <div className="absolute -top-24 -right-24 w-[260px] h-[260px] rounded-full bg-[#66B2FF]/30 blur-[90px] pointer-events-none" /> */}
-
-                                {/* Dot pattern */}
+                        {/* STEP 2 */}
+                        <div
+                            className="group cursor-pointer rounded-[52px] p-[3px]
+                 shadow-[0px_0px_20px_rgba(0,0,0,.1)]
+                 transition-all duration-300 hover:-translate-y-1 active:scale-[.98]"
+                            style={{ background: 'linear-gradient(135deg, #EAF4FF 0%, #CFE6FF 100%)' }}
+                        >
+                            <div className="relative h-full rounded-[50px] bg-white/80 p-7 overflow-hidden">
                                 <div
-                                    className="absolute inset-0 opacity-[0.10] pointer-events-none"
-                                    style={{ backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)', backgroundSize: '16px 16px' }}
+                                    className="absolute inset-0 opacity-[0.08] pointer-events-none"
+                                    style={{
+                                        backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)',
+                                        backgroundSize: '16px 16px',
+                                    }}
                                 />
 
                                 <div className="relative z-10 flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF]
+                            flex items-center justify-center
+                            shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
                                             <span className="text-[#007BFF] font-black">2</span>
                                         </div>
                                         <div>
                                             <p className="text-[0.7rem] font-extrabold tracking-[0.22em] text-[#007BFF]">STEP 2</p>
-                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">Scan the QR Code</h4>
+                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">
+                                                Scan the QR Code
+                                            </h4>
                                         </div>
                                     </div>
 
-                                    {/* Mini badge */}
-                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF4FF] border border-[#66B2FF]/40 text-[#007BFF] text-[0.72rem] font-extrabold">
+                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
+                          bg-[#EAF4FF] border border-[#66B2FF]/40
+                          text-[#007BFF] text-[0.72rem] font-extrabold">
                                         No app
                                     </div>
                                 </div>
-
-                                <p className="relative z-10 text-[0.95rem] text-slate-700 leading-relaxed font-semibold">
-                                    Open your camera, scan the QR code, and tap the link — <span className="font-extrabold">no app needed</span>.
+                                <p> Open your camera, scan the QR code, and tap the link —
+                                    <span className="font-extrabold"> no app needed</span>.
                                 </p>
                             </div>
                         </div>
 
-                        {/* Step 3 */}
-                        <div className="group relative rounded-[46px] p-[3px] bg-[#66B2FF]/70 shadow-[0px_0px_26px_rgba(2,6,23,0.10)] hover:shadow-[0px_0px_34px_rgba(2,6,23,0.14)] transition-all duration-200 hover:scale-[1.02] active:scale-[.99] h-full">
-                            <div className="relative rounded-[44px] h-full bg-white/75 p-7 overflow-hidden">
-
-                                {/* Decorative blue glow */}
-                                {/* <div className="absolute -top-24 -right-24 w-[260px] h-[260px] rounded-full bg-[#66B2FF]/30 blur-[90px] pointer-events-none" /> */}
-
-                                {/* Dot pattern */}
+                        {/* STEP 3 */}
+                        <div
+                            className="group cursor-pointer rounded-[52px] p-[3px]
+                 shadow-[0px_0px_20px_rgba(0,0,0,.1)]
+                 transition-all duration-300 hover:-translate-y-1 active:scale-[.98]"
+                            style={{ background: 'linear-gradient(135deg, #EAF4FF 0%, #CFE6FF 100%)' }}
+                        >
+                            <div className="relative h-full rounded-[50px] bg-white/80 p-7 overflow-hidden">
                                 <div
-                                    className="absolute inset-0 opacity-[0.10] pointer-events-none"
-                                    style={{ backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)', backgroundSize: '16px 16px' }}
+                                    className="absolute inset-0 opacity-[0.08] pointer-events-none"
+                                    style={{
+                                        backgroundImage: 'radial-gradient(#66B2FF 1px, transparent 1px)',
+                                        backgroundSize: '16px 16px',
+                                    }}
                                 />
 
                                 <div className="relative z-10 flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                        <div className="w-[44px] h-[44px] rounded-[16px] bg-[#EAF4FF]
+                            flex items-center justify-center
+                            shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
                                             <span className="text-[#007BFF] font-black">3</span>
                                         </div>
                                         <div>
                                             <p className="text-[0.7rem] font-extrabold tracking-[0.22em] text-[#007BFF]">STEP 3</p>
-                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">Explore &amp; Prepare</h4>
+                                            <h4 className="font-extrabold text-[1.15rem] text-slate-900 leading-tight">
+                                                Explore &amp; Prepare
+                                            </h4>
                                         </div>
                                     </div>
 
-                                    {/* Mini badge */}
-                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAF4FF] border border-[#66B2FF]/40 text-[#007BFF] text-[0.72rem] font-extrabold">
+                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
+                          bg-[#EAF4FF] border border-[#66B2FF]/40
+                          text-[#007BFF] text-[0.72rem] font-extrabold">
                                         Be ready
                                     </div>
                                 </div>
 
                                 <ul className="relative z-10 space-y-2">
-                                    <li className="flex items-start gap-2 text-[0.95rem] text-slate-700 font-semibold">
+                                    <li className="flex items-start gap-2 tex/t-[0.95rem] text-slate-900 ">
                                         <span className="mt-[7px] w-[7px] h-[7px] rounded-full bg-[#66B2FF] shrink-0" />
                                         Learn the story of the location
                                     </li>
-                                    <li className="flex items-start gap-2 text-[0.95rem] text-slate-700 font-semibold">
+                                    <li className="flex items-start gap-2 te/xt-[0.95rem] text-slate-900 ">
                                         <span className="mt-[7px] w-[7px] h-[7px] rounded-full bg-[#66B2FF] shrink-0" />
                                         View local safety &amp; resilience data
                                     </li>
-                                    <li className="flex items-start gap-2 text-[0.95rem] text-slate-700 font-semibold">
+                                    <li className="flex items-start gap-2 tex/t-[0.95rem] text-slate-900 ">
                                         <span className="mt-[7px] w-[7px] h-[7px] rounded-full bg-[#66B2FF] shrink-0" />
                                         Find nearby emergency shelters
                                     </li>
@@ -229,6 +251,7 @@ export default function LegacyInfo() {
 
                     </div>
                 </div>
+
 
                 <div className="mt-12 w-full max-w-[800px]">
                     <p className="font-extrabold text-[1.05rem] mb-2 text-slate-900">Can’t make it in person?</p>
