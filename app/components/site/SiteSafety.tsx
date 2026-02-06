@@ -84,9 +84,9 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
                 <div className={`${isOpen ? 'max-h-min opacity-100' : 'max-h-0 opacity-0'} overflow-hidden bg-white relative transition-all duration-300`}>
                     <div className="px-6 pb-6 pt-4 relative z-10">
                         {/* Description */}
-                        <p className="text-[0.95rem] leading-[1.6] text-slate-600 mb-4">
+                        <div className="text-[0.95rem] leading-[1.6] text-slate-600 mb-4">
                             {data.description}
-                        </p>
+                        </div>
 
                         {/* Guidelines */}
                         <ul className="space-y-3 mb-5">

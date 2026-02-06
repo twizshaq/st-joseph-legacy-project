@@ -352,45 +352,72 @@ export default function UserProfilePage() {
 
       <div className="relative z-50"><Navigation /></div>
 
-      <div className="pt-[110px] max-sm:pt-[80px] md:pl-[200px] px-5 pb-20 max-w-[1600px] mx-auto">
-        <div className="flex flex-col xl:flex-row gap-10 items-start justify-center mt-[100px] max-sm:mt-[40px] ">
-          
-          {/* --- LEFT COLUMN --- */}
-          <div className="w-full xl:w-[400px] shrink-0 xl:sticky">
-            <div className="rounded-[35px] bg-white/0 relative">
-                <div className="flex items-start gap-6">
-                  <div className="relative">
-                    <div className="relative w-28 h-28 max-sm:w-26 max-sm:h-26 border-white border-[3px] rounded-full overflow-hidden shadow-[0px_0px_30px_rgba(0,0,0,0.15)]">
-                      <Image src={userAvatarUrl} alt="User" fill className="object-cover" unoptimized/>
-                    </div>
-                    <div className="absolute bg-[#007BFF] bottom-[-7px] right-[10px] rotate-[-5deg] text-white px-3 py-1 rounded-full text-xs font-bold border-[2px] border-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
-                      lvl 12
-                    </div>
-                  </div>
-                  <div className="flex flex-col w-full">
-                    <div className="flex items-center justify-between w-full">
-                        <h1 className="text-3xl font-black text-slate-800 leading-tight">{displayUsername}</h1>
-                        {isOwnProfile && (
-                            <button onClick={() => setIsSettingsOpen(true)} className="p-2 cursor-pointer active:scale-[.95] rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
-                              <Settings size={25} />
-                            </button>
-                        )}
-                    </div>
-                    <p className="text-[1rem] font-[600] text-slate-400">Site Explorer</p>
-                    {profile?.bio && (<p className="text-sm font-medium text-slate-600 leading-relaxed mt-[2px]">{profile.bio}</p>)}
-                  </div>
-                </div>
-            </div>
+      {/* MAIN WRAP */}
+      <div className="pt-[110px] max-sm:pt-[80px] md:pl-[200px] px-5 pb-20 max-w-[1200px] mx-auto">
 
-            {isContentVisible && (
-              <div className="rounded-[35px] mt-[30px]">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-black text-slate-800">Profile Overview</h3>
-                    <span className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">{profile?.is_private ? 'Private' : 'Public'}</span>
+        {/* PROFILE HEADER */}
+        <div className="rounded-[40px] bg-white/0">
+          <div className="bg-black/4 rounded-[38px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,0.08)]">
+            <div className="bg-white/0 rounded-[36px] p-5 sm:p-7">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  <div className="relative w-28 h-28 max-sm:w-24 max-sm:h-24 border-white border-[3px] rounded-full overflow-hidden shadow-[0px_0px_30px_rgba(0,0,0,0.15)]">
+                    <Image src={userAvatarUrl} alt="User" fill className="object-cover" unoptimized />
+                  </div>
+                  <div className="absolute bg-[#007BFF] bottom-[-7px] right-[10px] rotate-[-5deg] text-white px-3 py-1 rounded-full text-xs font-bold border-[2px] border-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
+                    lvl 12
+                  </div>
                 </div>
-                <div className="flex gap-4 w-full">
+
+                {/* Identity */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h1 className="text-3xl font-black text-slate-800 leading-tight truncate">{displayUsername}</h1>
+                      <p className="text-[1rem] font-[600] text-slate-400">Site Explorer</p>
+                      {profile?.bio && (
+                        <p className="text-sm font-medium text-slate-600 leading-relaxed mt-1 max-w-[640px]">
+                          {profile.bio}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+                        {profile?.is_private ? 'Private' : 'Public'}
+                      </span>
+                      {isOwnProfile && (
+                        <button
+                          onClick={() => setIsSettingsOpen(true)}
+                          className="p-2 cursor-pointer active:scale-[.95] rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
+                          aria-label="Open settings"
+                        >
+                          <Settings size={25} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* STATS (only if visible) */}
+              {isContentVisible && (
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-black text-slate-800">Profile Overview</h3>
+                    <div className="text-xs font-bold text-slate-400">
+                      Showing: <span className="text-slate-600">{activeTab}</span>
+                    </div>
+                  </div>
+
+                  {/* Desktop grid / Mobile swipe row */}
+                  <div className="hidden sm:grid grid-cols-3 gap-4">
                     {tabStats[activeTab]?.map((stat, idx) => (
-                      <div key={idx} className="flex-1 active:scale-[.98] shadow-[0px_0px_30px_rgba(0,0,0,0.06)] bg-black/4 rounded-[30px] p-4 flex flex-col justify-between min-h-[60px] border-[3px] border-white hover:bg-slate-100 transition-colors">
+                      <div
+                        key={idx}
+                        className="active:scale-[.98] shadow-[0px_0px_30px_rgba(0,0,0,0.06)] bg-black/4 rounded-[30px] p-4 flex flex-col justify-between min-h-[72px] border-[3px] border-white hover:bg-slate-100 transition-colors"
+                      >
                         <div>
                           <div className="text-2xl font-black text-slate-800 leading-none mb-2">{stat.value}</div>
                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</div>
@@ -398,117 +425,118 @@ export default function UserProfilePage() {
                         <div className={`mt-3 h-1.5 w-8 rounded-full ${stat.color}`}></div>
                       </div>
                     ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* --- RIGHT COLUMN --- */}
-          <div className="flex-1 w-full max-w-[650px] flex flex-col gap-10 min-w-0">
-            <div className="rounded-[35px] p-1 sm:p-0">
-              
-              {/* TABS (Always Visible) */}
-              <div className="flex justify-between items-center gap-4 flex-wrap mb-6">
-                <div className="bg-black/4 p-1.5 rounded-full inline-flex border-[3px] border-white shadow-[0px_0px_10px_rgba(0,0,0,0.08)]">
-                  {['All', 'Tours', 'Badges', 'Media'].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`
-                        px-6 py-2.5 rounded-full active:scale-[.97] cursor-pointer text-sm font-bold transition-all duration-200
-                        ${activeTab === tab ? 'bg-[#007BFF] text-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]' : 'text-slate-500 hover:text-slate-800'}
-                      `}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* FEED CONTENT (Only if Visible) */}
-              {isContentVisible && (
-                  <div className="animate-in slide-in-from-bottom-5 duration-500 fade-in">
-                    {activeTab === 'All' && (
-                      <>
-                        {activityData.map((section, idx) => (
-                          <div key={idx}>
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">{section.label}</h3>
-                            <div className="space-y-0">
-                              {section.items.map((item, itemIdx) => (
-                                <ActivityCard key={itemIdx} item={item} />
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </>
-                    )}
-
-                    {activeTab === 'Tours' && (
-                      <div className="flex flex-col gap-3">
-                        
-                        {/* 1. UPCOMING SECTION */}
-                        {toursData.filter(t => t.status === "Upcoming").length > 0 && (
-                          <div>
-                            {/* <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">Upcoming</h3> */}
-                            {toursData.filter(t => t.status === "Upcoming").map(tour => (
-                              <TourCard key={tour.id} tour={tour} />
-                            ))}
-                          </div>
-                        )}
-
-                        {/* 2. ACTIVE SECTION */}
-                        {toursData.filter(t => t.status === "Active").length > 0 && (
-                          <div className="relative">
-                            {/* The Separator Line */}
-                            <div className="w-[200px] h-[1.8px] bg-slate-200/80 mx-auto mb-8 rounded-full"></div>
-                            
-                            {/* <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">Active</h3> */}
-                            {toursData.filter(t => t.status === "Active").map(tour => (
-                              <TourCard key={tour.id} tour={tour} />
-                            ))}
-                          </div>
-                        )}
-
-                        {/* 3. COMPLETED SECTION */}
-                        {toursData.filter(t => t.status === "Completed").length > 0 && (
-                          <div className="relative">
-                            {/* The Separator Line */}
-                            <div className="w-[200px] h-[1.8px] bg-slate-200/80 mx-auto mb-8 rounded-full"></div>
-
-                            {/* <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">Completed</h3> */}
-                            {toursData.filter(t => t.status === "Completed").map(tour => (
-                              <TourCard key={tour.id} tour={tour} />
-                            ))}
-                          </div>
-                        )}
-
-                      </div>
-                    )}
-
-                    {activeTab === 'Badges' && <BadgesGrid />}
-
-                    {activeTab === 'Media' && <MediaGrid />}
                   </div>
+
+                  <div className="sm:hidden -mx-2 px-2 overflow-x-auto">
+                    <div className="flex gap-3 min-w-max pb-1">
+                      {tabStats[activeTab]?.map((stat, idx) => (
+                        <div
+                          key={idx}
+                          className="w-[170px] shrink-0 active:scale-[.98] shadow-[0px_0px_30px_rgba(0,0,0,0.06)] bg-black/4 rounded-[30px] p-4 flex flex-col justify-between min-h-[72px] border-[3px] border-white"
+                        >
+                          <div>
+                            <div className="text-2xl font-black text-slate-800 leading-none mb-2">{stat.value}</div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</div>
+                          </div>
+                          <div className={`mt-3 h-1.5 w-8 rounded-full ${stat.color}`}></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* --- PRIVATE VIEW MESSAGE (Centered below columns) --- */}
-        {!isContentVisible && (
-            <div className="w-full max-w-[1050px] flex justify-center mt-12 animate-in fade-in duration-500">
-                <div className="flex flex-col items-center justify-center text-center rounded-[35px] w-full max-w-3xl">
-                    <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mb-6">
-                    <Lock size={32} className="text-slate-500" />
-                    </div>
-                    <h2 className="text-xl font-black text-slate-800 mb-2">This account is private</h2>
-                    <p className="text-sm font-medium text-slate-500 max-w-[300px] leading-relaxed">
-                    {displayUsername} has restricted access to their {activeTab === 'Media' ? 'photos and videos' : activeTab === 'All' ? 'activity' : activeTab.toLowerCase()}.
-                    </p>
-                </div>
-            </div>
-        )}
+        {/* TABS (always visible) */}
+        <div className="mt-8 flex justify-center">
+          <div className="bg-black/4 p-1.5 rounded-full inline-flex border-[3px] border-white shadow-[0px_0px_10px_rgba(0,0,0,0.08)]">
+            {['All', 'Tours', 'Badges', 'Media'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`
+                  px-6 py-2.5 rounded-full active:scale-[.97] cursor-pointer text-sm font-bold transition-all duration-200
+                  ${activeTab === tab ? 'bg-[#007BFF] text-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]' : 'text-slate-500 hover:text-slate-800'}
+                `}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
 
+        {/* CONTENT */}
+        <div className="mt-8">
+          {isContentVisible ? (
+            <div className="animate-in slide-in-from-bottom-5 duration-500 fade-in">
+              {activeTab === 'All' && (
+                <div className="space-y-8">
+                  {activityData.map((section, idx) => (
+                    <div key={idx}>
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">{section.label}</h3>
+                      <div className="space-y-0">
+                        {section.items.map((item, itemIdx) => (
+                          <ActivityCard key={itemIdx} item={item} />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'Tours' && (
+                <div className="flex flex-col gap-3">
+                  {/* 1. UPCOMING */}
+                  {toursData.filter(t => t.status === "Upcoming").length > 0 && (
+                    <div>
+                      {toursData.filter(t => t.status === "Upcoming").map(tour => (
+                        <TourCard key={tour.id} tour={tour} />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 2. ACTIVE */}
+                  {toursData.filter(t => t.status === "Active").length > 0 && (
+                    <div className="relative">
+                      <div className="w-[200px] h-[1.8px] bg-slate-200/80 mx-auto mb-8 rounded-full"></div>
+                      {toursData.filter(t => t.status === "Active").map(tour => (
+                        <TourCard key={tour.id} tour={tour} />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 3. COMPLETED */}
+                  {toursData.filter(t => t.status === "Completed").length > 0 && (
+                    <div className="relative">
+                      <div className="w-[200px] h-[1.8px] bg-slate-200/80 mx-auto mb-8 rounded-full"></div>
+                      {toursData.filter(t => t.status === "Completed").map(tour => (
+                        <TourCard key={tour.id} tour={tour} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'Badges' && <BadgesGrid />}
+              {activeTab === 'Media' && <MediaGrid />}
+            </div>
+          ) : (
+            <div className="w-full flex justify-center mt-2 animate-in fade-in duration-500">
+              <div className="flex flex-col items-center justify-center text-center rounded-[35px] w-full max-w-3xl">
+                <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mb-6">
+                  <Lock size={32} className="text-slate-500" />
+                </div>
+                <h2 className="text-xl font-black text-slate-800 mb-2">This account is private</h2>
+                <p className="text-sm font-medium text-slate-500 max-w-[300px] leading-relaxed">
+                  {displayUsername} has restricted access to their {activeTab === 'Media' ? 'photos and videos' : activeTab === 'All' ? 'activity' : activeTab.toLowerCase()}.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+c
       </div>
     </div>
   );

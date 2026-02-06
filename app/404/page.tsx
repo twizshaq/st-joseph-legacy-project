@@ -1,5 +1,5 @@
-import React from 'react'
-import './style.css'
+import Link from 'next/link'
+import CustomMapMarker from '@/app/components/map/CustomMapMarker'
 
 function ArrowLeftIcon({ className }: { className?: string }) {
     return (
@@ -21,103 +21,107 @@ function ArrowLeftIcon({ className }: { className?: string }) {
     )
 }
 
+const SUGGESTED_PAGES = [
+    { href: '/virtual-map', label: 'Virtual Map' },
+    { href: '/all-sites', label: 'All Sites' },
+    { href: '/tours', label: 'Guided Tours' },
+    { href: '/about-us', label: 'About the DEO' },
+    { href: '/team', label: 'Meet the Team' },
+] as const
+
 export default function Error404Page() {
     return (
-        <div className="min-h-screen w-full bg-white font-['Inter',sans-serif] overflow-hidden">
-            <main className="min-h-screen flex flex-col lg:flex-row items-center justify-between px-8 md:px-16 lg:px-24 py-12 lg:py-0 gap-8 lg:gap-4">
-                {/* Left Content */}
-                <div className="flex flex-col justify-center max-w-xl lg:max-w-lg xl:max-w-xl z-10">
-                    {/* Error Label */}
-                    <p className="text-[#06B6D4] text-sm md:text-base font-semibold tracking-wider mb-4">
-                        ERROR CODE: 404
-                    </p>
+        <div className="min-h-[100dvh] w-full bg-white text-black">
+            <main className="mx-auto flex min-h-[100dvh] max-w-5xl flex-col items-center justify-center px-6 py-16 text-center">
+                {/* <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 font-semibold text-black/70">
+                    Error Code: 404
+                </div> */}
 
-                    {/* Main Heading */}
-                    <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-black tracking-tight mb-6">
-                        OOOPS!!
-                    </h1>
-
-                    {/* Subheading */}
-                    <p className="text-2xl md:text-3xl text-gray-800 font-light leading-tight mb-10">
-                        This is not the page you are looking for
-                    </p>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-wrap gap-4 mb-8">
-                        <a
-                            href="/"
-                            className="inline-block cursor-pointer rounded-full p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-[.98]"
+                {/* Big custom 404 */}
+                <div className="relative mt-7 select-none">
+                    <span className="sr-only">404</span>
+                    <div className="flex items-end justify-center gap-15 max-sm:gap-3">
+                        <span
+                            aria-hidden
+                            className="bg-gradient-to-b from-[#007BFF] to-[#66B2FF] bg-clip-text font-black leading-none tracking-tight text-transparent max-sm:text-[9rem] text-[15rem]"
                         >
-                            <span className="flex items-center gap-2 bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-6 py-3 text-white font-semibold">
-                                <ArrowLeftIcon className="w-5 h-5" />
-                                Go Back Home
-                            </span>
-                        </a>
+                            4
+                        </span>
 
-                        <a
-                            href="#"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-transparent text-gray-600 font-semibold rounded-full border-2 border-gray-300 hover:border-gray-400 hover:text-gray-800 transition-all"
+                        <div className="relative -translate-y-33 translate-x-3 rotate-10 scale-[3.5] max-sm:scale-[1.2]">
+                            <CustomMapMarker
+                                name="0"
+                                pointimage="https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG"
+                                color="linear-gradient(135deg, #66B2FF, #007BFF)"
+                            />
+                        </div>
+
+                        <span
+                            aria-hidden
+                            className="bg-gradient-to-b from-[#007BFF] to-[#66B2FF] bg-clip-text font-black leading-none tracking-tight text-transparent max-sm:text-[9rem] text-[15rem]"
                         >
-                            Contact Support
-                        </a>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="w-full h-px bg-gray-200 mb-6"></div>
-
-                    {/* Alternative Pages */}
-                    <div className="space-y-4">
-                        <p className="text-gray-400 text-sm font-medium">
-                            Or try these pages:
-                        </p>
-
-                        <nav aria-label="Alternative pages">
-                            <ul className="flex flex-wrap gap-6 md:gap-8">
-                                <li>
-                                    <a
-                                        href="/all-sites"
-                                        className="text-gray-700 text-sm font-semibold hover:text-black transition-colors"
-                                    >
-                                        Sites
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="/about-us"
-                                        className="text-gray-700 text-sm font-semibold hover:text-black transition-colors"
-                                    >
-                                        The DEO
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="/team"
-                                        className="text-gray-700 text-sm font-semibold hover:text-black transition-colors"
-                                    >
-                                        Team
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="/virtual-map"
-                                        className="text-gray-700 text-sm font-semibold hover:text-black transition-colors"
-                                    >
-                                        Virtual Map
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
+                            4
+                        </span>
                     </div>
                 </div>
 
-                {/* Main Graphic Image */}
-                <div className="relative animate-float-slow">
-                    <img
-                        src="https://cdn.magicpatterns.com/uploads/8kQ9SDHePhkTxmPJUbRzpW/Screenshot_2026-02-01_104739.png"
-                        alt="Astronaut floating in space with colorful 404 numbers"
-                        className="w-full max-w-[500px] lg:max-w-[600px] xl:max-w-[700px] h-auto object-contain"
-                    />
+                <p className="mt-5 text-3xl font-bold leading-tight text-blod max-sm:text-[1rem]">
+                    Seems like you took a wrong turn.
+                </p>
+                {/* <p className="mt-3 max-w-xl text-sm leading-relaxed text-black/70 sm:text-base">
+                    The link might be broken, or the page may have moved. Head
+                    back home or jump into a nearby route.
+                </p> */}
+
+                <div className="mt-8 flex w-full flex-col items-center justify-center gap-3 sm:flex-row">
+                    <div
+                className={`cursor-pointer rounded-full p-[2.5px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] active:scale-[.98] transition-transform hover:scale-[1.02] active:scale-[0.99]`}
+            >
+                    <Link
+                        href="/"
+                        className="flex justify-center items-center gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[30px] py-[15px] text-white font-bold"
+                    >
+                        <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
+                        Go Back Home
+                    </Link>
+                    </div>
+                    {/* <Link
+                        href="/explore"
+                        className="inline-flex w-full items-center justify-center rounded-full border border-black/10 bg-white px-6 py-3 font-semibold text-black/80 shadow-[0px_10px_22px_rgba(2,6,23,0.06)] transition-colors hover:bg-black/[0.02] sm:w-auto"
+                    >
+                        Explore
+                    </Link> */}
                 </div>
+
+                <section className="absolute bottom-0 mt-10 w-full max-w-2xl rounded-[32px] bg-white p-6 sm:p-7">
+                    <p className="text-sm font-semibold text-black/70">
+                        Try these pages
+                    </p>
+                    <nav aria-label="Try these pages">
+                        <ul className="mt-6 flex flex-wrap justify-center gap-6 bg-red-500/0">
+                            {SUGGESTED_PAGES.map((page) => (
+                                <li key={page.href}>
+                                    <Link
+                                        href={page.href}
+                                        className="group flex items-center rounded-2xl transition-colors hover:bg-black/[0.02]"
+                                    >
+                                        <span className="font-semibold text-black">
+                                            {page.label}
+                                        </span>
+                                        {/* <span className="text-black/40 transition-transform group-hover:translate-x-0.5">
+                                            →
+                                        </span> */}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                </section>
+
+                {/* <p className="mt-10 text-xs text-black/50">
+                    If you typed the address, double-check the spelling and try
+                    again.
+                </p> */}
             </main>
         </div>
     )
