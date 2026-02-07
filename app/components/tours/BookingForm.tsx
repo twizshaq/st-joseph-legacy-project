@@ -181,7 +181,7 @@ export function BookingForm({ tour, user }: BookingFormProps) {
     return (
         <div className="bg-white rounded-[50px] border-[2px]/0 border-gray-200 shadow-[0px_0px_15px_rgba(0,0,0,.07)] p-4 md:p-6 lg:w-[700px] relative">
             <div className='flex gap-2 items-center bg-red-500/0 mb-4 ml-[7px] max-sm:mt-[5px]'>
-                <CalendarPlus/>
+                <CalendarPlus />
                 <h2 className="text-2xl font-bold text-gray-900">Book Your Tour</h2>
             </div>
 
@@ -271,22 +271,22 @@ export function BookingForm({ tour, user }: BookingFormProps) {
                         ${appliedDiscount ? 'text-gray-500 bg-gray-100' : ''}`}
                     />
                     <div className='absolute right-[5px]'>
-                    {!appliedDiscount ? (
-                        <button
-                            onClick={handleApplyPromo}
-                            className="bg-[#007BFF] shadow-[0_0_7px_rgba(0,123,255,0.5)] text-center text-white w-[120px] h-[50px] py-[13px] rounded-full font-medium active:scale-[.95] active:bg-[#ccc] transition-colors"
-                        >
-                            Apply
-                        </button>
-                    ) : (
-                        <button
-                            onClick={handleRemovePromo}
-                            className="bg-red-500 text-white w-[120px] h-[50px] rounded-full font-medium hover:bg-red-600 transition-colors flex justify-center items-center gap-2 whitespace-nowrap"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                            Remove
-                        </button>
-                    )}
+                        {!appliedDiscount ? (
+                            <button
+                                onClick={handleApplyPromo}
+                                className="bg-[#007BFF] shadow-[0_0_7px_rgba(0,123,255,0.5)] text-center text-white w-[120px] h-[50px] py-[13px] rounded-full font-medium active:scale-[.95] active:bg-[#ccc] transition-colors"
+                            >
+                                Apply
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleRemovePromo}
+                                className="bg-red-500 text-white w-[120px] h-[50px] rounded-full font-medium hover:bg-red-600 transition-colors flex justify-center items-center gap-2 whitespace-nowrap"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Remove
+                            </button>
+                        )}
                     </div>
                 </div>
 

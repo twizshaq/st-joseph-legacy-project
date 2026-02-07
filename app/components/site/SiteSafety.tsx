@@ -81,7 +81,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
 
                 <div className={`h-[1px] w-full bg-gradient-to-r from-transparent via-amber-200 to-transparent transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}></div>
 
-                <div className={`${isOpen ? 'max-h-min opacity-100' : 'max-h-0 opacity-0'} overflow-hidden bg-white relative transition-all duration-300`}>
+                <div className={`${isOpen ? 'max-h-fit opacity-100' : 'max-h-0 opacity-0'} overflow-hidden bg-white relative transition-all duration-300`}>
                     <div className="px-6 pb-6 pt-4 relative z-10">
                         {/* Description */}
                         <div className="text-[0.95rem] leading-[1.6] text-slate-600 mb-4">

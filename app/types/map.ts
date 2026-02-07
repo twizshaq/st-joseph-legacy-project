@@ -5,7 +5,7 @@ export type Site = {
   name: string;
   category: string;
   description: string;
-  coordinates: [number, number]; 
+  coordinates: [number, number];
   imageUrl: string;
   colorhex: string;
   slug: string;
