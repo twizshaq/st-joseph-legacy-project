@@ -9,6 +9,7 @@ export type Site = {
   imageUrl: string;
   colorhex: string;
   slug: string;
+  likes_count?: number;
 };
 
 // Types needed for TripPlanner

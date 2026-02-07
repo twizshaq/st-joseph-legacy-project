@@ -6,6 +6,7 @@ import MapFull from '@/app/components/map/MapFull';
 import { useMapData } from '@/app/hooks/useMapData';
 import { SearchResults } from '@/app/components/map/SearchResults';
 import { Site, Zoomable } from '@/app/types/map';
+import { SortOption } from '@/app/types';
 import { Feature, Point, FeatureCollection } from 'geojson';
 
 export default function FullScreenMapPage() {
@@ -15,6 +16,7 @@ export default function FullScreenMapPage() {
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
     const [mobileSearchReady, setMobileSearchReady] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [sortOption, setSortOption] = useState<SortOption>('default');
 
     const mobileSearchInputRef = useRef<HTMLInputElement>(null);
     const desktopInputRef = useRef<HTMLInputElement>(null);
@@ -24,14 +26,18 @@ export default function FullScreenMapPage() {
     const isLiked = selectedSite ? likedSiteIds.has(selectedSite.id) : false;
 
     const filteredSites = useMemo(() => {
-        if (!searchQuery) return sites;
         const lowerQuery = searchQuery.toLowerCase().trim();
-        if (!lowerQuery) return sites;
-        return sites.filter(site =>
+        const searchedSites = !lowerQuery ? sites : sites.filter(site =>
             site.name.toLowerCase().includes(lowerQuery) ||
             site.category?.toLowerCase().includes(lowerQuery)
         );
-    }, [sites, searchQuery]);
+
+        return [...searchedSites].sort((a, b) => {
+            if (sortOption === 'name_asc') return a.name.localeCompare(b.name);
+            if (sortOption === 'popularity') return (b.likes_count || 0) - (a.likes_count || 0);
+            return a.id - b.id;
+        });
+    }, [sites, searchQuery, sortOption]);
 
     const geojsonData = useMemo((): FeatureCollection<Point> => ({
         type: 'FeatureCollection',
@@ -80,8 +86,9 @@ export default function FullScreenMapPage() {
         const inDesktop = desktopSearchRef.current?.contains(target);
         const inMobile = mobileSearchRef.current?.contains(target);
         const inPopup = target?.closest('#info-popup-portal');
+        const inSortPopup = target?.closest('#sort-popup-portal');
 
-        if (!inDesktop && !inMobile && !inPopup) {
+        if (!inDesktop && !inMobile && !inPopup && !inSortPopup) {
             setMobileSearchOpen(prev => {
                 if (prev) {
                     setMobileSearchReady(false);
@@ -156,6 +163,8 @@ export default function FullScreenMapPage() {
                             isLiked={isLiked}
                             onToggleLike={handleToggleLike}
                             onSaveTrip={saveTrip}
+                            sortOption={sortOption}
+                            setSortOption={setSortOption}
                         />
                     </div>
                 </div>
@@ -196,6 +205,8 @@ export default function FullScreenMapPage() {
                                 isLiked={isLiked}
                                 onToggleLike={handleToggleLike}
                                 onSaveTrip={saveTrip}
+                                sortOption={sortOption}
+                                setSortOption={setSortOption}
                             />
                         </div>
                     </div>

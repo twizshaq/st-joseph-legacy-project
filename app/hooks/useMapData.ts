@@ -55,6 +55,7 @@ export function useMapData() {
           imageUrl: entry.pointimage || '',
           colorhex: entry.colorhex || '#fff',
           slug: entry.slug || '',
+          likes_count: Number(entry.likes_count || 0),
         })).filter(s => s.coordinates.length === 2 && !isNaN(s.coordinates[0]));
         setSites(mapped);
       }
