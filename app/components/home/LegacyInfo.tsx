@@ -1,5 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
+import { HeartIcon } from '@/public/icons/heart-icon';
+// import { InfoIcon } from '@/public/icons/info-icon';
+import cameraIcon from '@/public/icons/camera-icon.svg';
+import InfoIcon from '@/public/icons/info-icon';
 
 export default function LegacyInfo() {
     return (
@@ -18,34 +22,50 @@ export default function LegacyInfo() {
                     </p>
 
                     {/* Feature List (Mobile & Desktop Aligned) */}
-                    <ul className="space-y-8 max-w-[600px] w-full text-left">
-                        <li className="list-none flex flex-col gap-1">
-                            <p className="font-extrabold text-slate-900 text-lg border-l-4 border-blue-400 pl-4">
-                                Our Culture
-                            </p>
-                            <p className="text-slate-600 pl-5">
-                                Dive deep into the stories that make St. Joseph unique.
-                            </p>
+                    <ol className="space-y-8 max-w-[600px] w-full text-left list-none">
+                        <li className="flex items-start gap-3">
+                            <span className="w-[44px] h-[44px] shrink-0 rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                <Image src={cameraIcon} alt="Camera" />
+                            </span>
+                            <div className="flex flex-col gap-1">
+                                <p className="font-extrabold text-slate-900 text-lg leading-tight">
+                                    Our Culture
+                                </p>
+                                <p className="text-slate-600">
+                                    Dive deep into the stories that make St. Joseph unique.
+                                </p>
+                            </div>
                         </li>
 
-                        <li className="list-none flex flex-col gap-1">
-                            <p className="font-extrabold text-slate-900 text-lg border-l-4 border-indigo-400 pl-4">
-                                Our Community
-                            </p>
-                            <p className="text-slate-600 pl-5">
-                                Hear the voices of the community and learn directly from them. Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
-                            </p>
+                        <li className="flex items-start gap-3">
+                            <span className="w-[44px] h-[44px] shrink-0 rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                <HeartIcon size={24} color="#007BFF" />
+                            </span>
+                            <div className="flex flex-col gap-1">
+                                <p className="font-extrabold text-slate-900 text-lg leading-tight">
+                                    Our Community
+                                </p>
+                                <p className="text-slate-600">
+                                    Hear the voices of the community and learn directly from them. Join a network of neighbours, artists, and businesses working together to keep St. Joseph safe and thriving.
+                                </p>
+                            </div>
                         </li>
 
-                        <li className="list-none flex flex-col gap-1">
-                            <p className="font-extrabold text-slate-900 text-lg border-l-4 border-emerald-400 pl-4">
-                                Build Resilience
-                            </p>
-                            <p className="text-slate-600 pl-5">
-                                Don’t just look at the land — understand it. Access critical data on local hazards, coastal risks, and disaster‑management tips specific to each location.
-                            </p>
+                        <li className="flex items-start gap-3">
+                            <span className="w-[44px] h-[44px] shrink-0 rounded-[16px] bg-[#EAF4FF] flex items-center justify-center shadow-[0_10px_25px_rgba(0,123,255,0.10)]">
+                                <InfoIcon size={24} color="#007BFF" />
+                            </span>
+                            <div className="flex flex-col gap-1">
+                                <p className="font-extrabold text-slate-900 text-lg leading-tight">
+                                    Build Resilience
+                                </p>
+                                <p className="text-slate-600">
+                                    Don’t just look at the land — understand it. Access critical data on local hazards, coastal risks, and disaster-management tips specific to each location.
+                                </p>
+                            </div>
                         </li>
-                    </ul>
+                    </ol>
+
                 </div>
 
                 {/* RIGHT COLUMN: Original Collage (Exact styling restoration) */}
