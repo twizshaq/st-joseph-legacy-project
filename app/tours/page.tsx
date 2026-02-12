@@ -4,7 +4,7 @@ import React from "react";
 import Footer from "@/app/components/FooterModal";
 import TourDetailsSkeleton from "@/app/components/tours/TourDetailsSkeleton";
 import TourGallery from "@/app/components/tours/TourGallery";
-import BookingForm from "@/app/components/tours/BookingForm";
+import { BookingForm } from "@/app/components/tours/BookingForm";
 import TourReviewsSection from "@/app/components/tours/TourReviewsSection";
 import HeroSection from "@/app/components/tours/HeroSection";
 import TourSelector from "@/app/components/tours/TourSelector";
@@ -122,8 +122,8 @@ export default function ToursPage() {
                     <BookingForm
                         tour={selectedTour}
                         user={userSession?.user}
-                        // guestCount={guestCount}
-                        // onGuestChange={setGuestCount}
+                    // guestCount={guestCount}
+                    // onGuestChange={setGuestCount}
                     />
                 </div>
             )}

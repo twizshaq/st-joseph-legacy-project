@@ -6,7 +6,7 @@ import { SortOption } from '@/app/types';
 import searchIcon from '@/public/icons/search-icon.svg';
 import sortIcon from '@/public/icons/sort-icon.svg';
 import arrowIcon from "@/public/icons/arrow-icon.svg";
-import ShareIcon from "@/public/icons/share-icon";
+import LinkIcon from "@/public/icons/link-icon";
 import PlayIcon from "@/public/icons/play-icon";
 import LikeButton from '@/app/components/map/LikeButton';
 import DirectionsPopup from '@/app/components/map/DirectionsPopup';
@@ -182,7 +182,6 @@ export const SearchResults = memo(function SearchResults({
                                 <div className="absolute top-0 left-0 w-full h-[100px] bg-gradient-to-b from-[#686868] via-[#686868]/80 to-transparent z-20 pointer-events-none rounded-t-[40px]" />
                             )}
 
-                            {/* HEADER (Z-30 to stay above shade) */}
                             <div onClick={handleHeaderClick} className={`absolute z-30 flex items-center px-[10px] justify-between transition-all duration-400 rounded-full ${mobileSearchOpen ? 'pt-[7.5px] mt-[6px] pb-[0px] w-[100%] px-[15px]' : 'mt-[-12px] py-[7.5px] w-[100%]'}`}>
                                 <button onClick={(e) => { e.stopPropagation(); setSelectedSite(null); }} className={`inline-flex pr-[10px] active:scale-[.95] shrink-0 cursor-pointer items-center gap-2 text-white/90 hover:text-white active:opacity-80 ${mobileSearchOpen ? 'mt-[-6px]' : 'mt-[5px]'}`}>
 
@@ -210,7 +209,22 @@ export const SearchResults = memo(function SearchResults({
                             </div>
 
                             {/* SCROLLABLE CONTENT */}
-                            <div className={`overflow-y-auto flex-1 p-0 transition-opacity duration-300 ${mobileSearchOpen ? 'opacity-100' : 'opacity-0'}`}>
+                            <div className={`overflow-y-auto flex-1 p-0 transition-opacity duration-300 custom-scrollbar ${mobileSearchOpen ? 'opacity-100' : 'opacity-0'}`}>
+                                <style jsx>{`
+                                    .custom-scrollbar::-webkit-scrollbar {
+                                        width: 8px;
+                                    }
+                                    .custom-scrollbar::-webkit-scrollbar-track {
+                                        background: transparent;
+                                    }
+                                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                                        background: rgba(255, 255, 255, 0.3);
+                                        border-radius: 4px;
+                                    }
+                                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                                        background: rgba(255, 255, 255, 0.5);
+                                    }
+                                `}</style>
 
                                 {/*
                    Padding Top pushes content down so it starts visible BELOW the header,
@@ -236,8 +250,8 @@ export const SearchResults = memo(function SearchResults({
                                             {/* RESTORED: Original Large Share Button Style */}
                                             <Link href={`/${selectedSite.slug}`} passHref>
                                                 <div className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
-                                                    <div className="bg-black/30 w-full h-full rounded-[23px] flex items-center justify-center">
-                                                        <ShareIcon size={45} color="#fff" className='p-[5px]' />
+                                                    <div className="bg-black/30 w-full h-full rounded-[23px] flex items-center justify-center hover:bg-black/40 transition-colors duration-200">
+                                                        <LinkIcon size={45} color="#fff" className='p-[5px]' />
                                                     </div>
                                                 </div>
                                             </Link>

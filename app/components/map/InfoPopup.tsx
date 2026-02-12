@@ -2,13 +2,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import InfoIcon from "@/public/icons/info-icon"; 
+import InfoIcon from "@/public/icons/info-icon";
  import { FaTimes } from "react-icons/fa";
 
 export default function InfoPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ bottom: 0, right: 0 });
-  
+
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -27,7 +27,7 @@ export default function InfoPopup() {
         // Bottom: Distance from bottom of screen to top of button + 10px gap
         bottom: window.innerHeight - rect.top + 10,
         // Right: Distance from right of screen to right of button (aligns edges)
-        right: window.innerWidth - rect.right 
+        right: window.innerWidth - rect.right
       });
     }
   };
@@ -88,7 +88,7 @@ export default function InfoPopup() {
   return (
     <>
       {/* THE BUTTON (Renders normally in your layout) */}
-      <button 
+      <button
         ref={buttonRef}
         onClick={togglePopup}
         className='active:scale-[.90] cursor-pointer block opacity-80 hover:opacity-100 transition-opacity'
@@ -98,23 +98,23 @@ export default function InfoPopup() {
 
       {/* THE POPUP (Renders in body via Portal) */}
       {mounted && isOpen && createPortal(
-        <div 
+        <div
           ref={popupRef}
           id="info-popup-portal"
-          style={{ 
-            position: 'fixed', 
-            bottom: `${position.bottom}px`, 
+          style={{
+            position: 'fixed',
+            bottom: `${position.bottom}px`,
             right: `${position.right}px`,
-            zIndex: 9999 
+            zIndex: 9999
           }}
           className="w-[250px] origin-bottom-right animate-in fade-in zoom-in-95 duration-200"
         >
           {/* Glass Style */}
           <div className='bg-white/10 backdrop-blur-[7px] shadow-[0px_0px_10px_rgba(0,0,0,0.4)] rounded-[28px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,.5)] h-fit'>
             <div className="bg-black/40 text-white p-4 rounded-[25px] flex flex-col gap-2 relative">
-              
+
               {/* Close Button */}
-              <button 
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsOpen(false);
@@ -129,12 +129,12 @@ export default function InfoPopup() {
                 Create a custom trip with multiple locations and export it to maps apps like Apple or Google Maps.
               </p>
             </div>
-            
+
             {/* Optional Gloss Line for depth */}
             <div className="absolute top-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           </div>
-          
-          {/* Optional Arrow/Pointer logic could go here if strict design needed, 
+
+          {/* Optional Arrow/Pointer logic could go here if strict design needed,
               but usually clean floating windows look better in modern UIs. */}
         </div>,
         document.body
