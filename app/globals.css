@@ -289,13 +289,13 @@ body {
     /* Triggers Hardware Acceleration explicitly */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    
+
     /* Helps with 3D space calculation on mobile */
     -webkit-perspective: 1000;
     perspective: 1000;
-    
+
     /* Ensures Z-index painting doesn't glitch */
-    -webkit-transform: translate3d(0,0,0); 
+    -webkit-transform: translate3d(0,0,0);
     transform: translate3d(0,0,0);
 
     /* Additional fixes */

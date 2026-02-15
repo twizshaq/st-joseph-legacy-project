@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom'; 
-import type { TripSite } from './TripPlanner'; 
+import { createPortal } from 'react-dom';
+import type { TripSite } from './TripPlanner';
 
 type Bounds = {
   top: number;
@@ -25,17 +25,17 @@ interface AddPlaceOverlayProps {
   setSearchQuery: (query: string) => void;
   availableSites: TripSite[];
   onAddItem: (site: TripSite) => void;
-  portalContainer: HTMLElement | null; 
-  parentBounds: Bounds | null; 
+  portalContainer: HTMLElement | null;
+  parentBounds: Bounds | null;
   parentOnClose: () => void;
 }
 
-export default function AddPlaceOverlay({ 
-  isOpen, 
-  onClose, 
-  searchQuery, 
-  setSearchQuery, 
-  availableSites, 
+export default function AddPlaceOverlay({
+  isOpen,
+  onClose,
+  searchQuery,
+  setSearchQuery,
+  availableSites,
   onAddItem,
   portalContainer,
   parentBounds
@@ -56,7 +56,7 @@ export default function AddPlaceOverlay({
 
   // --- THE EVENT TRAP ---
   // This effect attaches NATIVE DOM listeners to the overlay wrapper.
-  // It intercepts 'mousedown', 'touchstart', and 'pointerdown' BEFORE they 
+  // It intercepts 'mousedown', 'touchstart', and 'pointerdown' BEFORE they
   // bubble up to the document, which prevents "Click Outside" hooks from firing.
   useEffect(() => {
     const el = overlayRef.current;
@@ -93,15 +93,15 @@ export default function AddPlaceOverlay({
 
   const content = (
     // We wrap everything in this div with the ref to trap events
-    <div 
+    <div
       ref={overlayRef}
       className="fixed inset-0 z-[9999]"
       style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
     >
       {/* 1. BACKDROP */}
-      {/* Clicking here should close the Overlay, but we must handle it manually 
+      {/* Clicking here should close the Overlay, but we must handle it manually
           since we are trapping all clicks on the parent div */}
-      <div 
+      <div
         className={`
           absolute inset-0 transition-all duration-300
           ${isOpen ? 'bg-black/0' : 'bg-transparent'}
@@ -114,33 +114,33 @@ export default function AddPlaceOverlay({
       />
 
       {/* 2. MASK CONTAINER */}
-      <div 
+      <div
         style={maskStyle}
         className={`
           fixed overflow-hidden pointer-events-none isolate z-[10000]
         `}
       >
-        <div 
+        <div
           className={`
             absolute bottom-0 left-0 right-0 mx-auto w-[95%] h-[85%]
-            bg-white/10 touch-none rounded-t-[40px] p-0 
+            bg-white/10 touch-none rounded-t-[40px] p-0
             shadow-[0_4px_30px_rgba(0,0,0,0.3)]
-            backdrop-blur-[25px] 
+            backdrop-blur-[25px]
             transform-gpu transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1)
             pointer-events-auto
-            
-            ${isOpen 
-                ? 'translate-y-0 opacity-100' 
-                : 'translate-y-[120%] opacity-0' 
+
+            ${isOpen
+                ? 'translate-y-0 opacity-100'
+                : 'translate-y-[120%] opacity-0'
             }
           `}
         >
           {/* Content */}
           <div className="rounded-t-[40px] bg-black/60 flex flex-col h-full overflow-hidden">
-            
+
             {/* Header */}
             <div className="flex items-center gap-3 p-3 pt-4 bg-[#1c1c1e]/0 rounded-t-[20px]">
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); onClose(); }}
                 className="w-9 h-9 flex items-center justify-center bg-[#333] rounded-full text-white/70 hover:text-white transition-colors flex-shrink-0"
               >
@@ -148,15 +148,15 @@ export default function AddPlaceOverlay({
               </button>
               <div className="flex-1 relative">
                 <div className="absolute left-3 top-2.5 text-white/30"><Icons.Search /></div>
-                <input 
-                  type="text" 
-                  placeholder="Search places..." 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)} 
+                <input
+                  type="text"
+                  placeholder="Search places..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   // Stop React bubbling as well, just to be safe
                   onKeyDown={(e) => e.stopPropagation()}
                   onFocus={(e) => e.stopPropagation()}
-                  className="w-full bg-[#2c2c2e] text-white rounded-[20px] py-2 pl-10 pr-4 text-sm outline-none placeholder-white/30 focus:bg-[#333] border border-transparent focus:border-white/10 transition-colors" 
+                  className="w-full bg-[#2c2c2e] text-white rounded-[20px] py-2 pl-10 pr-4 text-sm outline-none placeholder-white/30 focus:bg-[#333] border border-transparent focus:border-white/10 transition-colors"
                 />
               </div>
             </div>
@@ -164,8 +164,8 @@ export default function AddPlaceOverlay({
             {/* List */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 bg-[#151515]/0 overscroll-y-contain">
               {availableSites.map(site => (
-                <div 
-                  key={site.id} 
+                <div
+                  key={site.id}
                   onClick={(e) => { e.stopPropagation(); onAddItem(site); }}
                   role="button"
                   tabIndex={0}
@@ -181,7 +181,7 @@ export default function AddPlaceOverlay({
                   </div>
                 </div>
               ))}
-              
+
               {availableSites.length === 0 && (
                 <div className="flex flex-col items-center justify-center mt-12 opacity-30 gap-2">
                   <Icons.Search />

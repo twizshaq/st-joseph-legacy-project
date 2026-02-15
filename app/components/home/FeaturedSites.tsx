@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { SiteCard } from '@/app/types';
 import { SiteCardSkeleton } from '../SiteCardSkeleton';
+import ArrowIcon from '@/public/icons/arrow-icon';
 
 interface FeaturedSitesProps {
     siteCards: SiteCard[];
@@ -10,6 +11,8 @@ interface FeaturedSitesProps {
 
 export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(true);
 
     const scrollLeft = () => {
         scrollRef.current?.scrollBy({
@@ -24,6 +27,22 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
             behavior: 'smooth',
         });
     };
+
+    const handleScroll = useCallback(() => {
+        const element = scrollRef.current;
+        if (element) {
+            const atLeft = element.scrollLeft <= 2;
+            const atRight = Math.ceil(element.scrollLeft + element.clientWidth) >= element.scrollWidth - 2;
+            setCanScrollLeft(!atLeft);
+            setCanScrollRight(!atRight);
+        }
+    }, []);
+
+    useEffect(() => {
+        handleScroll();
+        window.addEventListener('resize', handleScroll);
+        return () => window.removeEventListener('resize', handleScroll);
+    }, [handleScroll, siteCards, loading]);
 
     return (
         <div className="max-w-[1500px] w-full mt-[100px] flex flex-col text-slate-800">
@@ -41,32 +60,41 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
             </div>
 
             {/* Carousel Wrapper */}
-            <div className="relative px-[5vw] max-sm:px-[0vw]">
+            <div className="relative px-[5vw] max-sm:px-[0vw] b/g-red-500">
+                {/* Edge Blur Overlays */}
+                <div className="pointer-events-none absolute left-[3.5vw] top-[40px] z-9999 h-[440px] w-[90px] max-sm:hidden backdrop-blur-sm [mask-image:linear-gradient(to_right,black_50%,transparent)]" />
+                <div className="pointer-events-none absolute right-[3.5vw] rotate-180 top-[40px] z-9999 h-[440px] w-[90px] max-sm:hidden backdrop-blur-xs bg-r/ed-500 [mask-image:linear-gradient(to_right,black_50%,transparent)]" />
+
                 {/* Previous Button */}
                 <button
+                    type="button"
                     onClick={scrollLeft}
+                    disabled={!canScrollLeft}
                     aria-label="Previous"
-                    className="hidden md:flex absolute left-[2vw] top-1/2 -translate-y-1/2 z-20
-                               w-[44px] h-[44px] rounded-full bg-white/70 backdrop-blur
-                               items-center justify-center shadow-lg hover:scale-105 transition"
+                    className="hidden md:flex absolute left-[2vw] top-1/2 -translate-y-1/2 z-9999 items-center justify-center w-[50px] h-[50px] rounded-full border-4 border-white/10 bg-blue-950/30 backdrop-blur-[20px] hover:bg-blue-500 transition-all duration-200 active:scale-[0.95] cursor-pointer dis/abled:cursor-not-allowed dis/abled:opacity-40 dis/abled:hover:bg-blue-950/30"
                 >
-                    ‹
+                    <span className='-rotate-90 flex items-center justify-center text-white'>
+                        <ArrowIcon width={24} height={24} />
+                    </span>
                 </button>
 
                 {/* Next Button */}
                 <button
+                    type="button"
                     onClick={scrollRight}
+                    disabled={!canScrollRight}
                     aria-label="Next"
-                    className="hidden md:flex absolute right-[2vw] top-1/2 -translate-y-1/2 z-20
-                               w-[44px] h-[44px] rounded-full bg-white/80 backdrop-blur
-                               items-center justify-center shadow-lg hover:scale-105 transition"
+                    className="hidden md:flex absolute right-[2vw] top-1/2 -translate-y-1/2 z-9999 items-center justify-center w-[50px] h-[50px] rounded-full border-4 border-white/10 bg-blue-950/30 backdrop-blur-[20px] hover:bg-blue-500 transition-all duration-200 active:scale-[0.95] cursor-pointer disa/bled:cursor-not-allowed dis/abled:opacity-40 di/sabled:hover:bg-blue-950/30"
                 >
-                    ›
+                    <span className='rotate-90 flex items-center justify-center text-white'>
+                        <ArrowIcon width={24} height={24} />
+                    </span>
                 </button>
 
                 {/* Dynamic Site Cards Section */}
                 <div
                     ref={scrollRef}
+                    onScroll={handleScroll}
                     className="flex flex-row items-center mt-[10px] min-h-[450px]
                                gap-[30px] px-[.9vw] max-sm:px-[5vw]
                                overflow-x-auto hide-scrollbar"

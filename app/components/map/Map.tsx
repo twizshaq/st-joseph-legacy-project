@@ -65,17 +65,17 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
             try {
                 const response = await fetch('/data/barbados_parishes.geojson');
                 // FIX: Check if unmounted during fetch
-                if (!isMounted) return; 
-                
+                if (!isMounted) return;
+
                 if (!response.ok) throw new Error("Failed to fetch GeoJSON");
                 const parishData: FeatureCollection<Polygon | MultiPolygon, ParishProperties> = await response.json();
-                
+
                 const stJosephFeature = parishData.features.find(
                     feature => feature.properties?.name === 'Saint Joseph'
                 );
 
                 if (!stJosephFeature) return;
-                
+
                 const bbox = turf.bbox(stJosephFeature);
                 const mapBounds: [number, number, number, number] = [bbox[0], bbox[1], bbox[2], bbox[3]];
 
@@ -100,11 +100,11 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
                     mapInstance.fitBounds(mapBounds, { padding: 20, duration: 0 });
                     mapInstance.setMaxBounds(mapBounds);
                     mapInstance.setMinZoom(mapInstance.getZoom());
-                    
+
                     mapInstance.on('rotate', () => onRotate(mapInstance.getBearing()));
                     mapInstance.on('zoom', updateThreshold);
                     updateThreshold();
-                    
+
                     setMapLoaded(true);
                 });
 
@@ -126,7 +126,7 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
     useEffect(() => {
         // Guard against race conditions where data exists but map isn't ready
         if (!mapLoaded || !map.current || !geojsonData) return;
-        
+
         const mapInstance = map.current;
 
         // Cleanup function for this specific render cycle

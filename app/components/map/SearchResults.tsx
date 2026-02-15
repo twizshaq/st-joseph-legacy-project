@@ -13,6 +13,7 @@ import DirectionsPopup from '@/app/components/map/DirectionsPopup';
 import InfoPopup from '@/app/components/map/InfoPopup';
 import TripPlanner from '@/app/components/map/TripPlanner';
 import Portal from '@/app/components/Portal';
+import { Eye } from 'lucide-react';
 
 interface SearchResultsProps {
     sites: Site[];
@@ -61,11 +62,14 @@ export const SearchResults = memo(function SearchResults({
     const [isTitleOverflowing, setIsTitleOverflowing] = useState(false);
     const [isSortOpen, setIsSortOpen] = useState(false);
     const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(true);
 
     const titleRef = useRef<HTMLHeadingElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const sortBtnRef = useRef<HTMLButtonElement>(null);
     const sortMenuRef = useRef<HTMLDivElement>(null);
+    const galleryRef = useRef<HTMLDivElement>(null);
 
     const handleHeaderClick = () => {
         if (!mobileSearchOpen) handleMobileSearchTap();
@@ -94,6 +98,30 @@ export const SearchResults = memo(function SearchResults({
         setIsSortOpen(!isSortOpen);
     };
 
+    // FIXED: Memoize the scroll handler to prevent stale closures and ensure correct state updates
+    const handleGalleryScroll = useCallback(() => {
+        if (galleryRef.current) {
+            const { scrollLeft, scrollWidth, clientWidth } = galleryRef.current;
+            // Use a small tolerance (2px) for calculation precision
+            setCanScrollLeft(scrollLeft > 2);
+            setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth - 2);
+        }
+    }, []);
+
+    const scrollGallery = (direction: 'left' | 'right') => {
+        if (galleryRef.current) {
+            const scrollAmount = 300;
+            const newScrollPos = direction === 'left'
+                ? galleryRef.current.scrollLeft - scrollAmount
+                : galleryRef.current.scrollLeft + scrollAmount;
+
+            galleryRef.current.scrollTo({
+                left: newScrollPos,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (sortMenuRef.current && !sortMenuRef.current.contains(event.target as Node)) {
@@ -103,6 +131,23 @@ export const SearchResults = memo(function SearchResults({
         if (isSortOpen) document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [isSortOpen]);
+
+    // FIXED: Effect now correctly depends on the stable handleGalleryScroll
+    useEffect(() => {
+        const gallery = galleryRef.current;
+        if (gallery) {
+            gallery.addEventListener('scroll', handleGalleryScroll);
+            // Initial check to set button state immediately
+            handleGalleryScroll();
+            // Also check on window resize in case the view changes
+            window.addEventListener('resize', handleGalleryScroll);
+
+            return () => {
+                gallery.removeEventListener('scroll', handleGalleryScroll);
+                window.removeEventListener('resize', handleGalleryScroll);
+            };
+        }
+    }, [handleGalleryScroll, selectedSite]); // Added selectedSite to re-check when site opens
 
     useEffect(() => {
         if (!selectedSite || !mobileSearchOpen) return;
@@ -277,58 +322,130 @@ export const SearchResults = memo(function SearchResults({
                                     <div className='flex flex-col gap-[15px] mb-[20px]'>
                                         <p className='font-bold text-[1.2rem] px-4'>Photo Gallery</p>
 
-                                        <div className='flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 overflow-x-scroll mt-[0px] hide-scrollbar'>
+                                        <div className='lg:relative lg:px-2 lg:group'>
+                                            <div
+                                                ref={galleryRef}
+                                                // group/list: Handles the logic for dimming sibling images
+                                                className='group/list flex flex-row gap-2 text-sm text-[#E0E0E0] w-[100%] px-4 lg:px-0 overflow-x-scroll mt-[0px] hide-scrollbar scroll-smooth'
+                                            >
 
-                                            {/* Item 1: Large */}
-                                            <div className='active:scale-[.98] snap-start relative min-h-[250px] min-w-[180px] rounded-[30px] overflow-hidden bg-neutral-800'>
-                                                <Image src={MOCK_GALLERY[0].src} alt="Gallery 1" fill className='object-cover' sizes="(max-width: 768px) 50vw, 200px" />
+                                                {/* Item 1: Large */}
+                                                <div className='group/item cursor-pointer active:scale-[.98] snap-start relative min-h-[250px] min-w-[180px] rounded-[30px] overflow-hidden bg-neutral-800 transition-all duration-300'>
+                                                    <Image src={MOCK_GALLERY[0].src} alt="Gallery 1" fill className='object-cover' sizes="(max-width: 768px) 50vw, 200px" />
+
+                                                    {/* EYE OVERLAY */}
+                                                    <div className='absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300'>
+                                                        <div className='bg-black/50 p-3 rounded-full backdrop-blur-sm'>
+                                                            <Eye size={24} className='text-white' />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Item 2: Column */}
+                                                <div className='snap-start flex flex-col gap-3 min-w-[120px]'>
+
+                                                    {/* Top Image */}
+                                                    <div className='group/item cursor-pointer active:scale-[.98] relative h-[119px] w-[120px] rounded-[30px] overflow-hidden bg-neutral-800 transition-all duration-300 '>
+                                                        <Image src={MOCK_GALLERY[1].src} alt="Gallery 2" fill className='object-cover' />
+                                                        {/* EYE OVERLAY */}
+                                                        <div className='absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300'>
+                                                            <div className='bg-black/50 p-2 rounded-full backdrop-blur-sm'>
+                                                                <Eye size={20} className='text-white' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Bottom Image */}
+                                                    <div className='group/item cursor-pointer active:scale-[.98] relative h-[119px] w-[120px] rounded-[30px] overflow-hidden bg-neutral-800 transition-all duration-300 '>
+                                                        <Image src={MOCK_GALLERY[2].src} alt="Gallery 3" fill className='object-cover' />
+                                                        {/* EYE OVERLAY */}
+                                                        <div className='absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300'>
+                                                            <div className='bg-black/50 p-2 rounded-full backdrop-blur-sm'>
+                                                                <Eye size={20} className='text-white' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Item 3: Video */}
+                                                <div className='group/item cursor-pointer active:scale-[.98] snap-start relative min-h-[250px] min-w-[180px] rounded-[30px] overflow-hidden bg-neutral-800 transition-all duration-300'>
+                                                    <Image src={MOCK_GALLERY[3].src} alt="Video" fill className='object-cover opacity-80' />
+
+                                                    {/* Play Icon (Always Visible) */}
+                                                    <div className='absolute inset-0 flex'>
+                                                        <PlayIcon size={20} color="#fff" className='absolute top-[15px] right-[15px] drop-shadow-[0px_0px_5px_rgba(0,0,0,0.4)]' />
+                                                    </div>
+
+                                                    {/* EYE OVERLAY (Centers on Hover) */}
+                                                    <div className='absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300'>
+                                                        <div className='bg-black/50 p-3 rounded-full backdrop-blur-sm'>
+                                                            <Eye size={24} className='text-white' />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Item 4: Column */}
+                                                <div className='snap-start flex flex-col gap-3 min-w-[120px]'>
+
+                                                    {/* Top Image */}
+                                                    <div className='group/item cursor-pointer active:scale-[.98] relative h-[119px] w-[120px] rounded-[30px] overflow-hidden bg-neutral-800 transition-all duration-300 '>
+                                                        <Image src={MOCK_GALLERY[4].src} alt="G5" fill className='object-cover' />
+                                                        {/* EYE OVERLAY */}
+                                                        <div className='absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300'>
+                                                            <div className='bg-black/50 p-2 rounded-full backdrop-blur-sm'>
+                                                                <Eye size={20} className='text-white' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Bottom Image */}
+                                                    <div className='group/item cursor-pointer active:scale-[.98] relative h-[119px] w-[120px] rounded-[30px] overflow-hidden bg-neutral-800 transition-all duration-300 '>
+                                                        <Image src={MOCK_GALLERY[5].src} alt="G6" fill className='object-cover' />
+                                                        {/* EYE OVERLAY */}
+                                                        <div className='absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300'>
+                                                            <div className='bg-black/50 p-2 rounded-full backdrop-blur-sm'>
+                                                                <Eye size={20} className='text-white' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* View All Button */}
+                                                <button type="button" className='snap-start relative cursor-pointer min-h-[250px] min-w-[120px] rounded-[30px] overflow-hidden active:scale-[.98] group'>
+                                                    <div className='absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-1 group-hover:bg-black/50 transition-colors'>
+                                                        <span className='text-[0.7rem] uppercase tracking-widest text-white/80 font-bold'>see more</span>
+                                                        <span className='text-[0.7rem] uppercase tracking-widest text-white/80 font-bold'>Photos</span>
+                                                    </div>
+                                                </button>
                                             </div>
 
-                                            {/* Item 2: Column */}
-                                            <div className='snap-start flex flex-col gap-3 min-w-[120px]'>
-                                                <div className='active:scale-[.98] relative h-[119px] w-[120px] rounded-[30px] overflow-hidden bg-neutral-800'>
-                                                    <Image src={MOCK_GALLERY[1].src} alt="Gallery 2" fill className='object-cover' />
-                                                </div>
-                                                <div className='active:scale-[.98] relative h-[119px] w-[120px] rounded-[30px] overflow-hidden bg-neutral-800'>
-                                                    <Image src={MOCK_GALLERY[2].src} alt="Gallery 3" fill className='object-cover' />
-                                                </div>
-                                            </div>
+                                            {/* --- FIXED BUTTONS --- */}
+                                            {/* PREVIOUS BUTTON */}
+                                            <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); scrollGallery('left'); }}
+                                                disabled={!canScrollLeft}
+                                                className={`hidden lg:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 items-center justify-center w-[50px] h-[50px] rounded-full border-4 border-white/10 bg-blue-950/30 backdrop-blur-[20px] hover:bg-blue-500 transition-all duration-200 active:scale-[0.95]
+                                                    ${!canScrollLeft ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
+                                                aria-label="Previous gallery"
+                                            >
+                                                <span className='-rotate-90 flex items-center justify-center'>
+                                                    <Image src={arrowIcon} alt='Previous' width={24} height={24} className="w-6 h-6" />
+                                                </span>
+                                            </button>
 
-                                            {/* Item 3: Video */}
-                                            <div className='active:scale-[.98] snap-start relative min-h-[250px] min-w-[180px] rounded-[30px] overflow-hidden bg-neutral-800 group cursor-pointer'>
-                                                <Image src={MOCK_GALLERY[3].src} alt="Video" fill className='object-cover opacity-80' />
-                                                <div className='absolute inset-0 flex'>
-                                                    <PlayIcon size={20} color="#fff" className='absolute top-[15px] right-[15px] drop-shadow-[0px_0px_5px_rgba(0,0,0,0.4)]' />
-                                                </div>
-                                            </div>
-
-                                            {/* Item 4: Column */}
-                                            <div className='snap-start flex flex-col gap-3 min-w-[120px]'>
-                                                <div className='active:scale-[.98] relative h-[119px] w-[120px] rounded-[30px] overflow-hidden bg-neutral-800'>
-                                                    <Image src={MOCK_GALLERY[4].src} alt="G5" fill className='object-cover' />
-                                                </div>
-                                                <div className='active:scale-[.98] relative h-[119px] w-[120px] rounded-[30px] overflow-hidden bg-neutral-800'>
-                                                    <Image src={MOCK_GALLERY[5].src} alt="G6" fill className='object-cover' />
-                                                </div>
-                                            </div>
-
-                                            {/* View All Button */}
-                                            <button className='snap-start relative cursor-pointer min-h-[250px] min-w-[120px] rounded-[30px] overflow-hidden active:scale-[.98] group'>
-                                                {/* Background Image */}
-                                                {/* <div className='absolute inset-0 bg-neutral-800'>
-                        <Image
-                          src={MOCK_GALLERY[0].src}
-                          alt="See more"
-                          fill
-                          className='object-cover opacity-50 transition-transform duration-500 group-hover:scale-110'
-                        />
-                      </div> */}
-
-                                                {/* Overlay & Text */}
-                                                <div className='absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-1 group-hover:bg-black/50 transition-colors'>
-                                                    <span className='text-[0.7rem] uppercase tracking-widest text-white/80 font-bold'>see more</span>
-                                                    <span className='text-[0.7rem] uppercase tracking-widest text-white/80 font-bold'>Photos</span>
-                                                </div>
+                                            {/* NEXT BUTTON */}
+                                            <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); scrollGallery('right'); }}
+                                                disabled={!canScrollRight}
+                                                className={`hidden lg:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 items-center justify-center w-[50px] h-[50px] rounded-full border-4 border-white/10 bg-blue-950/30 backdrop-blur-[20px] hover:bg-blue-500 transition-all duration-200 active:scale-[0.95]
+                                                    ${!canScrollRight ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
+                                                aria-label="Next gallery"
+                                            >
+                                                <span className='rotate-90 flex items-center justify-center'>
+                                                    <Image src={arrowIcon} alt='Next' width={24} height={24} className="w-6 h-6" />
+                                                </span>
                                             </button>
                                         </div>
                                     </div>

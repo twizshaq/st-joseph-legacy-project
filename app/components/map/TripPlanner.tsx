@@ -228,7 +228,7 @@ function InternalDatePickerOverlay({
 export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobileSearchOpen, onHeaderClick }: TripPlannerProps) {
     const [isAdding, setIsAdding] = useState(false);
     const [showExportMenu, setShowExportMenu] = useState(false);
-
+    const [showOnboardingTooltip, setShowOnboardingTooltip] = useState(true);
 
     const [showDatePicker, setShowDatePicker] = useState(false);
     const handleDateSelect = (date: Date) => {
@@ -520,13 +520,38 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
                 selectedDate={scheduledDate ? new Date(scheduledDate) : new Date()}
                 onChange={handleDateSelect}
             />
+
+            {/* Onboarding Tooltip */}
+            {showOnboardingTooltip && mobileSearchOpen && (
+                <div className="absolute inset-0 z-40 flex items-start justify-center pointer-events-none pt-[60px]">
+                    <div className="pointer-events-auto">
+                        {/* Backdrop */}
+                        <div
+                            className="absolute inset-0 bg-black/40 rounded-[40px]"
+                            onClick={() => setShowOnboardingTooltip(false)}
+                        />
+
+                        {/* Tooltip Card */}
+                        <div className="relative z-50">
+                            <div className="bg-gradient-to-br from-blue-500/90 to-blue-600/90 backdrop-blur-xl rounded-[24px] px-5 py-4 mt-2 shadow-lg shadow-black/30 border border-blue-400/30 max-w-xs">
+                                <p className="text-white font-semibold text-sm mb-2">👋 Welcome!</p>
+                                <p className="text-white/95 text-sm leading-relaxed mb-4 text-wrap">Edit your trip name and date here. Then add places to explore!</p>
+                                <button
+                                    onClick={() => setShowOnboardingTooltip(false)}
+                                    className="w-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 rounded-[12px] transition-colors"
+                                >
+                                    Got it!
+                                </button>
+                                {/* Arrow pointing up */}
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-blue-600/90" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
-
-
-
-
 
 const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite, index: number, onRemove: (id: number) => void }) => {
     const controls = useDragControls();

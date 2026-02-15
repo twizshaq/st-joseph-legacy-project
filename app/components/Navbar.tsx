@@ -45,7 +45,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [notiPanelPosition, setNotiPanelPosition] = useState<{ top: number; left: number } | null>(null);
   const [unreadCount, setUnreadCount] = useState(1);
-  
+
   // Data State
   const [user, setUser] = useState<User | null>(null);
   const [navbarProfile, setNavbarProfile] = useState<UserProfile | null>(null);
@@ -85,7 +85,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
     const setupAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        
+
         if (mounted) {
           if (session?.user) {
             setUser(session.user);
@@ -104,7 +104,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
             setUser(null);
             setNavbarProfile(null);
             router.refresh();
-          } 
+          }
           else if (session?.user) {
             setUser(session.user);
             // On sign in/refresh, we ensure we have the latest profile data
@@ -141,7 +141,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
       setTimeout(async () => {
         const data = await fetchNavbarProfile(user.id);
         if (data) setNavbarProfile(data);
-      }, 500); 
+      }, 500);
     };
 
     window.addEventListener('profile-updated', handleUpdateEvent);
@@ -206,7 +206,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
   // IMAGE URL LOGIC
   // ------------------------------------------------------------------
   const usernameSeed = user?.user_metadata?.username || user?.email || 'User';
-  
+
   // Logic: 1. DB Profile Image -> 2. Metadata (Google) -> 3. DiceBear
   const rawAvatarUrl = navbarProfile?.avatar_url
     ? navbarProfile.avatar_url
@@ -214,15 +214,15 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
         ? user.user_metadata.avatar_url
         : `https://api.dicebear.com/9.x/initials/svg?seed=${usernameSeed}`
     );
-  
+
   const profileLink = navbarProfile?.username ? `/${navbarProfile.username}` : '/profile';
-  
+
   const navLinkClass = (path: string) => {
   const isActive = pathname === path;
   return `cursor-pointer whitespace-nowrap active:scale-[.95] transition-all py-1 ${
     isActive
       // White text, with a colored bottom border
-      ? 'text-[#007BFF]' 
+      ? 'text-[#007BFF]'
       : 'opacity-[.9] hover:text-white'
   }`;
 };
@@ -239,7 +239,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
             <Link href="/tours" className={navLinkClass('/tours')}>Tours</Link>
             <Link href="/about-us" className={navLinkClass('/about-us')}>The DEO</Link>
             <Link href="/team" className={navLinkClass('/team')}>Team</Link>
-            
+
             <div className='bg-white/80 h-[60%] w-[2px] rounded-full'></div>
 
             {isLoading ? (
@@ -258,10 +258,10 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                     </div>
                   )}
                   </Link>
-                <button 
-                  ref={desktopNotiButtonRef} 
-                  onClick={toggleDesktopNotiPanel} 
-                  data-noti-button 
+                <button
+                  ref={desktopNotiButtonRef}
+                  onClick={toggleDesktopNotiPanel}
+                  data-noti-button
                   className="relative cursor-pointer w-10 h-10 flex items-center justify-center active:scale-[.95] hover:opacity-80 transition-opacity ml-[-10px]"
                 >
                   <Image src="/icons/noti-icon.svg" alt="Notifications" width={36} height={36} className="h-[35px] object-contain" />
@@ -276,18 +276,18 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                 <Link href={profileLink} className='cursor-pointer active:scale-[.95]'>
                   <div className='w-10 h-10 rounded-full bg-gradient-to-r from-[#007BFF] to-[#66B2FF] p-[2px] shadow-md'>
                     <div className='bg-white rounded-full w-full h-full overflow-hidden relative'>
-                      {/* 
-                         UPDATED: 
+                      {/*
+                         UPDATED:
                          1. referrerPolicy added as requested.
                          2. key added to force cache clear on update.
                       */}
-                      <Image 
-                        key={rawAvatarUrl} 
-                        src={rawAvatarUrl} 
-                        alt="User" 
-                        width={40} 
-                        height={40} 
-                        className="object-cover w-full h-full" 
+                      <Image
+                        key={rawAvatarUrl}
+                        src={rawAvatarUrl}
+                        alt="User"
+                        width={40}
+                        height={40}
+                        className="object-cover w-full h-full"
                         unoptimized
                         referrerPolicy="no-referrer"
                       />
@@ -318,7 +318,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
              {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
         </div>
-        
+
         <div className={`fixed inset-0 bg-white/80 backdrop-blur-md z-[99] flex flex-col items-center justify-center gap-8 text-2xl font-bold text-black transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
              <Link href="/" className={navLinkClass('/')} onClick={closeMenu}>Home</Link>
             <Link href="/virtual-map" className={navLinkClass('/virtual-map')} onClick={closeMenu}>Virtual Map</Link>
@@ -330,8 +330,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
 
         <div className='fixed right-[13px] top-[15px] z-[100] rounded-full bg-white/10 p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] backdrop-blur-[3px]'>
           <div className='bg-black/40 backdrop-blur-sm rounded-full px-[7px] pl-[10px] py-[5px] z-[50]'>
-            {isLoading ? ( 
-              <div className="w-10 h-10" /> 
+            {isLoading ? (
+              <div className="w-10 h-10" />
             ) : user ? (
               <div className="flex items-center gap-3">
                 <Link href="/leaderboard" className='relative ml-[2px]'>
@@ -357,13 +357,13 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
                 <Link href={profileLink} onClick={closeMenu}>
                    <div className='w-10 h-10 active:scale-[.95] rounded-full bg-gradient-to-r from-[#007BFF] to-[#66B2FF] p-[2px] shadow-md -mr-[1px]'>
                      <div className='bg-white rounded-full w-full h-full overflow-hidden relative'>
-                       <Image 
-                        key={rawAvatarUrl} 
-                        src={rawAvatarUrl} 
-                        alt="User" 
-                        width={40} 
-                        height={40} 
-                        className="object-cover w-full h-full" 
+                       <Image
+                        key={rawAvatarUrl}
+                        src={rawAvatarUrl}
+                        alt="User"
+                        width={40}
+                        height={40}
+                        className="object-cover w-full h-full"
                         unoptimized
                         referrerPolicy="no-referrer"
                        />
@@ -385,7 +385,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
           </div>
         </div>
       </div>
-      
+
       {isNotiOpen && notiPanelPosition && (
         <NotificationPanel isOpen={isNotiOpen} onClose={() => setIsNotiOpen(false)} position={notiPanelPosition} />
       )}
