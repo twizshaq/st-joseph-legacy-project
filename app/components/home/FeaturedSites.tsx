@@ -31,8 +31,11 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
     const handleScroll = useCallback(() => {
         const element = scrollRef.current;
         if (element) {
+            // Check if we are at the start
             const atLeft = element.scrollLeft <= 2;
+            // Check if we are at the end
             const atRight = Math.ceil(element.scrollLeft + element.clientWidth) >= element.scrollWidth - 2;
+            
             setCanScrollLeft(!atLeft);
             setCanScrollRight(!atRight);
         }
@@ -60,36 +63,48 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
             </div>
 
             {/* Carousel Wrapper */}
-            <div className="relative px-[5vw] max-sm:px-[0vw] b/g-red-500">
-                {/* Edge Blur Overlays */}
-                <div className="pointer-events-none absolute left-[3.5vw] top-[40px] z-9999 h-[440px] w-[90px] max-sm:hidden backdrop-blur-sm [mask-image:linear-gradient(to_right,black_50%,transparent)]" />
-                <div className="pointer-events-none absolute right-[3.5vw] rotate-180 top-[40px] z-9999 h-[440px] w-[90px] max-sm:hidden backdrop-blur-xs bg-r/ed-500 [mask-image:linear-gradient(to_right,black_50%,transparent)]" />
+            <div className="relative px-[5vw] max-sm:px-[0vw]">
+                
+                {/* Edge Blur Overlays - UPDATED */}
+                {/* Left Blur: Opacity 0 if at start, 100 if we can scroll left */}
+                <div 
+                    className={`pointer-events-none absolute left-[3.5vw] top-[40px] z-50 h-[440px] w-[110px] max-sm:hidden backdrop-blur-[3px] [mask-image:linear-gradient(to_right,black_40%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`} 
+                />
+                
+                {/* Right Blur: Opacity 0 if at end, 100 if we can scroll right */}
+                <div 
+                    className={`pointer-events-none absolute right-[3.5vw] rotate-180 top-[40px] z-50 h-[440px] w-[110px] max-sm:hidden backdrop-blur-[3px] [mask-image:linear-gradient(to_right,black_40%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} 
+                />
 
                 {/* Previous Button */}
+                <div className={`hidden md:flex absolute left-[3vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-300 active:scale-[0.93] cursor-pointer ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <button
                     type="button"
                     onClick={scrollLeft}
                     disabled={!canScrollLeft}
-                    aria-label="Previous"
-                    className="hidden md:flex absolute left-[2vw] top-1/2 -translate-y-1/2 z-9999 items-center justify-center w-[50px] h-[50px] rounded-full border-4 border-white/10 bg-blue-950/30 backdrop-blur-[20px] hover:bg-blue-500 transition-all duration-200 active:scale-[0.95] cursor-pointer dis/abled:cursor-not-allowed dis/abled:opacity-40 dis/abled:hover:bg-blue-950/30"
+                    aria-label="Next"
+                    className='bg-black/40 rounded-full w-[50px] h-[50px] cursor-pointer'
                 >
-                    <span className='-rotate-90 flex items-center justify-center text-white'>
-                        <ArrowIcon width={24} height={24} />
+                    <span className='-rotate-90 flex mr-[2px] items-center scale-[1.1] justify-center text-white'>
+                        <ArrowIcon width={30} height={30} />
                     </span>
                 </button>
+                </div>
 
                 {/* Next Button */}
+                <div className={`hidden md:flex absolute right-[3vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-300 active:scale-[0.93] cursor-pointer ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <button
                     type="button"
                     onClick={scrollRight}
                     disabled={!canScrollRight}
                     aria-label="Next"
-                    className="hidden md:flex absolute right-[2vw] top-1/2 -translate-y-1/2 z-9999 items-center justify-center w-[50px] h-[50px] rounded-full border-4 border-white/10 bg-blue-950/30 backdrop-blur-[20px] hover:bg-blue-500 transition-all duration-200 active:scale-[0.95] cursor-pointer disa/bled:cursor-not-allowed dis/abled:opacity-40 di/sabled:hover:bg-blue-950/30"
+                    className='bg-black/40 rounded-full w-[50px] h-[50px] cursor-pointer'
                 >
-                    <span className='rotate-90 flex items-center justify-center text-white'>
-                        <ArrowIcon width={24} height={24} />
+                    <span className='rotate-90 flex ml-[2px] items-center scale-[1.1] justify-center text-white'>
+                        <ArrowIcon width={30} height={30} />
                     </span>
                 </button>
+                </div>
 
                 {/* Dynamic Site Cards Section */}
                 <div
@@ -111,7 +126,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
                                     <div
                                         className="absolute bg-cover bg-center min-h-[340px] max-h-[340px]
                                                    min-w-[270px] max-w-[270px] rounded-[57px]
-                                                   shadow-[0px_0px_15px_rgba(0,0,0,0.3)]
+                                                   shadow-[0px_0px_10px_rgba(0,0,0,0.3)]
                                                    flex flex-col justify-end overflow-hidden
                                                    scale-x-[1.03] scale-y-[1.025]"
                                         style={{ backgroundImage: `url(${card.image_url})` }}
@@ -157,7 +172,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
 
                                         <div className="rotate-[180deg] self-end">
                                             <div
-                                                className="absolute w-[270px] backdrop-blur-[10px]
+                                                className="absolute w-[270px] backdrop-blur-[6px]
                                                            [mask-image:linear-gradient(to_bottom,black_50%,transparent)]
                                                            h-[250px]"
                                             />

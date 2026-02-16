@@ -27,9 +27,9 @@ export default function ProfileNav() {
   };
 
   // --- Styles ---
-  // 1. Added 'w-fit' to ensure the container shrinks when text is hidden
-  const desktopItemClass = "flex items-center hover:scale-110 bg-red-500/0 origin-left transition-transform duration-200 gap-2 p-2 rounded-xl cursor-pointer text-black font-semibold w-fit";
-  const desktopActiveClass = "flex items-center hover:scale-110 bg-red-500/0 origin-left transition-transform duration-200 gap-2 p-2 rounded-xl cursor-pointer text-black font-semibold w-fit"; 
+  // 1. Desktop side nav items fill width of nav for easier click/tap targets
+  const desktopItemClass = "flex items-center hover:scale-110 bg-red-500/0 origin-left transition-transform duration-200 gap-2 p-2 rounded-xl cursor-pointer text-black font-semibold w-full";
+  const desktopActiveClass = "flex items-center hover:scale-110 bg-red-500/0 origin-left transition-transform duration-200 gap-2 p-2 rounded-xl cursor-pointer text-black font-semibold w-full";
   
   // 2. NEW: This class hides text by default (md/lg screens) and shows it on xl (extra large) screens
   const desktopTextClass = "hidden xl:block font-[550]";
@@ -48,9 +48,9 @@ export default function ProfileNav() {
       {/* =================================================================
                           Desktop Side Nav
       ================================================================= */}
-      <div className='hidden md:flex h-[100dvh] bg-red-500/0 fixed flex-col justify-center left-[10px] z-50 pointer-events-none'>
+      <div className='hidden md:flex h-[100dvh] bg-red-500/0 fixed flex-col justify-center left-[10px] z-50 pointer-events-none w-[72px] xl:w-[220px]'>
         {/* Added pointer-events-auto to the inner wrapper so clicks work, but the full height container doesn't block content underneath if it accidentally overlaps */}
-        <div className="w-fit bg-red-50/0 gap-0 pointer-events-auto">
+        <div className="w-full bg-red-50/0 gap-0 pointer-events-auto">
             
             {/* Explore */}
             <Link href="/explore">

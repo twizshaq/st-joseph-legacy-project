@@ -219,12 +219,11 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
 
   const navLinkClass = (path: string) => {
   const isActive = pathname === path;
-  return `cursor-pointer whitespace-nowrap active:scale-[.95] transition-all py-1 ${
-    isActive
-      // White text, with a colored bottom border
-      ? 'text-[#007BFF]'
-      : 'opacity-[.9] hover:text-white'
-  }`;
+  return `relative cursor-pointer whitespace-nowrap py-1 transition-all active:scale-[.95]
+    ${isActive ? 'text-white' : 'opacity-[.9] hover:text-white'}
+    after:content-[''] after:absolute after:left-0 after:-bottom-[0px] after:h-[3px] after:w-full after:rounded-full after:transition-all
+    ${isActive ? 'after:bg-[#007BFF] after:opacity-100' : 'after:opacity-0 hover:after:opacity-40 hover:after:bg-white/40'}
+  `;
 };
 
   return (

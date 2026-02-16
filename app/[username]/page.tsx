@@ -1,37 +1,41 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Settings, 
-  Trophy, 
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  ChevronDown,
+  Facebook,
+  Github,
+  Image as ImageIcon,
+  Instagram,
+  Lock,
   MapPin,
-  Image as ImageIcon, 
-  Calendar,
-  Share2,
-  Lock
-} from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import type { User } from '@supabase/supabase-js';
-import Image from 'next/image';
-import UploadModal from '@/app/components/UploadModal'; 
-import Navigation from '@/app/components/ProfileNav';
-import SettingsModal from '@/app/components/SettingsModal';
-import { Heart, MessageCircle, Share } from 'lucide-react';
-import ArrowIcon from "@/public/icons/arrow-icon"
+  Settings,
+  Trophy,
+  Youtube,
+} from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
+import Image from "next/image";
+import Navigation from "@/app/components/ProfileNav";
+import SettingsModal from "@/app/components/SettingsModal";
+import ArrowIcon from "@/public/icons/arrow-icon";
+import { div } from "@tensorflow/tfjs";
+import DevIcon from '@/public/icons/dev-icon'
 
-// --- Types ---
-interface ActivityItemProps {
-  type: 'rank' | 'visit' | 'upload';
+type ProfileTab = "All" | "Tours" | "Badges" | "Media";
+
+interface ActivityItem {
+  type: "rank" | "visit" | "upload";
   title: string;
-  subtitle: string;
+  subtitle?: string;
   points: number;
   images?: string[];
 }
 
 interface ActivitySection {
   label: string;
-  items: ActivityItemProps[];
+  items: ActivityItem[];
 }
 
 interface UserProfile {
@@ -43,130 +47,206 @@ interface UserProfile {
   is_private: boolean;
 }
 
-// --- Mock Data ---
-const activityData: ActivitySection[] = [
-  {
-    label: 'Today',
-    items: [
-      { type: 'rank', title: 'Ranked up to #42', subtitle: 'Moved up 10 positions', points: 250 },
-      { type: 'visit', title: 'Visited All Sites', subtitle: 'Unlocked "All Sites" badge', points: 500 },
-      { 
-        type: 'upload', 
-        title: 'Uploaded 5 items', 
-        subtitle: 'Contributed to Bathsheba', 
-        points: 250,
-        images: ['https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg', 'https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg', 'https://i.pinimg.com/736x/3f/82/ac/3f82ac4cde04c3143ed4f2580d64820c.jpg']
-      },
-    ]
-  },
-  {
-    label: 'Yesterday',
-    items: [
-      { type: 'visit', title: 'Visited Bathsheba', subtitle: 'Unlocked "Wave Master"', points: 250 },
-    ]
-  }
+interface TourItem {
+  id: number;
+  title: string;
+  date: string;
+  image: string;
+  status: "Upcoming" | "Active" | "Completed";
+  type: "Upcoming" | "Self-Guided" | "Custom";
+}
+
+interface BadgeItem {
+  id: number;
+  name: string;
+  icon: string;
+  desc: string;
+  unlocked: boolean;
+  date?: string;
+}
+
+const mediaData = [
+  "https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg",
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1542359649-31e03cd4d909?q=80&w=800&auto=format&fit=crop",
+  "https://i.pinimg.com/1200x/24/b4/f7/24b4f73760970fb2b35dbeb6f2aed0a0.jpg",
+  "https://i.pinimg.com/736x/e8/61/55/e86155c8a8e27a4eed5df56b1b0f915f.jpg",
+  "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?q=80&w=800&auto=format&fit=crop",
+  "https://i.pinimg.com/736x/3f/82/ac/3f82ac4cde04c3143ed4f2580d64820c.jpg",
+  "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
 ];
 
-const tabStats: Record<string, { value: string; label: string; color: string }[]> = {
-    'All': [
-      { value: "3,483", label: "Points", color: "bg-pink-500" },
-      { value: "12", label: "Visited", color: "bg-purple-500" },
-      { value: "#8", label: "Rank", color: "bg-orange-500" },
+const activityData: ActivitySection[] = [
+  {
+    label: "Today",
+    items: [
+      {
+        type: "visit",
+        title: "Visited All Sites",
+        subtitle: 'Unlocked the "Island Explorer" badge',
+        points: 250,
+      },
+      {
+        type: "visit",
+        title: "Visited Bathsheba",
+        subtitle: 'Unlocked the "Wave Master" badge',
+        points: 250,
+      },
+      {
+        type: "upload",
+        title: "Uploaded 10 items",
+        points: 250,
+        images: mediaData.slice(0, 6),
+      },
     ],
-    'Tours': [
-      { value: "0", label: "Completed", color: "bg-emerald-500" },
-      { value: "0", label: "Active", color: "bg-teal-500" },
-      { value: "0km", label: "Distance", color: "bg-cyan-500" },
+  },
+  {
+    label: "Yesterday",
+    items: [
+      {
+        type: "rank",
+        title: "Ranked up to #52",
+        subtitle: "Moved up 10 positions on the leaderboard",
+        points: 250,
+      },
     ],
-    'Badges': [
-      { value: "5", label: "Unlocked", color: "bg-amber-500" },
-      { value: "2", label: "Rare", color: "bg-orange-500" },
-      { value: "1", label: "Epic", color: "bg-red-500" },
-    ],
-    'Media': [
-      { value: "15", label: "Photos", color: "bg-indigo-500" },
-      { value: "2", label: "Videos", color: "bg-violet-500" },
-      { value: "4", label: "Reviews", color: "bg-fuchsia-500" },
-    ]
-  };
+  },
+];
 
-  const toursData = [
+const toursData: TourItem[] = [
   {
     id: 1,
-    title: "Cliffs, Coastlines, & Canopies",
+    title: "The Gardens of St. Joseph Circuit",
     date: "February 15, 2024",
-    image: "https://i.pinimg.com/1200x/ea/3a/90/ea3a90596d8f097fb9111c06501aa1f8.jpg",
-    status: "Upcoming",
-    type: "Upcoming"
+    image:
+      "https://i.pinimg.com/1200x/ea/3a/90/ea3a90596d8f097fb9111c06501aa1f8.jpg",
+    status: "Completed",
+    type: "Self-Guided",
   },
   {
     id: 2,
-    title: "The Gardens of St. Joseph Circuit",
-    date: "January 20, 2024",
-    image: "https://i.pinimg.com/1200x/ea/3a/90/ea3a90596d8f097fb9111c06501aa1f8.jpg",
+    title: "Cliffs, Coastlines, & Canopies",
+    date: "February 15, 2024",
+    image:
+      "https://i.pinimg.com/1200x/bb/a9/bc/bba9bc4cc096c07d70075dcb03bae5ca.jpg",
     status: "Active",
-    type: "Self-Guided"
+    type: "Custom",
   },
   {
     id: 3,
-    title: "Historic Bridgetown Walk",
-    date: "December 10, 2023",
-    image: "https://i.pinimg.com/1200x/ea/3a/90/ea3a90596d8f097fb9111c06501aa1f8.jpg",
+    title: "Cliffs, Coastlines, & Canopies",
+    date: "February 15, 2024",
+    image:
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800&auto=format&fit=crop",
     status: "Completed",
-    type: "Self-Guided"
+    type: "Self-Guided",
+  },
+];
+
+const badgesData: BadgeItem[] = [
+  {
+    id: 1,
+    name: "Beach Bum",
+    icon: "🏖️",
+    desc: "Visited 5 beaches",
+    unlocked: true,
+    date: "Oct 12",
+  },
+  {
+    id: 2,
+    name: "Trail Blazer",
+    icon: "🥾",
+    desc: "Hiked 20km total",
+    unlocked: true,
+    date: "Nov 01",
+  },
+  {
+    id: 3,
+    name: "Early Bird",
+    icon: "🌅",
+    desc: "Start a tour before 7am",
+    unlocked: true,
+    date: "Dec 15",
+  },
+  {
+    id: 4,
+    name: "Night Owl",
+    icon: "🌙",
+    desc: "Complete a night tour",
+    unlocked: false,
+  },
+  {
+    id: 5,
+    name: "Social Butterfly",
+    icon: "🦋",
+    desc: "Share 10 moments",
+    unlocked: false,
+  },
+  {
+    id: 6,
+    name: "Champion",
+    icon: "🏆",
+    desc: "Top 10 this month",
+    unlocked: true,
+    date: "Jan 03",
+  },
+  {
+    id: 7,
+    name: "Guide Star",
+    icon: "⭐",
+    desc: "Completed all guides",
+    unlocked: true,
+    date: "Jan 10",
+  },
+  {
+    id: 8,
+    name: "Lucky Clover",
+    icon: "🍀",
+    desc: "Found hidden landmark",
+    unlocked: true,
+    date: "Jan 17",
+  },
+];
+
+const getTourBadgeClass = (tour: TourItem) => {
+  if (tour.status === "Completed") {
+    return "text-[#00A835] border-[#00A835] bg-[#00FF03]/20";
   }
-];
-
-const badgesData = [
-  { id: 1, name: "Beach Bum", icon: "🏖️", desc: "Visited 5 beaches", unlocked: true, date: "Oct 12" },
-  { id: 2, name: "Trail Blazer", icon: "🥾", desc: "Hiked 20km total", unlocked: true, date: "Nov 01" },
-  { id: 3, name: "Early Bird", icon: "🌅", desc: "Start a tour before 7am", unlocked: true, date: "Dec 15" },
-  { id: 4, name: "Night Owl", icon: "🌙", desc: "Complete a night tour", unlocked: false },
-  { id: 5, name: "Social Butterfly", icon: "🦋", desc: "Share 10 moments", unlocked: false },
-];
-
-const mediaData = [
-  "https://images.unsplash.com/photo-1542359649-31e03cd4d909?q=80&w=300&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1596324953332-95f002b8d4de?q=80&w=300&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?q=80&w=300&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=300&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=300&auto=format&fit=crop"
-];
-
-// --- Components ---
-
-const TourCard = ({ tour }: { tour: any }) => {
-  let badgeStyle = "text-slate-500 border-slate-300";
-
-  if (tour.status === "Upcoming") {
-    badgeStyle = "text-[#FFA000] border-[#FFA000] bg-[#FFA000]/20 border-[1.5px]";
-  } else if (tour.status === "Active" || tour.type === "Self-Guided" && tour.status !== "Completed") {
-    badgeStyle = "text-[#208BFF] border-[#208BFF] bg-[#208BFF]/20 border-[1.5px]";
-  } else if (tour.status === "Completed") {
-    badgeStyle = "text-[#00A835] border-[#00A835] bg-[#00FF03]/20 border-[1.5px]";
+  if (tour.status === "Active") {
+    return "text-[#208BFF] border-[#208BFF] bg-[#208BFF]/20";
   }
+  return "text-[#FFA000] border-[#FFA000] bg-[#FFA000]/20";
+};
+
+const TourCard = ({ tour }: { tour: TourItem }) => {
+  const badgeLabel = tour.status === "Completed" ? "Completed" : tour.type;
 
   return (
-    <div className={`bg-white cursor-pointer active:scale-[.99] rounded-[40px] w-[100%] h-[100%] px-auto p-[3px] mb-4 shadow-[0px_0px_30px_rgba(0,0,0,0.08)]`}>
-    <div className="group bg-black/4 rounded-[38px] p-2 flex gap-4">
-      {/* <div className={`bg-black/3 rounded-[30px]`}> */}
-        <div className="relative w-20 h-20 shrink-0 rounded-[30px] overflow-hidden">
+    <div className="mx-auto mb-4 w-[90vw] max-w-[560px] cursor-pointer rounded-[40px] border-[2.5px] border-white bg-black/5 p-[2px] shadow-[0px_0px_30px_rgba(0,0,0,0.08)] active:scale-[.99]">
+      <div className="group flex gap-3 rounded-[33px] p-2">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[27px]">
           <Image src={tour.image} alt={tour.title} fill className="object-cover" />
         </div>
-        <div className="flex-1 flex flex-col py-1 pr-2 relative">
-          <div className="flex justify-between items-start mb-1">
-            <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wide ${badgeStyle}`}>
-              {tour.status === "Completed" ? "Completed" : tour.type}
+        <div className="relative flex flex-1 flex-col py-1 pr-2">
+          <div className="mb-1 flex items-start justify-between">
+            <span
+              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getTourBadgeClass(
+                tour
+              )}`}
+            >
+              {badgeLabel}
             </span>
-            <span className="text-[10px] font-bold text-slate-400 mr-[5px] mt-[5px]">{tour.date}</span>
+            <span className="mr-[3px] mt-[3px] text-[11px] font-bold text-slate-500">
+              {tour.date}
+            </span>
           </div>
-          <h3 className="font-bold text-slate-800 text-[1rem] leading-tight mb-auto mt-1 line-clamp-2  max-sm:max-w-[150px]">{tour.title}</h3>
-          <div className="flex absolute bottom-0 right-[10px]">
-            {/* <button className="text-slate-400 hover:text-red-500 transition-colors"><Heart size={18} /></button> */}
-            <button className="text-slate-400 hover:text-blue-500 transition-colors rotate-[180deg]"><ArrowIcon color="#666" /></button>
-            {/* <button className="text-slate-400 hover:text-slate-700 transition-colors">
-              {tour.status === 'Upcoming' ? <MessageCircle size={18} /> : <Share2 size={18} className="rotate-180"/> } 
-            </button> */}
+          <h3 className="mt-1 line-clamp-2 max-w-[200px] text-[1rem] font-bold leading-tight text-slate-800">
+            {tour.title}
+          </h3>
+          <div className="absolute bottom-0 right-[10px] flex">
+            <button className="rotate-[180deg] text-slate-400 transition-colors hover:text-blue-500">
+              <ArrowIcon color="#1E293B" />
+            </button>
           </div>
         </div>
       </div>
@@ -174,85 +254,294 @@ const TourCard = ({ tour }: { tour: any }) => {
   );
 };
 
-const MediaGrid = () => (
-  <div className="columns-2 md:columns-3 gap-4 space-y-4">
-    {mediaData.map((src, i) => (
-      <div key={i} className="relative group rounded-[20px] overflow-hidden break-inside-avoid">
-        <Image src={src} alt="User upload" className="w-full h-auto object-cover" />
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <div className="flex items-center gap-1 text-white font-bold">
-                <Heart size={16} fill="white" /> <span>24</span>
-            </div>
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-const BadgesGrid = () => (
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    {badgesData.map((badge) => (
-      <div key={badge.id} className={`relative flex flex-col items-center text-center p-6 rounded-[30px] border ${badge.unlocked ? 'bg-white border-slate-100 shadow-[0px_5px_20px_rgba(0,0,0,0.05)]' : 'bg-slate-50 border-slate-100 opacity-60 grayscale'}`}>
-        <div className="text-4xl mb-3">{badge.icon}</div>
-        <h4 className="font-black text-slate-800 text-sm mb-1">{badge.name}</h4>
-        <p className="text-xs text-slate-500 font-medium leading-tight mb-2">{badge.desc}</p>
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${badge.unlocked ? 'text-green-600 bg-green-50' : 'text-slate-400 bg-slate-200'}`}>
-            {badge.unlocked ? `Unlocked ${badge.date}` : 'Locked'}
-        </span>
-      </div>
-    ))}
-  </div>
-);
-
-const ActivityCard = ({ item }: { item: ActivityItemProps }) => {
+const ActivityCard = ({
+  item,
+  compact = false,
+}: {
+  item: ActivityItem;
+  compact?: boolean;
+}) => {
   let Icon = Trophy;
-  let bgIcon = "bg-orange-50 text-orange-500";
-  
-  if (item.type === 'rank') {
-    Icon = Trophy;
-  } else if (item.type === 'visit') {
+  let iconBg = "bg-[#FFECCF] text-[#F59E0B]";
+
+  if (item.type === "visit") {
     Icon = MapPin;
-    bgIcon = "bg-blue-100 text-blue-500";
-  } else if (item.type === 'upload') {
+    iconBg = "bg-[#DCEEFF] text-[#007BFF]";
+  } else if (item.type === "upload") {
     Icon = ImageIcon;
-    bgIcon = "bg-red-100 text-red-500";
+    iconBg = "bg-[#FFDCE2] text-[#FF4D6D]";
   }
 
   return (
-    <div className={`bg-white rounded-[32px] w-[100%] px-auto p-[3px] mb-4 shadow-[0px_0px_30px_rgba(0,0,0,0.08)]`}>
-      <div className={`bg-black/4 rounded-[30px]`}>
-          <div className="flex items-start justify-between p-3">
-              <div className="flex gap-5">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${bgIcon}`}>
-                      <Icon size={20} strokeWidth={2.5} />
-                  </div>
-                  <div className="flex flex-col pt-1">
-                      <h4 className="font-bold text-slate-800 text-[1rem] leading-tight">{item.title}</h4>
-                      {item.subtitle && <p className="text-sm text-slate-400 mt-1">{item.subtitle}</p>}
-                      {item.images && (
-                          <div className="flex gap-2 mt-4">
-                              {item.images.map((src, i) => (
-                                  <div key={i} className="relative w-12 h-12 rounded-[12px] overflow-hidden border border-slate-100 shadow-sm hover:scale-110 transition-transform">
-                                      <Image width={20} height={20} src={src} alt="content" className="object-cover w-full h-full" />
-                                  </div>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-              </div>
-              <span className="text-[11px] font-black text-slate-600 mr-[5px]">+{item.points} Pts</span>
+    <div
+      className={`relative overflow-hidden rounded-[30px] border-[2.5px] border-white bg-black/5 shadow-[0px_0px_20px_rgba(0,0,0,0.08)] ${
+        compact ? "px-3 py-3" : "px-4 py-3.5"
+      }`}
+    >
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-[45%] rounded-l-[30px] bg-gradient-to-r from-slate-100/80 to-transparent" />
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="flex min-w-0 gap-3">
+          <div
+            className={`mt-0.5 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full ${iconBg}`}
+          >
+            <Icon size={16} strokeWidth={2.3} />
           </div>
+          <div className="min-w-0">
+            <h4
+              className={`leading-tight text-slate-800 ${
+                compact ? "text-[16px] font-semibold" : "text-[18px] font-semibold"
+              }`}
+            >
+              {item.title}
+            </h4>
+            {item.subtitle ? (
+              <p
+                className={`mt-0.5 text-slate-500 ${
+                  compact ? "text-[12px]" : "text-[13px]"
+                }`}
+              >
+                {item.subtitle}
+              </p>
+            ) : null}
+            {item.images?.length ? (
+              <div className="mt-2 flex items-center gap-2">
+                {item.images.slice(0, 5).map((src, index) => (
+                  <div
+                    key={`${src}-${index}`}
+                    className="relative h-[34px] w-[34px] overflow-hidden rounded-[10px]"
+                  >
+                    <Image src={src} alt="Uploaded media" fill className="object-cover" />
+                  </div>
+                ))}
+                {item.images.length > 5 ? (
+                  <span className="text-[11px] font-semibold text-slate-500">
+                    +{item.images.length - 5}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </div>
+        <span className="mt-0.5 text-[12px] font-semibold text-slate-600">
+          +{item.points} pts
+        </span>
       </div>
     </div>
   );
 };
 
+const MobileMediaGrid = () => (
+  <div className="columns-3 gap-2 space-y-2">
+    {mediaData.map((src, i) => (
+      <div
+        key={i}
+        className="overflow-hidden rounded-[24px] break-inside-avoid"
+      >
+        <Image
+          src={src}
+          alt="User upload"
+          width={800}
+          height={800}
+          className="min-h-[100px] w-full object-full"
+          sizes="50vw"
+        />
+      </div>
+    ))}
+  </div>
+);
+
+const DesktopMediaGrid = () => (
+  <div className="columns-4 gap-3 space-y-3">
+    {mediaData.map((src, i) => (
+      <div
+        key={i}
+        className="overflow-hidden rounded-[30px] break-inside-avoid"
+      >
+        <Image
+          src={src}
+          alt="Media tile"
+          width={1200}
+          height={1200}
+          className="h-auto w-full object-contain"
+          sizes="(min-width: 768px) 33vw, 100vw"
+        />
+      </div>
+    ))}
+  </div>
+);
+
+const BadgesGrid = () => {
+  const [selectedBadge, setSelectedBadge] = useState<BadgeItem | null>(null);
+  const sortedBadges = useMemo(
+    () => [...badgesData].sort((b, a) => Number(a.unlocked) - Number(b.unlocked)),
+    []
+  );
+
+  return (
+    <>
+      {/* Icon-only responsive grid */}
+      <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7">
+        {sortedBadges.map((badge) => {
+          const isUnlocked = badge.unlocked;
+
+          return (
+            <button
+              key={badge.id}
+              type="button"
+              onClick={() => setSelectedBadge(badge)}
+              className={
+                "group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-[26px] border-[2.5px] border-white bg-black/5 shadow-[0px_0px_18px_rgba(0,0,0,0.08)] transition-transform active:scale-[.98]" +
+                (isUnlocked ? "" : " opacity-70 grayscale")
+              }
+              aria-label={`Open badge: ${badge.name}`}
+            >
+              {/* soft highlight */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/70 via-white/25 to-transparent" />
+
+              {/* inner */}
+              <div className="relative flex h-full w-full items-center justify-center rounded-[22px] bg-white/55 backdrop-blur-sm">
+                {/* refraction */}
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="translate-y-[1px] scale-[1.25] text-[34px] leading-none opacity-30 blur-[10px] saturate-200 contrast-200 mix-blend-multiply">
+                    {badge.icon}
+                  </span>
+                </span>
+                {/* crisp icon */}
+                <span className="relative text-[34px] leading-none transition-transform duration-150 group-hover:scale-[1.06]">
+                  {badge.icon}
+                </span>
+
+                {!isUnlocked ? (
+                  <div className="pointer-events-none absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-white/70 bg-white shadow-[0px_0px_12px_rgba(0,0,0,0.12)]">
+                    <Lock size={14} className="text-slate-600" />
+                  </div>
+                ) : null}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Details modal */}
+      {selectedBadge ? (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/30 p-4 sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Badge details"
+          onClick={() => setSelectedBadge(null)}
+        >
+          <div
+            className="w-full max-w-[520px] overflow-hidden rounded-[34px] border-[2.5px] border-white bg-white/80 shadow-[0px_0px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3 px-5 py-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative flex h-[52px] w-[52px] items-center justify-center bg-white/0 shadow-[0px_0px_16px_rgba(0,0,0,0)]">
+                  <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    <span className="translate-y-[1px] scale-[1.25] text-[34px] leading-none opacity-40 blur-[10px] saturate-200 contrast-200 mix-blend-multiply">
+                      {selectedBadge.icon}
+                    </span>
+                  </span>
+                  <span className="relative text-[34px] leading-none">{selectedBadge.icon}</span>
+                </div>
+                <div className="min-w-0">
+                  <h3 className="truncate text-[18px] font-black text-slate-800">
+                    {selectedBadge.name}
+                  </h3>
+                  <p className="mt-0.5 text-[12px] font-semibold text-slate-500">
+                    {selectedBadge.unlocked
+                      ? selectedBadge.date
+                        ? `Unlocked ${selectedBadge.date}`
+                        : "Unlocked"
+                      : "Locked"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedBadge(null)}
+                className="rounded-full border border-white/70 bg-white/70 px-4 py-2 text-[12px] font-extrabold text-slate-700 shadow-[0px_0px_12px_rgba(0,0,0,0.10)] hover:bg-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="px-5 pb-5">
+              <div className="rounded-[26px] border border-white/70 bg-slate-50/70 px-4 py-4">
+                <p className="text-[14px] font-semibold leading-relaxed text-slate-700">
+                  {selectedBadge.desc}
+                </p>
+              </div>
+
+              {!selectedBadge.unlocked ? (
+                <div className="mt-3 flex items-center gap-2 rounded-[22px] border border-white/70 bg-white/70 px-4 py-3">
+                  <Lock size={16} className="text-slate-600" />
+                  <p className="text-[12px] font-extrabold text-slate-600">
+                    Keep exploring to unlock this badge.
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+};
+
+const DesktopBadgesPanel = () => (
+  <div className="rounded-[40px] border-[2.5px] w-[350px] border-white bg-black/5 pt-3 p-4 shadow-[0px_0px_20px_rgba(0,0,0,0.1)]">
+    <h3 className="mb-3 text-[22px] font-semibold text-slate-800 ml-[4px]">Badges</h3>
+    <div className="grid grid-cols-4 gap-2.5">
+      {badgesData.slice(0, 12).map((badge) => (
+        <div
+          key={badge.id}
+          className="flex h-[50px] w-[50px] items-center justify-center rounded-[18px] bg-white/0 text-[35px]"
+        >
+          {badge.icon}
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const DesktopToursPanel = () => (
+  <div className="rounded-[40px] border-[2.5px] w-[350px] border-white bg-black/5 pt-3 p-4 shadow-[0px_0px_20px_rgba(0,0,0,0.1)] backdrop-blur-sm">
+    <h3 className="mb-3 text-[22px] font-semibold text-slate-800 ml-[4px]">Tours</h3>
+    <div className="space-y-3">
+      {toursData.map((tour) => (
+        <div key={tour.id} className="flex gap-2.5">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[20px]">
+            <Image src={tour.image} alt={tour.title} fill className="object-cover" />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <div className="mb-1 flex items-center justify-between gap-1">
+              <span
+                className={`rounded-full border px-1.5 py-[1px] text-[9px] font-semibold ${getTourBadgeClass(
+                  tour
+                )}`}
+              >
+                {tour.status === "Completed" ? "Completed" : tour.type}
+              </span>
+              <span className="text-[10px] font-medium text-slate-400">{tour.date}</span>
+            </div>
+            <p className="line-clamp-2 text-[1rem] font-medium text-slate-800">
+              {tour.title}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export default function UserProfilePage() {
-  const [activeTab, setActiveTab] = useState('All');
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<ProfileTab>("All");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const supabase = createClient();
   const router = useRouter();
   const params = useParams();
@@ -262,281 +551,352 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      const fetchProfileData = async () => {
-          setLoading(true);
-          if (!usernameFromUrl) return;
-          const decodedUsername = decodeURIComponent(usernameFromUrl);
-          
-          const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('username', decodedUsername)
-              .maybeSingle();
+    const fetchProfileData = async () => {
+      setLoading(true);
+      if (!usernameFromUrl) return;
 
-          if (profileData) setProfile(profileData);
-          
-          const { data: authData } = await supabase.auth.getUser();
-          if (authData?.user) setCurrentUser(authData.user);
-          setLoading(false);
-      };
+      const decodedUsername = decodeURIComponent(usernameFromUrl);
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("username", decodedUsername)
+        .maybeSingle();
 
-      fetchProfileData();
+      if (profileData) setProfile(profileData);
+
+      const { data: authData } = await supabase.auth.getUser();
+      if (authData?.user) setCurrentUser(authData.user);
+      setLoading(false);
+    };
+
+    fetchProfileData();
   }, [usernameFromUrl, supabase]);
 
-  const handleLogout = async () => { await supabase.auth.signOut(); router.push('/'); };
-  const handleDeleteAccount = async () => { /* Delete logic */ };
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
-  const displayName = profile?.full_name || 'User';
-  const displayUsername = profile?.username || 'explorer';
-  const userAvatarUrl = profile?.avatar_url || `https://api.dicebear.com/9.x/initials/svg?seed=${displayUsername}`;
-  const isOwnProfile = currentUser && profile && currentUser.id === profile.id;
-
-  // Content is visible if it's your own profile OR if the profile is NOT private
-  const isContentVisible = isOwnProfile || !profile?.is_private;
+  const handleDeleteAccount = async () => {
+    // Delete logic here.
+  };
 
   const handleUpdateProfile = async (
-    newUsername: string, 
-    newBio: string, 
-    isPrivate: boolean, 
+    newUsername: string,
+    newBio: string,
+    isPrivate: boolean,
     newAvatarFile: File | null
   ) => {
     if (!currentUser) return;
     setIsSaving(true);
+
     try {
       let finalAvatarUrl = profile?.avatar_url;
+
       if (newAvatarFile) {
-        const fileExt = newAvatarFile.name.split('.').pop();
+        const fileExt = newAvatarFile.name.split(".").pop();
         const filePath = `${currentUser.id}/${Date.now()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, newAvatarFile);
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, newAvatarFile);
+
         if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("avatars").getPublicUrl(filePath);
         finalAvatarUrl = publicUrl;
       }
-      const { error: updateError } = await supabase.from('profiles').update({
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
           username: newUsername,
           bio: newBio,
-          is_private: isPrivate, 
+          is_private: isPrivate,
           avatar_url: finalAvatarUrl,
           updated_at: new Date().toISOString(),
-        }).eq('id', currentUser.id);
+        })
+        .eq("id", currentUser.id);
 
       if (updateError) throw updateError;
-      setProfile(prev => prev ? ({ ...prev, username: newUsername, bio: newBio, avatar_url: finalAvatarUrl || prev.avatar_url, is_private: isPrivate }) : null);
+
+      setProfile((prev) =>
+        prev
+          ? {
+              ...prev,
+              username: newUsername,
+              bio: newBio,
+              avatar_url: finalAvatarUrl || prev.avatar_url,
+              is_private: isPrivate,
+            }
+          : null
+      );
+
       setIsSettingsOpen(false);
-      if (profile?.username !== newUsername) { router.push(`/profile/${newUsername}`); }
+
+      if (profile?.username !== newUsername) {
+        router.push(`/${newUsername}`);
+      }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
+  const displayUsername = profile?.username || "explorer";
+  const userAvatarUrl =
+    profile?.avatar_url ||
+    `https://api.dicebear.com/9.x/initials/svg?seed=${displayUsername}`;
+  const isOwnProfile = !!(currentUser && profile && currentUser.id === profile.id);
+  const isContentVisible = isOwnProfile || !profile?.is_private;
+
+  const desktopTab: "All" | "Media" = useMemo(
+    () => (activeTab === "Media" ? "Media" : "All"),
+    [activeTab]
+  );
+
   if (loading) return null;
 
-  return (
-    <div className="min-h-screen relative overflow-x-hidden">
-      <UploadModal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} />
+return (
+    <div className="relative flex flex-row-reverse min-h-screen gap-0 overflow-x-hidden bg-white justify-center md:pl-[92px] xl:pl-[240px]">
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         initialAvatarUrl={userAvatarUrl}
         initialUsername={profile?.username || ""}
         initialBio={profile?.bio || ""}
-        initialIsPrivate={profile?.is_private}
+        initialIsPrivate={profile?.is_private ?? false}
         onSave={handleUpdateProfile}
         onLogout={handleLogout}
         onDeleteAccount={handleDeleteAccount}
         isSaving={isSaving}
       />
 
-      <div className="relative z-50"><Navigation /></div>
+      <div className="relative z-50 pointer-events-none">
+        <div className="pointer-events-auto">
+          <Navigation />
+        </div>
+      </div>
+      <div className="flex flex-row-reverse bg-green-500/0 gap-9 max-w-[90vw]">
+      <div className="max-[970px]:hidden mt-[190px] space-y-4 bg-pink-500/0 mr-[30px]">
+                <DesktopBadgesPanel />
+                <DesktopToursPanel />
+              </div>
 
-      {/* MAIN WRAP */}
-      <div className="pt-[110px] max-sm:pt-[80px] md:pl-[200px] px-5 pb-20 max-w-[1200px] mx-auto">
+      <div className="w-[700px] bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px] md:pl-[0px] justify-center">
+        <div className="relative rounded-[32px] bg-transparent p-0 shadow-none">
+          <div className="flex items-start gap-4">
+            <div className="relative max-sm:h-[90px] max-sm:w-[90px] h-[100px] w-[100px] shrink-0 overflow-hidden rounded-full">
+              <Image src={userAvatarUrl} alt="User avatar" fill className="object-cover" unoptimized />
+            </div>
 
-        {/* PROFILE HEADER */}
-        <div className="rounded-[40px] bg-white/0">
-          <div className="bg-black/4 rounded-[38px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,0.08)]">
-            <div className="bg-white/0 rounded-[36px] p-5 sm:p-7">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                {/* Avatar */}
-                <div className="relative shrink-0">
-                  <div className="relative w-28 h-28 max-sm:w-24 max-sm:h-24 border-white border-[3px] rounded-full overflow-hidden shadow-[0px_0px_30px_rgba(0,0,0,0.15)]">
-                    <Image src={userAvatarUrl} alt="User" fill className="object-cover" unoptimized />
-                  </div>
-                  <div className="absolute bg-[#007BFF] bottom-[-7px] right-[10px] rotate-[-5deg] text-white px-3 py-1 rounded-full text-xs font-bold border-[2px] border-white shadow-[0px_0px_30px_rgba(0,0,0,0.1)]">
-                    lvl 12
-                  </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h1 className="truncate text-[34px] font-bold text-[#1e293b] leading-none">
+                    {profile?.username || displayUsername}
+                  </h1>
+                  {/* <p className="text-[12px] font-semibold text-[#1e293b] mt-2">Developer</p> */}
                 </div>
-
-                {/* Identity */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <h1 className="text-3xl font-black text-slate-800 leading-tight truncate">{displayUsername}</h1>
-                      <p className="text-[1rem] font-[600] text-slate-400">Site Explorer</p>
-                      {profile?.bio && (
-                        <p className="text-sm font-medium text-slate-600 leading-relaxed mt-1 max-w-[640px]">
-                          {profile.bio}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-                        {profile?.is_private ? 'Private' : 'Public'}
-                      </span>
-                      {isOwnProfile && (
-                        <button
-                          onClick={() => setIsSettingsOpen(true)}
-                          className="p-2 cursor-pointer active:scale-[.95] rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
-                          aria-label="Open settings"
-                        >
-                          <Settings size={25} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2">
+                  {/* <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500">
+                    {profile?.is_private ? "Private" : "Public"}
+                  </span> */}
+                  {isOwnProfile ? (
+                    <button
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-white hover:text-slate-700"
+                      aria-label="Open settings"
+                    >
+                      <Settings size={20} />
+                    </button>
+                  ) : null}
                 </div>
               </div>
 
-              {/* STATS (only if visible) */}
-              {isContentVisible && (
-                <div className="mt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-black text-slate-800">Profile Overview</h3>
-                    <div className="text-xs font-bold text-slate-400">
-                      Showing: <span className="text-slate-600">{activeTab}</span>
-                    </div>
-                  </div>
+              {/* <div className="mt-2 flex items-center gap-2 text-slate-700">
+                <Instagram size={17} />
+                <Github size={17} />
+                <Youtube size={18} />
+                <Facebook size={17} />
+              </div> */}
 
-                  {/* Desktop grid / Mobile swipe row */}
-                  <div className="hidden sm:grid grid-cols-3 gap-4">
-                    {tabStats[activeTab]?.map((stat, idx) => (
-                      <div
-                        key={idx}
-                        className="active:scale-[.98] shadow-[0px_0px_30px_rgba(0,0,0,0.06)] bg-black/4 rounded-[30px] p-4 flex flex-col justify-between min-h-[72px] border-[3px] border-white hover:bg-slate-100 transition-colors"
-                      >
-                        <div>
-                          <div className="text-2xl font-black text-slate-800 leading-none mb-2">{stat.value}</div>
-                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</div>
+              <div className="flex justify-between items-center bg-blue-500/0 rounded-full w-[95%] max-w-[90vw] mt-2">
+                <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">12</span> Badges</p>
+                <div className="rounded-full h-[15px] w-[1.7px] bg-slate-600/50"/>
+                <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">46</span> Media</p>
+                <div className="rounded-full h-[15px] w-[1.5px] bg-slate-600/50"/>
+                <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">#1</span> Rank</p>
+              </div>
+
+              <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p>
+
+              <p className="max-sm:hidden mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">
+                {profile?.bio || ""}
+              </p>
+            </div>
+          </div>
+          <p className="md:hidden mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">
+                {profile?.bio || ""}
+              </p>
+
+          <div className="mt-5 h-[2px] bg-black/5" />
+        </div>
+
+        {isContentVisible ? (
+          <>
+            <div className="hidden min-[971px]:grid min-[971px]:grid-cols-[minmax(0,1fr)_0px] min-[971px]:gap-0">
+              <div className="bg-blue-500/0 w-full">
+                <div className="mt-4 flex justify-center">
+                  <div className="relative inline-flex h-[55px] w-[200px] items-center rounded-full border-white border-2 bg-black/5 p-1.5 shadow-[0px_0px_20px_rgba(0,0,0,0.15)]">
+                    <button
+                      onClick={() => setActiveTab("All")}
+                      className={`z-10 rounded-full px-5 py-0 cursor-pointer active:scale-[-] text-[15px] bg-red-500/0 font-semibold transition-colors ${
+                        desktopTab === "All" ? "text-white" : "text-slate-500"
+                      }`}
+                    >
+                      Activity
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("Media")}
+                      className={`z-10 flex items-center gap-1 cursor-pointer rounded-full px-5 py-2 text-[15px] font-semibold transition-colors ${
+                        desktopTab === "Media" ? "text-white" : "text-slate-500 ml-[7px]"
+                      }`}
+                    >
+                      Media
+                      {desktopTab === "Media" ? <ChevronDown size={16} /> : null}
+                    </button>
+
+                    <div
+                      className={`pointer-events-none absolute h-[40px] rounded-full bg-[#007BFF] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] transition-all duration-200 ${
+                        desktopTab === "All"
+                          ? "w-[90px]"
+                          : "right-1.5 w-[90px]"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  {desktopTab === "Media" ? (
+                    <div className="">
+                    <DesktopMediaGrid />
+                    </div>
+                  ) : (
+                    <div className="space-y-5">
+                      {activityData.map((section) => (
+                        <div key={section.label} className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-[20px] font-semibold text-slate-800">
+                              {section.label}
+                            </h3>
+                            {/* {section.label === "Today" ? (
+                              <button className="flex items-center gap-1 text-[18px] font-medium text-[#007BFF]">
+                                Show more
+                                <ChevronDown size={16} />
+                              </button>
+                            ) : null} */}
+                          </div>
+                          {section.items.map((item, index) => (
+                            <ActivityCard key={`${section.label}-${index}`} item={item} />
+                          ))}
                         </div>
-                        <div className={`mt-3 h-1.5 w-8 rounded-full ${stat.color}`}></div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            
+            </div>
+
+            <div className="min-[971px]:hidden">
+              <div className="mt-6 flex justify-center">
+                <div className="inline-flex rounded-full border-[3px] border-white bg-black/4 p-1.5 shadow-[0px_0px_10px_rgba(0,0,0,0.08)]">
+                  {(
+                    [
+                      { value: "All", label: "Activity" },
+                      { value: "Media", label: "Media" },
+                      { value: "Badges", label: "Badges" },
+                      { value: "Tours", label: "Tours" },
+                    ] as const
+                  ).map((tab) => (
+                    <button
+                      key={tab.value}
+                      onClick={() => setActiveTab(tab.value)}
+                      className={`cursor-pointer rounded-full px-4 py-3 text-sm font-bold active:scale-[.97] ${
+                        activeTab === tab.value
+                          ? "bg-[#007BFF] px-[20px] text-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      <span className="inline-flex items-center gap-0">
+                        {tab.label}
+                        {tab.value === "Media" && activeTab === "Media" ? (
+                          <ChevronDown size={20} className="mr-[-10px]"/>
+                        ) : null}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6">
+                {activeTab === "All" ? (
+                  <div className="space-y-7">
+                    {activityData.map((section) => (
+                      <div key={section.label} className="space-y-3">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+                          {section.label}
+                        </h3>
+                        {section.items.map((item, index) => (
+                          <ActivityCard
+                            key={`${section.label}-mobile-${index}`}
+                            item={item}
+                            compact
+                          />
+                        ))}
                       </div>
                     ))}
                   </div>
+                ) : null}
 
-                  <div className="sm:hidden -mx-2 px-2 overflow-x-auto">
-                    <div className="flex gap-3 min-w-max pb-1">
-                      {tabStats[activeTab]?.map((stat, idx) => (
-                        <div
-                          key={idx}
-                          className="w-[170px] shrink-0 active:scale-[.98] shadow-[0px_0px_30px_rgba(0,0,0,0.06)] bg-black/4 rounded-[30px] p-4 flex flex-col justify-between min-h-[72px] border-[3px] border-white"
-                        >
-                          <div>
-                            <div className="text-2xl font-black text-slate-800 leading-none mb-2">{stat.value}</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</div>
-                          </div>
-                          <div className={`mt-3 h-1.5 w-8 rounded-full ${stat.color}`}></div>
-                        </div>
-                      ))}
-                    </div>
+                {activeTab === "Tours" ? (
+                  <div className="flex flex-col gap-3 bg-red-500/0">
+                    {toursData.map((tour) => (
+                      <TourCard key={tour.id} tour={tour} />
+                    ))}
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+                ) : null}
 
-        {/* TABS (always visible) */}
-        <div className="mt-8 flex justify-center">
-          <div className="bg-black/4 p-1.5 rounded-full inline-flex border-[3px] border-white shadow-[0px_0px_10px_rgba(0,0,0,0.08)]">
-            {['All', 'Tours', 'Badges', 'Media'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`
-                  px-6 py-2.5 rounded-full active:scale-[.97] cursor-pointer text-sm font-bold transition-all duration-200
-                  ${activeTab === tab ? 'bg-[#007BFF] text-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]' : 'text-slate-500 hover:text-slate-800'}
-                `}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* CONTENT */}
-        <div className="mt-8">
-          {isContentVisible ? (
-            <div className="animate-in slide-in-from-bottom-5 duration-500 fade-in">
-              {activeTab === 'All' && (
-                <div className="space-y-8">
-                  {activityData.map((section, idx) => (
-                    <div key={idx}>
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">{section.label}</h3>
-                      <div className="space-y-0">
-                        {section.items.map((item, itemIdx) => (
-                          <ActivityCard key={itemIdx} item={item} />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'Tours' && (
-                <div className="flex flex-col gap-3">
-                  {/* 1. UPCOMING */}
-                  {toursData.filter(t => t.status === "Upcoming").length > 0 && (
-                    <div>
-                      {toursData.filter(t => t.status === "Upcoming").map(tour => (
-                        <TourCard key={tour.id} tour={tour} />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* 2. ACTIVE */}
-                  {toursData.filter(t => t.status === "Active").length > 0 && (
-                    <div className="relative">
-                      <div className="w-[200px] h-[1.8px] bg-slate-200/80 mx-auto mb-8 rounded-full"></div>
-                      {toursData.filter(t => t.status === "Active").map(tour => (
-                        <TourCard key={tour.id} tour={tour} />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* 3. COMPLETED */}
-                  {toursData.filter(t => t.status === "Completed").length > 0 && (
-                    <div className="relative">
-                      <div className="w-[200px] h-[1.8px] bg-slate-200/80 mx-auto mb-8 rounded-full"></div>
-                      {toursData.filter(t => t.status === "Completed").map(tour => (
-                        <TourCard key={tour.id} tour={tour} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'Badges' && <BadgesGrid />}
-              {activeTab === 'Media' && <MediaGrid />}
-            </div>
-          ) : (
-            <div className="w-full flex justify-center mt-2 animate-in fade-in duration-500">
-              <div className="flex flex-col items-center justify-center text-center rounded-[35px] w-full max-w-3xl">
-                <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mb-6">
-                  <Lock size={32} className="text-slate-500" />
-                </div>
-                <h2 className="text-xl font-black text-slate-800 mb-2">This account is private</h2>
-                <p className="text-sm font-medium text-slate-500 max-w-[300px] leading-relaxed">
-                  {displayUsername} has restricted access to their {activeTab === 'Media' ? 'photos and videos' : activeTab === 'All' ? 'activity' : activeTab.toLowerCase()}.
-                </p>
+                {activeTab === "Badges" ? <BadgesGrid /> : null}
+                {activeTab === "Media" ? <MobileMediaGrid /> : null}
               </div>
             </div>
-          )}
-        </div>
-c
+          </>
+        ) : (
+          <div className="mt-8 flex w-full justify-center">
+            <div className="flex w-full max-w-3xl flex-col items-center justify-center rounded-[35px] text-center">
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-slate-200">
+                <Lock size={32} className="text-slate-500" />
+              </div>
+              <h2 className="mb-2 text-xl font-black text-slate-800">This account is private</h2>
+              <p className="max-w-[300px] text-sm font-medium leading-relaxed text-slate-500">
+                {displayUsername} has restricted access to their{" "}
+                {activeTab === "Media"
+                  ? "photos and videos"
+                  : activeTab === "All"
+                  ? "activity"
+                  : activeTab.toLowerCase()}
+                .
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
       </div>
     </div>
   );
