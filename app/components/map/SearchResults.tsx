@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect, useCallback, memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -184,11 +185,15 @@ export const SearchResults = memo(function SearchResults({
                         inputMode='search'
                         className="bg-black/40 rounded-full h-[50px] w-full text-[#E0E0E0] placeholder-[#E0E0E0] p-3 font-bold pl-[50px] pr-[95px] outline-none border-none focus:ring-0"
                     />
+
                     <button
                         ref={sortBtnRef}
                         type="button"
                         onClick={toggleSort}
-                        className={`flex gap-[8px] py-[10px] ${!mobileSearchOpen ? 'cursor-not-allowed' : 'cursor-pointer'} items-center justify-center absolute font-bold right-[14px] top-[3px] text-[#E0E0E0] transition-colors`}
+                        className={`flex gap-[8px] py-[10px] items-center justify-center absolute font-bold right-[14px] top-[3px] text-[#E0E0E0] rounded-full transition-all cursor-pointer ${isSortOpen
+                            ? 'bg-white/10 px-[10px]'
+                            : 'hover:bg-white/10 hover:px-[10px]'
+                            }`}
                     >
                         Sort <Image src={sortIcon} alt="" height={22} />
                     </button>
@@ -460,10 +465,10 @@ export const SearchResults = memo(function SearchResults({
             {isSortOpen && (
                 <Portal>
                     <div id="sort-popup-portal">
-                        <div className="fixed inset-0" onClick={() => setIsSortOpen(false)} />
+                        <div className="fixed inset-0 " onClick={() => setIsSortOpen(false)} />
                         <div
                             ref={sortMenuRef}
-                            className="absolute mt-[20px] z-[60]"
+                            className="absolute mt-[20px] z-[60] "
                             style={{ top: popupPos.top, left: popupPos.left }}
                         >
                             <div className='bg-white/10 backdrop-blur-[20px] rounded-[43px] p-[3px] shadow-[0px_0px_15px_rgba(0,0,0,0.4)]'>
