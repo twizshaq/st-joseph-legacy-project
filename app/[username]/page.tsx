@@ -790,11 +790,11 @@ return (
               {/* <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p> */}
 
               <div className="flex justify-between items-center bg-blue-500/0  w-[95%] max-w-[300px] max-sm:max-w-[90vw] mt-1">
+                <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">#1</span> Rank</p>
+                <div className="rounded-full h-[15px] w-[1.7px] bg-slate-600/50"/>
                 <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">12</span> Badges</p>
                 <div className="rounded-full h-[15px] w-[1.7px] bg-slate-600/50"/>
                 <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">46</span> Media</p>
-                <div className="rounded-full h-[15px] w-[1.5px] bg-slate-600/50"/>
-                <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">#1</span> Rank</p>
               </div>
 
               <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p>
