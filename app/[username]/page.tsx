@@ -741,13 +741,13 @@ return (
           <Navigation />
         </div>
       </div>
-      <div className="flex flex-row-reverse bg-green-500/0 gap-20 max-w-[90vw] w-[800px]">
+      <div className="flex flex-row-reverse bg-green-500/0 gap-20 max-w-[90vw] w-[1100px]">
       <div className="max-[970px]:hidden mt-[190px] space-y-4 bg-pink-500/0 mr-[30px]">
                 <DesktopBadgesPanel />
                 <DesktopToursPanel />
               </div>
 
-      <div className="w-full max-w-[700px] bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px] md:pl-[0px] justify-center">
+      <div className="w-[1200px] bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px] md:pl-[0px] justify-center">
         <div className="relative rounded-[32px] bg-transparent p-0 shadow-none">
           <div className="flex items-start gap-4">
             <div className="relative max-sm:h-[90px] max-sm:w-[90px] h-[100px] w-[100px] shrink-0 overflow-hidden rounded-full">
@@ -759,8 +759,7 @@ return (
                 <div className="min-w-0">
                   {/* The truncate class here will now work because the parent width is constrained */}
                   <h1 className="truncate text-[30px] font-bold h-[37px] text-[#1e293b] leading-none">
-                    {/* {profile?.username || displayUsername} */}
-                    bigblobsinapotbigovoleader
+                    {profile?.username || displayUsername}
                   </h1>
                   {/* <p className="text-[12px] font-semibold text-[#1e293b] mt-2">Developer</p> */}
                 </div>
