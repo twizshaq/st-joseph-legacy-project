@@ -54,14 +54,14 @@ export default function Footer() {
     return (
         <footer className='bg-blue-900 text-white w-full mt-[100px] py-12 px-[4vw]'>
             <div className='max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10'>
-                
-                {/* Column 1: Identity & Contact 
+
+                {/* Column 1: Identity & Contact
                     FIX: Added 'items-center text-center' for mobile, and 'lg:items-start lg:text-left' for desktop.
                 */}
                 <div className='flex flex-col gap-4 items-center text-center lg:items-start lg:text-left'>
                     <h3 className='font-bold text-xl'>Unveiling Our Legacy</h3>
                     <p className='text-blue-200 text-sm'>A District Emergency Organization (DEO) Project.</p>
-                    <div className="flex flex-col gap-1"> 
+                    <div className="flex flex-col gap-1">
                         <h4 className='font-semibold mb-2'>Contact Us</h4>
                         {/* FIX: Removed invalid max-md class from href */}
                         <Link href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>
@@ -159,7 +159,7 @@ export default function Footer() {
                     <h3 className='font-bold text-xl'>Navigate</h3>
                     <ul className='space-y-2 text-blue-200'>
                         <li><Link href="/feedback" className='hover:text-[#feb47b] transition-colors'>Leave Feedback</Link></li>
-                        <li><Link href="/contributors" className='hover:text-[#feb47b] transition-colors'>Meet the Team</Link></li>
+                        <li><Link href="/team" className='hover:text-[#feb47b] transition-colors'>Meet the Team</Link></li>
                         <li><Link href="/tours" className='hover:text-[#feb47b] transition-colors'>Book a Tour</Link></li>
                         <li><Link href="/map" className='hover:text-[#feb47b] transition-colors'>Virtual Map</Link></li>
                     </ul>

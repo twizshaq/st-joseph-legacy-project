@@ -1,8 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { SiteCardSkeleton } from "@/app/components/SiteCardSkeleton";
+import ArrowIcon from '@/public/icons/arrow-icon';
 
 interface NearbySite {
   id: number;
@@ -20,83 +21,189 @@ interface NearbySectionProps {
 }
 
 export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
-  return (
-    <section className='relative flex flex-col items-center w-[1400px] max-w-[90vw] max-sm:max-w-[100vw] mx-auto mb-0'>
-      
-      {/* Header */}
-      <div className='w-full px-[5.4vw] md:px-0 mb-[10px] self-start'>
-        <h2 className='font-bold text-[1.75rem]'>Nearby Sites</h2>
-        <p className='text-[#666] font-medium'>Plan your route across St. Joseph</p>
-      </div>
-      
-      {/* Horizontal Scroll Container */}
-      <div className='relative w-full overflow-visible z-10'>
-        <div className="flex overflow-x-auto pb-12 pt-4 gap-6 max-sm:w-[100vw] md:w-[90vw] w-[1400px] px-4 max-sm:px-6 scroll-smooth mandatory hide-scrollbar">
-          
-          {loading ? (
-            <>
-              <SiteCardSkeleton /><SiteCardSkeleton /><SiteCardSkeleton /><SiteCardSkeleton />
-            </>
-          ) : (
-            sites.map((card) => (
-              <div key={card.id} className="relative flex-shrink-0 snap-center group cursor-pointer">
-                
-                {/* 1. Background / Shadow Layer (Slightly larger and rotated) */}
-                <div
-                  className="absolute bg-cover bg-center min-h-[310px] max-h-[310px] min-w-[260px] max-w-[260px] rounded-[57px] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white"
-                  style={{ backgroundImage: `url(${card.image_url})` }}
-                >
-                  <div className="rotate-[180deg] self-end">
-                    <div className="bg-blue-500/0 absolute w-[270px] top-[70px] rotate-[-180deg] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] opacity-100 h-[270px]"></div>
-                  </div>
-                </div>
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
-                {/* 2. Main Content Card */}
-                <div
-                  className="relative bg-cover bg-center min-h-[310px] max-h-[310px] min-w-[260px] max-w-[260px] rounded-[54px] flex flex-col justify-end overflow-hidden z-10 transition-transform duration-300 active:scale-[0.98]"
-                  style={{ backgroundImage: `url(${card.image_url})` }}
-                >
-                  {typeof card.distance === 'number' && (
-                    <div className='absolute top-5 right-5 z-40'>
-                      <div className='rounded-full p-[2px] bg-white/10 shadow-[0px_0px_20px_rgba(0,0,0,0.3)] backdrop-blur-[2px]'>
-                        <div className='bg-black/30 rounded-full px-[12px] py-[5px]'>
-                          <p className='text-center font-bold text-[0.75rem] text-white'>
-                            {card.distance < 1 
-                              ? `${(card.distance * 1000).toFixed(0)}m away` // Show meters if under 1km
-                              : `${card.distance.toFixed(1)} km away`         // Show km if over 1km
-                            }
-                          </p>
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({
+      left: -320,
+      behavior: 'smooth',
+    });
+  };
+
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({
+      left: 320,
+      behavior: 'smooth',
+    });
+  };
+
+  const handleScroll = useCallback(() => {
+    const element = scrollRef.current;
+    if (element) {
+      const atLeft = element.scrollLeft <= 2;
+      const atRight = Math.ceil(element.scrollLeft + element.clientWidth) >= element.scrollWidth - 2;
+
+      setCanScrollLeft(!atLeft);
+      setCanScrollRight(!atRight);
+    }
+  }, []);
+
+  useEffect(() => {
+    handleScroll();
+    window.addEventListener('resize', handleScroll);
+    return () => window.removeEventListener('resize', handleScroll);
+  }, [handleScroll, sites, loading]);
+
+  return (
+    <section className='relative w-full flex flex-col text-slate-800 mt-[80px] md:mt-[100px]'>
+
+      {/* Header */}
+      <div className='px-[5vw] mb-[20px]'>
+        <h2 className='font-bold text-[2rem] max-sm:text-[1.5rem]'>Nearby Sites</h2>
+        <p className='max-w-[700px] text-slate-600'>
+          Plan your route across St. Joseph and discover neighboring heritage sites. Each location offers unique stories and insights into our community.
+        </p>
+      </div>
+
+      {/* Carousel Wrapper */}
+      <div className="relative px-[5vw] max-sm:px-[0vw]">
+
+        {/* Edge Blur Overlays */}
+        <div
+          className={`pointer-events-none absolute left-[3.5vw] top-[40px] z-50 h-[440px] w-[110px] max-sm:hidden backdrop-blur-[3px] [mask-image:linear-gradient(to_right,black_40%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
+        />
+
+        <div
+          className={`pointer-events-none absolute right-[3.5vw] rotate-180 top-[40px] z-50 h-[440px] w-[110px] max-sm:hidden backdrop-blur-[3px] [mask-image:linear-gradient(to_right,black_40%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
+        />
+
+        {/* Previous Button */}
+        <div className={`hidden md:flex absolute left-[3vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-300 active:scale-[0.93] cursor-pointer ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <button
+            type="button"
+            onClick={scrollLeft}
+            disabled={!canScrollLeft}
+            aria-label="Scroll left"
+            className='bg-black/40 rounded-full w-[50px] h-[50px] cursor-pointer hover:bg-black/50 transition-colors'
+          >
+            <span className='-rotate-90 flex mr-[2px] items-center scale-[1.1] justify-center text-white'>
+              <ArrowIcon width={30} height={30} />
+            </span>
+          </button>
+        </div>
+
+        {/* Next Button */}
+        <div className={`hidden md:flex absolute right-[3vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-300 active:scale-[0.93] cursor-pointer ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <button
+            type="button"
+            onClick={scrollRight}
+            disabled={!canScrollRight}
+            aria-label="Scroll right"
+            className='bg-black/40 rounded-full w-[50px] h-[50px] cursor-pointer hover:bg-black/50 transition-colors'
+          >
+            <span className='rotate-90 flex ml-[2px] items-center scale-[1.1] justify-center text-white'>
+              <ArrowIcon width={30} height={30} />
+            </span>
+          </button>
+        </div>
+
+        {/* Carousel Container */}
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex flex-row items-center mt-[10px] min-h-[450px]
+                     gap-[30px] px-[.9vw] max-sm:px-[5vw]
+                     overflow-x-auto hide-scrollbar"
+        >
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <SiteCardSkeleton key={i} />
+            ))
+          ) : sites.length > 0 ? (
+            sites.map((card) => (
+              <div key={card.id} className="relative shrink-0 snap-center cursor-pointer">
+                <Link href={`/${card.slug}`} passHref>
+                  {/* Shadow / Glow Layer */}
+                  <div
+                    className="absolute bg-cover bg-center min-h-[340px] max-h-[340px]
+                               min-w-[270px] max-w-[270px] rounded-[57px]
+                               shadow-[0px_0px_10px_rgba(0,0,0,0.3)]
+                               flex flex-col justify-end overflow-hidden
+                               scale-x-[1.03] scale-y-[1.025]"
+                    style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    <div className="rotate-[180deg] self-end scale-[1.02]">
+                      <div
+                        className="absolute w-[270px] top-[70px] rotate-[-180deg]
+                                   backdrop-blur-[10px]
+                                   [mask-image:linear-gradient(to_bottom,black_70%,transparent)]
+                                   h-[270px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Main Card */}
+                  <div
+                    className="relative bg-cover bg-center min-h-[340px] max-h-[340px]
+                               min-w-[270px] max-w-[270px] rounded-[54px]
+                               flex flex-col justify-end overflow-hidden z-10"
+                    style={{ backgroundImage: `url(${card.image_url})` }}
+                  >
+                    <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
+
+                    {/* Distance Badge */}
+                    {typeof card.distance === 'number' && (
+                      <div className='absolute top-5 right-5 z-40'>
+                        <div className='rounded-full p-[2px] bg-white/10 shadow-[0px_0px_20px_rgba(0,0,0,0.3)] backdrop-blur-[2px]'>
+                          <div className='bg-black/30 rounded-full px-[12px] py-[5px]'>
+                            <p className='text-center font-bold text-[0.75rem] text-white'>
+                              {card.distance < 1
+                                ? `${(card.distance * 1000).toFixed(0)}m away`
+                                : `${card.distance.toFixed(1)} km away`
+                              }
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                  <Link href={`/${card.slug}`} passHref className="h-full flex flex-col justify-end">
-                    <div className="absolute inset-0 bg-black/30 rounded-[50px] transition-opacity group-hover:bg-black/40" />
-                    
+                    )}
+
                     <div className="relative z-30 text-center mb-[20px] px-[10px]">
                       <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                        <p className="font-bold text-[1.3rem] mb-[2px] leading-tight">{card.name}</p>
-                        <p className="text-[0.9rem] px-[5px] line-clamp-2 opacity-90">{card.description}</p>
-                        
-                        {/* Category Pill */}
-                        <div className='mt-[10px] flex justify-center items-center'>
-                            <div className='cursor-pointer whitespace-nowrap rounded-full p-[2px] w-[190px] bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)] -mr-[2px]'>
-                              <div className='bg-black/20 rounded-full px-[15px] py-[6.4px]'>
-                                <p className='text-center font-bold text-[.85rem]'>{card.category}</p>
-                              </div>
+                        <p className="font-bold text-[1.3rem] mb-[2px]">
+                          {card.name}
+                        </p>
+                        <p className="text-[1rem]">{card.description}</p>
+
+                        <div className="mt-[10px] flex justify-center">
+                          <div className="whitespace-nowrap rounded-full p-[2px] w-[190px]
+                                          bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)]">
+                            <div className="bg-black/20 rounded-full px-[15px] py-[6.4px]">
+                              <p className="font-bold text-[.85rem]">
+                                {card.category}
+                              </p>
                             </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </Link>
-                  
-                  {/* Bottom Blur Effect */}
-                  <div className="rotate-[180deg] self-end pointer-events-none">
-                    <div className="bg-blue-500/0 absolute w-[270px] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_30%,transparent)] opacity-100 h-[150px]"></div>
+
+                    <div className="rotate-[180deg] self-end">
+                      <div
+                        className="absolute w-[270px] backdrop-blur-[6px]
+                                   [mask-image:linear-gradient(to_bottom,black_50%,transparent)]
+                                   h-[250px]"
+                      />
+                    </div>
                   </div>
-                </div>
+                </Link>
               </div>
             ))
+          ) : (
+            <div className="w-full text-center font-bold text-slate-500">
+              No nearby sites found.
+            </div>
           )}
         </div>
       </div>

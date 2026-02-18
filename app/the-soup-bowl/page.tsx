@@ -50,7 +50,9 @@ const SOUP_BOWL_DATA: SiteContent = {
             </>
         },
         {
-            title: "Deeper Dive",
+            title: <>
+                <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>A Deeper Dive</div>
+            </>,
             content: <>The Soup Bowl&apos;s reputation is built on its unique geological structure and exposure to the Atlantic.
                 <ul className="list-disc pl-5 space-y-3 mt-[15px] ml-3">
                     <li>
@@ -103,22 +105,19 @@ const SOUP_BOWL_DATA: SiteContent = {
     },
 
     heroMedia: {
-        video: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test1.mp4",
-        image: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG",
-        photo360: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test2.jpg"
+        video: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_video_2.mp4",
+        image: "https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_1.jpeg",
+        photo360: "",
     },
     gallery: [
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG' }, // 0
-        { type: 'video', src: 'https://shaq-portfolio-webapp.s3.us-east-1.amazonaws.com/deo-header-vid.mp4' }, // 1
-        { type: '360', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/test2.jpg' }, // 2
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG' }, // 3
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG' }, // 4
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG' }, // 5
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG' }, // 6
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-1.JPG' }, // 7
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG' }, // 8
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG' }, // 9
-        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-1.JPG' }, // 10
+        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_1.jpeg' }, // 0
+        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_1.jpeg' }, // 2
+        { type: 'video', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_video_1.mp4' }, // 1
+        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_2.jpeg' }, // 3
+        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_3.jpeg' }, // 4 - Fixed URL
+        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_4.jpeg' }, // 5
+        { type: 'image', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_5.jpg' }, // 6
+        { type: 'video', src: 'https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/soup-bowl/soup_bowl_video_2.mp4' }, // 7 - Fixed type
     ],
     stories: {
         title: "Local Stories",
@@ -128,8 +127,8 @@ const SOUP_BOWL_DATA: SiteContent = {
                 id: 1,
                 type: 'audio',
                 title: "Local Legend",
-                src: "/data/cat-meow-9-fx-306185.mp3",
-                caption: "A 2-minute history of the first surfers here."
+                src: "/data/soup-bowl-audio (waves).mp3",
+                caption: "Listen to the sounds of the waves",
             },
         ],
     },

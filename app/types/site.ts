@@ -42,7 +42,7 @@ export interface SiteFactsData {
 }
 
 export interface ContentSection {
-  title: string;
+  title: ReactNode;
   content: ReactNode;
 }
 

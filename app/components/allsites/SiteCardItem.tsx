@@ -12,8 +12,8 @@ export const SiteCardItem = ({ card }: SiteCardItemProps) => {
     <div className="relative mx-auto w-[260px] h-[330px]">
       <div className="relative w-[260px] h-[330px] scale-100 hover:scale-[1.05] active:scale-[1.05] duration-200">
         {/* Background Image Container */}
-        <div 
-            className="absolute inset-0 bg-cover bg-center rounded-[57px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white" 
+        <div
+            className="absolute inset-0 bg-cover bg-center rounded-[57px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] flex flex-col justify-end overflow-hidden scale-x-[1.03] scale-y-[1.025] border-[0px] border-white"
             style={{ backgroundImage: `url(${card.image_url})` }}
         >
           <div className="rotate-[180deg] self-end">
@@ -22,8 +22,8 @@ export const SiteCardItem = ({ card }: SiteCardItemProps) => {
         </div>
 
         {/* Content Container */}
-        <div 
-            className="relative h-full w-full bg-cover bg-center rounded-[54px] flex flex-col justify-end overflow-hidden z-10" 
+        <div
+            className="relative h-full w-full bg-cover bg-center rounded-[54px] flex flex-col justify-end overflow-hidden z-10"
             style={{ backgroundImage: `url(${card.image_url})` }}
         >
           <Link href={`/${card.slug}`} passHref className="h-full w-full flex flex-col justify-end">
@@ -36,7 +36,7 @@ export const SiteCardItem = ({ card }: SiteCardItemProps) => {
             </div>
           </Link>
           <div className="absolute bottom-0 right-0 rotate-[180deg] pointer-events-none">
-            <div className="bg-blue-500/0 w-[270px] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[200px]"></div>
+            <div className="bg-blue-500/0 w-[270px] back/drop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[200px]"></div>
           </div>
         </div>
       </div>

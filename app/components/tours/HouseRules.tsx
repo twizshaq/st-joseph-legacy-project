@@ -1,13 +1,14 @@
 import React from 'react';
 import Image from "next/image";
 import houseIcon from '@/public/icons/house-icon.svg';
+import { Check, X } from 'lucide-react';
 
 const rulesData = [
 
     { title: "Physical Requirements & Accessibility", description: <><b> Uneven Terrain:</b> St. Joseph is hilly. Guests should be comfortable walking on slopes, grass, and unpaved, sometimes muddy paths.</> },
     { title: "Dress Code ", description: <><b>Footwear:</b> Closed-toe shoes with good grip (sneakers or hiking sandals) are highly recommended.</> },
-    { title: "What is Included", description: <><span className="text-green-500">✔</span> Expert Local Guide | <span className="text-green-500">✔</span> All Entry Fees</> },
-    { title: "What is Not Included", description: <><span className="text-red-500">✖</span> Lunch Costs | <span className="text-red-500">✖</span> Gratuities | <span className="text-red-500">✖</span> Hotel Pickup (Available for extra cost)</> },
+    { title: "What is Included", description: <><Check size={18} className="text-green-500 inline" /> Expert Local Guide | <Check size={18} className="text-green-500 inline" /> All Entry Fees</> },
+    { title: "What is Not Included", description: <><X size={18} className="text-red-500 inline" /> Lunch Costs | <X size={18} className="text-red-500 inline" /> Gratuities | <X size={18} className="text-red-500 inline" /> Hotel Pickup (Available for extra cost)</> },
 ];
 
 const HouseRules = () => {
