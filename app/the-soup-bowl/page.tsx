@@ -51,7 +51,7 @@ const SOUP_BOWL_DATA: SiteContent = {
         },
         {
             title: <>
-                <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>A Deeper Dive</div>
+                <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem] !text-black'>A Deeper Dive</div>
             </>,
             content: <>The Soup Bowl&apos;s reputation is built on its unique geological structure and exposure to the Atlantic.
                 <ul className="list-disc pl-5 space-y-3 mt-[15px] ml-3">
