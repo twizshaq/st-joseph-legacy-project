@@ -220,37 +220,97 @@ const getTourBadgeClass = (tour: TourItem) => {
 
 const TourCard = ({ tour }: { tour: TourItem }) => {
   const badgeLabel = tour.status === "Completed" ? "Completed" : tour.type;
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="mx-auto mb-4 w-[90vw] max-w-[560px] cursor-pointer rounded-[40px] border-[2.5px] border-white bg-black/5 p-[2px] shadow-[0px_0px_30px_rgba(0,0,0,0.08)] active:scale-[.99]">
-      <div className="group flex gap-3 rounded-[33px] p-2">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[27px]">
-          <Image src={tour.image} alt={tour.title} fill className="object-cover" />
-        </div>
-        <div className="relative flex flex-1 flex-col py-1 pr-2">
-          <div className="mb-1 flex items-start justify-between">
-            <span
-              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getTourBadgeClass(
-                tour
-              )}`}
-            >
-              {badgeLabel}
-            </span>
-            <span className="mr-[3px] mt-[3px] text-[11px] font-bold text-slate-500">
-              {tour.date}
-            </span>
+    <button
+      type="button"
+      onClick={() => setIsExpanded((v) => !v)}
+      aria-expanded={isExpanded}
+      className="mx-auto mb-4 w-[90vw] max-w-[560px] cursor-pointer rounded-[40px] border-[2.5px] border-white bg-black/5 p-[2px] text-left shadow-[0px_0px_30px_rgba(0,0,0,0.08)] active:scale-[.99]"
+    >
+      <div className="group overflow-hidden rounded-[33px]">
+        <div className="flex gap-3 p-2">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[27px]">
+            <Image src={tour.image} alt={tour.title} fill className="object-cover" />
           </div>
-          <h3 className="mt-1 line-clamp-2 max-w-[200px] text-[1rem] font-bold leading-tight text-slate-800">
-            {tour.title}
-          </h3>
-          <div className="absolute bottom-0 right-[10px] flex">
-            <button className="rotate-[180deg] text-slate-400 transition-colors hover:text-blue-500">
-              <ArrowIcon color="#1E293B" />
-            </button>
+
+          <div className="relative flex flex-1 flex-col py-1 pr-2">
+            <div className="mb-1 flex items-start justify-between">
+              <span
+                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getTourBadgeClass(
+                  tour
+                )}`}
+              >
+                {badgeLabel}
+              </span>
+              <span className="mr-[3px] mt-[3px] text-[11px] font-bold text-slate-500">
+                {tour.date}
+              </span>
+            </div>
+
+            <h3 className="mt-1 line-clamp-2 max-w-[200px] text-[1rem] font-bold leading-tight text-slate-800">
+              {tour.title}
+            </h3>
+
+            <div className="absolute bottom-0 right-[10px] flex">
+              <span
+                className={
+                  "rotate-[180deg] text-slate-400 transition-transform duration-200 " +
+                  (isExpanded ? "rotate-0" : "rotate-[180deg]")
+                }
+                aria-hidden="true"
+              >
+                <ArrowIcon color="#1E293B" />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Expandable details */}
+        <div
+          className={
+            "grid transition-[grid-template-rows,opacity] duration-250 ease-out " +
+            (isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")
+          }
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div className="px-4 pb-4">
+              <div className="mt-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-extrabold text-slate-700">
+                    Status: {tour.status}
+                  </span>
+                  <span className="rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-extrabold text-slate-700">
+                    Type: {tour.type}
+                  </span>
+                </div>
+
+                <p className="mt-3 text-[13px] font-semibold leading-relaxed text-slate-700">
+                  {/* Replace this with real tour description/details when available */}
+                  Explore this route with curated stops, photo moments, and local highlights. Tap again to collapse.
+                </p>
+
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-[12px] font-bold text-slate-500">
+                    Estimated time: 45–90 mins
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-[#007BFF]/10 px-3 py-1 text-[12px] font-extrabold text-[#007BFF]">
+                      View details
+                    </span>
+                    <span className="rounded-full bg-slate-900/5 px-3 py-1 text-[12px] font-extrabold text-slate-700">
+                      Save
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 
@@ -681,13 +741,13 @@ return (
           <Navigation />
         </div>
       </div>
-      <div className="flex flex-row-reverse bg-green-500/0 gap-9 max-w-[90vw]">
+      <div className="flex flex-row-reverse bg-green-500/0 gap-20 max-w-[90vw] w-[800px]">
       <div className="max-[970px]:hidden mt-[190px] space-y-4 bg-pink-500/0 mr-[30px]">
                 <DesktopBadgesPanel />
                 <DesktopToursPanel />
               </div>
 
-      <div className="w-[700px] bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px] md:pl-[0px] justify-center">
+      <div className="w-full max-w-[700px] bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px] md:pl-[0px] justify-center">
         <div className="relative rounded-[32px] bg-transparent p-0 shadow-none">
           <div className="flex items-start gap-4">
             <div className="relative max-sm:h-[90px] max-sm:w-[90px] h-[100px] w-[100px] shrink-0 overflow-hidden rounded-full">
@@ -697,8 +757,10 @@ return (
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h1 className="truncate text-[34px] font-bold text-[#1e293b] leading-none">
-                    {profile?.username || displayUsername}
+                  {/* The truncate class here will now work because the parent width is constrained */}
+                  <h1 className="truncate text-[30px] font-bold h-[37px] text-[#1e293b] leading-none">
+                    {/* {profile?.username || displayUsername} */}
+                    bigblobsinapotbigovoleader
                   </h1>
                   {/* <p className="text-[12px] font-semibold text-[#1e293b] mt-2">Developer</p> */}
                 </div>
@@ -725,7 +787,9 @@ return (
                 <Facebook size={17} />
               </div> */}
 
-              <div className="flex justify-between items-center bg-blue-500/0 rounded-full w-[95%] max-w-[90vw] mt-2">
+              {/* <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p> */}
+
+              <div className="flex justify-between items-center bg-blue-500/0  w-[95%] max-w-[300px] max-sm:max-w-[90vw] mt-1">
                 <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">12</span> Badges</p>
                 <div className="rounded-full h-[15px] w-[1.7px] bg-slate-600/50"/>
                 <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">46</span> Media</p>
@@ -815,7 +879,7 @@ return (
 
             <div className="min-[971px]:hidden">
               <div className="mt-6 flex justify-center">
-                <div className="inline-flex rounded-full border-[3px] border-white bg-black/4 p-1.5 shadow-[0px_0px_10px_rgba(0,0,0,0.08)]">
+                <div className="inline-flex rounded-full border-[3px] border-white bg-black/4 p-1.5 shadow-[0px_0px_10px_rgba(0,0,0,0.08)] w-[100%] justify-between">
                   {(
                     [
                       { value: "All", label: "Activity" },

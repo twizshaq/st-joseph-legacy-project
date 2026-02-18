@@ -220,7 +220,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
   const navLinkClass = (path: string) => {
   const isActive = pathname === path;
   return `relative cursor-pointer whitespace-nowrap py-1 transition-all active:scale-[.95]
-    ${isActive ? 'text-white' : 'opacity-[.9] hover:text-white'}
+    ${isActive ? 'text-white max-sm:text-slate-800' : 'opacity-[.9] hover:text-white'}
     after:content-[''] after:absolute after:left-0 after:-bottom-[0px] after:h-[3px] after:w-full after:rounded-full after:transition-all
     ${isActive ? 'after:bg-[#007BFF] after:opacity-100' : 'after:opacity-0 hover:after:opacity-40 hover:after:bg-white/40'}
   `;
@@ -318,7 +318,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
           </button>
         </div>
 
-        <div className={`fixed inset-0 bg-white/80 backdrop-blur-md z-[99] flex flex-col items-center justify-center gap-8 text-2xl font-bold text-black transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`fixed inset-0 bg-white/80 backdrop-blur-md z-[99] flex flex-col items-center justify-center gap-8 text-2xl font-bold text-slate-800 transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
              <Link href="/" className={navLinkClass('/')} onClick={closeMenu}>Home</Link>
             <Link href="/virtual-map" className={navLinkClass('/virtual-map')} onClick={closeMenu}>Virtual Map</Link>
             <Link href="/all-sites" className={navLinkClass('/all-sites')} onClick={closeMenu}>View Sites</Link>
