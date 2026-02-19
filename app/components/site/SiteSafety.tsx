@@ -40,7 +40,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
         { number: '211', label: 'Police' },
         { number: '511', label: 'Ambulance' },
         { number: '311', label: 'Fire' },
-        { number: '4387575', label: 'Department of Emergency', display: '438-7575' },
+        { number: '4387575', label: 'Department of Emergency', display: '(246) 438-7575' },
     ];
 
     return (
