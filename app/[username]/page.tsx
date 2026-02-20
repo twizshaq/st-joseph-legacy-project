@@ -3,15 +3,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
-  Facebook,
-  Github,
   Image as ImageIcon,
-  Instagram,
   Lock,
   MapPin,
   Settings,
   Trophy,
-  Youtube,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -21,7 +17,7 @@ import Navigation from "@/app/components/ProfileNav";
 import SettingsModal from "@/app/components/SettingsModal";
 import ArrowIcon from "@/public/icons/arrow-icon";
 import { div } from "@tensorflow/tfjs";
-import DevIcon from '@/public/icons/dev-icon'
+import DevVerifiedBadge from '@/public/icons/verified-icon'
 
 type ProfileTab = "All" | "Tours" | "Badges" | "Media";
 
@@ -430,6 +426,52 @@ const DesktopMediaGrid = () => (
   </div>
 );
 
+const DistortedRefraction = ({
+  icon,
+  className = "",
+  strength = 18,
+}: {
+  icon: string;
+  className?: string;
+  strength?: number;
+}) => {
+  const filterId = useMemo(
+    () => `turb-refraction-${Math.random().toString(36).slice(2)}`,
+    []
+  );
+
+  return (
+    <span
+      className={
+        "pointer-events-none absolute inset-0 bg-black/5 border-2 border-white shadow-[0px_0px_15px_rgba(0,0,0,0.1)] overflow-hidden rounded-[30px] " +
+        className
+      }
+      style={className.includes("rounded-") ? undefined : undefined}
+      aria-hidden="true"
+    >
+      {/* SVG filter for animated turbulence + displacement */}
+      
+
+      {/*
+        Make the filtered layer bigger than the card so the displacement/blur never leaves
+        transparent “gaps” near the edges. The parent is overflow-hidden, so this safely clips.
+      */}
+      <span
+        className="absolute -inset-[35%] flex items-center justify-center"
+        style={{ filter: `url(#${filterId})` }}
+      >
+        <span className="translate-y-[1px] scale-[1.75] text-[40px] leading-none opacity-80 blur-[44px] saturate-200 contrast-200 mix-blend-multiply">
+          {icon}
+        </span>
+        {/* a second layer for a more glassy/prismatic feel */}
+        <span className="translate-x-[-20px] scale-[1.85] text-[40px] leading-none opacity-[0.12] blur-[2px] saturate-200 contrast-200 mix-blend-screen">
+          {icon}
+        </span>
+      </span>
+    </span>
+  );
+};
+
 const BadgesGrid = () => {
   const [selectedBadge, setSelectedBadge] = useState<BadgeItem | null>(null);
   const sortedBadges = useMemo(
@@ -450,7 +492,7 @@ const BadgesGrid = () => {
               type="button"
               onClick={() => setSelectedBadge(badge)}
               className={
-                "group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-[26px] border-[2.5px] border-white bg-black/5 shadow-[0px_0px_18px_rgba(0,0,0,0.08)] transition-transform active:scale-[.98]" +
+                "group relative flex aspect-square w-full items-center justify-center rounded-[26px] transition-transform active:scale-[.98]" +
                 (isUnlocked ? "" : " opacity-70 grayscale")
               }
               aria-label={`Open badge: ${badge.name}`}
@@ -460,14 +502,10 @@ const BadgesGrid = () => {
 
               {/* inner */}
               <div className="relative flex h-full w-full items-center justify-center rounded-[22px] bg-white/55 backdrop-blur-sm">
-                {/* refraction */}
-                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <span className="translate-y-[1px] scale-[1.25] text-[34px] leading-none opacity-30 blur-[10px] saturate-200 contrast-200 mix-blend-multiply">
-                    {badge.icon}
-                  </span>
-                </span>
+                {/* refraction w/ subtle turbulence distortion */}
+                <DistortedRefraction icon={badge.icon} strength={18} />
                 {/* crisp icon */}
-                <span className="relative text-[34px] leading-none transition-transform duration-150 group-hover:scale-[1.06]">
+                <span className="relative text-[45px] mr-[2px] leading-none transition-transform duration-150 group-hover:scale-[1.06]">
                   {badge.icon}
                 </span>
 
@@ -498,11 +536,11 @@ const BadgesGrid = () => {
             <div className="flex items-center justify-between gap-3 px-5 py-4">
               <div className="flex min-w-0 items-center gap-3">
                 <div className="relative flex h-[52px] w-[52px] items-center justify-center bg-white/0 shadow-[0px_0px_16px_rgba(0,0,0,0)]">
-                  <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <span className="translate-y-[1px] scale-[1.25] text-[34px] leading-none opacity-40 blur-[10px] saturate-200 contrast-200 mix-blend-multiply">
-                      {selectedBadge.icon}
-                    </span>
-                  </span>
+                  <DistortedRefraction
+                    icon={selectedBadge.icon}
+                    strength={14}
+                    className="rounded-[14px]"
+                  />
                   <span className="relative text-[34px] leading-none">{selectedBadge.icon}</span>
                 </div>
                 <div className="min-w-0">
@@ -741,13 +779,13 @@ return (
           <Navigation />
         </div>
       </div>
-      <div className="flex flex-row-reverse bg-green-500/0 gap-20 max-w-[90vw] w-[1100px]">
-      <div className="max-[970px]:hidden mt-[190px] space-y-4 bg-pink-500/0 mr-[30px]">
+      <div className="mx-auto flex w-full max-w-[1100px] flex-row-reverse gap-20 px-4 sm:px-6 max-[970px]:gap-0">
+      <div className="max-[970px]:hidden mt-[190px] shrink-0 space-y-4 bg-pink-500/0">
                 <DesktopBadgesPanel />
                 <DesktopToursPanel />
               </div>
 
-      <div className="w-[1200px] bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px] md:pl-[0px] justify-center">
+      <div className="w-full min-w-0 flex-1 bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px]">
         <div className="relative rounded-[32px] bg-transparent p-0 shadow-none">
           <div className="flex items-start gap-4">
             <div className="relative max-sm:h-[90px] max-sm:w-[90px] h-[100px] w-[100px] shrink-0 overflow-hidden rounded-full">
@@ -755,12 +793,12 @@ return (
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  {/* The truncate class here will now work because the parent width is constrained */}
-                  <h1 className="truncate text-[30px] font-bold h-[37px] text-[#1e293b] leading-none">
+              <div className="flex items-start justify-between gap-3 bg-red-500/0">
+                <div className="min-w-0 flex items-center gap-[5px] bg-green-500/0">
+                  <h1 className="truncate text-[27px] font-bold text-[#1e293b]">
                     {profile?.username || displayUsername}
                   </h1>
+                  <DevVerifiedBadge />
                   {/* <p className="text-[12px] font-semibold text-[#1e293b] mt-2">Developer</p> */}
                 </div>
                 <div className="flex items-center gap-2">
@@ -770,10 +808,10 @@ return (
                   {isOwnProfile ? (
                     <button
                       onClick={() => setIsSettingsOpen(true)}
-                      className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-white hover:text-slate-700"
+                      className="rounded-fulld p-1.5 h-[40px] flex items-center text-slate-500 transition-colors hover:bg-white hover:text-slate-700"
                       aria-label="Open settings"
                     >
-                      <Settings size={20} />
+                      <Settings size={25} />
                     </button>
                   ) : null}
                 </div>
@@ -788,22 +826,23 @@ return (
 
               {/* <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p> */}
 
-              <div className="flex justify-between items-center bg-blue-500/0  w-[95%] max-w-[300px] max-sm:max-w-[90vw] mt-1">
-                <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">#1</span> Rank</p>
-                <div className="rounded-full h-[15px] w-[1.7px] bg-slate-600/50"/>
-                <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">12</span> Badges</p>
-                <div className="rounded-full h-[15px] w-[1.7px] bg-slate-600/50"/>
-                <p className="flex font-medium text-slate-700 text-sm gap-[5px]"><span className="font-bold">46</span> Media</p>
+              <div className="flex justify-between items-center bg-blue-500/0 w-[95%] max-w-[300px] max-sm:max-w-[90vw] mt-1">
+                <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">#1</span> Rank</p>
+                <div className="rounded-full h-[15px] w-[2px] bg-black/7"/>
+                <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">12</span> Badges</p>
+                <div className="rounded-full h-[15px] w-[2px] bg-black/7"/>
+                <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">46</span> Media</p>
               </div>
 
-              <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p>
+              {/* <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p> */}
 
-              <p className="max-sm:hidden mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">
+              {/* <p className="max-sm:hidden mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">
                 {profile?.bio || ""}
-              </p>
+              </p> */}
             </div>
           </div>
-          <p className="md:hidden mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">
+          {/* <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p> */}
+          <p className="mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">
                 {profile?.bio || ""}
               </p>
 
@@ -878,7 +917,7 @@ return (
 
             <div className="min-[971px]:hidden">
               <div className="mt-6 flex justify-center">
-                <div className="inline-flex rounded-full border-[3px] border-white bg-black/4 p-1.5 shadow-[0px_0px_10px_rgba(0,0,0,0.08)] w-[100%] justify-between">
+                <div className="inline-flex rounded-full border-[3px] border-white bg-black/4 p-1.5 shadow-[0px_0px_10px_rgba(0,0,0,0.08)] justify-between">
                   {(
                     [
                       { value: "All", label: "Activity" },

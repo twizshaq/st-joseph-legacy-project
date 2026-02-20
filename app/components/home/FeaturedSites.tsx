@@ -152,14 +152,14 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
 
                                         <div className="relative z-30 text-center mb-[20px] px-[10px]">
                                             <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                                                <p className="font-bold text-[1.3rem] mb-[2px]">
+                                                <p className="font-[700] text-[1.2rem] mb-[2px]">
                                                     {card.name}
                                                 </p>
-                                                <p className="text-[1rem]">{card.description}</p>
+                                                <p className="text-[.9rem] font-[500]">{card.description}</p>
 
                                                 <div className="mt-[10px] flex justify-center">
                                                     <div className="whitespace-nowrap rounded-full p-[2px] w-[190px]
-                                                                    bg-white/10 shadow-[0px_0px_40px_rgba(0,0,0,0.3)]">
+                                                                    bg-white/10 shadow-[0px_0px_20px_rgba(0,0,0,0.3)]">
                                                         <div className="bg-black/20 rounded-full px-[15px] py-[6.4px]">
                                                             <p className="font-bold text-[.85rem]">
                                                                 {card.category}
