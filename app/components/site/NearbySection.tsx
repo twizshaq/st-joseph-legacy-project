@@ -57,7 +57,7 @@ export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
   }, [handleScroll, sites, loading]);
 
   return (
-    <section className='relative w-full flex flex-col text-slate-800 mt-[80px] md:mt-[100px]'>
+    <section className='relative w-full flex flex-col text-slate-800 mt-[0px] md:mt-[20px]'>
 
       {/* Header */}
       <div className='px-[5vw] mb-[20px]'>
@@ -72,11 +72,11 @@ export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
 
         {/* Edge Blur Overlays */}
         <div
-          className={`pointer-events-none absolute left-[3.5vw] top-[40px] z-50 h-[440px] w-[110px] max-sm:hidden backdrop-blur-[3px] [mask-image:linear-gradient(to_right,black_40%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
+          className={`pointer-events-none absolute left-[4vw] top-[40px] z-50 h-[440px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
         />
 
         <div
-          className={`pointer-events-none absolute right-[3.5vw] rotate-180 top-[40px] z-50 h-[440px] w-[110px] max-sm:hidden backdrop-blur-[3px] [mask-image:linear-gradient(to_right,black_40%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
+          className={`pointer-events-none absolute right-[4vw] rotate-180 top-[40px] z-50 h-[440px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
         />
 
         {/* Previous Button */}
@@ -137,7 +137,7 @@ export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
                     <div className="rotate-[180deg] self-end scale-[1.02]">
                       <div
                         className="absolute w-[270px] top-[70px] rotate-[-180deg]
-                                   backdrop-blur-[10px]
+                                   backdrop-blur-[5px]
                                    [mask-image:linear-gradient(to_bottom,black_70%,transparent)]
                                    h-[270px]"
                       />
@@ -191,9 +191,9 @@ export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
 
                     <div className="rotate-[180deg] self-end">
                       <div
-                        className="absolute w-[270px] backdrop-blur-[6px]
+                        className="absolute w-[270px] backdrop-blur-[5px]
                                    [mask-image:linear-gradient(to_bottom,black_50%,transparent)]
-                                   h-[250px]"
+                                   h-[200px]"
                       />
                     </div>
                   </div>

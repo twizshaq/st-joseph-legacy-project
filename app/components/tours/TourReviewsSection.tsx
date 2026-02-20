@@ -39,7 +39,7 @@ export default function TourReviewsSection({ tour, user }: { tour: Tour | null, 
   };
 
   return (
-    <div className="relative flex flex-col items-center w-[1400px] max-w-[90vw] mt-[100px]">
+    <div className="relative flex flex-col items-center w-[1500px] max-w-[90vw] mt-[100px]">
       <div className='w-full flex flex-col md:flex-row justify-between max-sm:items-center items-end md:items-center gap-6 mb-5 z-10'>
         <div className='flex flex-col gap-1 max-md:self-start max-sm:self-center'>
           <div className="text-[1.75rem]">

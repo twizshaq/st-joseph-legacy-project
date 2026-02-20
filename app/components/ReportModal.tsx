@@ -77,7 +77,7 @@ export const ReportModal = ({ isOpen, onClose, user, reviewId, tableName = "revi
       {/* Glass styling matches ReviewModal */}
       <div className='bg-white/10 backdrop-blur-[15px] rounded-[43px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,0.3)]'>
         <div 
-          className="bg-black/60 rounded-[40px] p-5 w-[500px] max-w-[90vw] animate-in zoom-in-90 duration-300"
+          className="bg-black/50 rounded-[40px] p-5 w-[500px] max-w-[90vw] animate-in zoom-in-90 duration-300"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-3 mb-1">

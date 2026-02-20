@@ -1,148 +1,223 @@
 'use client'
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "@/app/components/FooterModal";
 import TourDetailsSkeleton from "@/app/components/tours/TourDetailsSkeleton";
 import TourGallery from "@/app/components/tours/TourGallery";
-import { BookingForm } from "@/app/components/tours/BookingForm";
 import TourReviewsSection from "@/app/components/tours/TourReviewsSection";
 import HeroSection from "@/app/components/tours/HeroSection";
 import TourSelector from "@/app/components/tours/TourSelector";
 import HouseRules from "@/app/components/tours/HouseRules";
 import StopsModal from "@/app/components/tours/StopsModal";
-import { StopItem } from "@/app/components/tours/StopItem";
 import IntensityGuidelines from "@/app/components/tours/IntensityGuidelines";
 import TourMap from "@/app/components/tours/TourMap";
+import { format } from "date-fns";
 
-// Import the logic hook
+import BookingFormInputs from "@/app/components/tours/BookingFormInputs";
+import { CheckoutPaymentFlow, OrderSummaryCard } from "@/app/components/tours/CheckoutComponents";
+
 import { useTourPage } from "@/app/hooks/useTourPage";
-import { Flame } from "lucide-react";
+import { useBooking } from "@/app/hooks/useBooking";
+import { Flame, ArrowLeft } from "lucide-react";
+import { AlertTriangle } from 'lucide-react';
 
 export default function ToursPage() {
+    // 1. Page Level Hook (Data Fetching)
     const {
-        tours,
-        selectedTour,
-        setSelectedTour,
-        userSession,
-        isLoading,
-        guestCount,
-        setGuestCount,
-        isSelectorOpen,
-        setIsSelectorOpen,
-        isStopsModalOpen,
-        setIsStopsModalOpen
+        tours, selectedTour, setSelectedTour, userSession, isLoading,
+        isSelectorOpen, setIsSelectorOpen, isStopsModalOpen, setIsStopsModalOpen
     } = useTourPage();
 
-    // Logic: Preview limit
-    const PREVIEW_LIMIT = 3;
-    const previewStops = selectedTour?.stops ? selectedTour.stops.slice(0, PREVIEW_LIMIT) : [];
-    const hasMoreStops = selectedTour?.stops && selectedTour.stops.length > PREVIEW_LIMIT;
-    const displayLocalPrice = selectedTour ? (selectedTour.local_price * guestCount) : 0;
-    const displayVisitorPrice = selectedTour ? (selectedTour.visitor_price * guestCount) : 0;
+    // 2. Booking Controller Hook
+    const booking = useBooking(selectedTour, userSession?.user);
+
+    // 3. UI State for Checkout Flow
+    const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+
+    // Disable background scroll while the popup is open
+    useEffect(() => {
+        if (!showConfirmPopup) return;
+        const previous = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = previous;
+        };
+    }, [showConfirmPopup]);
+
+    const [isCheckoutMode, setIsCheckoutMode] = useState(false);
+
+    // Render Helpers
+    const displayLocalPrice = selectedTour ? selectedTour.local_price : 0;
+
+    const handleConfirmBooking = () => {
+        setShowConfirmPopup(false);
+        setIsCheckoutMode(true); // Swap the UI!
+        window.scrollTo({ top: 1400, behavior: 'smooth' }); // Scroll user up to the checkout box cleanly
+    };
 
     return (
-        <div className="flex flex-col items-center overflow-x-hidden text-black">
-
+        <div className="flex flex-col items-center overflow-x-hidden text-black relative">
             <HeroSection />
             <IntensityGuidelines />
 
+            <TourSelector tours={tours} isOpen={isSelectorOpen} setIsOpen={setIsSelectorOpen} onSelect={setSelectedTour} />
 
-            {/* --- TOUR SELECTOR POPUP --- */}
-            <TourSelector
-                tours={tours}
-                isOpen={isSelectorOpen}
-                setIsOpen={setIsSelectorOpen}
-                onSelect={setSelectedTour}
-            />
-
-            {/* --- MAIN TOUR DETAILS AREA --- */}
-            {isLoading || !selectedTour ? (
-                <TourDetailsSkeleton />
-            ) : (
-                <div className="p-3 mt-8 w-[1400px] justify-betwe/en max-w-[95vw] flex flex-row max-sm:flex-col gap-20  rounded-[45px]">
-                    <div className="flex-col w-full">
-                        <TourGallery images={selectedTour.images} />
-
-                        <div className="w-full flex flex-col gap-4">
-
-                            {/* Header Info */}
-                            <div className="mb-7">
-                                {/* <p className="text-gray-500">Tour</p> */}
-                                <p className="font-bold text-2xl lg:text-3xl">{selectedTour.name}</p>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">
-                                        {selectedTour.duration} Hours
-                                    </p>
-                                    <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">
-                                        ${displayLocalPrice.toLocaleString()} USD
-                                    </p>
+            {/* --- CONFIRMATION POPUP WITH DETAILS --- */}
+            {showConfirmPopup && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 transition-opacity p-4"
+                    onClick={() => setShowConfirmPopup(false)}
+                >
+                    <div className='bg-white/10 backdrop-blur-[15px] rounded-[50px] p-[3px] shadow-[0px_0px_30px_rgba(0,0,0,0.3)]'>
+                        <div className="bg-black/50 rounded-[47px] p-5 w-[500px] max-w-[90vw] animate-in zoom-in-90 duration-300"
+                            onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-red-500/20 rounded-full text-red-500">
+                                <AlertTriangle size={24} />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white">Review Details</h3>
+                        </div>
+                        
+                        <div className="mb-6 space-y-4 text-sm">
+                            {/* Tour Name */}
+                            <div>
+                                <p className="text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">Tour</p>
+                                <p className="font-bold text-white text-base">{selectedTour?.name}</p>
+                            </div>
+                            
+                            {/* Date & Guests */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">Date & Time</p>
+                                    <p className="font-bold text-white">{format(booking.selectedDate, 'MMM d, yyyy')}</p>
+                                    <p className="font-bold text-white">at {format(booking.selectedDate, 'p')}</p>
                                 </div>
-                                {/* <div className="bg-gray-200/90 w-full mt-4 mb-0 h-px" /> */}
+                                <div>
+                                    <p className="text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">Guests</p>
+                                    <p className="font-bold text-white">{booking.totalGuests} People</p>
+                                    <p className="text-slate-400 capitalize">{booking.userType} Rate</p>
+                                </div>
                             </div>
 
-                            {/* Description & Stops Preview */}
-                            <div className="flex flex-col gap-6">
-                                <div className="bg-[#f2f2f2] rounded-[40px] p-6 m/b-6">
-                                    <p className="text-xl font-bold">Description</p>
-                                    <span className="">Explore the Andromeda Botanic Gardens and the historic Atlantis Hotel at Tent Bay. Trace the path of the old Barbados Railway and witness the power of the Atlantic at Bathsheba. See firsthand how coastal erosion is managed through engineering and nature-based solutions.</span>
-                                    <p className="text-gray-700 mt-1">{selectedTour.description}</p>
-                                </div>
+                            {/* Contact Info */}
+                            <div className="border-t border-gray-200 pt-4">
+                                <p className="text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">Contact Details</p>
+                                <p className="font-bold text-white">{booking.fullName}</p>
+                                <p className="text-white">{booking.email}</p>
+                                <p className="text-white">{booking.phone}</p>
+                            </div>
 
-                                <div>
-                                    <div className="bg-[#f2f2f2] rounded-[40px] p-6 m/b-6">
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <Flame className="w-6 h-6 text-black" />
-                                            <h2 className="text-xl font-bold text-gray-900">Intensity Rating</h2>
-                                        </div>
-
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-6 h-6 rounded-full rounded-tr-none bg-[#004c08] text-white flex items-center justify-center text-sm font-extrabold">
-                                                1
-                                            </div>
-                                            <span className="font-bold text-[#004c08]">Easy - Moderate</span>
-                                        </div>
-
-                                        <div className="flex gap-2 mt-2 ml-9">
-                                            <div className="w-3 h-3 rounded-full bg-[#004c08]"></div>
-                                            <div className="w-3 h-3 rounded-full bg-[#004c08]"></div>
-                                            <div className="w-3 h-3 rounded-full bg-[#9ca3af]"></div>
-                                            <div className="w-3 h-3 rounded-full bg-[#9ca3af]"></div>
-                                            <div className="w-3 h-3 rounded-full bg-[#9ca3af]"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    {/* <p className="text-xl font-bold mb-4">Trip Route</p> */}
-                                    <TourMap />
-                                </div>
+                            {/* Total Price */}
+                            <div className="border-t border-gray-200 pt-4 flex justify-between items-end">
+                                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Due</p>
+                                <p className="text-2xl font-extrabold text-blue-600">
+                                    {new Intl.NumberFormat('en-US', { 
+                                        style: 'currency', 
+                                        currency: booking.totals.currency 
+                                    }).format(booking.totals.total)}
+                                </p>
                             </div>
                         </div>
+
+                        <p className="text-white mb-6 font-medium text-center text-sm">Please ensure everything is correct before paying.</p>
+                        
+                        <div className="flex gap-3">
+                            <button onClick={() => setShowConfirmPopup(false)} className="flex-1 py-4 cursor-pointer rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-bold transition-colors active:scale-[.98]">
+                                Edit
+                            </button>
+                            <button onClick={handleConfirmBooking} className={`w-[60%] cursor-pointer rounded-full p-[2.5px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-[0px_0px_15px_rgba(0,0,0,.1)] active:scale-[.98] transition-transform`}>
+                                <div className='flex justify-center items-center gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[15px]'>
+                                    <p className='text-white font-bold'>Continue</p>
+                                </div>
+                            </button>
+                        </div>
+                        </div>
                     </div>
-                    <BookingForm
-                        tour={selectedTour}
-                        user={userSession?.user}
-                    // guestCount={guestCount}
-                    // onGuestChange={setGuestCount}
-                    />
                 </div>
             )}
 
-            {/* --- ALL STOPS MODAL --- */}
-            {selectedTour && (
-                <StopsModal
-                    tour={selectedTour}
-                    isOpen={isStopsModalOpen}
-                    onClose={() => setIsStopsModalOpen(false)}
-                />
+            {/* --- MAIN TOUR DETAILS & BOOKING AREA --- */}
+            {isLoading || !selectedTour ? (
+                <TourDetailsSkeleton />
+            ) : (
+                <div className="p-3 mt-8 w-[1500px] max-w-[95vw] flex flex-row max-lg:flex-col gap-10 lg:gap-20 rounded-[45px]">
+                    
+                    {/* LEFT SIDE: Info or Payment */}
+                    <div className="flex-col w-full">
+                        {!isCheckoutMode ? (
+                            <>
+                                {/* DEFAULT VIEW: Tour Details */}
+                                <TourGallery images={selectedTour.images} />
+                                <div className="w-full flex flex-col gap-4 mt-6">
+                                    <div className="mb-7">
+                                        <p className="font-bold text-2xl lg:text-3xl">{selectedTour.name}</p>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">{selectedTour.duration} Hours</p>
+                                            <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">${displayLocalPrice} USD</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-6">
+                                        <div className="bg-[#f2f2f2] rounded-[40px] p-6 lg:p-8">
+                                            <p className="text-xl font-bold mb-2">Description</p>
+                                            <p className="text-gray-700">{selectedTour.description}</p>
+                                        </div>
+                                        <div className="bg-[#f2f2f2] rounded-[40px] p-6 lg:p-8">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <Flame className="w-6 h-6 text-black" />
+                                                <h2 className="text-xl font-bold text-gray-900">Intensity Rating</h2>
+                                            </div>
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className="w-6 h-6 rounded-full rounded-tr-none bg-[#004c08] text-white flex items-center justify-center text-sm font-extrabold">1</div>
+                                                <span className="font-bold text-[#004c08]">Easy - Moderate</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <TourMap />
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                {/* CHECKOUT VIEW: Payment Flow */}
+                                {!booking.isSuccess && (
+                                    <button onClick={() => setIsCheckoutMode(false)} className="flex items-center gap-2 text-gray-500 hover:text-black mb-6 font-bold transition-colors">
+                                        <ArrowLeft className="w-5 h-5" /> Back to Tour Details
+                                    </button>
+                                )}
+                                <CheckoutPaymentFlow booking={booking} onBackToTour={() => setIsCheckoutMode(false)} />
+                            </>
+                        )}
+                    </div>
+
+                    {/* RIGHT SIDE: Booking Inputs or Order Summary */}
+                    <div className="w-full lg:w-[450px] shrink-0">
+                        {!isCheckoutMode ? (
+                            <div className="sticky top-10">
+                                <BookingFormInputs 
+                                    booking={booking} 
+                                    onReviewClick={() => {
+                                        if(!booking.fullName || !booking.email || !booking.phone) return alert("Please fill in your Contact Details.");
+                                        if(booking.totalGuests === 0) return alert("Please select at least 1 ticket.");
+                                        setShowConfirmPopup(true);
+                                    }} 
+                                />
+                            </div>
+                        ) : (
+                            <div className="sticky top-10">
+                                <OrderSummaryCard booking={booking} tour={selectedTour} />
+                            </div>
+                        )}
+                    </div>
+                </div>
             )}
 
+            {/* --- EXTRAS --- */}
+            {selectedTour && (
+                <StopsModal tour={selectedTour} isOpen={isStopsModalOpen} onClose={() => setIsStopsModalOpen(false)} />
+            )}
             <HouseRules />
-
-            <TourReviewsSection
-                tour={selectedTour}
-                user={userSession?.user}
-            />
+            <TourReviewsSection tour={selectedTour} user={userSession?.user} />
             <Footer />
         </div>
     );

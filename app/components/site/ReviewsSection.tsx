@@ -109,15 +109,15 @@ export const ReviewsSection = ({
             {/* Reviews List */}
             <div className='relative max-sm:w-[100vw] w-[90vw] max-w-[1400px] overflow-visible z-10'>
                 {/* Background Blur Blob */}
-                <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-100/30 blur-[100px] -z-10 rounded-full' />
+                {/* <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-100/30 blur-[100px] -z-10 rounded-full' /> */}
 
                 {/* Edge Blur Overlays */}
                 <div
-                    className={`pointer-events-none absolute -left-[1.5vw] top-[0px] z-50 h-[240px] w-[110px] max-sm:hidden backdrop-blur-[3px] [mask-image:linear-gradient(to_right,black_40%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
+                    className={`pointer-events-none absolute -left-[1vw] top-[0px] z-50 h-[240px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
                 />
 
                 <div
-                    className={`pointer-events-none absolute -right-[1.5vw] rotate-180 top-[0px] z-50 h-[240px] w-[110px] max-sm:hidden backdrop-blur-[3px] [mask-image:linear-gradient(to_right,black_40%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
+                    className={`pointer-events-none absolute -right-[1vw] rotate-180 top-[0px] z-50 h-[240px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
                 />
 
                 {/* Previous Button */}
@@ -163,7 +163,7 @@ export const ReviewsSection = ({
                     <div
                         ref={scrollRef}
                         onScroll={handleScroll}
-                        className='flex overflow-x-auto overflow-y-visible pb-12 pt-4 gap-6 px-4 hide-scrollbar snap-x'
+                        className='flex overflow-x-auto overflow-y-visible pb-12 pt-4 gap-6 px-4 hide-scrollbar'
                     >
                         {reviews.slice(0, 10).map((r) => (
                             <div key={r.id} className="snap-center">
