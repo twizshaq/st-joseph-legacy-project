@@ -18,8 +18,7 @@ import { CheckoutPaymentFlow, OrderSummaryCard } from "@/app/components/tours/Ch
 
 import { useTourPage } from "@/app/hooks/useTourPage";
 import { useBooking } from "@/app/hooks/useBooking";
-import { Flame, ArrowLeft } from "lucide-react";
-import { AlertTriangle } from 'lucide-react';
+import { Flame, ArrowLeft, AlertTriangle, Check } from "lucide-react";
 
 export default function ToursPage() {
     // 1. Page Level Hook (Data Fetching)
@@ -178,15 +177,50 @@ export default function ToursPage() {
                                 </div>
                             </>
                         ) : (
-                            <>
+                            <div className="animate-in fade-in duration-300">
                                 {/* CHECKOUT VIEW: Payment Flow */}
                                 {!booking.isSuccess && (
-                                    <button onClick={() => setIsCheckoutMode(false)} className="flex items-center gap-2 text-gray-500 hover:text-black mb-6 font-bold transition-colors">
+                                    <button onClick={() => setIsCheckoutMode(false)} className="flex items-center gap-2 text-gray-500 hover:text-black mb-6 font-bold transition-colors w-fit cursor-pointer active:scale-[.97]">
                                         <ArrowLeft className="w-5 h-5" /> Back to Tour Details
                                     </button>
                                 )}
+
+                                {/* --- TIMELINE PROGRESSION --- */}
+                                <div className="mb-20 w-full mt-10 mx-auto lg:mx-0">
+                                    <div className="flex items-center justify-between relative">
+                                        {/* Track Background */}
+                                        <div className="absolute left-0 top-[16px] -translate-y-1/2 w-full h-[3px] bg-gray-200 z-0 rounded-full"></div>
+                                        {/* Active Track (Fills up if success) */}
+                                        <div className={`absolute left-0 top-[16px] -translate-y-1/2 h-[3px] bg-blue-600 z-0 rounded-full transition-all duration-700 ease-out ${booking.isSuccess ? 'w-full' : 'w-1/2'}`}></div>
+
+                                        {/* Step 1: Details */}
+                                        <div className="relative z-10 flex flex-col items-center">
+                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md">
+                                                <Check size={16} strokeWidth={3} />
+                                            </div>
+                                            <span className="text-xs font-bold text-gray-900 absolute top-10 whitespace-nowrap">Details</span>
+                                        </div>
+
+                                        {/* Step 2: Payment */}
+                                        <div className="relative z-10 flex flex-col items-center">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-md transition-all duration-300 ${booking.isSuccess ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white ring-[5px] ring-blue-100'}`}>
+                                                {booking.isSuccess ? <Check size={16} strokeWidth={3} /> : '2'}
+                                            </div>
+                                            <span className={`text-xs font-bold absolute top-10 whitespace-nowrap ${booking.isSuccess ? 'text-gray-900' : 'text-blue-600'}`}>Payment</span>
+                                        </div>
+
+                                        {/* Step 3: Confirmation */}
+                                        <div className="relative z-10 flex flex-col items-center">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all duration-500 delay-300 ${booking.isSuccess ? 'bg-blue-600 text-white shadow-md' : 'bg-white border-2 border-gray-200 text-gray-400'}`}>
+                                                {booking.isSuccess ? <Check size={16} strokeWidth={3} /> : '3'}
+                                            </div>
+                                            <span className={`text-xs font-bold absolute top-10 whitespace-nowrap transition-colors duration-500 delay-300 ${booking.isSuccess ? 'text-gray-900' : 'text-gray-400'}`}>Confirmation</span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <CheckoutPaymentFlow booking={booking} onBackToTour={() => setIsCheckoutMode(false)} />
-                            </>
+                            </div>
                         )}
                     </div>
 

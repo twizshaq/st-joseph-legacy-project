@@ -20,7 +20,7 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
             <div
                 className="flex flex-col items-center cursor-pointer text-white"
             >
-                <div className="w-auto bg-transparent backdrop-blur-[3px] p-[3px] rounded-full shadow-[0px_0px_10px_rgba(0,0,0,0.1)]">
+                <div className="w-auto bg-transparent backdrop-blur-[3px] p-[3px] rounded-full shadow-[0px_0px_10px_rgba(0,0,0,0.2)]">
                     <div className="bg-black/45 rounded-full font-bold px-[12px] py-[5px]">
                         {name}
                     </div>
@@ -41,23 +41,23 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
     return (
         <div
             className="
-    group relative
-    w-[48px] h-[58px]
-    flex flex-col items-center
-    cursor-pointer
-    translate-y-[15px]
-  "
+                group relative
+                w-[48px] h-[58px]
+                flex flex-col items-center
+                cursor-pointer
+                translate-y-[15px]
+            "
         >
             <div
                 className="
-      bg-white/40 backdrop-blur-[3px]
-      rounded-full p-[3px]
-      shadow-[0px_0px_10px_rgba(0,0,0,0.1)]
-      transition-all duration-200
-      group-hover:p-0
-      group-hover:-translate-y-[2px]
-      group-hover:ring-4 group-hover:ring-blue-500
-    "
+                    bg-white/60 backdrop-blur-[3px]
+                    rounded-full p-[3px]
+                    shadow-[0px_0px_10px_rgba(0,0,0,0.2])]
+                    transition-[padding,transform,hover] duration-200
+                    group-hover:p-0
+                    group-hover:-translate-y-[1px]
+                    group-hover:ring-[3.5px] group-hover:ring-[#007BFF]
+                    "
             >
                 <div
                     style={circleStyle}
@@ -67,16 +67,16 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
 
             <div
                 className="relative
-      w-[20px] h-[20px]
-      bg-white/90
-      rotate-45
-      -mt-[15.5px]
-      group-hover:-mt-[13px]
-      rounded-[4px]
-      shadow-[0px_0px_10px_rgba(0,0,0,0.2)]
-      transition-all duration-200
-      group-hover:bg-blue-500 z-[-1]
-    "
+                    w-[20px] h-[20px]
+                    bg-white/90
+                    rotate-45
+                    -mt-[15.5px]
+                    group-hover:-mt-[13px]
+                    rounded-[4px]
+                    shadow-[0px_0px_10px_rgba(0,0,0,0.2)]
+                    transition-all duration-200
+                    group-hover:bg-[linear-gradient(to_bottom,#007BFF,#66B2FF)] z-[-1]
+                    "
             />
         </div>
 

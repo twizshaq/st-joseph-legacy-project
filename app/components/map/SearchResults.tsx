@@ -78,25 +78,48 @@ export const SearchResults = memo(function SearchResults({
 
     const toggleSort = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!mobileSearchOpen) return;
-        if (!isSortOpen && sortBtnRef.current) {
-            const rect = sortBtnRef.current.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const popupWidth = 285;
-            const margin = 10;
-            let leftPos = rect.right + window.scrollX - popupWidth;
 
-            if (leftPos + popupWidth > viewportWidth - margin) {
-                leftPos = viewportWidth - popupWidth - margin;
+        // Helper function to calculate position and open
+        const calculateAndOpenSort = () => {
+            if (sortBtnRef.current) {
+                const rect = sortBtnRef.current.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const popupWidth = 190; 
+                const margin = 10; 
+                
+                let leftPos = rect.right + window.scrollX - popupWidth;
+
+                if (leftPos + popupWidth > viewportWidth - margin) {
+                    leftPos = viewportWidth - popupWidth - margin;
+                }
+                if (leftPos < margin) leftPos = margin;
+
+                setPopupPos({
+                    top: rect.bottom + window.scrollY + 10,
+                    left: leftPos
+                });
             }
-            if (leftPos < margin) leftPos = margin;
+            setIsSortOpen(true);
+        };
 
-            setPopupPos({
-                top: rect.bottom + window.scrollY + 10,
-                left: leftPos
-            });
+        // If search is closed: open search, wait for animation to finish, then open sort
+        if (!mobileSearchOpen) {
+            handleMobileSearchTap(); // Expands the search bar
+            
+            // Wait 310ms for the duration-300 CSS transition to finish 
+            // so the button is in its final position before we calculate the popup location
+            setTimeout(() => {
+                calculateAndOpenSort();
+            }, 310);
+            return;
         }
-        setIsSortOpen(!isSortOpen);
+
+        // If search is already open, just toggle normally
+        if (isSortOpen) {
+            setIsSortOpen(false);
+        } else {
+            calculateAndOpenSort();
+        }
     };
 
     // FIXED: Memoize the scroll handler to prevent stale closures and ensure correct state updates
@@ -163,7 +186,7 @@ export const SearchResults = memo(function SearchResults({
     const showView2 = !!selectedSite;
 
     return (
-        <div className='relative w-full h-full font-sans'>
+        <div className='relative w-full h-full'>
 
             {/* --- VIEW 1: SEARCH & LIST --- */}
             <div
@@ -190,9 +213,7 @@ export const SearchResults = memo(function SearchResults({
                         ref={sortBtnRef}
                         type="button"
                         onClick={toggleSort}
-                        className={`flex gap-[8px] py-[10px] items-center justify-center absolute font-bold right-[14px] top-[3px] text-[#E0E0E0] rounded-full transition-all cursor-pointer ${isSortOpen
-                            ? 'bg-white/10 px-[10px]'
-                            : 'hover:bg-white/10 hover:px-[10px]'
+                        className={`flex gap-[8px] py-[10px] items-center justify-center absolute font-bold right-[14px] top-[3px] text-[#E0E0E0] rounded-full transition-all cursor-pointer active:scale-[.95]
                             }`}
                     >
                         Sort <Image src={sortIcon} alt="" height={22} />
@@ -301,7 +322,7 @@ export const SearchResults = memo(function SearchResults({
                                             <Link href={`/${selectedSite.slug}`} passHref>
                                                 <div className='bg-white/10 active:scale-[.98] rounded-[26px] h-[62px] min-w-[62px] p-[3px] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
                                                     <div className="bg-black/30 w-full h-full rounded-[23px] flex items-center justify-center hover:bg-black/40 transition-colors duration-200">
-                                                        <LinkIcon size={45} color="#fff" className='p-[5px]' />
+                                                        <LinkIcon size={40} color="#fff" className='p-[5px]' />
                                                     </div>
                                                 </div>
                                             </Link>
@@ -468,11 +489,11 @@ export const SearchResults = memo(function SearchResults({
                         <div className="fixed inset-0 " onClick={() => setIsSortOpen(false)} />
                         <div
                             ref={sortMenuRef}
-                            className="absolute mt-[20px] z-[60] "
+                            className="absolute mt-[0px] z-[60]"
                             style={{ top: popupPos.top, left: popupPos.left }}
                         >
-                            <div className='bg-white/10 backdrop-blur-[20px] rounded-[43px] p-[3px] shadow-[0px_0px_15px_rgba(0,0,0,0.4)]'>
-                                <div className="relative w-[300px] bg-black/40 rounded-[40px] p-6 overflow-hidden flex flex-col gap-5 text-white">
+                            <div className='bg-white/10 backdrop-blur-[20px] rounded-[38px] p-[3px] shadow-[0px_0px_15px_rgba(0,0,0,0.4)]'>
+                                <div className="relative w-[200px] bg-black/40 rounded-[35px] p-4 overflow-hidden flex flex-col gap-5 text-white">
                                     <div>
                                         <p className="text-sm text-gray-300 font-bold mb-3 uppercase tracking-wider ml-1">Sort By</p>
                                         <div className="flex flex-col gap-2">

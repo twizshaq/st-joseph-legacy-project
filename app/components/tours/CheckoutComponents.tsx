@@ -36,20 +36,20 @@ export function CheckoutPaymentFlow({ booking, onBackToTour }: { booking: any, o
 
     // Payment View
     return (
-        <div className="bg-white rounded-[40px] p-8 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-[40px]">
             <h2 className="text-3xl font-bold mb-8">Complete Your Booking</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
                 <div className="space-y-6">
-                    <div className="bg-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-blue-100">
+                    {/* <div className="bg-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-blue-100">
                         <Info className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                         <p className="text-xs text-blue-800 leading-relaxed font-medium">Cash on Arrival is not available for this tour type. Please select a digital payment method below.</p>
-                    </div>
+                    </div> */}
                     <div>
                         <h3 className="font-bold text-gray-900 mb-4">Select Payment Method</h3>
                         <div className="space-y-3">
                             <PaymentOption id="card" name="Credit / Debit Card" icon={CreditCard} selected={booking.selectedPaymentMethod === 'card'} onSelect={booking.setSelectedPaymentMethod} />
                             <PaymentOption id="paypal" name="PayPal" icon={Globe} selected={booking.selectedPaymentMethod === 'paypal'} onSelect={booking.setSelectedPaymentMethod} balance="$11.43" />
-                            <PaymentOption id="apple_pay" name="Apple Pay" icon={Smartphone} selected={booking.selectedPaymentMethod === 'apple_pay'} onSelect={booking.setSelectedPaymentMethod} needsActivation />
+                            <PaymentOption id="bimpay" name="BIMpay" icon={Smartphone} selected={booking.selectedPaymentMethod === 'bimpay'} onSelect={booking.setSelectedPaymentMethod} needsActivation />
                         </div>
                     </div>
                 </div>
