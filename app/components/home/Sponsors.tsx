@@ -1,4 +1,4 @@
-'use client'; 
+'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
@@ -63,19 +63,19 @@ export default function Sponsors() {
     const SponsorList = ({ isDuplicate = false }: { isDuplicate?: boolean }) => (
         <div className={`flex items-center shrink-0 ${isDuplicate ? 'duplicate' : ''}`}>
             {sponsors.map((sponsor) => (
-                <div 
-                    key={`${sponsor.id}-${isDuplicate ? 'dup' : 'orig'}`} 
-                    className="flex items-center mx-[15px] select-none" 
+                <div
+                    key={`${sponsor.id}-${isDuplicate ? 'dup' : 'orig'}`}
+                    className="flex items-center mx-[15px] select-none"
                 >
-                    <Image 
-                        src={getImageUrl(sponsor.image_path)} 
+                    <Image
+                        src={getImageUrl(sponsor.image_path)}
                         alt={sponsor.name}
-                        width={150} 
-                        height={80} 
+                        width={150}
+                        height={80}
                         priority={true}
                         unoptimized
                         draggable={false}
-                        className="w-auto h-[80px] object-contain max-w-none opacity-80 hover:opacity-100 transition-opacity duration-300" 
+                        className="w-auto h-[80px] object-contain max-w-none opacity-80 hover:opacity-100 transition-opacity duration-300"
                     />
                     <div className="w-[2px] h-[30px] bg-black/20 rounded-full ml-[30px] transform-gpu" />
                 </div>
@@ -97,7 +97,7 @@ export default function Sponsors() {
               className="w-[600px] max-w-[90vw] overflow-hidden select-none marquee-mask [mask-image:linear-gradient(to_right,transparent,black_var(--fade),black_calc(100%-var(--fade)),transparent)]"
               style={{ ['--fade' as any]: '100px' }}
             >
-                <div 
+                <div
                     className={`flex w-fit min-w-full transform-gpu hover:[animation-play-state:paused] fix-flicker ${isLoaded ? 'animate-marquee' : ''}`}
                 >
                     <SponsorList />

@@ -84,9 +84,9 @@ export const SearchResults = memo(function SearchResults({
             if (sortBtnRef.current) {
                 const rect = sortBtnRef.current.getBoundingClientRect();
                 const viewportWidth = window.innerWidth;
-                const popupWidth = 190; 
-                const margin = 10; 
-                
+                const popupWidth = 190;
+                const margin = 10;
+
                 let leftPos = rect.right + window.scrollX - popupWidth;
 
                 if (leftPos + popupWidth > viewportWidth - margin) {
@@ -105,8 +105,8 @@ export const SearchResults = memo(function SearchResults({
         // If search is closed: open search, wait for animation to finish, then open sort
         if (!mobileSearchOpen) {
             handleMobileSearchTap(); // Expands the search bar
-            
-            // Wait 310ms for the duration-300 CSS transition to finish 
+
+            // Wait 310ms for the duration-300 CSS transition to finish
             // so the button is in its final position before we calculate the popup location
             setTimeout(() => {
                 calculateAndOpenSort();

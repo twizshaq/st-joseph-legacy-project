@@ -64,17 +64,17 @@ export default function Footer() {
                     <div className="flex flex-col gap-1">
                         <h4 className='font-semibold mb-2'>Contact Us</h4>
                         {/* FIX: Removed invalid max-md class from href */}
-                        <Link href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:underline'>
+                        <Link href="mailto:stjoseph.legacy@deo.gov.bb" className='text-blue-200 text-sm hover:text-[#feb47b] transition-colors'>
                             stjoseph.legacy@deo.gov.bb
                         </Link>
-                        <p className='text-blue-200 text-sm'>(246) 123-4567</p>
+                        <a href="tel:(246) 438-7575" className='text-blue-200 text-sm hover:text-[#feb47b] transition-colors'>(246) 438 - 7575</a>
                     </div>
                     <div>
                         <div className='flex items-center gap-4 mt-3'>
-                            <Link href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                            <Link href="https://www.instagram.com/dem.barbados" target="_blank" rel="noopener noreferrer" className='opacity-80 hover:opacity-100 transition-opacity'>
                                 <Image src="/icons/instagram-icon.svg" alt="Instagram Icon" height={35} width={35} />
                             </Link>
-                            <Link href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:text-white'>
+                            <Link href="https://www.facebook.com/dem246/" target="_blank" rel="noopener noreferrer" className='opacity-80 hover:opacity-100 transition-opacity'>
                                 <FacebookIcon color="#FFFFFF" height={30} width={30} />
                             </Link>
                         </div>
