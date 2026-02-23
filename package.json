@@ -39,6 +39,7 @@
     "call-bound": "^1.0.4",
     "callsites": "^3.1.0",
     "caniuse-lite": "^1.0.30001727",
+    "canvas-confetti": "^1.9.4",
     "chalk": "^4.1.2",
     "cheap-ruler": "^4.0.0",
     "chownr": "^3.0.0",
@@ -335,6 +336,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.1.12",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/d3-voronoi": "^1.1.12",
     "@types/geojson": "^7946.0.16",
     "@types/geojson-vt": "^3.2.5",

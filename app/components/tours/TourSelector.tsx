@@ -47,9 +47,9 @@ const TourSelector: React.FC<TourSelectorProps> = ({
         `}
       >
         <div className="flex flex-col items-start">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5 ml-1">
+            {/* <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5 ml-1">
                 Current Journey
-            </span>
+            </span> */}
             <span className="text-lg font-bold text-slate-800 ml-1">
                 {selectedTour ? selectedTour.name : "Select Your Journey"}
             </span>
@@ -64,11 +64,11 @@ const TourSelector: React.FC<TourSelectorProps> = ({
       </button>
 
       {/* --- Dropdown Menu --- */}
-      <div className={`absolute top-[calc(100%+12px)] bg-white/40 shadow-[0px_0px_10px_rgba(0,0,0,0.2)] left-0 w-full backdrop-blur-lg rounded-[53px] p-[3px] transition-all duration-300 origin-top
+      <div className={`absolute top-[calc(100%+12px)] bg-white/40 shadow-[0px_0px_10px_rgba(0,0,0,0.1)] left-0 w-full backdrop-blur-sm rounded-[53px] p-[3px] transition-all duration-300 origin-top
         ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-4 pointer-events-none'}`}>
         <div 
           className={`
-              bg-white/60
+              bg-[#ddd]/60
               rounded-[50px]
               overflow-hidden
           `}

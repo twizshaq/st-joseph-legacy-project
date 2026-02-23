@@ -49,10 +49,19 @@ export default function ToursPage() {
     const displayLocalPrice = selectedTour ? selectedTour.local_price : 0;
 
     const handleConfirmBooking = () => {
-        setShowConfirmPopup(false);
-        setIsCheckoutMode(true); // Swap the UI!
-        window.scrollTo({ top: 1400, behavior: 'smooth' }); // Scroll user up to the checkout box cleanly
-    };
+    setShowConfirmPopup(false);
+    setIsCheckoutMode(true); 
+
+    // Wait a millisecond for React to swap the UI, then dynamically scroll
+    setTimeout(() => {
+        const checkoutElement = document.getElementById('checkout-section');
+        if (checkoutElement) {
+            // Calculates exact element position and scrolls slightly above it (- 100px for breathing room)
+            const targetPosition = checkoutElement.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+    }, 50);
+};
 
     return (
         <div className="flex flex-col items-center overflow-x-hidden text-black relative">
@@ -139,7 +148,7 @@ export default function ToursPage() {
             {isLoading || !selectedTour ? (
                 <TourDetailsSkeleton />
             ) : (
-                <div className="p-3 mt-8 w-[1500px] max-w-[95vw] flex flex-row max-lg:flex-col gap-10 lg:gap-20 rounded-[45px]">
+                <div id="checkout-section" className="p-3 mt-8 w-[1500px] max-w-[95vw] flex flex-row max-lg:flex-col gap-10 lg:gap-20 rounded-[45px]">
                     
                     {/* LEFT SIDE: Info or Payment */}
                     <div className="flex-col w-full">
@@ -185,39 +194,7 @@ export default function ToursPage() {
                                     </button>
                                 )}
 
-                                {/* --- TIMELINE PROGRESSION --- */}
-                                <div className="mb-20 w-full mt-10 mx-auto lg:mx-0">
-                                    <div className="flex items-center justify-between relative">
-                                        {/* Track Background */}
-                                        <div className="absolute left-0 top-[16px] -translate-y-1/2 w-full h-[3px] bg-gray-200 z-0 rounded-full"></div>
-                                        {/* Active Track (Fills up if success) */}
-                                        <div className={`absolute left-0 top-[16px] -translate-y-1/2 h-[3px] bg-blue-600 z-0 rounded-full transition-all duration-700 ease-out ${booking.isSuccess ? 'w-full' : 'w-1/2'}`}></div>
-
-                                        {/* Step 1: Details */}
-                                        <div className="relative z-10 flex flex-col items-center">
-                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md">
-                                                <Check size={16} strokeWidth={3} />
-                                            </div>
-                                            <span className="text-xs font-bold text-gray-900 absolute top-10 whitespace-nowrap">Details</span>
-                                        </div>
-
-                                        {/* Step 2: Payment */}
-                                        <div className="relative z-10 flex flex-col items-center">
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-md transition-all duration-300 ${booking.isSuccess ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white ring-[5px] ring-blue-100'}`}>
-                                                {booking.isSuccess ? <Check size={16} strokeWidth={3} /> : '2'}
-                                            </div>
-                                            <span className={`text-xs font-bold absolute top-10 whitespace-nowrap ${booking.isSuccess ? 'text-gray-900' : 'text-blue-600'}`}>Payment</span>
-                                        </div>
-
-                                        {/* Step 3: Confirmation */}
-                                        <div className="relative z-10 flex flex-col items-center">
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all duration-500 delay-300 ${booking.isSuccess ? 'bg-blue-600 text-white shadow-md' : 'bg-white border-2 border-gray-200 text-gray-400'}`}>
-                                                {booking.isSuccess ? <Check size={16} strokeWidth={3} /> : '3'}
-                                            </div>
-                                            <span className={`text-xs font-bold absolute top-10 whitespace-nowrap transition-colors duration-500 delay-300 ${booking.isSuccess ? 'text-gray-900' : 'text-gray-400'}`}>Confirmation</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                
 
                                 <CheckoutPaymentFlow booking={booking} onBackToTour={() => setIsCheckoutMode(false)} />
                             </div>
@@ -225,7 +202,8 @@ export default function ToursPage() {
                     </div>
 
                     {/* RIGHT SIDE: Booking Inputs or Order Summary */}
-                    <div className="w-full lg:w-[450px] shrink-0">
+                    {!(isCheckoutMode && booking.isSuccess) && (
+                        <div className="w-full lg:w-[450px] shrink-0">
                         {!isCheckoutMode ? (
                             <div className="sticky top-10">
                                 <BookingFormInputs 
@@ -242,7 +220,8 @@ export default function ToursPage() {
                                 <OrderSummaryCard booking={booking} tour={selectedTour} />
                             </div>
                         )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             )}
 

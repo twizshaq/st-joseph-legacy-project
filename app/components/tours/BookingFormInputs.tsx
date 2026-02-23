@@ -111,7 +111,7 @@ export default function BookingFormInputs({
             </div>
 
             {/* Action Button */}
-            <button onClick={onReviewClick} className={`w-full cursor-pointer rounded-full p-[2.5px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-[.98] transition-transform`}>
+            <button onClick={onReviewClick} className={`w-full cursor-pointer rounded-full p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-[.98] transition-transform`}>
                 <div className='flex justify-center items-center gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[15px]'>
                     <p className='text-white font-bold text-lg'>Review & Book</p>
                 </div>
