@@ -180,7 +180,7 @@ export default function ToursPage() {
                                             </div>
                                         </div>
                                         <div>
-                                            <TourMap />
+                                            <TourMap tourId={""} />
                                         </div>
                                     </div>
                                 </div>

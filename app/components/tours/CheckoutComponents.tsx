@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { format } from "date-fns";
-import { CreditCard, Globe, Smartphone, Wallet, Info, CheckCircle2, Copy, Check, QrCode, Lock, ShieldCheck, Ticket } from 'lucide-react';
+import { CreditCard, Globe, Smartphone, Wallet, Info, CheckCircle2, Copy, Check, Lock, ShieldCheck, Ticket } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import ReceiptIcon from '@/public/icons/receipt-icon'
 import SuccessCheckIcon from '@/public/icons/successcheck-icon';
+import TicketQR from '@/app/components/tours/TicketQR';
 
 const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
@@ -164,8 +165,11 @@ export function CheckoutPaymentFlow({ booking, tour, onBackToTour }: { booking: 
 
                     {/* Right/Bottom Area: Validation / QR */}
                     <div className="sm:w-[220px] flex flex-col items-center justify-center p-6 bg-[#FAFAFA] z-0">
-                        <div className="bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-gray-200 mb-3 group-hover:shadow-md transition-shadow">
-                            <QrCode className="w-20 h-20 sm:w-24 sm:h-24 text-gray-900" strokeWidth={1.5} />
+                        <div className="">
+                            <TicketQR 
+                                data={booking.bookingId} 
+                                className="w-full h-full drop-shadow-sm" 
+                            />
                         </div>
                         <p className="text-[10px] uppercase tracking-widest font-extrabold text-gray-400 mb-1 text-center">Scan at Gate</p>
                         <button 
@@ -251,8 +255,8 @@ export function CheckoutPaymentFlow({ booking, tour, onBackToTour }: { booking: 
                     {/* BIMPAY FIELD */}
                     {booking.selectedPaymentMethod === 'bimpay' && (
                         <div key="bimpay-form" className="flex flex-col items-center justify-center gap-2 text-center animate-in fade-in slide-in-from-bottom-2 duration-300 w-full">
-                            <div className="bg-white p-4 rounded-[30px] shadow-sm border border-gray-100">
-                                <QrCode className="w-30 h-30 text-gray-900" strokeWidth={1.5} />
+                            <div className="">
+                                <TicketQR data={''} />
                             </div>
                             <h3 className="font-extrabold text-xl text-gray-900">Scan & Pay</h3>
                             <p className="text-gray-500 font-medium max-w-sm px-4 text-sm leading-relaxed">
