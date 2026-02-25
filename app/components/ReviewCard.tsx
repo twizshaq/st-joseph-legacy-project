@@ -137,7 +137,7 @@ export const ReviewCard = ({ experience, currentUserId, onDelete, onReport }: Re
                     {needsReadMore && (
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
-                            className='text-blue-600 cursor-pointer font-bold text-sm hover:underline decoration-2 underline-offset-4 mt-2'
+                            className='text-blue-600 cursor-pointer active:scale-[.97] font-bold text-sm hover:underline decoration-2 underline-offset-4 mt-2'
                         >
                             {isExpanded ? 'Read Less' : 'Read More'}
                         </button>

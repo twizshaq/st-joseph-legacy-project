@@ -80,7 +80,7 @@ const TicketQR: React.FC<TicketQRProps> = ({ data, className, color = "#007BFF" 
                                     x={x} y={y}
                                     width={DOT_SIZE} height={DOT_SIZE}
                                     rx={DOT_SIZE * 0.35} ry={DOT_SIZE * 0.35}
-                                    fill={color}
+                                    fill={"#66B2FF"}
                                 />
                             );
                         } else {

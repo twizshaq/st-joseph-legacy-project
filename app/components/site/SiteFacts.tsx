@@ -62,7 +62,7 @@ export const SiteFacts = ({ facts }: SiteFactsProps) => {
                     Know Before You Go
                 </h2>
                 <div className='flex items-center gap-3'>
-                    {/* <div className='h-[3px] w-[65px] rounded-full bg-gradient-to-r from-[#FFA345] via-[#6193FF] to-[#78DE98]' /> */}
+                    <div className='h-[3px] w-[65px] rounded-full bg-gradient-to-r from-[#FFA345] via-[#6193FF] to-[#78DE98]' />
                     <p className='text-slate-500 font-medium text-[0.95rem] md:text-[1rem]'>
                         Quick facts for your visit.
                     </p>

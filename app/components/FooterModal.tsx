@@ -115,7 +115,7 @@ export default function Footer() {
                         <div className="h-hit w-fit flex items-center justify-end relative mb-[0px]">
                             <input
                                 type="email"
-                                className="border-[2px] border-white/10 backdrop-blur-[5px] text-white font-semibold rounded-[30px] py-[15px] pl-[20px] pr-[130px] max-w-[80vw] w-[350px] outline-none bg-black/20"
+                                className="border-[2px] border-white/10 backdrop-blur-[5px] text-white font-semibold rounded-[30px] py-[15px] pl-[20px] pr-[130px] max-w-[80vw] w-[350px] inset-shadow-[0px_0px_10px_rgba(0,0,0,.1)] outline-none bg-black/20"
                                 placeholder="Your Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}

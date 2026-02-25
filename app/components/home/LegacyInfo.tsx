@@ -158,11 +158,11 @@ export default function LegacyInfo() {
                                         </div>
                                     </div>
 
-                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
+                                    {/* <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
                           bg-[#EAF4FF] border border-[#66B2FF]/40
                           text-[#007BFF] text-[0.72rem] font-extrabold">
                                         In-person
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <p>
@@ -202,11 +202,11 @@ export default function LegacyInfo() {
                                         </div>
                                     </div>
 
-                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
+                                    {/* <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
                           bg-[#EAF4FF] border border-[#66B2FF]/40
                           text-[#007BFF] text-[0.72rem] font-extrabold">
                                         No app
-                                    </div>
+                                    </div> */}
                                 </div>
                                 <p> Open your camera, scan the QR code, and tap the link —
                                     <span className="font-extrabold"> no app needed</span>.
@@ -245,11 +245,11 @@ export default function LegacyInfo() {
                                         </div>
                                     </div>
 
-                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
+                                    {/* <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full
                           bg-[#EAF4FF] border border-[#66B2FF]/40
                           text-[#007BFF] text-[0.72rem] font-extrabold">
                                         Be ready
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <ul className="relative z-10 space-y-2">

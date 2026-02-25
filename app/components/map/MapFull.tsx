@@ -8,7 +8,7 @@ import * as turf from '@turf/turf';
 import Compass from './Compass';
 import ThreeDToggle from './ThreeDToggle';
 import { Feature, Point, FeatureCollection, Polygon, MultiPolygon } from 'geojson';
-import CustomMapMarker from './CustomMapMarker';
+import CustomMapMarker from './CustomMapMarker'; 
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 

@@ -3,11 +3,19 @@ import { Navigation } from 'lucide-react'
 import ArrowIcon from "@/public/icons/arrow-icon"
 // IMPORT YOUR SUPABASE CLIENT
 import { supabase } from '@/lib/supabaseClient'
+import TourStopsMap from '@/app/components/tours/TourStopsMap'
 
 // 1. Define what a "Stop" looks like
 interface Stop {
-  id: string
-  name: string
+    id: string
+    name: string
+    // Supabase nests related table data into an object named after the table
+    location_pins: {
+        latitude: number
+        longitude: number
+        pointimage: string
+        colorhex: string
+    }
 }
 
 // 2. Define what props the component accepts
@@ -25,23 +33,40 @@ export function TourMap({ tourId }: TourMapProps) {
 
     useEffect(() => {
         const fetchStops = async () => {
-            if (!tourId) return;
-            
+            if (!tourId) {
+                setIsLoading(false);
+                return;
+            }
             setIsLoading(true);
             
-            // We can explicitly tell Supabase what the return data looks like, 
-            // but usually TypeScript infers it. If not, the 'as' cast below handles it.
+            console.log("1. Fetching nested data for Tour ID:", tourId);
+
             const { data, error } = await supabase
                 .from('stops')
-                .select('id, name')
-                .eq('tour_id', tourId)
+                .select(`
+                    id, 
+                    name, 
+                    location_pins (
+                        latitude, 
+                        longitude,
+                        pointimage,
+                        colorhex
+                    )
+                `)
+                .eq('tour_id', tourId);
 
             if (error) {
-                console.error("Error fetching stops:", error)
+                // This will tell us if your Foreign Key is broken
+                console.error("🚨 SUPABASE ERROR:", error.message);
+                console.error("Error details:", error.details);
             } else if (data) {
-                // TypeScript now knows 'data' matches the 'Stop' shape
-                setStops(data as Stop[])
+                console.log("2. RAW Data from database:", data);
+
+                // TEMPORARY FIX: Stop filtering out the nulls so we can see the text list!
+                // We will cast the data knowing that location_pins MIGHT be null right now
+                setStops(data as unknown as Stop[]);
             }
+            
             setIsLoading(false);
         }
 
@@ -68,6 +93,21 @@ export function TourMap({ tourId }: TourMapProps) {
                     )}
                 </button>
             </div>
+
+            {stops.length > 0 && (
+                                <div className="mt-2">
+                                    <TourStopsMap 
+                                        // Flatten the data for the map component
+                                        stops={stops.map(stop => ({
+                                            id: stop.id,
+                                            name: stop.name,
+                                            lat: stop.location_pins.latitude,
+                                            lng: stop.location_pins.longitude,
+                                            pointimage: stop.location_pins.pointimage
+                                        }))} 
+                                    />
+                                </div>
+                            )}
 
             {/* Content */}
             {isExpanded && (

@@ -29,7 +29,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
         style={{ top: position.top, left: position.left }}
       >
         <div className='-translate-x-1/2 max-sm:-translate-x-21/30 max-sm:mt-[10px] mt-[30px]'>
-            <div className='bg-white/10 backdrop-blur-[10px] rounded-[48px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+            <div className='bg-white/10 backdrop-blur-[4px] rounded-[48px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
                 <div className="bg-[#000]/40 rounded-[45px] p-[7px] min-h-[300px] max-w-[90vw] w-[280px] flex flex-col items-start justify-start gap-0">
                     <p className='font-[500] text-white pt-3 px-4 text-[1.1rem]'>Notifications</p>
                     <div className='w-[90%] h-[2px] bg-white/10 rounded-full mt-[10px] self-center'/>

@@ -87,8 +87,8 @@ export function CheckoutPaymentFlow({ booking, tour, onBackToTour }: { booking: 
                     Booking Confirmed!
                 </h2>
                 <p className="text-gray-500 text-[1rem] font-medium text-center mb-8 leading-[1.4]">
-                    Your tour has been successfully booked<br className="hidden sm:block" /> 
-                    Please check your email!
+                    Your tour has been successfully booked<br /> 
+                    Please check your email for more!
                 </p>
 
                 {/* Booking Reference Pill matching the mockup */}
@@ -121,67 +121,150 @@ export function CheckoutPaymentFlow({ booking, tour, onBackToTour }: { booking: 
                 </div>
 
                 {/* --- DIGITAL TICKET --- */}
-                {/* Stacks vertically on Mobile, Horizontally side-by-side on desktop */}
-                <div className="w-full relative flex flex-col sm:flex-row bg-[#FAFAFA] rounded-[30px] border-[2px] border-gray-200 mb-8 text-left text-gray-900 shadow-sm transition-all group overflow-hidden">
+                <div className="w-full relative flex flex-col md:flex-row bg-[#EEEEEE]/0 shadow-[0px_0px_20px_rgba(0,0,0,0)] mb-10 text-left text-[#334155] transition-all z-0">
                     
-                    {/* Visual Cutouts (To make it look like a physical ticket) */}
-                    {/* Desktop cutouts */}
-                    <div className="hidden sm:block absolute top-1/2 -left-[14px] -translate-y-1/2 w-6 h-6 bg-white border-r-[2px] border-t-[2px] border-b-[2px] border-gray-200 rounded-full z-10" />
-                    <div className="hidden sm:block absolute top-1/2 -right-[14px] -translate-y-1/2 w-6 h-6 bg-white border-l-[2px] border-t-[2px] border-b-[2px] border-gray-200 rounded-full z-10" />
-                    {/* Mobile Cutouts */}
-                    <div className="sm:hidden absolute -top-[14px] right-[40%] -translate-x-1/2 w-6 h-6 bg-white border-b-[2px] border-r-[2px] border-l-[2px] border-gray-200 rounded-full z-10" />
-                    <div className="sm:hidden absolute -bottom-[14px] right-[40%] -translate-x-1/2 w-6 h-6 bg-white border-t-[2px] border-r-[2px] border-l-[2px] border-gray-200 rounded-full z-10" />
+                    {/* --- SCALLOPED WAVY EDGES (Using purely CSS radial-gradients) --- */}
+                    {/* Mobile: Top Wavy Edge */}
+                    {/* <div className="absolute top-0 left-0 w-full h-[7px] bg-[radial-gradient(circle_at_7px_0px,white_7px,transparent_7.5px)] bg-[size:18px_7px] md:hidden z-20 pointer-events-none"></div> */}
 
-                    {/* Left/Top Area: Booking Specifics */}
-                    <div className="flex-1 p-6 sm:p-8 flex flex-col justify-center border-b-[2px] sm:border-b-0 sm:border-r-[2px] border-dashed border-gray-300 bg-white z-0 relative">
-                        <div className="flex items-center gap-1.5 mb-2 opacity-60">
-                            <Ticket className="w-4 h-4 text-gray-400" />
-                            <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400">Entry Ticket</p>
+                    {/* Desktop: Left Wavy Edge */}
+                    {/* <div className="absolute top-0 left-0 w-[14px] h-full bg-[radial-gradient(circle_at_0px_14px,white_14px,transparent_14.5px)] bg-[size:14px_28px] hidden md:block z-20 pointer-events-none"></div> */}
+
+                    {/* --- LEFT / TOP AREA --- */}
+                    <div className="relative flex-1 px-4 pt-7 pb-8 md:p-10 md:py-6 md:pl-6 md:min-w-[400px] flex flex-col justify-start border-b-[2.5px] md:border-b-0 md:border-r-[3px] border-dashed border-white bg-[#EEEEEE] shadow-[0px_0px_10px_rgba(0,0,0,0)] max-sm:rounded-t-[40px] md:rounded-l-[50px] z-[30]">
+                        
+                        {/* Cutouts at the dashed divider line */}
+                        {/* Mobile Cutouts (Bottom of top section) */}
+
+                        {/* Left Side */}
+                        <div className="absolute -left-[13px] -bottom-[2px] translate-y-1/2 w-13 h-[26px] bg-white inset-shadow-[0px_5px_5px_rgba(0,0,0,.1)] rounded-t-full rotate-[90deg] md:hidden z-[10]"></div>
+                        {/* <div className="absolute -left-[51.7px] -bottom-[2px] translate-y-1/2 w-13 h-[60px] bg-white rounded-[10px] md:hidden z-[11]"></div> */}
+
+                        {/* Right Side */}
+                        <div className="absolute -right-[13px] -bottom-[2px] translate-y-1/2 w-13 h-[26px] bg-white inset-shadow-[0px_5px_5px_rgba(0,0,0,.1)] rounded-t-full rotate-[-90deg] md:hidden z-[10]"></div>
+                        {/* <div className="absolute -right-13 -bottom-[2px] translate-y-1/2 w-13 h-13 bg-white md:hidden rounded-[10px] z-20"></div>  */}
+
+
+                        {/* Desktop Cutouts (Top/Bottom of left section) */}
+                        {/* Top half-circle (white) */}
+                        <div 
+                        className="
+                            hidden md:block 
+                            absolute -top-0 right-0 translate-x-1/2 
+                            w-12 h-6 
+                            bg-white
+                            rotate-[180deg]
+                            rounded-t-full 
+                            inset-shadow-[0_5px_5px_rgba(0,0,0,0.1)] 
+                            z-20
+                        "
+                        />
+
+                        {/* Bottom half-circle (red) */}
+                        <div 
+                        className="
+                            hidden md:block 
+                            absolute -bottom-0 right-0 translate-x-1/2 
+                            w-12 h-6 
+                            bg-white 
+                            rotate-[180deg]
+                            rounded-b-full 
+                            inset-shadow-[0_-5px_5px_rgba(0,0,0,0.1)] 
+                            z-20
+                        "
+                        />
+
+                        {/* Image Cluster & Title */}
+                        <div className="flex gap-6 items-start mb-5">
+                            {/* Overlapping Images */}
+                            <div className="relative w-[90px] h-[90px] shrink-0">
+                                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=150&h=150&fit=crop" alt="Beach" className="absolute top-0 right-0 w-[50px] h-[50px] object-cover rounded-[20px] shadow-[0px_0px_7px_rgba(0,0,0,.2)] border-[2px] border-white z-10" />
+                                <img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=150&h=150&fit=crop" alt="Coast" className="absolute bottom-[5px] right-0 w-[50px] h-[50px] object-cover rounded-[20px] shadow-[0px_0px_7px_rgba(0,0,0,.2)] border-[2px] border-white z-20" />
+                                <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=150&h=150&fit=crop" alt="Sand" className="absolute top-1/2 -translate-y-1/2 left-[5px] w-[50px] h-[50px] object-cover rounded-[20px] shadow-[0px_0px_7px_rgba(0,0,0,.2)] border-[2px] border-white z-30" />
+                            </div>
+                            
+                            <div className="flex flex-col">
+                                <span className="text-[#374151]/70 text-[13px] font-medium mb-0">Tour Names</span>
+                                <h3 className="text-[1rem] font-bold text-[#334155] leading-snug">
+                                    {tour?.name || 'The Atlantic Edge & Coastal Resilience'}
+                                </h3>
+                            </div>
                         </div>
                         
-                        <h3 className="text-xl sm:text-2xl font-black text-gray-900 leading-tight mb-6 pr-4 truncate max-w-full">
-                            {tour?.name || 'Your Reserved Experience'}
-                        </h3>
-                        
-                        <div className="grid grid-cols-2 gap-y-4 gap-x-2">
-                            <div>
-                                <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-0.5">Date</p>
-                                <p className="text-sm font-bold text-gray-900">{format(booking.selectedDate, 'MMM d, yyyy')}</p>
+                        <div className='flex justify-between'>
+                            {/* ID & Date grid */}
+                            <div className="flex flex-col gap-x-4 gap-y-3 mb-6">
+                                <div className="flex flex-col">
+                                    <span className="text-[#374151]/70 text-[13px] font-medium mb-0">Ticket ID</span>
+                                    <p className="text-[1rem] font-bold text-[#334155] uppercase tracking-wide">{booking.bookingId}</p>
+                                </div>
+                                <div className="flex flex-col w-[110px]">
+                                    <div className="flex justify-between items-center mb-0">
+                                        <span className="text-[#374151]/70 text-[13px] font-medium">Date</span>
+                                        <span className="text-[#374151]/70 text-[12px] font-medium">
+                                            {format(booking.selectedDate || new Date(), 'h:mm a')}
+                                        </span>
+                                    </div>
+                                    <p className="text-[1rem] font-bold text-[#334155]">
+                                        {format(booking.selectedDate || new Date(), 'MMM do, yyyy')}
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-0.5">Time</p>
-                                <p className="text-sm font-bold text-gray-900">{format(booking.selectedDate, 'p')}</p>
-                            </div>
-                            <div className="col-span-1 pr-1">
-                                <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-0.5">Name</p>
-                                <p className="text-sm font-bold text-gray-900 truncate">{booking.fullName}</p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-0.5">Tickets</p>
-                                <p className="text-sm font-bold text-gray-900">{booking.totalGuests} Passes</p>
-                            </div>
+
+                            {/* Locations List */}
+                            {/* <div className="mb-10 w-[150px] bg-red-500/0">
+                                <span className="text-[#374151]/70 text-[13px] font-medium text-center block">Locations</span>
+                                <ul className="text-[#334155] font-semibold space-y-1 text-[.9rem] text-center marker:text-[#374151]/70">
+                                    <li>St. Elizabeth community center</li>
+                                    <li>Joe's River Bridge</li>
+                                    <li>Soup Bowl.</li>
+                                    <li>Bathsheba</li>
+                                    <li>Hill crest</li>
+                                    <li>Tent Bay & The Old Railway</li>
+                                    <li>Andromeda Botanic Gardens</li>
+                                </ul>
+                            </div> */}
+                        </div>
+
+                        {/* Thank You Note */}
+                        <div className="text-center w-full mt-auto">
+                            <p className="text-[.8rem] font-bold text-[#334155] mb-[-20px]">We Hope You Enjoy <br /> Your Trip!</p>
+                            {/* <p className="text-[10px] text-[#6B7280] font-medium leading-[1.3]">
+                                Enjoy every moment of<br/>your Bajan story.
+                            </p> */}
                         </div>
                     </div>
 
-                    {/* Right/Bottom Area: Validation / QR */}
-                    <div className="sm:w-[220px] flex flex-col items-center justify-center p-6 bg-[#FAFAFA] z-0">
-                        <div className="">
-                            <TicketQR 
-                                data={booking.bookingId} 
-                                className="w-full h-full drop-shadow-sm" 
-                            />
+                    {/* --- RIGHT / BOTTOM AREA (QR & Stats) --- */}
+                    <div className="relative px-5 py-4 pt-8 md:px-0 md:py-3 flex flex-row md:flex-col items-center justify-between md:justify-center gap-6 md:gap-0 md:w-[320px] bg-[#EEEEEE] max-sm:shrink-0 max-sm:rounded-b-[32px] md:rounded-r-[40px]">
+                        
+                        {/* Data Details (Left side on Mobile, Bottom side on Desktop) */}
+                        <div className="flex flex-col gap-5 md:mb-[10px] text-left md:items-center md:text-center md:right-0 order-1 md:order-2 w-full md:w-full md:mr-9 md:ml-12">
+                            <div>
+                                <span className="text-[#374151]/70 text-[13px] font-medium block mb-0">Name</span>
+                                <p className="text-[1rem] font-bold text-[#334155] truncate">Shaquon Hamilton</p>
+                                {/* <p className="text-[1rem] font-bold text-[#1F2937] truncate">{booking.fullName}</p> */}
+                            </div>
+                            <div className='flex w-fit gap-[30px]'>
+                                <div>
+                                    <span className="text-[#374151]/70 text-[13px] font-medium block mb-0">Total Paid</span>
+                                    <p className="text-[1rem] font-bold text-[#334155]">
+                                        {formatCurrency(booking.totals?.total || 120, booking.totals?.currency || 'BDS')}
+                                    </p>
+                                </div>
+                                <div>
+                                    <span className="text-[#374151]/70 text-[13px] font-medium block mb-0">Tickets</span>
+                                    <p className="text-[1rem] font-bold text-[#334155] ">{booking.totalGuests} Passes</p>
+                                </div>
+                            </div>
                         </div>
-                        <p className="text-[10px] uppercase tracking-widest font-extrabold text-gray-400 mb-1 text-center">Scan at Gate</p>
-                        <button 
-                            title="Click to copy Transaction ID"
-                            onClick={() => navigator.clipboard.writeText(booking.bookingId)}
-                            className="flex items-center justify-center gap-1.5 px-3 py-1 bg-gray-200/60 hover:bg-gray-200 text-gray-500 rounded-lg active:scale-95 transition-all w-fit cursor-pointer"
-                        >
-                            <Copy className="w-3 h-3"/>
-                            <p className="text-[11px] font-mono font-bold text-gray-500 uppercase truncate max-w-[100px]">{booking.bookingId}</p>
-                        </button>
-                    </div>
 
+                        {/* QR Code (Right side on Mobile, Top side on Desktop) */}
+                        <div className="absolute md:relative right-0 w-[140px] h-[140px] md:w-[170px] md:h-[170px] shrink-0 text-[#3B82F6] order-2 md:order-1">
+                            <TicketQR data={booking.bookingId} className="w-full h-full text-[#3B82F6]" />
+                        </div>
+
+                    </div>
                 </div>
 
                 {/* Big Button Reverting Home */}

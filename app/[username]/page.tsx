@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   ChevronDown,
   Image as ImageIcon,
@@ -8,16 +8,24 @@ import {
   MapPin,
   Settings,
   Trophy,
+  Camera,
+  LogOut,
+  Trash2,
+  ChevronLeft,
+  Save,
+  Loader2,
+  X,
+  User as UserIcon,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import Image from "next/image";
 import Navigation from "@/app/components/ProfileNav";
-import SettingsModal from "@/app/components/SettingsModal";
 import ArrowIcon from "@/public/icons/arrow-icon";
-import { div } from "@tensorflow/tfjs";
-import DevVerifiedBadge from '@/public/icons/verified-icon'
+import DevVerifiedBadge from "@/public/icons/verified-icon";
+
+// --- Types & Interfaces ---
 
 type ProfileTab = "All" | "Tours" | "Badges" | "Media";
 
@@ -61,6 +69,7 @@ interface BadgeItem {
   date?: string;
 }
 
+// --- Mock Data Constants (Media, Activity, Tours, Badges) ---
 const mediaData = [
   "https://i.pinimg.com/736x/8f/bb/62/8fbb625e1c77a0d60ab0477d0551b000.jpg",
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
@@ -76,144 +85,42 @@ const activityData: ActivitySection[] = [
   {
     label: "Today",
     items: [
-      {
-        type: "visit",
-        title: "Visited All Sites",
-        subtitle: 'Unlocked the "Island Explorer" badge',
-        points: 250,
-      },
-      {
-        type: "visit",
-        title: "Visited Bathsheba",
-        subtitle: 'Unlocked the "Wave Master" badge',
-        points: 250,
-      },
-      {
-        type: "upload",
-        title: "Uploaded 10 items",
-        points: 250,
-        images: mediaData.slice(0, 6),
-      },
+      { type: "visit", title: "Visited All Sites", subtitle: 'Unlocked the "Island Explorer" badge', points: 250 },
+      { type: "visit", title: "Visited Bathsheba", subtitle: 'Unlocked the "Wave Master" badge', points: 250 },
+      { type: "upload", title: "Uploaded 10 items", points: 250, images: mediaData.slice(0, 6) },
     ],
   },
   {
     label: "Yesterday",
-    items: [
-      {
-        type: "rank",
-        title: "Ranked up to #52",
-        subtitle: "Moved up 10 positions on the leaderboard",
-        points: 250,
-      },
-    ],
+    items: [{ type: "rank", title: "Ranked up to #52", subtitle: "Moved up 10 positions on the leaderboard", points: 250 }],
   },
 ];
 
 const toursData: TourItem[] = [
-  {
-    id: 1,
-    title: "The Gardens of St. Joseph Circuit",
-    date: "February 15, 2024",
-    image:
-      "https://i.pinimg.com/1200x/ea/3a/90/ea3a90596d8f097fb9111c06501aa1f8.jpg",
-    status: "Completed",
-    type: "Self-Guided",
-  },
-  {
-    id: 2,
-    title: "Cliffs, Coastlines, & Canopies",
-    date: "February 15, 2024",
-    image:
-      "https://i.pinimg.com/1200x/bb/a9/bc/bba9bc4cc096c07d70075dcb03bae5ca.jpg",
-    status: "Active",
-    type: "Custom",
-  },
-  {
-    id: 3,
-    title: "Cliffs, Coastlines, & Canopies",
-    date: "February 15, 2024",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800&auto=format&fit=crop",
-    status: "Completed",
-    type: "Self-Guided",
-  },
+  { id: 1, title: "The Gardens of St. Joseph Circuit", date: "February 15, 2024", image: "https://i.pinimg.com/1200x/ea/3a/90/ea3a90596d8f097fb9111c06501aa1f8.jpg", status: "Completed", type: "Self-Guided" },
+  { id: 2, title: "Cliffs, Coastlines, & Canopies", date: "February 15, 2024", image: "https://i.pinimg.com/1200x/bb/a9/bc/bba9bc4cc096c07d70075dcb03bae5ca.jpg", status: "Active", type: "Custom" },
+  { id: 3, title: "Cliffs, Coastlines, & Canopies", date: "February 15, 2024", image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800&auto=format&fit=crop", status: "Completed", type: "Self-Guided" },
 ];
 
 const badgesData: BadgeItem[] = [
-  {
-    id: 1,
-    name: "Beach Bum",
-    icon: "🏖️",
-    desc: "Visited 5 beaches",
-    unlocked: true,
-    date: "Oct 12",
-  },
-  {
-    id: 2,
-    name: "Trail Blazer",
-    icon: "🥾",
-    desc: "Hiked 20km total",
-    unlocked: true,
-    date: "Nov 01",
-  },
-  {
-    id: 3,
-    name: "Early Bird",
-    icon: "🌅",
-    desc: "Start a tour before 7am",
-    unlocked: true,
-    date: "Dec 15",
-  },
-  {
-    id: 4,
-    name: "Night Owl",
-    icon: "🌙",
-    desc: "Complete a night tour",
-    unlocked: false,
-  },
-  {
-    id: 5,
-    name: "Social Butterfly",
-    icon: "🦋",
-    desc: "Share 10 moments",
-    unlocked: false,
-  },
-  {
-    id: 6,
-    name: "Champion",
-    icon: "🏆",
-    desc: "Top 10 this month",
-    unlocked: true,
-    date: "Jan 03",
-  },
-  {
-    id: 7,
-    name: "Guide Star",
-    icon: "⭐",
-    desc: "Completed all guides",
-    unlocked: true,
-    date: "Jan 10",
-  },
-  {
-    id: 8,
-    name: "Lucky Clover",
-    icon: "🍀",
-    desc: "Found hidden landmark",
-    unlocked: true,
-    date: "Jan 17",
-  },
+  { id: 1, name: "Beach Bum", icon: "🏖️", desc: "Visited 5 beaches", unlocked: true, date: "Oct 12" },
+  { id: 2, name: "Trail Blazer", icon: "🥾", desc: "Hiked 20km total", unlocked: true, date: "Nov 01" },
+  { id: 3, name: "Early Bird", icon: "🌅", desc: "Start a tour before 7am", unlocked: true, date: "Dec 15" },
+  { id: 4, name: "Night Owl", icon: "🌙", desc: "Complete a night tour", unlocked: false },
+  { id: 5, name: "Social Butterfly", icon: "🦋", desc: "Share 10 moments", unlocked: false },
+  { id: 6, name: "Champion", icon: "🏆", desc: "Top 10 this month", unlocked: true, date: "Jan 03" },
+  { id: 7, name: "Guide Star", icon: "⭐", desc: "Completed all guides", unlocked: true, date: "Jan 10" },
+  { id: 8, name: "Lucky Clover", icon: "🍀", desc: "Found hidden landmark", unlocked: true, date: "Jan 17" },
 ];
 
+// --- Helper Functions ---
 const getTourBadgeClass = (tour: TourItem) => {
-  if (tour.status === "Completed") {
-    return "text-[#00A835] border-[#00A835] bg-[#00FF03]/20";
-  }
-  if (tour.status === "Active") {
-    return "text-[#208BFF] border-[#208BFF] bg-[#208BFF]/20";
-  }
+  if (tour.status === "Completed") return "text-[#00A835] border-[#00A835] bg-[#00FF03]/20";
+  if (tour.status === "Active") return "text-[#208BFF] border-[#208BFF] bg-[#208BFF]/20";
   return "text-[#FFA000] border-[#FFA000] bg-[#FFA000]/20";
 };
 
+// --- Sub-Components ---
 const TourCard = ({ tour }: { tour: TourItem }) => {
   const badgeLabel = tour.status === "Completed" ? "Completed" : tour.type;
   const [isExpanded, setIsExpanded] = useState(false);
@@ -230,75 +137,38 @@ const TourCard = ({ tour }: { tour: TourItem }) => {
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[27px]">
             <Image src={tour.image} alt={tour.title} fill className="object-cover" />
           </div>
-
           <div className="relative flex flex-1 flex-col py-1 pr-2">
             <div className="mb-1 flex items-start justify-between">
-              <span
-                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getTourBadgeClass(
-                  tour
-                )}`}
-              >
+              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getTourBadgeClass(tour)}`}>
                 {badgeLabel}
               </span>
-              <span className="mr-[3px] mt-[3px] text-[11px] font-bold text-slate-500">
-                {tour.date}
-              </span>
+              <span className="mr-[3px] mt-[3px] text-[11px] font-bold text-slate-500">{tour.date}</span>
             </div>
-
             <h3 className="mt-1 line-clamp-2 max-w-[200px] text-[1rem] font-bold leading-tight text-slate-800">
               {tour.title}
             </h3>
-
             <div className="absolute bottom-0 right-[10px] flex">
-              <span
-                className={
-                  "rotate-[180deg] text-slate-400 transition-transform duration-200 " +
-                  (isExpanded ? "rotate-0" : "rotate-[180deg]")
-                }
-                aria-hidden="true"
-              >
+              <span className={"rotate-[180deg] text-slate-400 transition-transform duration-200 " + (isExpanded ? "rotate-0" : "rotate-[180deg]")} aria-hidden="true">
                 <ArrowIcon color="#1E293B" />
               </span>
             </div>
           </div>
         </div>
-
-        {/* Expandable details */}
-        <div
-          className={
-            "grid transition-[grid-template-rows,opacity] duration-250 ease-out " +
-            (isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")
-          }
-        >
+        <div className={"grid transition-[grid-template-rows,opacity] duration-250 ease-out " + (isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")}>
           <div className="min-h-0 overflow-hidden">
             <div className="px-4 pb-4">
               <div className="mt-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-extrabold text-slate-700">
-                    Status: {tour.status}
-                  </span>
-                  <span className="rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-extrabold text-slate-700">
-                    Type: {tour.type}
-                  </span>
+                  <span className="rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-extrabold text-slate-700">Status: {tour.status}</span>
+                  <span className="rounded-full border border-white/70 bg-white/70 px-3 py-1 text-[11px] font-extrabold text-slate-700">Type: {tour.type}</span>
                 </div>
-
                 <p className="mt-3 text-[13px] font-semibold leading-relaxed text-slate-700">
-                  {/* Replace this with real tour description/details when available */}
-                  Explore this route with curated stops, photo moments, and local highlights. Tap again to collapse.
+                  Explore this route with curated stops, photo moments, and local highlights.
                 </p>
-
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-[12px] font-bold text-slate-500">
-                    Estimated time: 45–90 mins
-                  </span>
-
+                  <span className="text-[12px] font-bold text-slate-500">Estimated time: 45–90 mins</span>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-[#007BFF]/10 px-3 py-1 text-[12px] font-extrabold text-[#007BFF]">
-                      View details
-                    </span>
-                    <span className="rounded-full bg-slate-900/5 px-3 py-1 text-[12px] font-extrabold text-slate-700">
-                      Save
-                    </span>
+                    <span className="rounded-full bg-[#007BFF]/10 px-3 py-1 text-[12px] font-extrabold text-[#007BFF]">View details</span>
                   </div>
                 </div>
               </div>
@@ -310,13 +180,7 @@ const TourCard = ({ tour }: { tour: TourItem }) => {
   );
 };
 
-const ActivityCard = ({
-  item,
-  compact = false,
-}: {
-  item: ActivityItem;
-  compact?: boolean;
-}) => {
+const ActivityCard = ({ item, compact = false }: { item: ActivityItem; compact?: boolean }) => {
   let Icon = Trophy;
   let iconBg = "bg-[#FFECCF] text-[#F59E0B]";
 
@@ -329,58 +193,28 @@ const ActivityCard = ({
   }
 
   return (
-    <div
-      className={`relative overflow-hidden rounded-[30px] border-[2.5px] border-white bg-black/5 shadow-[0px_0px_20px_rgba(0,0,0,0.08)] ${
-        compact ? "px-3 py-3" : "px-4 py-3.5"
-      }`}
-    >
+    <div className={`relative overflow-hidden rounded-[30px] border-[2.5px] border-white bg-black/5 shadow-[0px_0px_20px_rgba(0,0,0,0.08)] ${compact ? "px-3 py-3" : "px-4 py-3.5"}`}>
       <div className="pointer-events-none absolute inset-y-0 left-0 w-[45%] rounded-l-[30px] bg-gradient-to-r from-slate-100/80 to-transparent" />
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex min-w-0 gap-3">
-          <div
-            className={`mt-0.5 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full ${iconBg}`}
-          >
+          <div className={`mt-0.5 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full ${iconBg}`}>
             <Icon size={16} strokeWidth={2.3} />
           </div>
           <div className="min-w-0">
-            <h4
-              className={`leading-tight text-slate-800 ${
-                compact ? "text-[16px] font-semibold" : "text-[18px] font-semibold"
-              }`}
-            >
-              {item.title}
-            </h4>
-            {item.subtitle ? (
-              <p
-                className={`mt-0.5 text-slate-500 ${
-                  compact ? "text-[12px]" : "text-[13px]"
-                }`}
-              >
-                {item.subtitle}
-              </p>
-            ) : null}
+            <h4 className={`leading-tight text-slate-800 ${compact ? "text-[16px] font-semibold" : "text-[18px] font-semibold"}`}>{item.title}</h4>
+            {item.subtitle ? <p className={`mt-0.5 text-slate-500 ${compact ? "text-[12px]" : "text-[13px]"}`}>{item.subtitle}</p> : null}
             {item.images?.length ? (
               <div className="mt-2 flex items-center gap-2">
                 {item.images.slice(0, 5).map((src, index) => (
-                  <div
-                    key={`${src}-${index}`}
-                    className="relative h-[34px] w-[34px] overflow-hidden rounded-[10px]"
-                  >
+                  <div key={`${src}-${index}`} className="relative h-[34px] w-[34px] overflow-hidden rounded-[10px]">
                     <Image src={src} alt="Uploaded media" fill className="object-cover" />
                   </div>
                 ))}
-                {item.images.length > 5 ? (
-                  <span className="text-[11px] font-semibold text-slate-500">
-                    +{item.images.length - 5}
-                  </span>
-                ) : null}
               </div>
             ) : null}
           </div>
         </div>
-        <span className="mt-0.5 text-[12px] font-semibold text-slate-600">
-          +{item.points} pts
-        </span>
+        <span className="mt-0.5 text-[12px] font-semibold text-slate-600">+{item.points} pts</span>
       </div>
     </div>
   );
@@ -389,18 +223,8 @@ const ActivityCard = ({
 const MobileMediaGrid = () => (
   <div className="columns-3 gap-2 space-y-2">
     {mediaData.map((src, i) => (
-      <div
-        key={i}
-        className="overflow-hidden rounded-[24px] break-inside-avoid"
-      >
-        <Image
-          src={src}
-          alt="User upload"
-          width={800}
-          height={800}
-          className="min-h-[100px] w-full object-full"
-          sizes="50vw"
-        />
+      <div key={i} className="overflow-hidden rounded-[24px] break-inside-avoid">
+        <Image src={src} alt="User upload" width={800} height={800} className="min-h-[100px] w-full object-full" sizes="50vw" />
       </div>
     ))}
   </div>
@@ -409,64 +233,20 @@ const MobileMediaGrid = () => (
 const DesktopMediaGrid = () => (
   <div className="columns-4 gap-3 space-y-3">
     {mediaData.map((src, i) => (
-      <div
-        key={i}
-        className="overflow-hidden rounded-[30px] break-inside-avoid"
-      >
-        <Image
-          src={src}
-          alt="Media tile"
-          width={1200}
-          height={1200}
-          className="h-auto w-full object-contain"
-          sizes="(min-width: 768px) 33vw, 100vw"
-        />
+      <div key={i} className="overflow-hidden rounded-[30px] break-inside-avoid">
+        <Image src={src} alt="Media tile" width={1200} height={1200} className="h-auto w-full object-contain" sizes="(min-width: 768px) 33vw, 100vw" />
       </div>
     ))}
   </div>
 );
 
-const DistortedRefraction = ({
-  icon,
-  className = "",
-  strength = 18,
-}: {
-  icon: string;
-  className?: string;
-  strength?: number;
-}) => {
-  const filterId = useMemo(
-    () => `turb-refraction-${Math.random().toString(36).slice(2)}`,
-    []
-  );
-
+const DistortedRefraction = ({ icon, className = "", strength = 18 }: { icon: string; className?: string; strength?: number }) => {
+  const filterId = useMemo(() => `turb-refraction-${Math.random().toString(36).slice(2)}`, []);
   return (
-    <span
-      className={
-        "pointer-events-none absolute inset-0 bg-black/5 border-2 border-white shadow-[0px_0px_15px_rgba(0,0,0,0.1)] overflow-hidden rounded-[30px] " +
-        className
-      }
-      style={className.includes("rounded-") ? undefined : undefined}
-      aria-hidden="true"
-    >
-      {/* SVG filter for animated turbulence + displacement */}
-      
-
-      {/*
-        Make the filtered layer bigger than the card so the displacement/blur never leaves
-        transparent “gaps” near the edges. The parent is overflow-hidden, so this safely clips.
-      */}
-      <span
-        className="absolute -inset-[35%] flex items-center justify-center"
-        style={{ filter: `url(#${filterId})` }}
-      >
-        <span className="translate-y-[1px] scale-[1.75] text-[40px] leading-none opacity-80 blur-[44px] saturate-200 contrast-200 mix-blend-multiply">
-          {icon}
-        </span>
-        {/* a second layer for a more glassy/prismatic feel */}
-        <span className="translate-x-[-20px] scale-[1.85] text-[40px] leading-none opacity-[0.12] blur-[2px] saturate-200 contrast-200 mix-blend-screen">
-          {icon}
-        </span>
+    <span className={"pointer-events-none absolute inset-0 bg-black/5 border-2 border-white shadow-[0px_0px_15px_rgba(0,0,0,0.1)] overflow-hidden rounded-[30px] " + className} aria-hidden="true">
+       <span className="absolute -inset-[35%] flex items-center justify-center" style={{ filter: `url(#${filterId})` }}>
+        <span className="translate-y-[1px] scale-[1.75] text-[40px] leading-none opacity-80 blur-[44px] saturate-200 contrast-200 mix-blend-multiply">{icon}</span>
+        <span className="translate-x-[-20px] scale-[1.85] text-[40px] leading-none opacity-[0.12] blur-[2px] saturate-200 contrast-200 mix-blend-screen">{icon}</span>
       </span>
     </span>
   );
@@ -474,117 +254,42 @@ const DistortedRefraction = ({
 
 const BadgesGrid = () => {
   const [selectedBadge, setSelectedBadge] = useState<BadgeItem | null>(null);
-  const sortedBadges = useMemo(
-    () => [...badgesData].sort((b, a) => Number(a.unlocked) - Number(b.unlocked)),
-    []
-  );
+  const sortedBadges = useMemo(() => [...badgesData].sort((b, a) => Number(a.unlocked) - Number(b.unlocked)), []);
 
   return (
     <>
-      {/* Icon-only responsive grid */}
       <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7">
         {sortedBadges.map((badge) => {
           const isUnlocked = badge.unlocked;
-
           return (
-            <button
-              key={badge.id}
-              type="button"
-              onClick={() => setSelectedBadge(badge)}
-              className={
-                "group relative flex aspect-square w-full items-center justify-center rounded-[26px] transition-transform active:scale-[.98]" +
-                (isUnlocked ? "" : " opacity-70 grayscale")
-              }
-              aria-label={`Open badge: ${badge.name}`}
-            >
-              {/* soft highlight */}
+            <button key={badge.id} type="button" onClick={() => setSelectedBadge(badge)} className={"group relative flex aspect-square w-full items-center justify-center rounded-[26px] transition-transform active:scale-[.98]" + (isUnlocked ? "" : " opacity-70 grayscale")}>
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/70 via-white/25 to-transparent" />
-
-              {/* inner */}
               <div className="relative flex h-full w-full items-center justify-center rounded-[22px] bg-white/55 backdrop-blur-sm">
-                {/* refraction w/ subtle turbulence distortion */}
                 <DistortedRefraction icon={badge.icon} strength={18} />
-                {/* crisp icon */}
-                <span className="relative text-[45px] mr-[2px] leading-none transition-transform duration-150 group-hover:scale-[1.06]">
-                  {badge.icon}
-                </span>
-
-                {!isUnlocked ? (
-                  <div className="pointer-events-none absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-white/70 bg-white shadow-[0px_0px_12px_rgba(0,0,0,0.12)]">
-                    <Lock size={14} className="text-slate-600" />
-                  </div>
-                ) : null}
+                <span className="relative text-[45px] mr-[2px] leading-none transition-transform duration-150 group-hover:scale-[1.06]">{badge.icon}</span>
+                {!isUnlocked && (<div className="pointer-events-none absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-white/70 bg-white shadow-[0px_0px_12px_rgba(0,0,0,0.12)]"><Lock size={14} className="text-slate-600" /></div>)}
               </div>
             </button>
           );
         })}
       </div>
-
-      {/* Details modal */}
-      {selectedBadge ? (
-        <div
-          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/30 p-4 sm:items-center"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Badge details"
-          onClick={() => setSelectedBadge(null)}
-        >
-          <div
-            className="w-full max-w-[520px] overflow-hidden rounded-[34px] border-[2.5px] border-white bg-white/80 shadow-[0px_0px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
-            onClick={(e) => e.stopPropagation()}
-          >
+      {selectedBadge && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/30 p-4 sm:items-center" onClick={() => setSelectedBadge(null)}>
+          <div className="w-full max-w-[520px] overflow-hidden rounded-[34px] border-[2.5px] border-white bg-white/80 shadow-[0px_0px_40px_rgba(0,0,0,0.18)] backdrop-blur-md" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between gap-3 px-5 py-4">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="relative flex h-[52px] w-[52px] items-center justify-center bg-white/0 shadow-[0px_0px_16px_rgba(0,0,0,0)]">
-                  <DistortedRefraction
-                    icon={selectedBadge.icon}
-                    strength={14}
-                    className="rounded-[14px]"
-                  />
-                  <span className="relative text-[34px] leading-none">{selectedBadge.icon}</span>
-                </div>
-                <div className="min-w-0">
-                  <h3 className="truncate text-[18px] font-black text-slate-800">
-                    {selectedBadge.name}
-                  </h3>
-                  <p className="mt-0.5 text-[12px] font-semibold text-slate-500">
-                    {selectedBadge.unlocked
-                      ? selectedBadge.date
-                        ? `Unlocked ${selectedBadge.date}`
-                        : "Unlocked"
-                      : "Locked"}
-                  </p>
-                </div>
+                <div className="relative flex h-[52px] w-[52px] items-center justify-center bg-white/0"><DistortedRefraction icon={selectedBadge.icon} strength={14} className="rounded-[14px]" /><span className="relative text-[34px] leading-none">{selectedBadge.icon}</span></div>
+                <div className="min-w-0"><h3 className="truncate text-[18px] font-black text-slate-800">{selectedBadge.name}</h3><p className="mt-0.5 text-[12px] font-semibold text-slate-500">{selectedBadge.unlocked ? (selectedBadge.date ? `Unlocked ${selectedBadge.date}` : "Unlocked") : "Locked"}</p></div>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedBadge(null)}
-                className="rounded-full border border-white/70 bg-white/70 px-4 py-2 text-[12px] font-extrabold text-slate-700 shadow-[0px_0px_12px_rgba(0,0,0,0.10)] hover:bg-white"
-              >
-                Close
-              </button>
+              <button type="button" onClick={() => setSelectedBadge(null)} className="rounded-full border border-white/70 bg-white/70 px-4 py-2 text-[12px] font-extrabold text-slate-700 shadow-[0px_0px_12px_rgba(0,0,0,0.10)] hover:bg-white">Close</button>
             </div>
-
             <div className="px-5 pb-5">
-              <div className="rounded-[26px] border border-white/70 bg-slate-50/70 px-4 py-4">
-                <p className="text-[14px] font-semibold leading-relaxed text-slate-700">
-                  {selectedBadge.desc}
-                </p>
-              </div>
-
-              {!selectedBadge.unlocked ? (
-                <div className="mt-3 flex items-center gap-2 rounded-[22px] border border-white/70 bg-white/70 px-4 py-3">
-                  <Lock size={16} className="text-slate-600" />
-                  <p className="text-[12px] font-extrabold text-slate-600">
-                    Keep exploring to unlock this badge.
-                  </p>
-                </div>
-              ) : null}
+              <div className="rounded-[26px] border border-white/70 bg-slate-50/70 px-4 py-4"><p className="text-[14px] font-semibold leading-relaxed text-slate-700">{selectedBadge.desc}</p></div>
+              {!selectedBadge.unlocked && (<div className="mt-3 flex items-center gap-2 rounded-[22px] border border-white/70 bg-white/70 px-4 py-3"><Lock size={16} className="text-slate-600" /><p className="text-[12px] font-extrabold text-slate-600">Keep exploring to unlock this badge.</p></div>)}
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </>
   );
 };
@@ -593,14 +298,7 @@ const DesktopBadgesPanel = () => (
   <div className="rounded-[40px] border-[2.5px] w-[350px] border-white bg-black/5 pt-3 p-4 shadow-[0px_0px_20px_rgba(0,0,0,0.1)]">
     <h3 className="mb-3 text-[22px] font-semibold text-slate-800 ml-[4px]">Badges</h3>
     <div className="grid grid-cols-4 gap-2.5">
-      {badgesData.slice(0, 12).map((badge) => (
-        <div
-          key={badge.id}
-          className="flex h-[50px] w-[50px] items-center justify-center rounded-[18px] bg-white/0 text-[35px]"
-        >
-          {badge.icon}
-        </div>
-      ))}
+      {badgesData.slice(0, 12).map((badge) => <div key={badge.id} className="flex h-[50px] w-[50px] items-center justify-center rounded-[18px] bg-white/0 text-[35px]">{badge.icon}</div>)}
     </div>
   </div>
 );
@@ -611,23 +309,10 @@ const DesktopToursPanel = () => (
     <div className="space-y-3">
       {toursData.map((tour) => (
         <div key={tour.id} className="flex gap-2.5">
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[20px]">
-            <Image src={tour.image} alt={tour.title} fill className="object-cover" />
-          </div>
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[20px]"><Image src={tour.image} alt={tour.title} fill className="object-cover" /></div>
           <div className="flex min-w-0 flex-1 flex-col">
-            <div className="mb-1 flex items-center justify-between gap-1">
-              <span
-                className={`rounded-full border px-1.5 py-[1px] text-[9px] font-semibold ${getTourBadgeClass(
-                  tour
-                )}`}
-              >
-                {tour.status === "Completed" ? "Completed" : tour.type}
-              </span>
-              <span className="text-[10px] font-medium text-slate-400">{tour.date}</span>
-            </div>
-            <p className="line-clamp-2 text-[1rem] font-medium text-slate-800">
-              {tour.title}
-            </p>
+            <div className="mb-1 flex items-center justify-between gap-1"><span className={`rounded-full border px-1.5 py-[1px] text-[9px] font-semibold ${getTourBadgeClass(tour)}`}>{tour.status === "Completed" ? "Completed" : tour.type}</span><span className="text-[10px] font-medium text-slate-400">{tour.date}</span></div>
+            <p className="line-clamp-2 text-[1rem] font-medium text-slate-800">{tour.title}</p>
           </div>
         </div>
       ))}
@@ -635,9 +320,163 @@ const DesktopToursPanel = () => (
   </div>
 );
 
+// --- NEW COMPONENT: Settings View (Inlined to replace Modal) ---
+const ProfileSettingsView = ({
+  user,
+  profile,
+  onSave,
+  onCancel,
+  onLogout,
+  onDeleteAccount,
+  isSaving,
+}: {
+  user: User;
+  profile: UserProfile | null;
+  onSave: (u: string, b: string, p: boolean, f: File | null) => Promise<void>;
+  onCancel: () => void;
+  onLogout: () => void;
+  onDeleteAccount: () => void;
+  isSaving: boolean;
+}) => {
+  const [username, setUsername] = useState(profile?.username || "");
+  const [bio, setBio] = useState(profile?.bio || "");
+  const [isPrivate, setIsPrivate] = useState(profile?.is_private ?? false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const displayAvatar = previewUrl || profile?.avatar_url || `https://api.dicebear.com/9.x/initials/svg?seed=${username}`;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  return (
+    <div className="w-full">
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-6">
+            <button 
+                onClick={onCancel}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+            >
+                <ChevronLeft size={24} className="text-slate-600" />
+            </button>
+            <h1 className="text-3xl font-bold text-slate-800">Settings</h1>
+        </div>
+
+      <div className="grid grid-cols-1 gap-6 w-full max-w-[700px]">
+        {/* Avatar Section */}
+        <div className="flex items-center gap-6 rounded-[32px] bg-white p-2">
+            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <div className="relative h-28 w-28 overflow-hidden rounded-full border-4 border-slate-50 shadow-sm">
+                <Image src={displayAvatar} alt="Avatar" fill className="object-cover" />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                <Camera className="text-white" size={24} />
+            </div>
+            </div>
+            <div>
+            <h3 className="text-lg font-bold text-slate-800">Profile Picture</h3>
+            <p className="text-sm text-slate-500 mb-2">Tap to change your photo</p>
+            <button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()}
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+            >
+                Upload New
+            </button>
+            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+            </div>
+        </div>
+
+        {/* Info Section */}
+        <div className="space-y-5 bg-white p-1 rounded-[32px]">
+            <div className="space-y-2">
+            <label className="text-sm font-bold uppercase tracking-wider text-slate-500 ml-4">Username</label>
+            <div className="flex items-center rounded-full border-2 border-slate-100 bg-slate-50 px-4 focus-within:border-blue-500 focus-within:bg-white transition-colors">
+                <span className="text-slate-400">@</span>
+                <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-transparent px-2 py-3.5 text-slate-800 outline-none font-medium placeholder:text-slate-400"
+                placeholder="username"
+                />
+            </div>
+            </div>
+
+            <div className="space-y-2">
+            <label className="text-sm font-bold uppercase tracking-wider text-slate-500 ml-4">Bio</label>
+            <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                className="w-full rounded-[24px] border-2 border-slate-100 bg-slate-50 p-4 text-slate-800 outline-none transition-colors focus:border-blue-500 focus:bg-white font-medium min-h-[120px] resize-none"
+                placeholder="Tell us about yourself..."
+            />
+            </div>
+        </div>
+
+        {/* Privacy Toggle */}
+        <div className="flex items-center justify-between rounded-[32px] border-2 border-slate-100 bg-white p-5">
+            <div className="flex gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                <Lock size={20} />
+            </div>
+            <div>
+                <h4 className="text-lg font-bold text-slate-800">Private Profile</h4>
+                <p className="text-sm text-slate-500">Only approved followers can see your activity</p>
+            </div>
+            </div>
+            <button
+            onClick={() => setIsPrivate(!isPrivate)}
+            className={`relative h-8 w-14 rounded-full transition-colors ${isPrivate ? "bg-blue-600" : "bg-slate-200"}`}
+            >
+            <div className={`absolute top-1 h-6 w-6 rounded-full bg-white transition-all shadow-sm ${isPrivate ? "left-7" : "left-1"}`} />
+            </button>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-3 pt-4">
+            <button
+            onClick={() => onSave(username, bio, isPrivate, avatarFile)}
+            disabled={isSaving}
+            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-blue-600 py-4 text-base font-bold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 active:scale-[0.98] disabled:opacity-70 transition-all"
+            >
+            {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+            Save Changes
+            </button>
+            <button
+            onClick={onCancel}
+            className="rounded-full bg-slate-100 px-6 py-4 font-bold text-slate-600 hover:bg-slate-200 active:scale-[0.98] transition-colors"
+            >
+            Cancel
+            </button>
+        </div>
+
+        <div className="mt-8 border-t border-slate-100 pt-8 space-y-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Account Actions</h3>
+            <button onClick={onLogout} className="flex w-full items-center gap-3 rounded-[20px] border border-slate-200 p-4 text-left font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+            <LogOut size={20} />
+            Log Out
+            </button>
+            <button onClick={onDeleteAccount} className="flex w-full items-center gap-3 rounded-[20px] border border-red-100 bg-red-50 p-4 text-left font-bold text-red-600 hover:bg-red-100 transition-colors">
+            <Trash2 size={20} />
+            Delete Account
+            </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- MAIN PAGE COMPONENT ---
 export default function UserProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("All");
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false); // Controls view mode now
   const [isSaving, setIsSaving] = useState(false);
 
   const supabase = createClient();
@@ -676,7 +515,7 @@ export default function UserProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
-    // Delete logic here.
+    // Delete logic here
   };
 
   const handleUpdateProfile = async (
@@ -701,9 +540,7 @@ export default function UserProfilePage() {
 
         if (uploadError) throw uploadError;
 
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
         finalAvatarUrl = publicUrl;
       }
 
@@ -732,7 +569,7 @@ export default function UserProfilePage() {
           : null
       );
 
-      setIsSettingsOpen(false);
+      setIsSettingsOpen(false); // Switch view back to profile
 
       if (profile?.username !== newUsername) {
         router.push(`/${newUsername}`);
@@ -746,259 +583,151 @@ export default function UserProfilePage() {
   };
 
   const displayUsername = profile?.username || "explorer";
-  const userAvatarUrl =
-    profile?.avatar_url ||
-    `https://api.dicebear.com/9.x/initials/svg?seed=${displayUsername}`;
+  const userAvatarUrl = profile?.avatar_url || `https://api.dicebear.com/9.x/initials/svg?seed=${displayUsername}`;
   const isOwnProfile = !!(currentUser && profile && currentUser.id === profile.id);
   const isContentVisible = isOwnProfile || !profile?.is_private;
+  const desktopTab: "All" | "Media" = useMemo(() => (activeTab === "Media" ? "Media" : "All"), [activeTab]);
 
-  const desktopTab: "All" | "Media" = useMemo(
-    () => (activeTab === "Media" ? "Media" : "All"),
-    [activeTab]
-  );
+  if (loading) return null; // Or a loading spinner
 
-  if (loading) return null;
-
-return (
+  return (
     <div className="relative flex flex-row-reverse min-h-screen gap-0 overflow-x-hidden bg-white justify-center md:pl-[92px] xl:pl-[240px]">
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        initialAvatarUrl={userAvatarUrl}
-        initialUsername={profile?.username || ""}
-        initialBio={profile?.bio || ""}
-        initialIsPrivate={profile?.is_private ?? false}
-        onSave={handleUpdateProfile}
-        onLogout={handleLogout}
-        onDeleteAccount={handleDeleteAccount}
-        isSaving={isSaving}
-      />
-
+      
+      {/* Navigation - Always Visible */}
       <div className="relative z-50 pointer-events-none">
         <div className="pointer-events-auto">
           <Navigation />
         </div>
       </div>
+
       <div className="mx-auto flex w-full max-w-[1100px] flex-row-reverse gap-20 px-4 sm:px-6 max-[970px]:gap-0">
-      <div className="max-[970px]:hidden mt-[190px] shrink-0 space-y-4 bg-pink-500/0">
+        
+        {/* RIGHT SIDE PANELS - Hidden on mobile or settings view */}
+        {!isSettingsOpen && (
+             <div className="max-[970px]:hidden mt-[190px] shrink-0 space-y-4 bg-pink-500/0">
                 <DesktopBadgesPanel />
                 <DesktopToursPanel />
-              </div>
-
-      <div className="w-full min-w-0 flex-1 bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px]">
-        <div className="relative rounded-[32px] bg-transparent p-0 shadow-none">
-          <div className="flex items-start gap-4">
-            <div className="relative max-sm:h-[90px] max-sm:w-[90px] h-[100px] w-[100px] shrink-0 overflow-hidden rounded-full">
-              <Image src={userAvatarUrl} alt="User avatar" fill className="object-cover" unoptimized />
             </div>
+        )}
 
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-3 bg-red-500/0">
-                <div className="min-w-0 flex items-center gap-[5px] bg-green-500/0">
-                  <h1 className="truncate text-[27px] font-bold text-[#1e293b]">
-                    {profile?.username || displayUsername}
-                  </h1>
-                  <DevVerifiedBadge />
-                  {/* <p className="text-[12px] font-semibold text-[#1e293b] mt-2">Developer</p> */}
-                </div>
-                <div className="flex items-center gap-2">
-                  {/* <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500">
-                    {profile?.is_private ? "Private" : "Public"}
-                  </span> */}
-                  {isOwnProfile ? (
-                    <button
-                      onClick={() => setIsSettingsOpen(true)}
-                      className="rounded-fulld p-1.5 h-[40px] flex items-center text-slate-500 transition-colors hover:bg-white hover:text-slate-700"
-                      aria-label="Open settings"
-                    >
-                      <Settings size={25} />
-                    </button>
-                  ) : null}
-                </div>
-              </div>
+        {/* MAIN CONTENT AREA */}
+        <div className={`w-full min-w-0 flex-1 bg-red-500/0 px-0 pb-24 mt-[190px] max-sm:mt-[110px] ${isSettingsOpen ? 'max-w-[800px] mx-auto' : ''}`}>
+            
+          {/* Conditional Rendering: Either Settings Form OR Profile View */}
+          {isSettingsOpen && currentUser ? (
+            
+            // --- SETTINGS VIEW ---
+            <ProfileSettingsView 
+                user={currentUser}
+                profile={profile}
+                onSave={handleUpdateProfile}
+                onCancel={() => setIsSettingsOpen(false)}
+                onLogout={handleLogout}
+                onDeleteAccount={handleDeleteAccount}
+                isSaving={isSaving}
+            />
 
-              {/* <div className="mt-2 flex items-center gap-2 text-slate-700">
-                <Instagram size={17} />
-                <Github size={17} />
-                <Youtube size={18} />
-                <Facebook size={17} />
-              </div> */}
+          ) : (
 
-              {/* <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p> */}
+            // --- PROFILE VIEW ---
+            <>
+              <div className="relative rounded-[32px] bg-transparent p-0 shadow-none">
+                <div className="flex items-start gap-4">
+                  <div className="relative max-sm:h-[90px] max-sm:w-[90px] h-[100px] w-[100px] shrink-0 overflow-hidden rounded-full">
+                    <Image src={userAvatarUrl} alt="User avatar" fill className="object-cover" unoptimized />
+                  </div>
 
-              <div className="flex justify-between items-center bg-blue-500/0 w-[95%] max-w-[300px] max-sm:max-w-[90vw] mt-1">
-                <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">#1</span> Rank</p>
-                <div className="rounded-full h-[15px] w-[2px] bg-black/7"/>
-                <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">12</span> Badges</p>
-                <div className="rounded-full h-[15px] w-[2px] bg-black/7"/>
-                <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">46</span> Media</p>
-              </div>
-
-              {/* <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p> */}
-
-              {/* <p className="max-sm:hidden mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">
-                {profile?.bio || ""}
-              </p> */}
-            </div>
-          </div>
-          {/* <p className="text-[12px] font-semibold text-slate-700 mt-2 flex gap-[5px] items-center"><DevIcon/> Developer</p> */}
-          <p className="mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">
-                {profile?.bio || ""}
-              </p>
-
-          <div className="mt-5 h-[2px] bg-black/5" />
-        </div>
-
-        {isContentVisible ? (
-          <>
-            <div className="hidden min-[971px]:grid min-[971px]:grid-cols-[minmax(0,1fr)_0px] min-[971px]:gap-0">
-              <div className="bg-blue-500/0 w-full">
-                <div className="mt-4 flex justify-center">
-                  <div className="relative inline-flex h-[55px] w-[200px] items-center rounded-full border-white border-2 bg-black/5 p-1.5 shadow-[0px_0px_20px_rgba(0,0,0,0.15)]">
-                    <button
-                      onClick={() => setActiveTab("All")}
-                      className={`z-10 rounded-full px-5 py-0 cursor-pointer active:scale-[-] text-[15px] bg-red-500/0 font-semibold transition-colors ${
-                        desktopTab === "All" ? "text-white" : "text-slate-500"
-                      }`}
-                    >
-                      Activity
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("Media")}
-                      className={`z-10 flex items-center gap-1 cursor-pointer rounded-full px-5 py-2 text-[15px] font-semibold transition-colors ${
-                        desktopTab === "Media" ? "text-white" : "text-slate-500 ml-[7px]"
-                      }`}
-                    >
-                      Media
-                      {desktopTab === "Media" ? <ChevronDown size={16} /> : null}
-                    </button>
-
-                    <div
-                      className={`pointer-events-none absolute h-[40px] rounded-full bg-[#007BFF] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] transition-all duration-200 ${
-                        desktopTab === "All"
-                          ? "w-[90px]"
-                          : "right-1.5 w-[90px]"
-                      }`}
-                    />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3 bg-red-500/0">
+                      <div className="min-w-0 flex items-center gap-[5px] bg-green-500/0">
+                        <h1 className="truncate text-[27px] font-bold text-[#1e293b]">{profile?.username || displayUsername}</h1>
+                        <DevVerifiedBadge />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isOwnProfile && (
+                          <button onClick={() => setIsSettingsOpen(true)} className="rounded-full p-1.5 h-[40px] flex items-center text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700" aria-label="Open settings">
+                            <Settings size={25} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center bg-blue-500/0 w-[95%] max-w-[300px] max-sm:max-w-[90vw] mt-1">
+                      <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">#1</span> Rank</p>
+                      <div className="rounded-full h-[15px] w-[2px] bg-black/7"/>
+                      <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">12</span> Badges</p>
+                      <div className="rounded-full h-[15px] w-[2px] bg-black/7"/>
+                      <p className="flex flex-col font-medium text-slate-700 text-[.9rem] text-center gap-[0px]"><span className="font-bold">46</span> Media</p>
+                    </div>
                   </div>
                 </div>
+                
+                <p className="mt-2 max-w-[620px] text-[15px] leading-relaxed font-[500] text-slate-700">{profile?.bio || ""}</p>
+                <div className="mt-5 h-[2px] bg-black/5" />
+              </div>
 
-                <div className="mt-6">
-                  {desktopTab === "Media" ? (
-                    <div className="">
-                    <DesktopMediaGrid />
-                    </div>
-                  ) : (
-                    <div className="space-y-5">
-                      {activityData.map((section) => (
-                        <div key={section.label} className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-[20px] font-semibold text-slate-800">
-                              {section.label}
-                            </h3>
-                            {/* {section.label === "Today" ? (
-                              <button className="flex items-center gap-1 text-[18px] font-medium text-[#007BFF]">
-                                Show more
-                                <ChevronDown size={16} />
-                              </button>
-                            ) : null} */}
-                          </div>
-                          {section.items.map((item, index) => (
-                            <ActivityCard key={`${section.label}-${index}`} item={item} />
-                          ))}
+              {/* TABS & GRIDS */}
+              {isContentVisible ? (
+                <>
+                  <div className="hidden min-[971px]:grid min-[971px]:grid-cols-[minmax(0,1fr)_0px] min-[971px]:gap-0">
+                    <div className="bg-blue-500/0 w-full">
+                      <div className="mt-4 flex justify-center">
+                        <div className="relative inline-flex h-[55px] w-[200px] items-center rounded-full border-white border-2 bg-black/5 p-1.5 shadow-[0px_0px_20px_rgba(0,0,0,0.15)]">
+                          <button onClick={() => setActiveTab("All")} className={`z-10 rounded-full px-5 py-0 cursor-pointer text-[15px] bg-red-500/0 font-semibold transition-colors ${desktopTab === "All" ? "text-white" : "text-slate-500"}`}>Activity</button>
+                          <button onClick={() => setActiveTab("Media")} className={`z-10 flex items-center gap-1 cursor-pointer rounded-full px-5 py-2 text-[15px] font-semibold transition-colors ${desktopTab === "Media" ? "text-white" : "text-slate-500 ml-[7px]"}`}>Media{desktopTab === "Media" ? <ChevronDown size={16} /> : null}</button>
+                          <div className={`pointer-events-none absolute h-[40px] rounded-full bg-[#007BFF] shadow-[0px_0px_10px_rgba(0,0,0,0.15)] transition-all duration-200 ${desktopTab === "All" ? "w-[90px]" : "right-1.5 w-[90px]"}`} />
                         </div>
-                      ))}
+                      </div>
+
+                      <div className="mt-6">
+                        {desktopTab === "Media" ? (
+                          <DesktopMediaGrid />
+                        ) : (
+                          <div className="space-y-5">
+                            {activityData.map((section) => (
+                              <div key={section.label} className="space-y-3">
+                                <div className="flex items-center justify-between"><h3 className="text-[20px] font-semibold text-slate-800">{section.label}</h3></div>
+                                {section.items.map((item, index) => <ActivityCard key={`${section.label}-${index}`} item={item} />)}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
-            
-            </div>
+                  </div>
 
-            <div className="min-[971px]:hidden">
-              <div className="mt-6 flex justify-center">
-                <div className="inline-flex rounded-full border-[3px] border-white bg-black/4 p-1.5 shadow-[0px_0px_10px_rgba(0,0,0,0.08)] justify-between">
-                  {(
-                    [
-                      { value: "All", label: "Activity" },
-                      { value: "Media", label: "Media" },
-                      { value: "Badges", label: "Badges" },
-                      { value: "Tours", label: "Tours" },
-                    ] as const
-                  ).map((tab) => (
-                    <button
-                      key={tab.value}
-                      onClick={() => setActiveTab(tab.value)}
-                      className={`cursor-pointer rounded-full px-4 py-3 text-sm font-bold active:scale-[.97] ${
-                        activeTab === tab.value
-                          ? "bg-[#007BFF] px-[20px] text-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]"
-                          : "text-slate-500 hover:text-slate-800"
-                      }`}
-                    >
-                      <span className="inline-flex items-center gap-0">
-                        {tab.label}
-                        {tab.value === "Media" && activeTab === "Media" ? (
-                          <ChevronDown size={20} className="mr-[-10px]"/>
-                        ) : null}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6">
-                {activeTab === "All" ? (
-                  <div className="space-y-7">
-                    {activityData.map((section) => (
-                      <div key={section.label} className="space-y-3">
-                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
-                          {section.label}
-                        </h3>
-                        {section.items.map((item, index) => (
-                          <ActivityCard
-                            key={`${section.label}-mobile-${index}`}
-                            item={item}
-                            compact
-                          />
+                  {/* MOBILE TABS */}
+                  <div className="min-[971px]:hidden">
+                    <div className="mt-6 flex justify-center">
+                      <div className="inline-flex rounded-full border-[3px] border-white bg-black/4 p-1.5 shadow-[0px_0px_10px_rgba(0,0,0,0.08)] justify-between">
+                        {(["All", "Media", "Badges", "Tours"] as const).map((tab) => (
+                          <button key={tab} onClick={() => setActiveTab(tab)} className={`cursor-pointer rounded-full px-4 py-3 text-sm font-bold active:scale-[.97] ${activeTab === tab ? "bg-[#007BFF] px-[20px] text-white shadow-[0px_0px_10px_rgba(0,0,0,0.1)]" : "text-slate-500 hover:text-slate-800"}`}>
+                             <span className="inline-flex items-center gap-0">{tab === "All" ? "Activity" : tab}{tab === "Media" && activeTab === "Media" && <ChevronDown size={20} className="mr-[-10px]"/>}</span>
+                          </button>
                         ))}
                       </div>
-                    ))}
+                    </div>
+                    <div className="mt-6">
+                      {activeTab === "All" && <div className="space-y-7">{activityData.map((section) => (<div key={section.label} className="space-y-3"><h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{section.label}</h3>{section.items.map((item, index) => <ActivityCard key={`${section.label}-mobile-${index}`} item={item} compact />)}</div>))}</div>}
+                      {activeTab === "Tours" && <div className="flex flex-col gap-3 bg-red-500/0">{toursData.map((tour) => <TourCard key={tour.id} tour={tour} />)}</div>}
+                      {activeTab === "Badges" && <BadgesGrid />}
+                      {activeTab === "Media" && <MobileMediaGrid />}
+                    </div>
                   </div>
-                ) : null}
-
-                {activeTab === "Tours" ? (
-                  <div className="flex flex-col gap-3 bg-red-500/0">
-                    {toursData.map((tour) => (
-                      <TourCard key={tour.id} tour={tour} />
-                    ))}
+                </>
+              ) : (
+                <div className="mt-8 flex w-full justify-center">
+                  <div className="flex w-full max-w-3xl flex-col items-center justify-center rounded-[35px] text-center">
+                    <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-slate-200"><Lock size={32} className="text-slate-500" /></div>
+                    <h2 className="mb-2 text-xl font-black text-slate-800">This account is private</h2>
+                    <p className="max-w-[300px] text-sm font-medium leading-relaxed text-slate-500">{displayUsername} has restricted access.</p>
                   </div>
-                ) : null}
+                </div>
+              )}
+            </>
+          )}
 
-                {activeTab === "Badges" ? <BadgesGrid /> : null}
-                {activeTab === "Media" ? <MobileMediaGrid /> : null}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="mt-8 flex w-full justify-center">
-            <div className="flex w-full max-w-3xl flex-col items-center justify-center rounded-[35px] text-center">
-              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-slate-200">
-                <Lock size={32} className="text-slate-500" />
-              </div>
-              <h2 className="mb-2 text-xl font-black text-slate-800">This account is private</h2>
-              <p className="max-w-[300px] text-sm font-medium leading-relaxed text-slate-500">
-                {displayUsername} has restricted access to their{" "}
-                {activeTab === "Media"
-                  ? "photos and videos"
-                  : activeTab === "All"
-                  ? "activity"
-                  : activeTab.toLowerCase()}
-                .
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
       </div>
     </div>
   );

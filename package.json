@@ -9,7 +9,7 @@
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.87.1",
     "@tensorflow/tfjs": "^4.22.0",
-    "@turf/turf": "^7.2.0",
+    "@turf/turf": "^7.3.4",
     "acorn": "^8.15.0",
     "acorn-jsx": "^5.3.2",
     "ajv": "^6.12.6",
