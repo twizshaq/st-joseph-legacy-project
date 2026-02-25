@@ -1,79 +1,92 @@
-import React from 'react'
+"use client"
+
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { TourImage } from '@/app/types/tours'
+import { useTourPage } from "@/app/hooks/useTourPage";
 
 interface TourGalleryProps {
     images: TourImage[]
 }
 
 export function TourGallery({ images }: TourGalleryProps) {
+
+    const {
+            tours, selectedTour, setSelectedTour, userSession, isLoading,
+            isSelectorOpen, setIsSelectorOpen, isStopsModalOpen, setIsStopsModalOpen
+        } = useTourPage();
+    const displayLocalPrice = selectedTour ? selectedTour.local_price : 0;
+
+    const [currentIndex, setCurrentIndex] = useState(1);
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const scrollLeft = e.currentTarget.scrollLeft;
+        const width = e.currentTarget.offsetWidth;
+        const newIndex = Math.round(scrollLeft / width) + 1;
+        if (newIndex !== currentIndex) {
+            setCurrentIndex(newIndex);
+        }
+    };
+
     // Guard clause if no images are provided
     if (!images || images.length === 0) {
-        return 
-        <div className="h-[400px] w-full bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">No images available</div>
+        return (
+            <div className="h-[400px] w-full rounded-xl flex items-center justify-center text-gray-400">
+                No images available
+            </div>
+        )
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 h-[300px] md:h-[400px] w-full">
-            {/* Main Large Image (First Image) */}
-            <div className="md:col-span-2 h-full relative rounded-[40px] overflow-hidden group">
-                <Image
-                    src={images[0].url}
-                    alt="Main Tour View"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    priority
-                />
-                <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors" />
+        <div className="mb-8 h-[400px] md:h-[450px] w-full relative overflow-hidden border-white border-[3px] shadow-[0px_-10px_20px_rgba(0,0,0,0.2)] rounded-[43px]">
+            {/* 
+                The Scroll Container:
+                - 'flex overflow-x-auto': Enables horizontal scrolling
+                - 'snap-x snap-mandatory': Ensures the "swipe" effect (snaps to images)
+                - 'scrollbar-hide': Custom utility or the inline [&::-webkit-scrollbar] logic to hide bars
+            */}
+            <div className="absolute top-4 right-4 z-20 bg-white/10 backdrop-blur-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] text-[.9rem] text-white p-[2.5px] rounded-full font-medium pointer-events-none">
+                <div className='bg-black/40 px-3 py-1 rounded-full'>
+                    {currentIndex} / {images.length}
+                </div>
             </div>
 
-            {/* Side Stack (Next 2 Images) */}
-            <div className="hidden md:flex flex-col gap-4 h-full">
+            <div className='absolute z-[20] bottom-0 rounded-b-[40px] bg-black/40 h-[160px] w-full [mask-image:linear-gradient(to_top,black_40%,transparent)]'/>
 
-                {/* Top Right Image */}
-                <div className="flex-1 relative rounded-[40px] overflow-hidden group">
-                    {images[1] ? (
+            <div className="absolute p-5 z-[20] bottom-0 rounded-b-[40px] w-full">
+                                        <p className="font-bold text-white text-2xl lg:text-3xl drop-shadow-[0px_0px_5px_rgba(0,0,0,0.3)]">{selectedTour?.name}</p>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {/* <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">{selectedTour.duration} Hours</p> */}
+
+                                            <div className="bg-white/10 backdrop-blur-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.3)] text-[.9rem] text-white p-[2.5px] text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">
+                                                <div className='bg-black/40 px-3 py-1 rounded-full'>
+                                                    ${displayLocalPrice} USD
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+            {/* 2. ATTACH SCROLL HANDLER */}
+            <div 
+                onScroll={handleScroll}
+                className="flex h-full w-full rounded-[40px] overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            >
+                {images.map((image, index) => (
+                    <div 
+                        key={index} 
+                        className="min-w-full flex-shrink-0 h-full relative snap-center overflow-hidden group"
+                    >
                         <Image
-                            src={images[1].url}
-                            alt="Tour Detail View"
+                            src={image.url}
+                            alt={`Tour View ${index + 1}`}
                             fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="object-cover transition-transform duration-500"
+                            priority={index === 0}
+                            sizes="(max-width: 768px) 100vw, 80vw"
                         />
-                    ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                            No Image
-                        </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors" />
-                </div>
-
-                {/* Bottom Right Image */}
-                <div className="flex-1 relative rounded-[40px] overflow-hidden group">
-                    {images[2] ? (
-                        <Image
-                            src={images[2].url}
-                            alt="Tour Detail View"
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                    ) : (
-                        // Fallback if 3rd image is missing
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                            No Image
-                        </div>
-                    )}
-
-                    {/* Optional: "View All" Overlay if there are more than 3 images */}
-                    {images.length > 3 && (
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer hover:bg-black/50 transition-colors z-10">
-                            <span className="text-white font-bold text-lg">
-                                +{images.length - 3} more
-                            </span>
-                        </div>
-                    )}
-
-                    <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors" />
-                </div>
+                        <div className="absolute inset-0 bg-black/5 transition-colors pointer-events-none" />
+                    </div>
+                ))}
             </div>
         </div>
     )

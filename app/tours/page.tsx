@@ -157,19 +157,19 @@ export default function ToursPage() {
                                 {/* DEFAULT VIEW: Tour Details */}
                                 <TourGallery images={selectedTour.images} />
                                 <div className="w-full flex flex-col gap-4 mt-6">
-                                    <div className="mb-7">
+                                    {/* <div className="mb-0">
                                         <p className="font-bold text-2xl lg:text-3xl">{selectedTour.name}</p>
                                         <div className="flex flex-wrap gap-2 mt-2">
                                             <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">{selectedTour.duration} Hours</p>
                                             <p className="px-4 py-1 text-[.9rem] font-medium bg-gray-200 rounded-full text-gray-800">${displayLocalPrice} USD</p>
                                         </div>
-                                    </div>
+                                    </div> */}
                                     <div className="flex flex-col gap-6">
-                                        <div className="bg-[#f2f2f2] rounded-[40px] p-6 lg:p-8">
+                                        <div className="rounded-[40px] p-2">
                                             <p className="text-xl font-bold mb-2">Description</p>
                                             <p className="text-gray-700">{selectedTour.description}</p>
                                         </div>
-                                        <div className="bg-[#f2f2f2] rounded-[40px] p-6 lg:p-8">
+                                        {/* <div className="bg-[#f2f2f2] rounded-[40px] p-6 lg:p-8">
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Flame className="w-6 h-6 text-black" />
                                                 <h2 className="text-xl font-bold text-gray-900">Intensity Rating</h2>
@@ -178,7 +178,7 @@ export default function ToursPage() {
                                                 <div className="w-6 h-6 rounded-full rounded-tr-none bg-[#004c08] text-white flex items-center justify-center text-sm font-extrabold">1</div>
                                                 <span className="font-bold text-[#004c08]">Easy - Moderate</span>
                                             </div>
-                                        </div>
+                                        </div> */}
                                         <div>
                                             <TourMap tourId={selectedTour.id} />
                                         </div>

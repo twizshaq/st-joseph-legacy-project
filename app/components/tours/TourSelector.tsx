@@ -56,7 +56,7 @@ const TourSelector: React.FC<TourSelectorProps> = ({
         </div>
 
         <div className={`
-            w-10 h-10 flex items-center justify-center rounded-full bg-slate-100/0 
+            w-10 h-10 flex items-center justify-center rounded-full 
             transition-transform duration-300 ${isOpen ? 'rotate-0' : 'rotate-180'}
         `}>
              <ArrowIcon className="w-7 h-7 text-slate-600" />
@@ -64,11 +64,11 @@ const TourSelector: React.FC<TourSelectorProps> = ({
       </button>
 
       {/* --- Dropdown Menu --- */}
-      <div className={`absolute top-[calc(100%+12px)] bg-white/40 shadow-[0px_0px_10px_rgba(0,0,0,0.1)] left-0 w-full backdrop-blur-sm rounded-[53px] p-[3px] transition-all duration-300 origin-top
+      <div className={`absolute top-[calc(100%+12px)] bg-white/10 shadow-[0px_0px_15px_rgba(0,0,0,0.3)] left-0 w-full backdrop-blur-[10px] rounded-[53px] p-[3px] transition-all duration-300 origin-top
         ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-4 pointer-events-none'}`}>
         <div 
           className={`
-              bg-[#ddd]/60
+              bg-[#000]/40
               rounded-[50px]
               overflow-hidden
           `}
@@ -84,8 +84,8 @@ const TourSelector: React.FC<TourSelectorProps> = ({
                     className={`
                       flex items-center gap-4 p-2 w-full
                       rounded-[34px] transition-all duration-200
-                      text-left group cursor-pointer active:scale-98 active:bg-black/20
-                      ${isSelected ? 'bg-blue-50/80 ring-1 ring-blue-100' : 'hover:bg-black/20'}
+                      text-left group cursor-pointer active:scale-98 active:bg-black/50
+                      ${isSelected ? 'bg-blue-50/80 ring-1 ring-blue-100' : 'hover:bg-black/50'}
                     `}
                   >
                     {/* Thumbnail Image */}
@@ -104,11 +104,11 @@ const TourSelector: React.FC<TourSelectorProps> = ({
 
                     {/* Text Info */}
                     <div className="flex-1 pr-2">
-                      <p className={`font-bold text-base leading-tight mb-0.5 ${isSelected ? 'text-blue-900' : 'text-slate-800'}`}>
+                      <p className={`font-bold text-base leading-tight mb-0.5 ${isSelected ? 'text-blue-900' : 'text-white'}`}>
                           {t.name}
                       </p>
                       {/* Optional: If you have a duration or subtitle in your Tour type, add it here */}
-                      <p className="text-xs text-slate-500 font-medium">
+                      <p className="text-xs text-white/60 font-medium">
                           View Details
                       </p>
                     </div>

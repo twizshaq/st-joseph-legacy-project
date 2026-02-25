@@ -177,7 +177,7 @@ export default function TourStopsMap({ stops }: TourStopsMapProps) {
     };
 
     return (
-        <div className="w-full h-[400px] bg-gray-100 rounded-3xl overflow-hidden">
+        <div className="w-full h-[400px] max-sm:h-[400px] bg-gray-100 rounded-3xl overflow-hidden">
             <div ref={mapContainer} className="w-full h-full" />
         </div>
     );

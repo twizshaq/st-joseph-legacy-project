@@ -74,14 +74,14 @@ export function TourMap({ tourId }: TourMapProps) {
     }, [tourId])
 
     return (
-        <div className="bg-[#f2f2f2] rounded-[40px] overflow-hidden mb-8">
+        <div className="bg-[#f2f2f2]/0 rounded-[40px] overflow-hidden/0 mb-8">
             {/* Header */}
-            <div className="p-4 flex items-center justify-between bg-white/0 border-b border-gray-100">
+            <div className="p-2 flex items-center justify-between bg-white/0">
                 <div className="flex items-center gap-2">
-                    <Navigation className="w-6 h-6 text-black" />
+                    {/* <Navigation className="w-6 h-6 text-black" /> */}
                     <h2 className="text-xl font-bold text-gray-900">Tour Locations</h2>
                 </div>
-                <button
+                {/* <button
                     onClick={() => setIsExpanded(!isExpanded)}
                     className="flex items-center cursor-pointer gap-2 bg-[#f2f2f2] rounded-[40px] text-slate-800 px-4 py-2 font-medium transition-colors"
                 >
@@ -91,26 +91,31 @@ export function TourMap({ tourId }: TourMapProps) {
                     ) : (
                         <ArrowIcon className="rotate-180" color="#1E293B" />
                     )}
-                </button>
+                </button> */}
             </div>
 
-            {stops.length > 0 && (
-                                <div className="mt-2">
-                                    <TourStopsMap 
-                                        // Flatten the data for the map component
-                                        stops={stops.map(stop => ({
-                                            id: stop.id,
-                                            name: stop.name,
-                                            lat: stop.location_pins.latitude,
-                                            lng: stop.location_pins.longitude,
-                                            pointimage: stop.location_pins.pointimage
-                                        }))} 
-                                    />
-                                </div>
-                            )}
+            {isExpanded && (
+                <div className="relative bg-red-500/0 overflow-hidden border-white border-[3px] shadow-[0px_10px_20px_rgba(0,0,0,0.09)] rounded-[40px]">
+                    {/* <div className='absolute z-[20] bottom-[0px] rounded-b-[37px] bg-black/20 h-[200px] w-full [mask-image:linear-gradient(to_top,black_40%,transparent)]'/> */}
+                    {stops.length > 0 && (
+                        <div className="bg-red-500/0 rounded-[40px]">
+                            <TourStopsMap 
+                                // Flatten the data for the map component
+                                stops={stops.map(stop => ({
+                                    id: stop.id,
+                                    name: stop.name,
+                                    lat: stop.location_pins.latitude,
+                                    lng: stop.location_pins.longitude,
+                                    pointimage: stop.location_pins.pointimage
+                                }))} 
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Content */}
-            {isExpanded && (
+            {/* {isExpanded && (
                 <div className="bg-[#f0f4f8]/0 p-4">
                     {isLoading ? (
                          <div className="text-sm text-gray-500 pl-2">Loading stops...</div>
@@ -131,7 +136,7 @@ export function TourMap({ tourId }: TourMapProps) {
                         </div>
                     )}
                 </div>
-            )}
+            )} */}
         </div>
     )
 }
