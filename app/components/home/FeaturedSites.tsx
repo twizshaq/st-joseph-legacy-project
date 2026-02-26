@@ -73,7 +73,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
                 <div className={`pointer-events-none absolute right-[4vw] rotate-180 top-[40px] z-50 h-[440px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} />
 
                 {/* Previous Button */}
-                <div className={`hidden md:flex absolute left-[3.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-300 active:scale-[0.93] cursor-pointer ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className={`hidden md:flex absolute left-[3.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <button
                     type="button"
                     onClick={scrollLeft}
@@ -88,7 +88,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
                 </div>
 
                 {/* Next Button */}
-                <div className={`hidden md:flex absolute right-[3.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-300 active:scale-[0.93] cursor-pointer ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className={`hidden md:flex absolute right-[3.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <button
                     type="button"
                     onClick={scrollRight}
