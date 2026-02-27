@@ -55,7 +55,13 @@ export default function TourStopsMap({ stops }: TourStopsMapProps) {
         const mapInstance = map.current;
 
         const loadRouteAndMarkers = async () => {
-            // Cleanup old markers
+            if (markerRoots.current.length === stops.length) {
+                const firstStopId = stops[0]?.id;
+                const currentFirstId = markerRoots.current[0]?.stop.id;
+                if (firstStopId === currentFirstId) return; // Data is likely the same, skip cleanup
+            }
+
+            // Cleanup old markers (only if data actually changed)
             markerRoots.current.forEach(({ root, marker }) => {
                 marker.remove();
                 setTimeout(() => root.unmount(), 0);

@@ -23,7 +23,7 @@ const rulesData = [
         description: <>Due to the geological nature of St. Joseph (steep ridges and natural trails), not all sites offer complete wheelchair access. Please check the specific Tour Descriptions for accessibility ratings or contact us for tailored arrangements.</> 
     },
     { 
-        title: "Dress Code ", 
+        title: "FootWear", 
         icon: <Footprints size={30} className="text-slate-700" />,
         description: <>Closed-toe shoes with good grip (sneakers or hiking sandals) are highly recommended.</> 
     },
@@ -41,7 +41,7 @@ const rulesData = [
 
 const HouseRules = () => {
     // Shared card style to reduce code duplication
-    const cardStyle = "bg-white/10 flex-1 flex flex-col items-center rounded-[45px] shadow-[0px_0px_10px_rgba(0,0,0,0.1)] p-[2px] overflow-hidden transform hover:scale-105 duration-300";
+    const cardStyle = "bg-white/10 flex-1 flex flex-col items-center rounded-[45px] shadow-[0px_0px_20px_rgba(0,0,0,0.08)] p-[2px] overflow-hidden transform hover:scale-102 active:scale-98 duration-300";
 
     // Inner container style
     const innerStyle = "bg-black/3 gap-[10px] p-[25px] flex flex-col items-start w-[100%] h-[100%] rounded-[43px]";

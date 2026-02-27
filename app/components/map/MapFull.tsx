@@ -74,15 +74,16 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
     };
 
     // --- INITIALIZATION EFFECT ---
+    // --- INITIALIZATION EFFECT ---
     useEffect(() => {
         if (map.current || !mapContainer.current) return;
 
-        let isMounted = true; // FIX: Lock
+        let isMounted = true; 
 
         const initializeMap = async () => {
             try {
                 const response = await fetch('/data/barbados_parishes.geojson');
-                if (!isMounted) return; // FIX: Exit if unmounted
+                if (!isMounted) return; 
 
                 if (!response.ok) throw new Error("Failed to fetch GeoJSON");
                 const parishData: FeatureCollection<Polygon | MultiPolygon, ParishProperties> = await response.json();
@@ -103,6 +104,11 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     minZoom: 10,
                     attributionControl: false,
                     pitch: 0,
+                    maxPitch: 70,
+                    dragPan: {
+                        linearity: 0.3, // Lower is "stickier", 0 disables the slide entirely
+                        maxSpeed: 1000 // Caps the maximum movement speed
+                    }
                 });
 
                 const mapInstance = map.current;
@@ -129,7 +135,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                             'id': '3d-buildings',
                             'source': 'composite',
                             'source-layer': 'building',
-                            'filter': ['==', 'extrude', 'true'],
+                            'filter':['==', 'extrude', 'true'],
                             'type': 'fill-extrusion',
                             'minzoom': 14,
                             'layout': {
@@ -138,7 +144,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                             'paint': {
                                 'fill-extrusion-color': '#aaa',
                                 'fill-extrusion-height': ['get', 'height'],
-                                'fill-extrusion-base': ['get', 'min_height'],
+                                'fill-extrusion-base':['get', 'min_height'],
                                 'fill-extrusion-opacity': 0.8
                             }
                         });
@@ -151,7 +157,9 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     setMapLoaded(true);
                 });
 
-                mapInstance.on('zoom', updateThreshold);
+                // Fixed: Mapbox event is "zoomend"
+                mapInstance.on('zoomend', updateThreshold);
+                
                 mapInstance.on('rotate', () => {
                     const newBearing = mapInstance.getBearing();
                     if (compassDialRef.current) compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
@@ -166,13 +174,13 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         initializeMap();
 
         return () => {
-            isMounted = false; // FIX: Prevent race conditions
+            isMounted = false; 
             map.current?.remove();
             map.current = null;
         };
-    }, []);
+    },[]);
 
-    // --- MARKER EFFECT ---
+    // --- MARKER GENERATION EFFECT (This is the block that went missing!) ---
     useEffect(() => {
         // Ensure map is fully loaded AND data exists
         if (!mapLoaded || !geojsonData || !map.current) return;
@@ -185,7 +193,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             pointimage?: string;
             colorhex?: string;
             handleClick: (e: MouseEvent) => void;
-        }[] = [];
+        }[] =[];
 
         for (const feature of geojsonData.features) {
             const { coordinates } = feature.geometry as Point;
@@ -204,7 +212,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             );
 
             const marker = new mapboxgl.Marker({ element: markerEl, anchor: 'bottom' })
-                .setLngLat(coordinates as [number, number])
+                .setLngLat(coordinates as[number, number])
                 .addTo(mapInstance);
             
             const handleClick = (e: MouseEvent) => {
@@ -235,6 +243,74 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             markerDataRef.current = [];
         };
     }, [geojsonData, mapLoaded]);
+
+    // --- ZOOM THRESHOLD EFFECT (Toggle text vs bubble marker) ---
+    useEffect(() => {
+        if (!map.current) return;
+        markerDataRef.current.forEach(({ root, name, pointimage, colorhex }) => {
+            root.render(
+                <CustomMapMarker 
+                    name={name}
+                    pointimage={pointimage}
+                    color={colorhex}
+                    isTextMode={isAboveThreshold}
+                />
+            );
+        });
+    }, [isAboveThreshold]);
+
+    // --- 3D TOGGLE / FOG EFFECT ---
+    useEffect(() => {
+        if (!mapLoaded || !map.current) return;
+        
+        const duration = 1200;
+        if (is3D) {
+            // Fog: Culling Distant Geometry
+            map.current.setFog({
+                'range':[1, 10],     
+                'color': '#f8fafc',    
+                'horizon-blend': 0.1,  
+            });
+
+            map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.3 });
+            map.current.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+            map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
+        } else {
+            // Disable Fog for 2D mode
+            map.current.setFog(null);
+
+            map.current.setTerrain(null);
+            map.current.setLayoutProperty('3d-buildings', 'visibility', 'none');
+            map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
+        }
+    }, [is3D, mapLoaded]);
+
+    // --- MARKER EFFECT ---
+    useEffect(() => {
+        if (!mapLoaded || !map.current) return;
+        
+        const duration = 1200;
+        if (is3D) {
+            // 🌟 OPTIMIZATION 1: FOG (Culling Distant Geometry)
+            // Stops the engine from calculating thousands of distant 3D terrain/building polygons.
+            map.current.setFog({
+                'range': [0.5, 4],     // Starts fading at 0.5 zoom units, fully obscured by 4
+                'color': '#f8fafc',    // Set to sky blue, or light gray to match clouds
+                'horizon-blend': 0.1,  // Smooths the harsh line at the end of the map
+            });
+
+            map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.3 }); // 1.3 usually looks more natural and is slightly lighter than 1.5
+            map.current.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+            map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
+        } else {
+            // 🌟 Disable Fog for crisp 2D satellite/map viewing
+            map.current.setFog(null);
+
+            map.current.setTerrain(null);
+            map.current.setLayoutProperty('3d-buildings', 'visibility', 'none');
+            map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
+        }
+    }, [is3D, mapLoaded]);
 
     useEffect(() => {
         if (!map.current) return;
@@ -311,4 +387,4 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
 });
 
 MapFull.displayName = 'MapFull';
-export default MapFull;
+export default React.memo(MapFull);

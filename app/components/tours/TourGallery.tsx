@@ -142,7 +142,7 @@ export function TourGallery({ images }: TourGalleryProps) {
             <div 
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
-                className="flex h-full w-full rounded-[40px] overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                className="flex h-full w-full overflow-hidden rounded-[40px] overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
                 {images.map((image, index) => (
                     <div 

@@ -182,9 +182,11 @@ export function IntensityGuidelines() {
             </div>
 
             {/* Changed Grid to 1 column on small, 2 on medium, 3 on large */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+            <div className="flex flex-wrap justify-center gap-6 lg:grid lg:grid-cols-3">
                 {levels.map((levelData) => (
-                    <IntensityCard key={levelData.level} {...levelData} />
+                    <div key={levelData.level} className="w-full md:w-[calc(50%-12px)] lg:w-full">
+                        <IntensityCard {...levelData} />
+                    </div>
                 ))}
             </div>
         </section>

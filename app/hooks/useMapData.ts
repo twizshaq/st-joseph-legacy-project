@@ -42,26 +42,39 @@ export function useMapData() {
   }, [supabase]);
 
   // 2. Fetch Sites
-  useEffect(() => {
-    const fetchSites = async () => {
-      const { data, error } = await supabase.from('location_pins').select('*');
-      if (!error && data) {
+  const fetchSites = useCallback(async () => {
+    const { data, error } = await supabase.from('location_pins').select('*');
+    if (!error && data) {
         const mapped: Site[] = data.map((entry: any) => ({
-          id: entry.id,
-          name: entry.name || 'Unnamed',
-          category: entry.category || '',
-          description: entry.description || '',
-          coordinates: [parseFloat(entry.longitude || 0), parseFloat(entry.latitude || 0)] as [number, number],
-          imageUrl: entry.pointimage || '',
-          colorhex: entry.colorhex || '#fff',
-          slug: entry.slug || '',
-          likes_count: Number(entry.likes_count || 0),
+            id: entry.id,
+            name: entry.name || 'Unnamed',
+            category: entry.category || '',
+            description: entry.description || '',
+            coordinates: [parseFloat(entry.longitude || 0), parseFloat(entry.latitude || 0)] as [number, number],
+            imageUrl: entry.pointimage || '',
+            colorhex: entry.colorhex || '#fff',
+            slug: entry.slug || '',
+            likes_count: Number(entry.likes_count || 0),
         })).filter(s => s.coordinates.length === 2 && !isNaN(s.coordinates[0]));
         setSites(mapped);
-      }
-    };
-    fetchSites();
-  }, [supabase]);
+    }
+}, [supabase]);
+
+  // 2. Main Effect: Initial Load + Visibility Listener
+  useEffect(() => {
+      // Run once on mount
+      fetchSites();
+
+      // Re-run whenever the tab is brought back to the foreground
+      const handleVisibilityChange = () => {
+          if (document.visibilityState === 'visible') {
+              fetchSites();
+          }
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchSites]);
 
   // 3. Actions
   const toggleLike = async (siteId: number) => {

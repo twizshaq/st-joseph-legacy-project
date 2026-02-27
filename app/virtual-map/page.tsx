@@ -148,7 +148,7 @@ export default function FullScreenMapPage() {
             </div>
 
             <div className='absolute bottom-[20px] left-[20px] whitespace-nowrap rounded-full p-[3px] w-[400px] hidden sm:block z-[50]'>
-                <div ref={desktopSearchRef} className={`bg-white/10 backdrop-blur-[13px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] rounded-[43px] will-change-transform`}>
+                <div ref={desktopSearchRef} className={`bg-white/10 backdrop-blur-[13px] transform-gpu p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] w-full transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] rounded-[43px] will-change-transform`}>
                     <div className={`bg-black/45 relative w-full overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${mobileSearchOpen ? 'h-[60vh] max-h-[500px] rounded-[40px]' : 'h-[58px] rounded-[40px] p-[4px]'}`}>
                         <SearchResults
                             sites={filteredSites}
@@ -181,7 +181,7 @@ export default function FullScreenMapPage() {
 
                 {/* Mobile Search Container */}
                 <div className='pointer-events-auto cursor-pointer whitespace-nowrap rounded-full p-[3px] w-full'>
-                    <div ref={mobileSearchRef} className={`bg-white/10 backdrop-blur-[13px] p-[3px] shadow-[0px_0px_20px_rgba(0,0,0,0.3)] w-full transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] will-change-[height,border-radius] ${mobileSearchOpen ? 'rounded-[43px] rounded-b-[49px]' : 'rounded-[43px] rounded-b-[43px]'}`}>
+                    <div ref={mobileSearchRef} className={`bg-white/10 backdrop-blur-[13px] transform-gpu p-[3px] shadow-[0px_0px_20px_rgba(0,0,0,0.3)] w-full transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] will-change-[height,border-radius] ${mobileSearchOpen ? 'rounded-[43px] rounded-b-[49px]' : 'rounded-[43px] rounded-b-[43px]'}`}>
                         {/*
                    FIX FOR 4 CORNERS:
                    1. overflow-hidden on this wrapper ensures children are clipped

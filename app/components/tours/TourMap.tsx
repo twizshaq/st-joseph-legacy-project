@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Navigation } from 'lucide-react'
 import ArrowIcon from "@/public/icons/arrow-icon"
 // IMPORT YOUR SUPABASE CLIENT
@@ -25,9 +25,20 @@ interface TourMapProps {
 
 export function TourMap({ tourId }: TourMapProps) { 
     const [isExpanded, setIsExpanded] = useState(true)
+
     
     // 3. Tell useState that this is an array of 'Stop' objects
     const [stops, setStops] = useState<Stop[]>([]) 
+
+    const memoizedStops = useMemo(() => {
+    return stops.map(stop => ({
+        id: stop.id,
+        name: stop.name,
+        lat: stop.location_pins.latitude,
+        lng: stop.location_pins.longitude,
+        pointimage: stop.location_pins.pointimage
+    }));
+}, [stops]);
     
     const [isLoading, setIsLoading] = useState(true)
 
@@ -99,16 +110,7 @@ export function TourMap({ tourId }: TourMapProps) {
                     {/* <div className='absolute z-[20] bottom-[0px] rounded-b-[37px] bg-black/20 h-[200px] w-full [mask-image:linear-gradient(to_top,black_40%,transparent)]'/> */}
                     {stops.length > 0 && (
                         <div className="bg-red-500/0 rounded-[40px]">
-                            <TourStopsMap 
-                                // Flatten the data for the map component
-                                stops={stops.map(stop => ({
-                                    id: stop.id,
-                                    name: stop.name,
-                                    lat: stop.location_pins.latitude,
-                                    lng: stop.location_pins.longitude,
-                                    pointimage: stop.location_pins.pointimage
-                                }))} 
-                            />
+                            <TourStopsMap stops={memoizedStops} />
                         </div>
                     )}
                 </div>
