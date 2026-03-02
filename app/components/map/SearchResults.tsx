@@ -4,9 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Site, TripData } from '@/app/types/map';
 import { SortOption } from '@/app/types';
-import searchIcon from '@/public/icons/search-icon.svg';
-import sortIcon from '@/public/icons/sort-icon.svg';
-import arrowIcon from "@/public/icons/arrow-icon.svg";
+import SearchIcon from '@/public/icons/search-icon';
+import SortIcon from '@/public/icons/sort-icon';
+import ArrowIcon from "@/public/icons/arrow-icon";
 import LinkIcon from "@/public/icons/link-icon";
 import PlayIcon from "@/public/icons/play-icon";
 import LikeButton from '@/app/components/map/LikeButton';
@@ -185,8 +185,10 @@ export const SearchResults = memo(function SearchResults({
 
     const showView2 = !!selectedSite;
 
+    const searchWindowRef = useRef<HTMLDivElement>(null);
+
     return (
-        <div className='relative w-full h-full'>
+        <div ref={searchWindowRef} className='relative w-full h-full'>
 
             {/* --- VIEW 1: SEARCH & LIST --- */}
             <div
@@ -194,8 +196,8 @@ export const SearchResults = memo(function SearchResults({
          ${showView2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             >
                 <div className={`relative transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] transform-gpu ${mobileSearchOpen ? 'mt-[13px] w-[93%] mx-auto' : 'w-full self-center'}`}>
-                    <span className='absolute z-10 mt-[11.5px] ml-[15px] pointer-events-none'>
-                        <Image src={searchIcon} alt='Search Icon' height={25} priority />
+                    <span className='absolute z-10 mt-[12.7px] ml-[14px] pointer-events-none'>
+                        <SearchIcon size={24} color="#fff" />
                     </span>
                     <input
                         value={searchQuery}
@@ -216,7 +218,7 @@ export const SearchResults = memo(function SearchResults({
                         className={`flex gap-[8px] py-[10px] items-center justify-center absolute font-bold right-[14px] top-[3px] text-[#E0E0E0] rounded-full transition-all cursor-pointer active:scale-[.95]
                             }`}
                     >
-                        Sort <Image src={sortIcon} alt="" height={22} />
+                        Sort <SortIcon width={20} height={20} color="#E0E0E0" />
                     </button>
                 </div>
 
@@ -233,7 +235,7 @@ export const SearchResults = memo(function SearchResults({
             </div>
 
             {/* --- VIEW 2: DETAILS --- */}
-            <div className={`absolute inset-0 flex flex-col h-full transition-opacity duration-300 ease-in
+            <div className={`absolute inset-0 flex flex-col h-full hide-scrollbar transition-opacity duration-300 ease-in
         ${showView2 ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'}`}>
 
                 {selectedSite && (
@@ -250,13 +252,13 @@ export const SearchResults = memo(function SearchResults({
                         <>
                             {/* THE GRADIENT SHADE: This makes the header readable when scrolling */}
                             {mobileSearchOpen && (
-                                <div className="absolute top-0 left-0 w-full h-[100px] bg-gradient-to-b from-[#686868] via-[#686868]/80 to-transparent z-20 pointer-events-none rounded-t-[40px]" />
+                                <div className="absolute top-0 left-0 w-full h-[100px] bg-gradient-to-b from-[#686868] via-[#686868]/90 to-transparent z-20 pointer-events-none rounded-t-[40px]" />
                             )}
 
                             <div onClick={handleHeaderClick} className={`absolute z-30 flex items-center px-[10px] justify-between transition-all duration-400 rounded-full ${mobileSearchOpen ? 'pt-[7.5px] mt-[6px] pb-[0px] w-[100%] px-[15px]' : 'mt-[-12px] py-[7.5px] w-[100%]'}`}>
-                                <button onClick={(e) => { e.stopPropagation(); setSelectedSite(null); }} className={`inline-flex pr-[10px] active:scale-[.95] shrink-0 cursor-pointer items-center gap-2 text-white/90 hover:text-white active:opacity-80 ${mobileSearchOpen ? 'mt-[-6px]' : 'mt-[5px]'}`}>
+                                <button onClick={(e) => { e.stopPropagation(); setSelectedSite(null); }} className={`inline-flex pr-[10px] active:scale-[.95] shrink-0 cursor-pointer items-center gap-2 text-white/90 hover:text-white active:opacity-80 ${mobileSearchOpen ? 'mt-[2px]' : 'mt-[5px]'}`}>
 
-                                    <span className='rotate-[-90deg]'><Image src={arrowIcon} alt='Back' height={35} /></span>
+                                    <span className='rotate-[-90deg]'><ArrowIcon size={40} color="#fff"/></span>
                                 </button>
 
                                 <div ref={containerRef} className='flex flex-col text-right pr-2 pt-1 flex-1 min-w-0 overflow-hidden relative'>
@@ -330,17 +332,6 @@ export const SearchResults = memo(function SearchResults({
                                     </div>
 
                                     <div className='bg-white/10 h-[2px] w-[65%] self-center mb-[17px]' />
-
-                                    <div className='px-4 flex items-center gap-3 pb-[0px] mb-[15px]'>
-                                        <div className='w-[90%] flex self-center items-center gap-[10px]'>
-                                            <div onClick={() => setIsPlanningTrip(true)} className='self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] -mr-[2px] w-[100%]'>
-                                                <div className='flex flex-col text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[15px] py-[15.4px]'>
-                                                    <span className='text-white font-bold'>Create a custom trip</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className='shrink-0'><InfoPopup key={selectedSite.id} /></div>
-                                    </div>
 
                                     {/* <div className='bg-white/10 h-[2px] w-[65%] self-center mb-[20px]' />s */}
 
@@ -456,7 +447,8 @@ export const SearchResults = memo(function SearchResults({
                                                 aria-label="Previous gallery"
                                             >
                                                 <span className='-rotate-90 flex items-center justify-center'>
-                                                    <Image src={arrowIcon} alt='Previous' width={24} height={24} className="w-6 h-6" />
+                                                    <ArrowIcon size={40} color="#fff"/>
+                                                    {/* <Image src={arrowIcon} alt='Previous' width={24} height={24} className="w-6 h-6" /> */}
                                                 </span>
                                             </button>
 
@@ -470,10 +462,24 @@ export const SearchResults = memo(function SearchResults({
                                                 aria-label="Next gallery"
                                             >
                                                 <span className='rotate-90 flex items-center justify-center'>
-                                                    <Image src={arrowIcon} alt='Next' width={24} height={24} className="w-6 h-6" />
+                                                    <ArrowIcon size={40} color="#fff"/>
+                                                    {/* <Image src={arrowIcon} alt='Next' width={24} height={24} className="w-6 h-6" /> */}
                                                 </span>
                                             </button>
                                         </div>
+                                    </div>
+
+                                    <div className='bg-white/10 h-[2px] w-[65%] self-center mb-[17px]' />
+
+                                    <div className='px-4 flex items-center gap-3 pb-[0px] mb-[-15px]'>
+                                        <div className='w-[90%] flex self-center items-center gap-[10px]'>
+                                            <div onClick={() => setIsPlanningTrip(true)} className='self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] -mr-[2px] w-[100%]'>
+                                                <div className='flex flex-col text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[15px] py-[15.4px]'>
+                                                    <span className='text-white font-bold'>Create a custom trip</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className='shrink-0'><InfoPopup key={selectedSite.id} /></div>
                                     </div>
 
                                 </div>
@@ -490,16 +496,16 @@ export const SearchResults = memo(function SearchResults({
                         <div
                             ref={sortMenuRef}
                             className="absolute mt-[0px] z-[60]"
-                            style={{ top: popupPos.top, left: popupPos.left }}
+                            style={{ top: popupPos.top, left: popupPos.left - 75, }}
                         >
-                            <div className='bg-white/10 backdrop-blur-[20px] rounded-[38px] p-[3px] shadow-[0px_0px_15px_rgba(0,0,0,0.4)]'>
-                                <div className="relative w-[200px] bg-black/40 rounded-[35px] p-4 overflow-hidden flex flex-col gap-5 text-white">
+                            <div className='bg-white/10 backdrop-blur-[10px] rounded-[38px] p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.4)]'>
+                                <div className="relative w-fit bg-black/40 rounded-[35px] p-4 overflow-hidden flex flex-col gap-5 text-white">
                                     <div>
                                         <p className="text-sm text-gray-300 font-bold mb-3 uppercase tracking-wider ml-1">Sort By</p>
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex gap-2">
                                             {[
-                                                { label: 'Default', value: 'default' },
-                                                { label: 'Name (A-Z)', value: 'name_asc' },
+                                                { label: 'None', value: 'default' },
+                                                { label: '(A-Z)', value: 'name_asc' },
                                                 { label: 'Popularity', value: 'popularity' }
                                             ].map((opt) => (
                                                 <button
@@ -509,8 +515,8 @@ export const SearchResults = memo(function SearchResults({
                                                         setSortOption(opt.value as SortOption);
                                                         setIsSortOpen(false);
                                                     }}
-                                                    className={`text-left cursor-pointer px-4 py-2 rounded-2xl text-sm font-bold transition-all ${sortOption === opt.value
-                                                        ? 'bg-white text-black shadow-lg scale-[1.02]'
+                                                    className={`text-left cursor-pointer px-4 py-2 rounded-[21px] text-sm font-bold transition-all ${sortOption === opt.value
+                                                        ? 'bg-blue-500 text-white shadow-lg scale-[1.02]'
                                                         : 'bg-white/5 text-gray-300 hover:bg-white/10'
                                                         }`}
                                                 >
@@ -532,8 +538,8 @@ export const SearchResults = memo(function SearchResults({
 // List Item
 const SiteListItem = memo(({ site, onClick }: { site: Site, onClick: () => void }) => (
     <li className="list-none">
-        <div className='bg-white/10 active:scale-[.97] active:bg-white/10 transition-all rounded-[35px] p-[3px] mb-1 transform-gpu'>
-            <button onClick={onClick} className='flex w-full text-left cursor-pointer items-start rounded-[32px] bg-black/35 overflow-hidden p-2 gap-3 hover:bg-black/40 active:bg-black/40 transition-colors'>
+        <div className='bg-white/10 active:scale-[.97] active:bg-white/10 transition-all rounded-[35px] p-[3px] transform-gpu'>
+            <button onClick={onClick} className='flex w-full text-left cursor-pointer items-start rounded-[32px] bg-black/40 overflow-hidden p-2 gap-3 hover:bg-black/40 active:bg-black/40 transition-colors'>
                 <div className='relative min-w-[70px] h-[70px] rounded-[24px] overflow-hidden bg-white/10'>
                     {site.imageUrl && <Image src={site.imageUrl} alt='' fill className='object-cover' sizes="80px" />}
                 </div>

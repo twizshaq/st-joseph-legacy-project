@@ -2,8 +2,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Portal from "@/app/components/Portal";
-import searchIcon from '@/public/icons/search-icon.svg';
-import sortIcon from '@/public/icons/sort-icon.svg';
+import SearchIcon from '@/public/icons/search-icon';
+import SortIcon from '@/public/icons/sort-icon';
 import { SortOption } from '@/app/types';
 
 interface SearchFilterBarProps {
@@ -71,8 +71,8 @@ export const SearchFilterBar = ({
         <>
             <div className='absolute -bottom-[34px] cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px] w-[450px] max-w-[90vw] z-50 left-1/2 -translate-x-1/2'>
                 <div className='relative bg-white/10 backdrop-blur-[10px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-                    <span className='absolute z-10 mt-[15px] ml-[15px] fill-[#E0E0E0]'>
-                        <Image src={searchIcon} alt="" height={25} />
+                    <span className='absolute z-10 mt-[15.5px] ml-[16px] fill-[#E0E0E0]'>
+                        <SearchIcon size={24} color="#E0E0E0" />
                     </span>
                     <input
                         type="text"
@@ -88,12 +88,9 @@ export const SearchFilterBar = ({
                         ref={sortBtnRef}
                         type="button"
                         onClick={toggleSort}
-                        className={`flex gap-[8px] py-[10px] items-center justify-center absolute font-bold right-[14px] top-[10px] text-[#E0E0E0] rounded-full transition-all cursor-pointer ${isSortOpen
-                                ? 'bg-white/10 px-[10px]'
-                                : 'hover:bg-white/10 hover:px-[10px]'
-                            }`}
+                        className={`flex gap-[8px] py-[10px] items-center justify-center absolute font-bold right-[20px] top-[9px] text-[#E0E0E0] rounded-full transition-all cursor-pointer active:scale-[.95]`}
                     >
-                        Sort <Image src={sortIcon} alt="" height={22} />
+                        Sort <SortIcon width={20} height={20} color="#E0E0E0" />
                     </button>
                 </div>
             </div>
@@ -106,22 +103,22 @@ export const SearchFilterBar = ({
                         className="absolute mt-[20px]"
                         style={{ top: popupPos.top, left: popupPos.left }}
                     >
-                        <div className='bg-white/10 backdrop-blur-[20px] rounded-[43px] p-[3px] shadow-[0px_0px_15px_rgba(0,0,0,0.4)]'>
-                            <div className="relative w-[300px] bg-black/40 rounded-[40px] p-6 overflow-hidden flex flex-col gap-5 text-white">
+                        <div className='bg-white/10 backdrop-blur-[13px] rounded-[43px] p-[3px] shadow-[0px_0px_15px_rgba(0,0,0,0.4)]'>
+                            <div className="relative w-[300px] bg-black/40 rounded-[40px] p-5 overflow-hidden flex flex-col gap-5 text-white">
                                 {/* Sort Options */}
                                 <div>
                                     <p className="text-sm text-gray-300 font-bold mb-3 uppercase tracking-wider ml-1">Sort By</p>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex gap-2">
                                         {[
-                                            { label: 'Default', value: 'default' },
-                                            { label: 'Name (A-Z)', value: 'name_asc' },
+                                            { label: 'None', value: 'default' },
+                                            { label: '(A-Z)', value: 'name_asc' },
                                             { label: 'Popularity', value: 'popularity' }
                                         ].map((opt) => (
                                             <button
                                                 key={opt.value}
                                                 onClick={() => setSortOption(opt.value as SortOption)}
-                                                className={`text-left cursor-pointer px-4 py-2 rounded-2xl text-sm font-bold transition-all ${sortOption === opt.value
-                                                    ? 'bg-white text-black shadow-lg scale-[1.02]'
+                                                className={`text-center w-[230px] cursor-pointer px-4 py-2 rounded-[21px] text-sm font-bold transition-all ${sortOption === opt.value
+                                                    ? 'bg-blue-500 text-WHITE shadow-lg scale-[1.02]'
                                                     : 'bg-white/5 text-gray-300 hover:bg-white/10'
                                                     }`}
                                             >
@@ -142,7 +139,7 @@ export const SearchFilterBar = ({
                                                     resetPage();
                                                 }}
                                                 className={`px-3 py-1.5 cursor-pointer rounded-full text-xs font-bold border transition-all ${selectedCategory === cat
-                                                    ? 'bg-blue-500 border-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]'
+                                                    ? 'bg-blue-500 border-blue-500 text-white'
                                                     : 'bg-transparent border-white/20 text-gray-300 hover:border-white/50'
                                                     }`}
                                             >

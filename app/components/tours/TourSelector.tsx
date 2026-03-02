@@ -32,7 +32,7 @@ const TourSelector: React.FC<TourSelectorProps> = ({
   }, [isOpen, setIsOpen]);
 
   return (
-    <div className="relative w-[300px] max-w-[90vw] mx-auto z-30" ref={menuRef}>
+    <div className="relative w-[300px] max-w-[90vw] mx-auto z-[30]" ref={menuRef}>
       {/* --- Main Trigger Button --- */}
       <button 
         onClick={() => setIsOpen(!isOpen)}

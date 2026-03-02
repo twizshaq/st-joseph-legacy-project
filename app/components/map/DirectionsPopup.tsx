@@ -95,9 +95,9 @@ export default function DirectionsPopup({ name, lat, lng }: DirectionsPopupProps
         className='w-[100%] active:scale-[.98] transition-transform'
       >
         <div className='bg-white/10 cursor-pointer rounded-[26px] p-[3px] w-[100%] mb-[0px] shadow-[0px_0px_30px_rgba(0,0,0,0)]'>
-            <div className='flex justify-center items-center gap-[10px] text-white font-[500] text-[1rem] bg-black/30 py-[12px] rounded-[23px] hover:bg-black/40 transition-colors'>
+            <div className='flex justify-center items-center gap-[7px] text-white font-[500] text-[1rem] bg-black/30 py-[12px] rounded-[23px] hover:bg-black/40 transition-colors'>
                 <DirectionsIcon size={30} color="#fff"/>
-                <p>Get Directions</p>
+                <p>Directions</p>
             </div>
         </div>
       </button>

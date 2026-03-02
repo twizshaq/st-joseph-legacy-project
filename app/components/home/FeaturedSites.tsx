@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { SiteCard } from '@/app/types';
 import { SiteCardSkeleton } from '../SiteCardSkeleton';
@@ -130,7 +131,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
                                         <div className="rotate-[180deg] self-end scale-[1.02]">
                                             <div
                                                 className="absolute w-[270px] top-[70px] rotate-[-180deg]
-                                                           backdrop-blur-[10px]
+                                                           backdrop-blur-[4px]
                                                            [mask-image:linear-gradient(to_bottom,black_70%,transparent)]
                                                            h-[270px]"
                                             />
@@ -147,15 +148,15 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
                                         <div className="absolute inset-0 bg-black/30 rounded-[50px]" />
 
                                         <div className="relative z-30 text-center mb-[20px] px-[10px]">
-                                            <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
-                                                <p className="font-[700] text-[1.2rem] mb-[2px]">
+                                            <div className="text-white">
+                                                <p className="font-[700] text-[1.2rem] mb-[2px] drop-shadow-[0px_0px_10px_rgba(0,0,0,.3)]">
                                                     {card.name}
                                                 </p>
-                                                <p className="text-[.9rem] font-[500]">{card.description}</p>
+                                                <p className="text-[.9rem] font-[500] drop-shadow-[0px_0px_10px_rgba(0,0,0,.3)]">{card.description}</p>
 
                                                 <div className="mt-[10px] flex justify-center">
                                                     <div className="whitespace-nowrap rounded-full p-[2px] w-[190px]
-                                                                    bg-white/10 shadow-[0px_0px_20px_rgba(0,0,0,0.3)]">
+                                                                    bg-white/10 shadow-[0px_0px_10px_rgba(0,0,0,.25)]">
                                                         <div className="bg-black/20 rounded-full px-[15px] py-[6.4px]">
                                                             <p className="font-bold text-[.85rem]">
                                                                 {card.category}
@@ -170,7 +171,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
                                             <div
                                                 className="absolute w-[270px] backdrop-blur-[6px]
                                                            [mask-image:linear-gradient(to_bottom,black_50%,transparent)]
-                                                           h-[250px]"
+                                                           h-[200px]"
                                             />
                                         </div>
                                     </div>

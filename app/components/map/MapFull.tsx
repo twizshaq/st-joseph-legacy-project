@@ -15,6 +15,7 @@ mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 const ZOOM_THRESHOLD = 15;
 
 interface MarkerProperties {
+    id: number;
     name: string;
     imageUrl?: string;
     colorhex?: string;
@@ -43,6 +44,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const map = useRef<mapboxgl.Map | null>(null);
 
+    // Stores references to the React roots so we can update them without recreating markers
     const markerDataRef = useRef<{
         root: Root;
         name: string;
@@ -73,11 +75,9 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         map.current.flyTo({ bearing: 0, pitch: is3D ? 60 : 0, duration: is3D ? 1000 : 500 });
     };
 
-    // --- INITIALIZATION EFFECT ---
-    // --- INITIALIZATION EFFECT ---
+    // 1. INITIALIZATION EFFECT
     useEffect(() => {
         if (map.current || !mapContainer.current) return;
-
         let isMounted = true; 
 
         const initializeMap = async () => {
@@ -88,7 +88,6 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                 if (!response.ok) throw new Error("Failed to fetch GeoJSON");
                 const parishData: FeatureCollection<Polygon | MultiPolygon, ParishProperties> = await response.json();
                 const stJosephFeature = parishData.features.find(f => f.properties.name === 'Saint Joseph');
-                
                 if (!stJosephFeature) return;
                 
                 const shiftedStJosephFeature = turf.transformTranslate(stJosephFeature, 0.5, 135, { units: 'kilometers' });
@@ -104,11 +103,8 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     minZoom: 10,
                     attributionControl: false,
                     pitch: 0,
-                    maxPitch: 70,
-                    dragPan: {
-                        linearity: 0.3, // Lower is "stickier", 0 disables the slide entirely
-                        maxSpeed: 1000 // Caps the maximum movement speed
-                    }
+                    maxPitch: 70, // Sensitivity Fix
+                    dragPan: { linearity: 0.3 } // Sensitivity Fix
                 });
 
                 const mapInstance = map.current;
@@ -121,34 +117,28 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                 mapInstance.on('load', () => {
                     if (!isMounted) return;
 
-                    if (!mapInstance.getSource('mapbox-dem')) {
-                        mapInstance.addSource('mapbox-dem', {
-                            'type': 'raster-dem',
-                            'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-                            'tileSize': 512,
-                            'maxzoom': 14
-                        });
-                    }
+                    mapInstance.addSource('mapbox-dem', {
+                        'type': 'raster-dem',
+                        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                        'tileSize': 512,
+                        'maxzoom': 14
+                    });
 
-                    if (!mapInstance.getLayer('3d-buildings')) {
-                        mapInstance.addLayer({
-                            'id': '3d-buildings',
-                            'source': 'composite',
-                            'source-layer': 'building',
-                            'filter':['==', 'extrude', 'true'],
-                            'type': 'fill-extrusion',
-                            'minzoom': 14,
-                            'layout': {
-                                'visibility': 'none'
-                            },
-                            'paint': {
-                                'fill-extrusion-color': '#aaa',
-                                'fill-extrusion-height': ['get', 'height'],
-                                'fill-extrusion-base':['get', 'min_height'],
-                                'fill-extrusion-opacity': 0.8
-                            }
-                        });
-                    }
+                    mapInstance.addLayer({
+                        'id': '3d-buildings',
+                        'source': 'composite',
+                        'source-layer': 'building',
+                        'filter':['==', 'extrude', 'true'],
+                        'type': 'fill-extrusion',
+                        'minzoom': 14,
+                        'layout': { 'visibility': 'none' },
+                        'paint': {
+                            'fill-extrusion-color': '#aaa',
+                            'fill-extrusion-height': ['get', 'height'],
+                            'fill-extrusion-base':['get', 'min_height'],
+                            'fill-extrusion-opacity': 0.8
+                        }
+                    });
 
                     updateThreshold();
                     mapInstance.on('click', (e) => {
@@ -157,9 +147,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     setMapLoaded(true);
                 });
 
-                // Fixed: Mapbox event is "zoomend"
                 mapInstance.on('zoomend', updateThreshold);
-                
                 mapInstance.on('rotate', () => {
                     const newBearing = mapInstance.getBearing();
                     if (compassDialRef.current) compassDialRef.current.style.transform = `rotate(${-newBearing}deg)`;
@@ -178,11 +166,10 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             map.current?.remove();
             map.current = null;
         };
-    },[]);
+    }, []);
 
-    // --- MARKER GENERATION EFFECT (This is the block that went missing!) ---
+    // 2. MARKER CREATION EFFECT
     useEffect(() => {
-        // Ensure map is fully loaded AND data exists
         if (!mapLoaded || !geojsonData || !map.current) return;
         const mapInstance = map.current;
 
@@ -193,7 +180,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             pointimage?: string;
             colorhex?: string;
             handleClick: (e: MouseEvent) => void;
-        }[] =[];
+        }[] = [];
 
         for (const feature of geojsonData.features) {
             const { coordinates } = feature.geometry as Point;
@@ -212,7 +199,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             );
 
             const marker = new mapboxgl.Marker({ element: markerEl, anchor: 'bottom' })
-                .setLngLat(coordinates as[number, number])
+                .setLngLat(coordinates as [number, number])
                 .addTo(mapInstance);
             
             const handleClick = (e: MouseEvent) => {
@@ -226,7 +213,6 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             };
             
             marker.getElement().addEventListener('click', handleClick);
-
             currentMarkers.push({ marker, root, name, pointimage, colorhex, handleClick });
         }
         
@@ -244,7 +230,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         };
     }, [geojsonData, mapLoaded]);
 
-    // --- ZOOM THRESHOLD EFFECT (Toggle text vs bubble marker) ---
+    // 3. ZOOM THRESHOLD SYNC (Bubble vs Text Mode)
     useEffect(() => {
         if (!map.current) return;
         markerDataRef.current.forEach(({ root, name, pointimage, colorhex }) => {
@@ -259,82 +245,22 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         });
     }, [isAboveThreshold]);
 
-    // --- 3D TOGGLE / FOG EFFECT ---
+    // 4. 3D / FOG / TERRAIN EFFECT
     useEffect(() => {
         if (!mapLoaded || !map.current) return;
         
         const duration = 1200;
         if (is3D) {
-            // Fog: Culling Distant Geometry
             map.current.setFog({
-                'range':[1, 10],     
+                'range': [1, 10], // Increased fog distance
                 'color': '#f8fafc',    
                 'horizon-blend': 0.1,  
             });
-
             map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.3 });
             map.current.setLayoutProperty('3d-buildings', 'visibility', 'visible');
             map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
         } else {
-            // Disable Fog for 2D mode
             map.current.setFog(null);
-
-            map.current.setTerrain(null);
-            map.current.setLayoutProperty('3d-buildings', 'visibility', 'none');
-            map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
-        }
-    }, [is3D, mapLoaded]);
-
-    // --- MARKER EFFECT ---
-    useEffect(() => {
-        if (!mapLoaded || !map.current) return;
-        
-        const duration = 1200;
-        if (is3D) {
-            // 🌟 OPTIMIZATION 1: FOG (Culling Distant Geometry)
-            // Stops the engine from calculating thousands of distant 3D terrain/building polygons.
-            map.current.setFog({
-                'range': [0.5, 4],     // Starts fading at 0.5 zoom units, fully obscured by 4
-                'color': '#f8fafc',    // Set to sky blue, or light gray to match clouds
-                'horizon-blend': 0.1,  // Smooths the harsh line at the end of the map
-            });
-
-            map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.3 }); // 1.3 usually looks more natural and is slightly lighter than 1.5
-            map.current.setLayoutProperty('3d-buildings', 'visibility', 'visible');
-            map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
-        } else {
-            // 🌟 Disable Fog for crisp 2D satellite/map viewing
-            map.current.setFog(null);
-
-            map.current.setTerrain(null);
-            map.current.setLayoutProperty('3d-buildings', 'visibility', 'none');
-            map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
-        }
-    }, [is3D, mapLoaded]);
-
-    useEffect(() => {
-        if (!map.current) return;
-        markerDataRef.current.forEach(({ root, name, pointimage, colorhex }) => {
-            root.render(
-                <CustomMapMarker 
-                    name={name}
-                    pointimage={pointimage}
-                    color={colorhex}
-                    isTextMode={isAboveThreshold}
-                />
-            );
-        });
-    }, [isAboveThreshold]);
-
-    useEffect(() => {
-        if (!mapLoaded || !map.current) return;
-        
-        const duration = 1200;
-        if (is3D) {
-            map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
-            map.current.setLayoutProperty('3d-buildings', 'visibility', 'visible');
-            map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
-        } else {
             map.current.setTerrain(null);
             map.current.setLayoutProperty('3d-buildings', 'visibility', 'none');
             map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
@@ -344,35 +270,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
     return (
         <div className='h-full w-full relative'>
             <div ref={mapContainer} className='h-full w-full' />
-            <div 
-    className='
-        fixed 
-        gap-[5px]
-        flex
-
-        /* --- Default (Desktop/Portrait Tablet) --- */
-        flex-col 
-        items-end 
-        right-[21px] 
-        bottom-[185px]
-
-        /* --- Your Custom Desktop Query --- */
-        
-        /* --- Portrait Mobile --- */
-        max-sm:bottom-auto 
-        max-sm:top-[80px] 
-        max-sm:flex-row 
-        max-sm:right-[14px] 
-        max-sm:items-center 
-        
-        /* --- FIX: Rotated Mobile (Landscape) --- */
-        /* Targets devices in landscape that are smaller than a laptop */
-        landscape:max-lg:flex-row
-        landscape:max-lg:items-center
-        landscape:max-lg:bottom-[18px]
-        landscape:max-lg:right-[80px]
-    '
->
+            <div className='fixed gap-[5px] flex flex-col items-end right-[21px] bottom-[185px] max-sm:bottom-auto max-sm:top-[80px] max-sm:flex-row max-sm:right-[14px] max-sm:items-center landscape:max-lg:flex-row landscape:max-lg:items-center landscape:max-lg:bottom-[18px] landscape:max-lg:right-[80px]'>
                 <ThreeDToggle is3D={is3D} onToggle={handleToggle3D} />
                 <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
                     <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>

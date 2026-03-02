@@ -29,7 +29,7 @@ export const SiteCardItem = ({ card }: SiteCardItemProps) => {
           <Link href={`/${card.slug}`} passHref className="h-full w-full flex flex-col justify-end">
             <div className="absolute inset-0 bg-black/30 rounded-[50px] pointer-events-none" />
             <div className="relative z-30 text-center mb-[20px] px-[10px]">
-              <div className="text-white text-shadow-[4px_4px_15px_rgba(0,0,0,.6)]">
+              <div className="text-white drop-shadow-[0px_0px_10px_rgba(0,0,0,.6)]">
                 <p className="font-bold text-[1.3rem] mb-[2px]">{card.name}</p>
                 <p className="text-[1rem] px-[5px] line-clamp-2">{card.description}</p>
               </div>

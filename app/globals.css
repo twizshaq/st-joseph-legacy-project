@@ -340,3 +340,31 @@ body {
     /* Move to the right by 100% of background size */
   }
 }
+
+@keyframes ai-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.ai-gradient-border {
+  background: linear-gradient(110deg,
+      #4285f4,
+      #9b72cb,
+      #d96570,
+      #9b72cb,
+      #4285f4);
+  background-size: 200% auto;
+  animation: ai-flow 3s linear infinite;
+  padding: 2.7px;
+  /* important */
+}
+
+.ai-gradient-border:hover {
+  box-shadow: 0 0 25px -2px rgba(155, 114, 203, 0.6);
+  transition: box-shadow 0.3s ease;
+}

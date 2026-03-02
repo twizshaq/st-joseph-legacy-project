@@ -87,8 +87,11 @@ export default function FullScreenMapPage() {
         const inMobile = mobileSearchRef.current?.contains(target);
         const inPopup = target?.closest('#info-popup-portal');
         const inSortPopup = target?.closest('#sort-popup-portal');
+        
+        // Safety check for the trip planner overlay
+        const inTripPlanner = target?.closest('#trip-planner-overlay');
 
-        if (!inDesktop && !inMobile && !inPopup && !inSortPopup) {
+        if (!inDesktop && !inMobile && !inPopup && !inSortPopup && !inTripPlanner) {
             setMobileSearchOpen(prev => {
                 if (prev) {
                     setMobileSearchReady(false);
