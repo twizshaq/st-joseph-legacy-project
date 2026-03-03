@@ -124,7 +124,7 @@ export default function InfoPopup() {
                 <FaTimes size={20} />
               </button>
 
-              <h4 className="font-bold text-sm text-white tracking-wide">Trip</h4>
+              <h4 className="font-bold text-sm text-white tracking-wide">Custom Trip</h4>
               <p className="text-[0.85rem] text-white/70 font-light leading-relaxed">
                 Create a custom trip with multiple locations and export it to google maps. Trip saves to your profile once you export
               </p>

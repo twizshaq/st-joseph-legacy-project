@@ -17,6 +17,7 @@ import LocationIcon from "@/public/icons/location-icon"
 import ArrowIcon from "@/public/icons/arrow-icon"
 import SearchIcon from "@/public/icons/search-icon"
 import AiReorderIcon from "@/public/icons/aireorder-icon"
+import Portal from '../Portal';
 
 
 
@@ -97,13 +98,14 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
 
 
     const [showExportMenu, setShowExportMenu] = useState(false);
-    const [showOnboardingTooltip, setShowOnboardingTooltip] = useState(true);
+    const[onboardingStep, setOnboardingStep] = useState(1); // 1 = Intro, 2 = Reorder, 0 = Done
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     const [scheduledDate, setScheduledDate] = useState("");
     const [tripName, setTripName] = useState("My Trip to Barbados");
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedItems, setSelectedItems] = useState<TripSite[]>([]);
+    const isReorderActive = selectedItems.length >= 3 || onboardingStep === 2;
 
     const exportButtonRef = useRef<HTMLDivElement>(null);
     const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0, width: 0 });
@@ -160,7 +162,7 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
     const handleOptimizeRoute = () => {
         // We need at least 3 items to meaningfully reorder (Start + 2 destinations)
         // If less, the order doesn't really matter or is already fixed.
-        if (selectedItems.length < 3) return; 
+        if (selectedItems.length < 3) return;
 
         // 1. Keep the first item (Start Point) fixed
         const startPoint = selectedItems[0];
@@ -214,6 +216,7 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
             window.open(`http://maps.apple.com/?daddr=${latLng(selectedItems[0])}`, '_blank');
         }
     };
+    
 
     return (
         <div className="relative h-full w-full flex flex-col overflow-hidden rounded-[40px] animate-in fade-in zoom-in-95 duration-200">
@@ -222,16 +225,24 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
             {/* ---------------------------------------------------- */}
             <div className={`absolute inset-0 h-full w-full flex flex-col transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isAdding ? '-translate-x-[110%] opacity-0 pointer-events-none' : 'translate-x-0 opacity-100'}`}>
                 
+                {/* Dynamic Spotlight Overlay for Onboarding */}
+                {onboardingStep !== 0 && !isAdding && mobileSearchOpen && (
+                    <div 
+                        className="absolute inset-0 bg-black/30 z-[50] transition-opacity" 
+                        onClick={(e) => { e.stopPropagation(); setOnboardingStep(onboardingStep === 1 ? 2 : 0); }} 
+                    />
+                )}
+
                 {/* Header (View 1) */}
                 <div onClick={onHeaderClick} className="outline-none cursor-default">
-                    <div className={`absolute z-[60] flex items-start justify-between px-[10px] w-full transition-all duration-400 ${mobileSearchOpen ? 'bg-black/0 pt-[7.5px] mt-[6px] pb-[0px] px-[15px]' : 'bg-black/0 mt-[0px] py-[7.5px]'}`}>
+                    <div className={`absolute flex items-start justify-between px-[10px] w-full transition-all duration-400 ${mobileSearchOpen ? 'bg-black/0 pt-[7.5px] mt-[6px] pb-[0px] px-[15px]' : 'bg-black/0 mt-[0px] py-[7.5px]'} `}>
                         <button
                             onClick={(e) => { e.stopPropagation(); onBack(); }}
-                            className={`inline-flex pr-[10px] active:scale-[.95] shrink-0 cursor-pointer items-center gap-2 text-white/90 hover:text-white active:opacity-80 active:scale-[.95] ${mobileSearchOpen ? 'mt-[7px]' : 'mt-[-1px]'}`}
-                        >
-                            <span className='rotate-[-90deg]'><ArrowIcon size={40} color="#fff"/></span>
+                            className={`inline-flex pr-[10px] active:scale-[.95] shrink-0 cursor-pointer items-center gap-2 text-white/90 hover:text-white active:opacity-80 active:scale-[.95] ${mobileSearchOpen ? 'mt-[7px]' : 'mt-[-1px]'} ${onboardingStep >= 1 ? 'z-[40]' : 'z-[60]'}`}
+                        > 
+                            <span className="rotate-[-90deg] z-[40]"><ArrowIcon size={40} color="#fff"/></span>
                         </button>
-                        <div className='flex flex-col text-right pr-3 pt-1 flex-1 mt-[-11px] min-w-0 overflow-hidden relative'>
+                        <div className={`flex flex-col text-right pr-3 pt-1 flex-1 mt-[-11px] min-w-0 overflow-hidden relative ${onboardingStep === 1 ? 'z-[60]' : 'z-[40]'}`}>
                             <input
                                 type="text"
                                 value={tripName}
@@ -290,10 +301,10 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
                 </div>
 
                 {/* Footer Buttons (View 1) */}
-                <div className={`absolute bottom-0 p-4 pt-2 flex gap-3 z-30 w-full transition-opacity duration-300 ease-in-out ${mobileSearchOpen ? 'opacity-100 translate-y-0 delay-100' : 'opacity-0 translate-y-full pointer-events-none'}`}>
+                <div className={`absolute bottom-0 p-4 pt-2 flex gap-3 w-full transition-opacity duration-300 z-[30] ease-in-out ${mobileSearchOpen ? 'opacity-100 translate-y-0 delay-100' : 'opacity-0 translate-y-full pointer-events-none'} ${onboardingStep === 1 ? 'z-[30]' : 'z-[60]'}`}>
     
-                    <div className='relative h-full' ref={exportButtonRef}>
-                        <button disabled={selectedItems.length === 0} onClick={toggleExportMenu} className={`self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] w-[100%]`}>
+                    <div  className={`relative h-full transition-opacity duration-300 ${onboardingStep >= 1  ? 'opacity-30 pointer-events-none' : 'opacity-100'}`} ref={exportButtonRef}>
+                        <button onClick={toggleExportMenu} className={`self-center active:scale-[.98] cursor-pointer whitespace-nowrap rounded-[26px] p-[2.7px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] w-[100%]`}>
                             <div className='flex items-center gap-[7px] text-center w-[100%] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-[23px] px-[35px] py-[15.4px]'>
                                 <p className='text-white font-bold'>Export to Maps</p>
                             </div>
@@ -315,27 +326,26 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
 
                     <button
                         onClick={handleOptimizeRoute}
-                        disabled={selectedItems.length < 3}
+                        disabled={!isReorderActive}
                         className={`
                             relative rounded-[26px] w-full p-[2.7px] transition-all duration-300
-                            ${selectedItems.length >= 3 
+                            ${isReorderActive
                                 ? 'ai-gradient-border active:scale-[.98] cursor-pointer' 
-                                : 'bg-white/30 opacity-50 cursor-not-allowed shadow-none'
+                                : 'bg-neutral-500 opacity-90 cursor-not-allowed shadow-none'
                             }
                         `}
                         aria-label="Reorder Trip"
                     >
                         <div className={`
                             flex w-[100%] h-full rounded-[23px] font-bold text-[1rem] items-center justify-center gap-2
-                            ${selectedItems.length >= 3 ? 'bg-[#525252]/70' : 'bg-[#252525]'}
+                            ${isReorderActive ? 'bg-[#333]/60' : 'bg-[#333]/30'}
                         `}>
-                            {/* Animate the Icon: Spin/Pulse when active */}
-                            <div className={`transition-all duration-500 ${selectedItems.length >= 3 ? 'text-white animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]' : 'text-neutral-500'}`}>
+                            <div className={`transition-all duration-500 ${isReorderActive ? 'text-white animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]' : 'text-neutral-500'}`}>
                                 <AiReorderIcon width={28} height={28} />
                             </div>
                             
-                            <span className={`transition-colors duration-300 ${selectedItems.length >= 3 ? 'text-white' : 'text-neutral-500'}`}>
-                                Reorder
+                            <span className={`transition-colors duration-300 ${isReorderActive ? 'text-white' : 'text-neutral-500'}`}>
+                                Re-order
                             </span>
                         </div>
                     </button>
@@ -406,21 +416,43 @@ export default function TripPlanner({ sites, onBack, onClose, onSaveTrip, mobile
             {/* SHARED GLOBALS */}
             <InternalDatePickerOverlay isOpen={showDatePicker} onClose={() => setShowDatePicker(false)} selectedDate={scheduledDate ? new Date(scheduledDate) : new Date()} onChange={handleDateSelect} />
 
-            {/* Onboarding Tooltip (Hidden if adding location so it doesnt block UI) */}
-            {showOnboardingTooltip && mobileSearchOpen && !isAdding && (
-                <div className="absolute inset-0 z-40 flex items-start justify-center pointer-events-none pt-[80px]">
+            {/* Step 1: Onboarding Tooltip for Header */}
+            {onboardingStep === 1 && mobileSearchOpen && !isAdding && (
+                <div className="absolute inset-0 z-[100] flex items-start justify-center pointer-events-none pt-[80px]">
                     <div className="pointer-events-auto">
-                        <div className="absolute inset-0 bg-black/40" onClick={() => setShowOnboardingTooltip(false)} />
-                        <div className="absolute right-[10px] z-50 ">
-                            <div className="bg-gradient-to-bl from-[#007BFF] to-[#66B2FF] rounded-[35px] p-3 mt-2 shadow-black/30 border border-blue-400/30 w-[250px]">
-                            <div className='mt-[10px]'>
-                                <p className="text-white font-semibold text-sm mb-2">👋 Welcome!</p>
-                                <p className="text-white/95 text-sm leading-relaxed mb-4 text-wrap">Edit your trip name and date here. Then add places to explore!</p>
+                        <div>
+                            <div className="absolute bg-[linear-gradient(to_right,#66B2FF,#007BFF)] rounded-[28px] shadow-[0px_0px_30px_rgba(0,0,0,0.3)] p-[2.7px] top-[80px] right-[10px] z-[10]">
+                                <div className="bg-[linear-gradient(to_left,#3DA2FF,#007BFF)] p-3 rounded-[25px] w-[250px]">
+                                    <div className='mt-[5px]'>
+                                        <p className="text-white font-semibold mb-1">Welcome!</p>
+                                        <p className="text-white/95 text-sm leading-relaxed mb-4 font-[500] text-wrap">Edit your trip name and date here. Then add places to explore!</p>
+                                    </div>
+                                    <button onClick={() => setOnboardingStep(2)} className="w-full bg-black/20 text-white text-xs font-bold py-[15px] rounded-[17px] transition-colors active:scale-[.98] active:bg-black/30 hover:bg-black/30 cursor-pointer">Got it!</button>
+                                </div>
                             </div>
-                                <button onClick={() => setShowOnboardingTooltip(false)} className="w-full bg-white/20 text-white text-xs font-bold py-4 rounded-full transition-colors active:scale-[.98] active:bg-black/30 hover:bg-black/30">Got it!</button>
-                                {/* <div className="absolute -top-2 left-1/2 -translate-x-1/2 w- h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-blue-600/90 rounded-[30px]" /> */}
-                                <div className="absolute top-[15px] right-[30px] -translate-x-1/2 w-[20px] h-[20px] bg-[#007BFF] transform rotate-45 -mt-[15.5px] rounded-[5px] z-[-1]" />
+                            {/* triangle point pointing up */}
+                            <div className="absolute top-[90px] right-[30px] -translate-x-1/2 w-[20px] h-[20px] bg-[#007BFF] transform rotate-45 -mt-[15.5px] rounded-[5px] z-0" />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Step 2: Onboarding Tooltip for Reorder Button */}
+            {onboardingStep === 2 && mobileSearchOpen && !isAdding && (
+                <div className="absolute inset-0 z-[100] flex items-end justify-end pointer-events-none pb-[100px]">
+                    <div className="pointer-events-auto">
+                        <div className="relative">
+                            <div className="relative bg-[linear-gradient(to_right,#66B2FF,#007BFF)] rounded-[28px] shadow-[0px_0px_30px_rgba(0,0,0,0.3)] p-[2.7px] z-[10] mx-4">
+                                <div className="bg-[linear-gradient(to_left,#3DA2FF,#007BFF)] p-3 rounded-[25px] w-[260px]">
+                                    <div className='mt-[5px]'>
+                                        <p className="text-white font-semibold mb-1">Optimize Your Route</p>
+                                        <p className="text-white/95 text-sm font-[500] leading-relaxed mb-4 text-wrap">Add a few stops to your trip, then use the Re-order to map out the most efficient travel sequence!</p>
+                                    </div>
+                                    <button onClick={() => setOnboardingStep(0)} className="w-full bg-black/20 text-white text-xs font-bold py-[15px] rounded-[17px] transition-colors active:scale-[.98] active:bg-black/30 hover:bg-black/30 cursor-pointer">Got it!</button>
+                                </div>
                             </div>
+                            {/* triangle point pointing down toward the rightside Reorder button */}
+                            <div className="absolute bottom-[-6px] right-1/4 translate-x-[20px] w-[20px] h-[20px] bg-[#007BFF] shadow-[0px_0px_20px_rgba(0,0,0,0.5)] transform rotate-45 rounded-[5px] z-[0]" />
                         </div>
                     </div>
                 </div>
@@ -476,7 +508,7 @@ const SortableTripItem = React.memo(({ item, index, onRemove }: { item: TripSite
                                 e.stopPropagation(); // Stop parent clicks
                                 controls.start(e);
                             }}
-                            className="text-white/40 hover:text-white cursor-grab active:cursor-grabbing p-2 touch-none"
+                            className="text-white/40 hover:text-white active:text-white cursor-grab active:cursor-grabbing p-2 touch-none"
                         >
                             <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
                         </div>
