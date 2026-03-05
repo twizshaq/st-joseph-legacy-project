@@ -44,13 +44,13 @@ const PARRIS_HILL_DATA: SiteContent = {
     sections: [
         {
             title: "Roots and Routes",
-            content: <><div className='mb-[15px] f/ont-[700] text-[1.2rem] max-sm:text-[1.1rem]'>Explore the history and heritage of the Parris Hill Mural.</div>
+            content: <><div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>Explore the history and heritage of the Parris Hill Mural.</div>
                 <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem]'>⏱️ 60 Seconds of Secrets</div>
                 This site is a rare example of large-scale, indigenous rock carving in the Eastern Caribbean. Unlike a traditional painted mural, these are sculptures etched directly into the natural limestone coral cliffs of St. Joseph. There are currently five scenes; from the Aesop’s Fable Lion and the Mouse (reminding us that no one is too small to make an impact) to the whimsical &quot;Cricket in the Jungle&quot; (a tribute to The Tradewinds&apos; song), the rock face is a celebration of Barbadian identity and universal fables.
             </>
         },
         {
-            title: "A Deeper Dive- Explore with the Artist",
+            title: "A Deeper Div - Explore with the Artist",
             content: <>This site is celebrated as a significant piece of public art. The work has evolved from the original murals to indigenous sculptures depicting scenes of folklore or the natural beauty of the parish.  The sculptures are the artistic vision of Christopher Chandler, a self-taught Barbadian &quot;recycle artist&quot; and sculptor. The primary works were completed around 2000, though Chandler has noted that the site is an ongoing &quot;vision&quot; rather than a finished decoration.
                 <br />
                 Like all great art, the interpretation is up to you, but we invite you to hear the stories from Christopher Chandler and see the progression of the work
@@ -62,15 +62,12 @@ const PARRIS_HILL_DATA: SiteContent = {
         subheading: "Your guide to staying safe and respecting the landscape.",
         description: "The Parris Hill Mural was carved from a shared vision; it belongs to all of us to admire and protect. Disaster preparedness works the same way. When you are ready, the whole community is stronger.  Know your plan, protect your home, and know where to meet when the elements test us.",
         guidelines: [
-            "The 3-2-1 Rule: Keep at least 3 days of water, 2 ways to get emergency alerts (radio/phone), and 1 fully stocked Go Bag (first-aid kit, food, documents).",
+            <>The 3-2-1 Rule <br /> Keep at least 3 days of water, 2 ways to get emergency alerts (radio/phone), and 1 fully stocked Go Bag (first-aid kit, food, documents).</>,
 
-            "The 'Meeting Point': Don't wait for the storm to decide where to go. Pick a specific landmark eg. like the Parris Hill Mural or a nearby community center, as your family’s 'safe zone' if you are separated.",
+            <>The &quot;Meeting Point&quot; <br /> Don't wait for the storm to decide where to go. Pick a specific landmark eg. like the Parris Hill Mural or a nearby community center, as your family’s 'safe zone' if you are separated.</>,
 
-            "Document the Spirit: Just as we photograph the art, take photos of your important documents and home interior. Store them in a waterproof 'Go-Bag' or on the cloud.",
+            <>Document the Spirit <br/> Just as we photograph the art, take photos of your important documents and home interior. Store them in a waterproof 'Go-Bag' or on the cloud.</>,
         ],
-        emergencyNumbers: (
-            <>• 211 Police <br /> • 511 Ambulance <br /> • 311 Fire</>
-        )
     },
 
     heroMedia: {

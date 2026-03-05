@@ -19,9 +19,9 @@ export const LocalStories = ({ data }: LocalStoriesProps) => {
     return (
         <div className='max-w-[90vw] w-[450px] relative z-1'>
             {/* Decorative Glow behind the widget */}
-            <div className='absolute top-10 right-10 w-32 h-32 bg-fuchsia-400/20 rounded-full blur-3xl -z-10 pointer-events-none'></div>
+            {/* <div className='absolute top-10 right-10 w-32 h-32 bg-fuchsia-400/20 rounded-full -z-10 pointer-events-none'></div> */}
 
-            <div className='rounded-[35px] border border-fuchsia-500/30 bg-white/95 backdrop-blur-sm overflow-hidden transition-all duration-300 shadow-[0_0px_20px_rgb(0,0,0,.1)] '>
+            <div className={` border border-fuchsia-500/30 bg-white/95 overflow-hidden active:scale-[.99] shadow-[0_0px_20px_rgb(0,0,0,.1)] ${isOpen ? `rounded-[45px]` : `rounded-[35px]` }`}>
 
                 {/* --- HEADER --- */}
                 <button
@@ -30,7 +30,7 @@ export const LocalStories = ({ data }: LocalStoriesProps) => {
                 >
                     {/* Subtle Background Pattern in Header */}
                     <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(45deg,#d946ef_25%,transparent_25%,transparent_50%,#d946ef_50%,#d946ef_75%,transparent_75%,transparent)] bg-[length:20px_20px] pointer-events-none"></div>
-                    <div className="absolute left-0 top-0 w-1/3 h-full blur-[20px] bg-gradient-to-r from-fuchsia-50/80 to-transparent pointer-events-none"></div>
+                    <div className="absolute left-0 top-0 w-1/3 h-full bg-gradient-to-r from-fuchsia-50/80 to-transparent pointer-events-none"></div>
 
                     <div className='flex items-center gap-4 relative z-10'>
                         {/* Icon Circle */}
@@ -39,7 +39,7 @@ export const LocalStories = ({ data }: LocalStoriesProps) => {
                                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                             </svg>
-                            <span className="absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-20 animate-pulse group-hover:opacity-40"></span>
+                            {/* <span className="absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-20 animate-pulse group-hover:opacity-40"></span> */}
                         </div>
                         {/* Text Labels */}
                         <div className="flex flex-col items-start">
@@ -58,7 +58,7 @@ export const LocalStories = ({ data }: LocalStoriesProps) => {
                 <div className={`h-[1px] w-full bg-gradient-to-r from-transparent via-fuchsia-200 to-transparent transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}></div>
 
                 {/* --- CONTENT AREA --- */}
-                <div className={`${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden bg-white relative transition-all duration-500 ease-in-out`}>
+                <div className={`${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden bg-white relative`}>
                     <div className='px-6 pb-6 pt-6 relative z-10 flex flex-col gap-8'>
                         {data.items.map((story) => (
                             <StoryItem key={story.id} story={story} />
@@ -81,6 +81,12 @@ const StoryItem = ({ story }: { story: Story }) => {
                 <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400"></span>
                 <p className="font-bold text-slate-700 text-sm uppercase tracking-wide">{story.title}</p>
             </div>
+            {/* Caption */}
+            {story.caption && (
+                <p className="text-[0.85rem] text-slate-500 leading-relaxed italic border-l-2 border-fuchsia-200 pl-3">
+                    {story.caption}
+                </p>
+            )}
 
             {/* Media Logic */}
             <div className="">
@@ -110,13 +116,6 @@ const StoryItem = ({ story }: { story: Story }) => {
                     </div>
                 )}
             </div>
-
-            {/* Caption */}
-            {story.caption && (
-                <p className="text-[0.85rem] text-slate-500 leading-relaxed italic border-l-2 border-fuchsia-200 pl-3">
-                    {story.caption}
-                </p>
-            )}
         </div>
     );
 };

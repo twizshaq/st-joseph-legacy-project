@@ -44,7 +44,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
     ];
 
     return (
-        <div className="w-full max-w-[450px] relative z-10">
+        <div className="w-full max-w-[450px] min-w-[450px] relative z-10">
             <div className="absolute top-10 left-10 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
             <div className="rounded-[40px] border border-amber-500/30 bg-white/95 backdrop-blur-sm overflow-hidden transition-all duration-300 shadow-[0_0px_20px_rgb(0,0,0,.1)]">
@@ -52,7 +52,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
                 {/* Header Button */}
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="group w-full flex items-center justify-between gap-3 px-6 py-5 cursor-pointer relative overflow-hidden"
+                    className="group w-full flex items-center justify-between px-6 py-5 cursor-pointer relative overflow-hidden"
                 >
                     {/* Background effects */}
                     <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(45deg,#f59e0b_25%,transparent_25%,transparent_50%,#f59e0b_50%,#f59e0b_75%,transparent_75%,transparent)] bg-[length:20px_20px] pointer-events-none"></div>
@@ -65,12 +65,11 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
                                 <path d="M12 9v4" />
                                 <path d="M12 17h.01" />
                             </svg>
-                            <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-20 animate-ping group-hover:opacity-40"></span>
                         </div>
 
                         <div className="flex flex-col text-start">
-                            <span className="font-bold text-[1.15rem] text-slate-800 leading-tight">{data.heading}</span>
-                            <span className="text-[0.8rem] text-slate-400 font-medium">{data.subheading}</span>
+                            <span className="font-bold text-[1.15rem] text-slate-700 leading-tight">{data.heading}</span>
+                            <span className="text-[0.8rem] text-slate-700 font-medium">{data.subheading}</span>
                         </div>
                     </div>
 
@@ -84,7 +83,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
                 <div className={`${isOpen ? 'max-h-fit opacity-100' : 'max-h-0 opacity-0'} overflow-hidden bg-white relative transition-all duration-300`}>
                     <div className="px-6 pb-6 pt-4 relative z-10">
                         {/* Description */}
-                        <div className="text-[0.95rem] leading-[1.6] text-slate-600 mb-4">
+                        <div className="text-[0.95rem] leading-[1.6] text-slate-700 mb-4">
                             {data.description}
                         </div>
 
@@ -93,7 +92,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
                             {guidelines.map((item, index) => (
                                 <li key={index} className="flex gap-3 items-start">
                                     <span className="mt-1.5 min-w-[6px] h-[6px] rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
-                                    <span className="text-[0.9rem] text-slate-500 font-medium">{item}</span>
+                                    <span className="text-[0.9rem] text-slate-700 font-medium">{item}</span>
                                 </li>
                             ))}
                         </ul>
@@ -116,9 +115,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
                                             <a
                                                 key={item.number}
                                                 href={`tel:${item.number}`}
-                                                className="bg-amber-200 text-amber-900 font-semibold text-[0.85rem]
-                   py-1 px-3 rounded-lg text-center
-                   hover:bg-amber-300 transition-colors duration-200"
+                                                className="bg-amber-200 text-amber-900 font-semibold text-[0.85rem] py-1 px-3 rounded-lg text-center hover:bg-amber-300 transition-colors duration-200"
                                             >
                                                 <span>{item.display ?? item.number}</span>
                                                 <span className="block text-[0.75rem] font-normal">{item.label}</span>

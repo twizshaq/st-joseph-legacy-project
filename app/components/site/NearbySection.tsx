@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { SiteCardSkeleton } from "@/app/components/SiteCardSkeleton";
 import ArrowIcon from '@/public/icons/arrow-icon';

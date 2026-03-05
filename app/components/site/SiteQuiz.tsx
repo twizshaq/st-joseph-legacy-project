@@ -57,9 +57,9 @@ export const SiteQuiz = ({ user, siteId }: { user: User | null, siteId: number }
   };
 
   return (
-    <div className='shadow-[0px_0px_20px_rgba(0,0,0,0.4)] rounded-[43px] w-full max-w-[450px] mb-[0px]'>
+    <div className='shadow-[0px_0px_20px_rgba(0,0,0,0.4)] rounded-[43px] w-full h-fit max-w-[450px] mb-[0px]'>
       {/* INNER DIV: Holds the mask, background, and padding (The visual border) */}
-      <div className='w-full h-full rounded-[43px] p-[3px] [mask-image:radial-gradient(white,black)] bg-gradient-to-br from-indigo-300 via-blue-800/95 to-blue-300 overflow-hidden'>
+      <div className='w-full h-fit rounded-[43px] p-[3px] [mask-image:radial-gradient(white,black)] bg-gradient-to-br from-indigo-300 via-blue-800/95 to-blue-300 overflow-hidden'>
         <div 
           className={`
             w-full rounded-[40px]

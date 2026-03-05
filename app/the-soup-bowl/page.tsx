@@ -50,9 +50,7 @@ const SOUP_BOWL_DATA: SiteContent = {
             </>
         },
         {
-            title: <>
-                <div className='mb-[15px] font-[700] text-[1.2rem] max-sm:text-[1.1rem] !text-black'>A Deeper Dive</div>
-            </>,
+            title: "A Deeper Dive",
             content: <>The Soup Bowl&apos;s reputation is built on its unique geological structure and exposure to the Atlantic.
                 <ul className="list-disc pl-5 space-y-3 mt-[15px] ml-3">
                     <li>
@@ -78,6 +76,7 @@ const SOUP_BOWL_DATA: SiteContent = {
                 <li>
                     <b>Swimming:</b> Because of powerful undertows, rip currents, and sharp coral reefs, swimming in the open ocean here is extremely dangerous and generally discouraged.
                 </li>
+                <br />
                 <li>
                     <b>Natural Warning Signs: Be Tsunami Smart</b>
                     <br />
@@ -94,14 +93,6 @@ const SOUP_BOWL_DATA: SiteContent = {
             <>Use designated zones for photography.</>,
             <>Park away from soft shoulders.</>
         ],
-        emergencyNumbers: (
-            <>
-                • <a href="tel:211" className="text-blue-600 font-semibold hover:underline">211 Police</a><br />
-                • <a href="tel:511" className="text-blue-600 font-semibold hover:underline">511 Ambulance</a><br />
-                • <a href="tel:311" className="text-blue-600 font-semibold hover:underline">311 Fire</a>
-            </>
-
-        )
     },
 
     heroMedia: {
@@ -177,9 +168,9 @@ export default function SoupBowlPage() {
                 sidebarSlot={
                     <>
                         <SiteSafety data={SOUP_BOWL_DATA.safety} />
-                        {SOUP_BOWL_DATA.stories && (
+                        {/* {SOUP_BOWL_DATA.stories && (
                             <LocalStories data={SOUP_BOWL_DATA.stories} />
-                        )}
+                        )} */}
                         <SiteQuiz user={user} siteId={SOUP_BOWL_DATA.id} />
                     </>
                 }
