@@ -25,11 +25,15 @@ interface ParishProperties {
     name: string;
 }
 
-type Zoomable = { zoomIn: () => void; zoomOut: () => void };
+type Zoomable = { zoomIn: () => void; zoomOut: () => void; resize: () => void };
 
 type MapFullProps = {
     onMarkerClick?: (feature: Feature<Point> | null) => void;
     geojsonData: FeatureCollection<Point> | null;
+    markersInteractive?: boolean;
+    controlsInContainer?: boolean;
+    timeOfDay?: 'day' | 'dusk';
+    initial3D?: boolean;
 };
 
 const getDirectionLetter = (bearing: number): string => {
@@ -40,7 +44,7 @@ const getDirectionLetter = (bearing: number): string => {
     return 'N';
 };
 
-const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, geojsonData }, ref) => {
+const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, geojsonData, markersInteractive = true, controlsInContainer = false, timeOfDay = 'day', initial3D = false }, ref) => {
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const map = useRef<mapboxgl.Map | null>(null);
 
@@ -59,13 +63,14 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
 
     const compassDialRef = useRef<HTMLDivElement | null>(null);
     const [directionLetter, setDirectionLetter] = useState<string>('N');
-    const [is3D, setIs3D] = useState<boolean>(false);
+    const [is3D, setIs3D] = useState<boolean>(initial3D);
     const [isAboveThreshold, setIsAboveThreshold] = useState<boolean>(false);
     const [mapLoaded, setMapLoaded] = useState(false);
 
     useImperativeHandle(ref, () => ({
         zoomIn: () => map.current?.zoomIn({ duration: 300 }),
         zoomOut: () => map.current?.zoomOut({ duration: 300 }),
+        resize: () => map.current?.resize(),
     }));
 
     const handleToggle3D = () => setIs3D(prev => !prev);
@@ -74,6 +79,10 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         if (!map.current) return;
         map.current.flyTo({ bearing: 0, pitch: is3D ? 60 : 0, duration: is3D ? 1000 : 500 });
     };
+
+    const controlsClassName = controlsInContainer
+        ? 'absolute z-[35] gap-[5px] flex flex-col items-end right-[20px] top-[20px]'
+        : 'fixed gap-[5px] flex flex-col items-end right-[21px] bottom-[185px] max-sm:bottom-auto max-sm:top-[80px] max-sm:flex-row max-sm:right-[14px] max-sm:items-center landscape:max-lg:flex-row landscape:max-lg:items-center landscape:max-lg:bottom-[18px] landscape:max-lg:right-[80px]';
 
     // 1. INITIALIZATION EFFECT
     useEffect(() => {
@@ -96,7 +105,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
 
                 map.current = new mapboxgl.Map({
                     container: mapContainer.current!,
-                    style: 'mapbox://styles/mapbox/streets-v12',
+                    style: 'mapbox://styles/mapbox/standard',
                     bounds: mapBounds,
                     fitBoundsOptions: { padding: 20, duration: 0 },
                     maxBounds: mapBounds,
@@ -117,27 +126,18 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                 mapInstance.on('load', () => {
                     if (!isMounted) return;
 
+                    try {
+                        mapInstance.setConfigProperty('basemap', 'lightPreset', 'day');
+                        mapInstance.setConfigProperty('basemap', 'show3dObjects', false);
+                    } catch {
+                        // Ignore if style config APIs are unavailable.
+                    }
+
                     mapInstance.addSource('mapbox-dem', {
                         'type': 'raster-dem',
                         'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
                         'tileSize': 512,
                         'maxzoom': 14
-                    });
-
-                    mapInstance.addLayer({
-                        'id': '3d-buildings',
-                        'source': 'composite',
-                        'source-layer': 'building',
-                        'filter':['==', 'extrude', 'true'],
-                        'type': 'fill-extrusion',
-                        'minzoom': 14,
-                        'layout': { 'visibility': 'none' },
-                        'paint': {
-                            'fill-extrusion-color': '#aaa',
-                            'fill-extrusion-height': ['get', 'height'],
-                            'fill-extrusion-base':['get', 'min_height'],
-                            'fill-extrusion-opacity': 0.8
-                        }
                     });
 
                     updateThreshold();
@@ -179,7 +179,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
             name: string;
             pointimage?: string;
             colorhex?: string;
-            handleClick: (e: MouseEvent) => void;
+            handleClick: ((e: MouseEvent) => void) | null;
         }[] = [];
 
         for (const feature of geojsonData.features) {
@@ -195,6 +195,7 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     pointimage={pointimage} 
                     color={colorhex}
                     isTextMode={mapInstance.getZoom() >= ZOOM_THRESHOLD}
+                    timeOfDay={timeOfDay}
                 />
             );
 
@@ -202,17 +203,19 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                 .setLngLat(coordinates as [number, number])
                 .addTo(mapInstance);
             
-            const handleClick = (e: MouseEvent) => {
-                e.stopPropagation();
-                onMarkerClickRef.current(feature);
-                mapInstance.flyTo({
-                    center: coordinates as [number, number],
-                    zoom: 15,
-                    essential: true
-                });
-            };
-            
-            marker.getElement().addEventListener('click', handleClick);
+            let handleClick: ((e: MouseEvent) => void) | null = null;
+            if (markersInteractive) {
+                handleClick = (e: MouseEvent) => {
+                    e.stopPropagation();
+                    onMarkerClickRef.current(feature);
+                    mapInstance.flyTo({
+                        center: coordinates as [number, number],
+                        zoom: 15,
+                        essential: true
+                    });
+                };
+                marker.getElement().addEventListener('click', handleClick);
+            }
             currentMarkers.push({ marker, root, name, pointimage, colorhex, handleClick });
         }
         
@@ -222,13 +225,13 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
 
         return () => {
             currentMarkers.forEach(({ marker, root, handleClick }) => {
-                marker.getElement().removeEventListener('click', handleClick);
+                if (handleClick) marker.getElement().removeEventListener('click', handleClick);
                 marker.remove();
                 setTimeout(() => root.unmount(), 0);
             });
             markerDataRef.current = [];
         };
-    }, [geojsonData, mapLoaded]);
+    }, [geojsonData, mapLoaded, markersInteractive, timeOfDay]);
 
     // 3. ZOOM THRESHOLD SYNC (Bubble vs Text Mode)
     useEffect(() => {
@@ -240,10 +243,11 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
                     pointimage={pointimage}
                     color={colorhex}
                     isTextMode={isAboveThreshold}
+                    timeOfDay={timeOfDay}
                 />
             );
         });
-    }, [isAboveThreshold]);
+    }, [isAboveThreshold, timeOfDay]);
 
     // 4. 3D / FOG / TERRAIN EFFECT
     useEffect(() => {
@@ -251,28 +255,41 @@ const MapFull = forwardRef<Zoomable, MapFullProps>(({ onMarkerClick = () => {}, 
         
         const duration = 1200;
         if (is3D) {
-            map.current.setFog({
-                'range': [1, 10], // Increased fog distance
-                'color': '#f8fafc',    
-                'horizon-blend': 0.1,  
-            });
             map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.3 });
-            map.current.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+            try {
+                map.current.setConfigProperty('basemap', 'show3dObjects', true);
+            } catch {
+                // Ignore if style config APIs are unavailable.
+            }
             map.current.flyTo({ pitch: 60, bearing: map.current.getBearing(), duration });
         } else {
             map.current.setFog(null);
             map.current.setTerrain(null);
-            map.current.setLayoutProperty('3d-buildings', 'visibility', 'none');
+            try {
+                map.current.setConfigProperty('basemap', 'show3dObjects', false);
+            } catch {
+                // Ignore if style config APIs are unavailable.
+            }
             map.current.flyTo({ pitch: 0, bearing: map.current.getBearing(), duration });
         }
     }, [is3D, mapLoaded]);
 
+    // 5. DAY / DUSK PRESET (Mapbox Standard style lighting)
+    useEffect(() => {
+        if (!mapLoaded || !map.current) return;
+        try {
+            map.current.setConfigProperty('basemap', 'lightPreset', timeOfDay);
+        } catch {
+            // Ignore if style config APIs are unavailable.
+        }
+    }, [timeOfDay, mapLoaded]);
+
     return (
         <div className='h-full w-full relative'>
             <div ref={mapContainer} className='h-full w-full' />
-            <div className='fixed gap-[5px] flex flex-col items-end right-[21px] bottom-[185px] max-sm:bottom-auto max-sm:top-[80px] max-sm:flex-row max-sm:right-[14px] max-sm:items-center landscape:max-lg:flex-row landscape:max-lg:items-center landscape:max-lg:bottom-[18px] landscape:max-lg:right-[80px]'>
+            <div className={controlsClassName}>
                 <ThreeDToggle is3D={is3D} onToggle={handleToggle3D} />
-                <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+                <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px] mr-[-2px]'>
                     <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
                         <button onClick={handleResetNorth} className="rounded-full bg-black/40 active:bg-black/50 hover:bg-black/50 w-[45px] h-[45px] flex items-center justify-center z-[10]" aria-label="Reset bearing to north">
                             <Compass ref={compassDialRef} directionLetter={directionLetter} />

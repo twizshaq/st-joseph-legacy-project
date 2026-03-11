@@ -1,4 +1,4 @@
-export type Zoomable = { zoomIn: () => void; zoomOut: () => void };
+export type Zoomable = { zoomIn: () => void; zoomOut: () => void; resize: () => void };
 
 export type Site = {
   id: number;

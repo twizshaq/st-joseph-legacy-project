@@ -6,6 +6,7 @@ export type CustomMapMarkerProps = {
     color?: string;
     isTextMode?: boolean;
     stopNumber?: number;
+    timeOfDay?: 'day' | 'dusk';
 };
 
 const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
@@ -14,23 +15,24 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
     color = 'rgb(80, 86, 102)',
     isTextMode = false,
     stopNumber,
+    timeOfDay = 'day',
 }) => {
     // FIX 3: Removed console.log
 
     if (isTextMode) {
         return (
             <div className="flex flex-col items-center cursor-pointer text-white">
-                <div className="w-auto bg-transparent backdrop-blur-[3px] p-[3px] rounded-full shadow-[0px_0px_10px_rgba(0,0,0,0.2)]">
+                <div className={`${timeOfDay === 'dusk' ? 'bg-[#aaa]/10' : 'bg-[#fff]/0'} w-auto backdrop-blur-[3px] p-[3px] rounded-full shadow-[0px_0px_10px_rgba(0,0,0,0.2)]`}>
                     {stopNumber && (
                         <div className="absolute ml-[12px] top-[8px] text-[.8rem] font-bold">
                             {stopNumber}.
                         </div>
                     )}
-                    <div className={`bg-black/45 rounded-full font-bold px-[12px] py-[5px] ${stopNumber ? 'pl-[27px]' : 'pl-[12px]'}`}>
+                    <div className={`${timeOfDay === 'dusk' ? 'bg-black/35' : 'bg-black/35'} rounded-full font-bold px-[12px] py-[5px] ${stopNumber ? 'pl-[27px]' : 'pl-[12px]'}`}>
                         {name}
                     </div>
                 </div>
-                <div className="w-[20px] h-[20px] bg-white/90 shadow-[0px_0px_10px_rgba(0,0,0,0.2)] transform rotate-45 -mt-[15.5px] rounded-[5px] z-[-1]" />
+                <div className={`w-[20px] h-[20px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] transform rotate-45 -mt-[15.5px] rounded-[5px] z-[-1] ${timeOfDay === 'dusk' ? 'bg-[linear-gradient(to_top_left,grey_0%,grey_20%,transparent_60%)]' : 'bg-[linear-gradient(to_top_left,white_0%,white_60%,transparent_50%)]'}`} />
             </div>
         );
     }
@@ -86,7 +88,7 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
                 className="relative
                     w-[20px] h-[20px]
                     rotate-45
-                    -mt-[15.5px]
+                    -mt-[16px]
                     group-hover:-mt-[16px]
                     rounded-[5px]
                     shadow-[0px_0px_10px_rgba(0,0,0,0.2)]
