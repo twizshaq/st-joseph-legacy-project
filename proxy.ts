@@ -1,20 +1,25 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/proxy'
 
 export async function proxy(request: NextRequest) {
-  // This calls the helper function from the other file
+  const { pathname } = request.nextUrl
+
+  // Allow homepage and system/static files
+  const isHomePage = pathname === '/'
+  const isPublicFile = pathname.includes('.')
+  const isNextInternal = pathname.startsWith('/_next')
+
+  // Redirect everything else to home
+//   if (!isHomePage && !isPublicFile && !isNextInternal) {
+//     return NextResponse.redirect(new URL('/', request.url))
+//   }
+
+  // Run your Supabase session update
   return await updateSession(request)
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
