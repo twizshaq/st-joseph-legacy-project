@@ -34,7 +34,7 @@ export default function HeroSiteCarousel({ hero }: HeroSiteCarouselProps) {
       ref={heroViewportRef}
       className={`relative flex h-[360px] w-[800px] items-center justify-center select-none max-sm:scale-[.8] ${
         canNavigateHeroCards ? (isHeroDragging ? "cursor-grabbing" : "cursor-grab") : ""
-      }`}
+      } ${isHeroDragging ? "pointer-events-none" : ""}`}
       style={{
         touchAction: "pan-y",
         perspective: isDesktopHeroLayout ? "1800px" : undefined,
@@ -66,7 +66,7 @@ export default function HeroSiteCarousel({ hero }: HeroSiteCarouselProps) {
               <div
                 key={`hero-card-${card.id}`}
                 // OPTIMIZATION: Added transform-gpu here to ensure the 3D movement is handled entirely by the GPU
-                className={`hero-cards-intro absolute rounded-[57px] transform-gpu [transform-style:preserve-3d] ${
+                className={`hero-cards-intro absolute rounded-[57px] transform-gpu [transform-style:preserve-3d] will-change-transform ${
                   shouldRenderCard ? "cursor-pointer" : ""
                 }`}
                 style={getHeroCardMotionStyle(relativePosition, isDesktopHeroLayout)}
@@ -76,6 +76,7 @@ export default function HeroSiteCarousel({ hero }: HeroSiteCarouselProps) {
                     card={card}
                     animationIndex={Math.abs(relativePosition) < 0.5 ? HERO_CENTER_SLOT_INDEX : index}
                     hasEntered={hasHeroCardsEntered}
+                    isDragging={isHeroDragging}
                   />
                 ) : (
                   <HeroSitePreviewSkeleton />
