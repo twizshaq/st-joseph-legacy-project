@@ -30,6 +30,7 @@ export interface SafetyInfo {
   subheading: string;   // e.g., "Safety Guidelines"
   description: ReactNode;  // Main paragraph text
   guidelines: ReactNode[]; // Array of strings for the bullet points
+  emergencyNumbers?: ReactNode;
 }
 
 export interface SiteFactsData {
