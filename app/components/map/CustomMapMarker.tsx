@@ -30,7 +30,7 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
                         {name}
                     </div>
                 </div>
-                <div className="w-[20px] h-[20px] bg-white/90 shadow-[0px_0px_10px_rgba(0,0,0,0.2)] transform rotate-45 -mt-[15.5px] rounded-[5px] z-[-1]" />
+                <div className="w-[20px] h-[20px] bg-white/80 shadow-[0px_0px_10px_rgba(0,0,0,0.2)] transform rotate-45 -mt-[15.5px] rounded-[5px] z-[-1]" />
             </div>
         );
     }
@@ -57,8 +57,8 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
         >
             <div
                 className="
-                    bg-white/60 backdrop-blur-[3px]
-                    rounded-full p-[3px]
+                    bg-white/80
+                    rounded-full p-[2.7px]
                     shadow-[0px_0px_10px_rgba(0,0,0,0.2)]
                     
                     /* FIX 1: Targeted transitions instead of transition-all */
@@ -96,7 +96,7 @@ const CustomMapMarker: React.FC<CustomMapMarkerProps> = ({
                     "
             >
                 {/* LAYER 1: The Base White (Always visible) */}
-                <div className="absolute inset-0 bg-white/90 rounded-[5px]" />
+                <div className="absolute inset-0 bg-white rounded-[5px]" />
 
                 {/* LAYER 2: The Gradient (Fades in on hover) */}
                 <div 

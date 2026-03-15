@@ -31,6 +31,7 @@ export function useHomeData() {
                     coordinates: [parseFloat(entry.longitude || '0'), parseFloat(entry.latitude || '0')] as [number, number],
                     imageUrl: entry.pointimage || '',
                     colorhex: entry.colorhex || '#fff',
+                    slug: entry.slug || '',
                 })).filter((site: Site) => site.id !== null && site.coordinates.length === 2);
                 
                 setSites(siteData);

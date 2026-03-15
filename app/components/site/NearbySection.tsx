@@ -148,7 +148,7 @@ export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
                   {/* Main Card */}
                   <div
                     className="relative bg-cover bg-center min-h-[340px] max-h-[340px]
-                               min-w-[270px] max-w-[270px] rounded-[54px]
+                               min-w-[270px] max-w-[270px] rounded-[55px]
                                flex flex-col justify-end overflow-hidden z-10"
                     style={{ backgroundImage: `url(${card.image_url})` }}
                   >
@@ -192,9 +192,9 @@ export const NearbySection = ({ sites, loading }: NearbySectionProps) => {
 
                     <div className="rotate-[180deg] self-end">
                       <div
-                        className="absolute w-[270px] backdrop-blur-[5px]
+                        className="absolute w-[270px] backdrop-blur-[3px]
                                    [mask-image:linear-gradient(to_bottom,black_50%,transparent)]
-                                   h-[200px]"
+                                   h-[170px]"
                       />
                     </div>
                   </div>

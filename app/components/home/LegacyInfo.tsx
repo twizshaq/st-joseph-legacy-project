@@ -83,7 +83,7 @@ export default function LegacyInfo() {
                     <div className="absolute w-[41%] h-[58%] top-[2%] right-[9%] rotate-[12deg] cursor-pointer transition-transform duration-300 ease-out hover:scale-[1.04] hover:rotate-[14deg] active:scale-[0.96] active:rotate-[10deg]">
                         <div className="relative w-full h-full rounded-[50px] max-sm:rounded-[38px] max-sm:border-[3px] border-4 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
                             <Image
-                                src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/bathseba-1.JPG"}
+                                src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/hackelton-cliff/hackelton-cliff-view.webp"}
                                 alt='Bathsheba'
                                 fill
                                 style={{ objectFit: 'cover' }}
@@ -95,7 +95,7 @@ export default function LegacyInfo() {
                     <div className="absolute w-[48%] h-[44%] top-[22%] left-[4%] -rotate-[10deg] cursor-pointer transition-transform duration-300 ease-out hover:scale-[1.04] hover:-rotate-[12deg] active:scale-[0.96] active:-rotate-[8deg]">
                         <div className="relative w-full h-full rounded-[50px] max-sm:rounded-[38px] max-sm:border-[3px] border-4 border-white shadow-[0_0px_30px_rgba(0,0,0,0.1)] overflow-hidden bg-white/50">
                             <Image
-                                src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/home-page/joes-river-bridge-2.JPG"}
+                                src={"https://st-joseph-site-assets.s3.us-east-2.amazonaws.com/joes-river-bridge/joes-river-bridge-river.webp"}
                                 alt='Bridge 2'
                                 fill
                                 style={{ objectFit: 'cover' }}

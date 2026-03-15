@@ -170,7 +170,7 @@ export function IntensityGuidelines() {
     ]
 
     return (
-        <section className="w-full max-w-7xl mx-auto px-4 py-16 md:py-24 font-sans">
+        <section className="w-full max-w-7xl mx-auto px-4 py-16 md:py-24">
             <div className="text-center mb-16 space-y-4">
                 <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
                     Choose Your Pace

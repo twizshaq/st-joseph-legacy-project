@@ -15,6 +15,7 @@ const ZOOM_THRESHOLD = 15;
 
 interface LocationProperties {
     name: string;
+    imageUrl?: string;
     pointimage?: string;
     colorhex?: string;
 }
@@ -136,6 +137,7 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
         for (const feature of geojsonData.features) {
             const properties = feature.properties as LocationProperties;
             const coordinates = (feature.geometry as Point).coordinates as [number, number];
+            const markerImage = properties.imageUrl ?? properties.pointimage;
 
             const markerEl = document.createElement('div');
             const root = createRoot(markerEl);
@@ -143,7 +145,7 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
             root.render(
                 <CustomMapMarker
                     name={properties.name}
-                    pointimage={properties.pointimage}
+                    pointimage={markerImage}
                     color={properties.colorhex}
                     isTextMode={mapInstance.getZoom() >= ZOOM_THRESHOLD}
                 />
@@ -180,10 +182,11 @@ const Map = forwardRef<MapControlsHandle, MapProps>(({ geojsonData, onRotate = (
     useEffect(() => {
         if (!mapLoaded) return;
         markerDataRef.current.forEach(({ root, properties }) => {
+            const markerImage = properties.imageUrl ?? properties.pointimage;
             root.render(
                 <CustomMapMarker
                     name={properties.name}
-                    pointimage={properties.pointimage}
+                    pointimage={markerImage}
                     color={properties.colorhex}
                     isTextMode={isAboveThreshold}
                 />

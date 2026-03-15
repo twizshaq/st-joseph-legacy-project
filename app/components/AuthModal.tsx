@@ -296,17 +296,17 @@ import Link from "next/link";
                  
                  {!isLogin && (
                    <div className="flex flex-col gap-4 md:flex-row">
-                     <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First Name *" required className="w-full font-[500] rounded-[20px] border-[2px] border-gray-300/10 bg-[#999]/10 p-3 text-white placeholder-white/80 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                     <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last Name *" required className="w-full font-[500] rounded-[20px] border-[2px] border-gray-300/10 bg-[#999]/10 p-3 text-white placeholder-white/80 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                     <input autoComplete="off" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First Name *" required className="w-full font-[500] rounded-[20px] border-[2px] border-gray-300/10 bg-[#999]/10 p-3 text-white placeholder-white/80 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                     <input autoComplete="off" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last Name *" required className="w-full font-[500] rounded-[20px] border-[2px] border-gray-300/10 bg-[#999]/10 p-3 text-white placeholder-white/80 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
                    </div>
                  )}
                  
                  <div className="mt-4">
-                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email *" required className="w-full font-[500] rounded-[20px] border-[2px] border-gray-300/10 bg-[#999]/10 p-3 text-white placeholder-white/80 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                   <input autoComplete="off" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email *" required className="w-full font-[500] rounded-[20px] border-[2px] border-gray-300/10 bg-[#999]/10 p-3 text-white placeholder-white/80 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
                  </div>
                  
                  <div className="relative mt-4">
-                   <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password *" required className={passwordInputClass} />
+                   <input autoComplete="off" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password *" required className={passwordInputClass} />
                    <button type="button" className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600" onClick={() => setShowPassword(!showPassword)}>
                      {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
                    </button>

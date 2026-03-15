@@ -9,7 +9,7 @@ import ConnectCTA from "@/app/components/aboutus/ConnectCTA";
 
 export default function AboutUsPage() {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden font-sans text-slate-800 flex flex-col items-center">
+    <div className="min-h-screen w-full overflow-x-hidden text-slate-800 flex flex-col items-center">
       
       {/* 1. Hero Section (Video) */}
       <AboutHero />

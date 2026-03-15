@@ -29,7 +29,7 @@ const Stepper = ({ currentStep }: { currentStep: number }) => {
                                     isCompleted ? 'bg-green-500 border-green-500 text-white' : 'bg-white border-gray-200 text-gray-400'}`}>
                                 {isCompleted ? <Check className="w-5 h-5" /> : stepNum}
                             </div>
-                            <span className={`absolute -bottom-6 md:text-[12px] text-xs font-bold font-sans uppercase tracking-wider whitespace-nowrap transition-colors duration-300
+                            <span className={`absolute -bottom-6 md:text-[12px] text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-300
                                 ${isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-400'}`}>
                                 {label}
                             </span>
@@ -155,7 +155,7 @@ export function BookingModal({
                                                     <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shrink-0"><MapPin className="w-7 h-7" /></div>
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-1">
-                                                            <span className="text-[12px] font-semibold font-sans bg-blue-600 text-white px-2 py-0.5 rounded-2xl uppercase tracking-wide flex items-center gap-1 cursor-pointer" 
+                                                            <span className="text-[12px] font-semibold bg-blue-600 text-white px-2 py-0.5 rounded-2xl uppercase tracking-wide flex items-center gap-1 cursor-pointer" 
                                                                   onClick={() => { navigator.clipboard.writeText(bookingData.bookingId.split('-')[1]); setToast('ID copied'); }}>
                                                                 ID #{bookingData.bookingId.split('-')[1]} <Copy className="w-3 h-3" />
                                                             </span>
@@ -165,14 +165,14 @@ export function BookingModal({
                                                     </div>
                                                 </div>
                                                 <div className="bg-gray-50 rounded-xl border border-gray-100 p-5 grid grid-cols-2 gap-y-6 gap-x-4">
-                                                    <div><p className="text-xs text-gray-500 mb-1">Name</p><p className="text-sm font-bold text-gray-900 truncate font-sans">{bookingData.fullName}</p></div>
+                                                    <div><p className="text-xs text-gray-500 mb-1">Name</p><p className="text-sm font-bold text-gray-900 truncate">{bookingData.fullName}</p></div>
                                                     <div>
                                                         <p className="text-xs text-gray-500 mb-1">Date</p>
-                                                        <p className="text-sm font-bold text-gray-900 font-sans">{format(bookingData.selectedDate, 'MMM d, yyyy')}</p>
-                                                        <p className="text-sm font-bold text-gray-900 font-sans">at&nbsp;{format(bookingData.selectedDate, 'p')}</p>
+                                                        <p className="text-sm font-bold text-gray-900">{format(bookingData.selectedDate, 'MMM d, yyyy')}</p>
+                                                        <p className="text-sm font-bold text-gray-900">at&nbsp;{format(bookingData.selectedDate, 'p')}</p>
                                                     </div>
-                                                    <div><p className="text-xs text-gray-500 mb-1">Attendees</p><p className="text-sm font-bold text-gray-900 font-sans">{bookingData.totalGuests}</p></div>
-                                                    <div><p className="text-xs text-gray-500 mb-1">Rate</p><p className="text-sm bg-blue-600/20 rounded-2xl w-fit py-1 px-3 font-semibold font-sans text-blue-600 capitalize">{bookingData.userType}</p></div>
+                                                    <div><p className="text-xs text-gray-500 mb-1">Attendees</p><p className="text-sm font-bold text-gray-900">{bookingData.totalGuests}</p></div>
+                                                    <div><p className="text-xs text-gray-500 mb-1">Rate</p><p className="text-sm bg-blue-600/20 rounded-2xl w-fit py-1 px-3 font-semibold text-blue-600 capitalize">{bookingData.userType}</p></div>
                                                 </div>
                                             </div>
                                         </div>

@@ -185,12 +185,13 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
 
     return (
       <div className={`flex items-center ${isMobile ? 'gap-4' : 'gap-5'}`}>
-        <Link href="/leaderboard" className={isMobile ? 'ml-[10px]' : ''}>
+        {/* <Link href="/leaderboard" className={isMobile ? 'ml-[10px]' : ''}>
           <LeaderboardIcon size={26} color="white" />
-        </Link>
-        <div className={`rounded-full p-[2px] bg-gradient-to-r from-[#007BFF] to-[#66B2FF] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-[.97] ${isMobile && '-mr-[2px]'}`}>
-          <button onClick={onLoginClick} className='bg-gradient-to-l from-[#007BFF] to-[#66B2FF] cursor-pointer rounded-full px-[15px] py-[8.4px] font-bold text-white'>
-            Login
+        </Link> */}
+        <div onClick={onLoginClick} className='font-bold max-sm:pl-[10px]'>Login</div>
+        <div className={`rounded-full p-[2px] bg-gradient-to-r from-[#007BFF] to-[#66B2FF] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-[.97] ${isMobile && 'max-sm:-mr-[1.5px] -mr-[4px]'}`}>
+          <button onClick={onSignUpClick} className='bg-gradient-to-l from-[#007BFF] to-[#66B2FF] cursor-pointer rounded-full px-[15px] py-[8.4px] font-bold text-white'>
+            Sign Up
           </button>
         </div>
       </div>
@@ -201,7 +202,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
     <>
       {/* DESKTOP NAV */}
       <div className='hidden [@media(min-width:768px)_and_(min-height:500px)]:block fixed top-[40px] left-1/2 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-full p-[3px] z-[100]'>
-        <div className='bg-white/10 max-sm:backdrop-blur-[0px] backdrop-blur-[10px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
+        <div className='bg-white/10 max-sm:backdrop-blur-[0px] backdrop-blur-[8px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
           <nav className="flex font-bold text-black bg-[#000]/40 rounded-full justify-around items-center py-0 px-4 h-[62px] pl-[30px] pr-[10px] gap-[25px] border-[0px] border-white/60 z-50 text-white">
             {renderNavLinks(false)}
             <div className='bg-white/80 h-[60%] w-[2px] rounded-full'></div>
@@ -212,8 +213,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
 
       {/* MOBILE NAV */}
       <div className="[@media(min-width:768px)_and_(min-height:500px)]:hidden">
-        <div className='fixed top-[16px] left-[10px] z-[100] rounded-full bg-white/10 p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] backdrop-blur-[4px]'>
-          <button onClick={toggleMenu} className="z-50 p-[11px] rounded-full bg-black/40 active:bg-black/50 hover:bg-black/50 backdrop-blur-sm text-black">
+        <div className='fixed top-[16px] left-[10px] z-[100] rounded-full bg-white/10 p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] backdrop-blur-[3px]'>
+          <button onClick={toggleMenu} className="z-50 p-[11px] rounded-full bg-black/40 active:bg-black/50 hover:bg-black/50 text-black">
              {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
         </div>
@@ -222,8 +223,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onSignUpClick }) => {
            {renderNavLinks(true)}
         </div>
 
-        <div className='fixed right-[13px] top-[15px] z-[100] rounded-full bg-white/10 p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] backdrop-blur-[4px]'>
-          <div className='bg-black/40 backdrop-blur-sm rounded-full px-[7px] pl-[10px] py-[5px] z-[50]'>
+        <div className='fixed right-[13px] top-[15px] z-[100] rounded-full bg-white/10 p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] backdrop-blur-[3px]'>
+          <div className='bg-black/40 rounded-full px-[7px] pl-[10px] py-[5px] z-[50]'>
             {renderAuthButtons(true)}
           </div>
         </div>

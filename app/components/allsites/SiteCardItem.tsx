@@ -36,7 +36,7 @@ export const SiteCardItem = ({ card }: SiteCardItemProps) => {
             </div>
           </Link>
           <div className="absolute bottom-0 right-0 rotate-[180deg] pointer-events-none">
-            <div className="bg-blue-500/0 w-[270px] backdrop-blur-[10px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[200px]"></div>
+            <div className="bg-blue-500/0 w-[270px] backdrop-blur-[3px] [mask-image:linear-gradient(to_bottom,black_50%,transparent)] opacity-100 h-[150px]"></div>
           </div>
         </div>
       </div>

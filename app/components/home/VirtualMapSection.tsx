@@ -4,11 +4,12 @@ import React, { useRef, useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Feature, Point, FeatureCollection } from 'geojson';
-import Map from '@/app/components/map/Map';
+import SiteMap from '@/app/components/map/Map';
 import Compass from '@/app/components/map/Compass';
 import { AlertIcon } from '@/public/icons/alert-icon';
 import enlargeIcon from '@/public/icons/enlarge-icon.svg';
 import { Site, SiteCard } from '@/app/types';
+import FeaturedSites from './FeaturedSites';
 
 type MapControlsHandle = {
     zoomIn: () => void;
@@ -19,6 +20,7 @@ type MapControlsHandle = {
 interface VirtualMapSectionProps {
     sites: Site[];
     siteCards: SiteCard[];
+    loading: boolean;
 }
 
 // Defined outside component to avoid recreation
@@ -30,7 +32,9 @@ const getDirectionLetter = (bearing: number): string => {
     return 'N';
 };
 
-export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectionProps) {
+const normalizeSiteKey = (value: string | undefined): string => value?.trim().toLowerCase() || '';
+
+export default function VirtualMapSection({ sites, siteCards, loading }: VirtualMapSectionProps) {
     const mapRef = useRef<MapControlsHandle | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const compassDialRef = useRef<HTMLDivElement | null>(null);
@@ -43,8 +47,21 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
         if (siteCards.length === 0 || sites.length === 0) {
             return null;
         }
-        const featuredSiteIds = new Set(siteCards.map(card => card.id));
-        const featuredSites = sites.filter(site => featuredSiteIds.has(site.id));
+        const sitesBySlug = new Map(
+            sites
+                .filter(site => normalizeSiteKey(site.slug))
+                .map(site => [normalizeSiteKey(site.slug), site] as const)
+        );
+        const sitesByName = new Map(
+            sites
+                .filter(site => normalizeSiteKey(site.name))
+                .map(site => [normalizeSiteKey(site.name), site] as const)
+        );
+
+        const featuredSites = siteCards
+            .map(card => sitesBySlug.get(normalizeSiteKey(card.slug)) ?? sitesByName.get(normalizeSiteKey(card.name)))
+            .filter((site): site is Site => Boolean(site));
+
         const features: Feature<Point>[] = featuredSites.map(site => ({
             type: 'Feature',
             geometry: { type: 'Point', coordinates: site.coordinates },
@@ -82,7 +99,7 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
             {/* PERF TIP: If lag persists, try removing 'backdrop-blur' classes below. They are heavy on laptops. */}
             <div ref={mapContainerRef} className='relative h-[500px] max-sm:h-[400px] w-[1000px] max-w-[90vw] rounded-[60px] mt-[50px] overflow-hidden shadow-[0px_0px_15px_rgba(0,0,0,0.1)] border-4 border-white'>
 
-                <Map ref={mapRef} geojsonData={geojsonData} onRotate={handleMapRotate} />
+                <SiteMap ref={mapRef} geojsonData={geojsonData} onRotate={handleMapRotate} />
 
                 <div className='absolute top-[20px] left-[20px] whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
                     <div className='bg-white/10 backdrop-blur-[3px] rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
@@ -134,6 +151,8 @@ export default function VirtualMapSection({ sites, siteCards }: VirtualMapSectio
                 </Link>
 
             </div>
+
+            <FeaturedSites siteCards={siteCards} loading={loading} />
         </div>
     );
 }

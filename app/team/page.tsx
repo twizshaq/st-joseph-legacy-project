@@ -19,7 +19,7 @@ import OurJourney from "@/app/components/credits/OurJourney";
 
 export default function AboutAndCreditsPage() {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden font-sans text-slate-800 flex flex-col items-center">
+    <div className="min-h-screen w-full overflow-x-hidden text-slate-800 flex flex-col items-center">
 
       {/* 1. Credits Intro */}
       <CreditsHeader />

@@ -49,8 +49,8 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
     }, [handleScroll, siteCards, loading]);
 
     return (
-        <div className="max-w-[1500px] w-full mt-[100px] flex flex-col text-slate-800">
-            <div className="px-[5vw]">
+        <div className="max-w-[1500px] w-[90vw] max-sm:w-[100vw] mt-[100px] flex flex-col text-slate-800">
+            <div className="max-sm:mx-[4vw]">
                 <p className="font-bold text-[2rem] max-sm:text-[1.5rem]">Featured Sites</p>
                 <p className="max-w-[700px]">
                     Not sure where to begin? We&apos;ve curated a selection of Featured Sites that perfectly capture the spirit of our project. These locations represent the best of St. Joseph—blending breathtaking heritage with the vital &quot;earth-knowledge&quot; needed to keep our community strong.
@@ -64,17 +64,17 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
             </div>
 
             {/* Carousel Wrapper */}
-            <div className="relative px-[5vw] max-sm:px-[0vw]">
+            <div className="relative max-sm:px-[0vw]">
                 
                 {/* Edge Blur Overlays - UPDATED */}
                 {/* Left Blur: Opacity 0 if at start, 100 if we can scroll left */}
-                <div className={`pointer-events-none absolute left-[4vw] top-[40px] z-50 h-[440px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}/>
+                <div className={`pointer-events-none absolute left-[-1vw] top-[40px] z-50 h-[440px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}/>
                 
                 {/* Right Blur: Opacity 0 if at end, 100 if we can scroll right */}
-                <div className={`pointer-events-none absolute right-[4vw] rotate-180 top-[40px] z-50 h-[440px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} />
+                <div className={`pointer-events-none absolute right-[-1vw] rotate-180 top-[40px] z-50 h-[440px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} />
 
                 {/* Previous Button */}
-                <div className={`hidden md:flex absolute left-[3.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className={`hidden md:flex absolute left-[-2vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <button
                     type="button"
                     onClick={scrollLeft}
@@ -89,7 +89,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
                 </div>
 
                 {/* Next Button */}
-                <div className={`hidden md:flex absolute right-[3.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className={`hidden md:flex absolute right-[-2vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <button
                     type="button"
                     onClick={scrollRight}
@@ -169,7 +169,7 @@ export default function FeaturedSites({ siteCards, loading }: FeaturedSitesProps
 
                                         <div className="rotate-[180deg] self-end">
                                             <div
-                                                className="absolute w-[270px] backdrop-blur-[6px]
+                                                className="absolute w-[270px] backdrop-blur-[3px]
                                                            [mask-image:linear-gradient(to_bottom,black_50%,transparent)]
                                                            h-[200px]"
                                             />

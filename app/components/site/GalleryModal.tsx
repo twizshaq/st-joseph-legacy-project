@@ -221,7 +221,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
         >
             {/* Top Bar */}
             <div className="flex justify-end items-center p-4 md:p-6 z-50 absolute top-0 w-full pointer-events-none">
-                {/* <span className="text-white/90 font-medium text-sm md:text-base ml-2 drop-shadow-md pointer-events-auto font-sans tracking-wide">
+                {/* <span className="text-white/90 font-medium text-sm md:text-base ml-2 drop-shadow-md pointer-events-auto tracking-wide">
           {items[currentIndex].type === `${currentIndex + 1} / ${items.length}`}
         </span> */}
                 <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="pointer-events-auto group rounded-full bg-white/10 hover:bg-white/20 p-2 transition-all backdrop-blur-md cursor-pointer border border-white/5">

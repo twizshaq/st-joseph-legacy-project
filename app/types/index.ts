@@ -19,6 +19,7 @@ export type Site = {
     coordinates: [number, number];
     imageUrl: string;
     colorhex: string;
+    slug: string;
 };
 
 export interface SupabaseSiteData {
@@ -30,6 +31,7 @@ export interface SupabaseSiteData {
     latitude: string | null;
     pointimage: string | null;
     colorhex: string | null;
+    slug: string | null;
 }
 
 export type SortOption = 'default' | 'name_asc' | 'popularity';
