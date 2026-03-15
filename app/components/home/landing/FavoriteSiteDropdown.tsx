@@ -29,7 +29,7 @@ export default function FavoriteSiteDropdown({
         aria-expanded={isOpen}
         aria-controls={`${id}-menu`}
         onClick={onToggle}
-        className={`relative flex w-full items-center justify-between rounded-[25px] border-[2px] bg-white px-5 py-2 text-left text-base font-semibold outline-none transition disabled:opacity-70 ${
+        className={`relative flex w-full cursor-pointer items-center justify-between rounded-[25px] border-[2px] bg-white px-5 py-2 text-left text-base font-semibold outline-none transition disabled:opacity-70 ${
           isOpen
             ? "border-blue-500 ring-1 ring-blue-500"
             : "border-gray-300/50 hover:bg-gray-50"
@@ -53,7 +53,7 @@ export default function FavoriteSiteDropdown({
         id={`${id}-menu`}
         role="listbox"
         aria-labelledby={id}
-        className={`absolute left-0 top-[calc(100%+12px)] w-full origin-top rounded-[36px] bg-white/10 p-[3px] shadow-[0px_0px_15px_rgba(0,0,0,0.1)] backdrop-blur-[10px] transition-all duration-300 ${
+        className={`absolute left-0 top-[calc(100%+12px)] w-full origin-top rounded-[36px] bg-white/10 p-[3px] shadow-[0px_0px_20px_rgba(0,0,0,0.2)] backdrop-blur-[10px] transition-all duration-300 ${
           isOpen
             ? "translate-y-0 scale-100 opacity-100"
             : "pointer-events-none -translate-y-4 scale-95 opacity-0"
