@@ -29,19 +29,10 @@ export async function POST(req: Request) {
     if (event === "deployment.succeeded") {
       sendResult = await resend.emails.send({
         from: "Deployments <deploy@bajanstories.com>",
-        to: [
-          "shaquxn@gmail.com",
-          "stjosephdeoprojects@gmail.com",
-          "coxlamar4@gmail.com",
-        ],
-        subject: "✅ Deployment Succeeded",
-        html: `
-          <h2>Deployment Succeeded</h2>
-          <p><strong>Event:</strong> ${event}</p>
-          <p><strong>Project:</strong> ${body.payload?.project?.name ?? "Unknown"}</p>
-          <p><strong>URL:</strong> ${body.payload?.url ?? "N/A"}</p>
-        `,
-      });
+        to: ["shaquxn@gmail.com"],
+        subject: `Webhook Event: ${event ?? "unknown"}`,
+        html: `<pre>${JSON.stringify(body, null, 2)}</pre>`,
+        });
     } else if (event === "deployment.error") {
       sendResult = await resend.emails.send({
         from: "Deployments <deploy@bajanstories.com>",
