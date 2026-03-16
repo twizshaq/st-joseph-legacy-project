@@ -34,7 +34,7 @@ export default function TestQRPage() {
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8 gap-8" >
             <div className="text-center space-y-2">
                 <h1 className="text-3xl font-black text-gray-900 tracking-tight">QR Design Studio</h1>
-                <p className="text-gray-500 font-medium">Input random links to test density and rotation. test webhook</p>
+                <p className="text-gray-500 font-medium">Input random links to test density and rotation. test webhook 67</p>
             </div>
 
             {/* THE VISUAL DISPLAY */}
