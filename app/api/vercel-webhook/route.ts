@@ -21,30 +21,48 @@ export async function POST(req: Request) {
 
     const event = body?.type ?? "";
     const projectName = body?.payload?.name ?? "";
-    const target = body?.payload?.target ?? "";
     const branch = body?.payload?.deployment?.meta?.githubCommitRef ?? "";
     const deploymentUrl = body?.payload?.url
       ? `https://${body.payload.url}`
       : "N/A";
+    const commitMessage =
+      body?.payload?.deployment?.meta?.githubCommitMessage ?? "No commit message";
 
     console.log("Webhook received:", event);
     console.log("Project:", projectName);
-    console.log("Target:", target);
     console.log("Branch:", branch);
     console.log("Payload:", JSON.stringify(body, null, 2));
 
     const isCorrectProject = projectName === "st-joseph-legacy-project";
-    const isDevelopBranch = branch === "develop";
+    const isTrackedBranch = branch === "main" || branch === "develop";
 
-    if (!isCorrectProject || !isDevelopBranch) {
+    if (!isCorrectProject || !isTrackedBranch) {
       return Response.json({
         ok: true,
         ignored: true,
-        reason: "Not the develop branch for st-joseph-legacy-project",
-        projectName,
-        branch,
-        target,
+        reason: "Not a tracked branch for st-joseph-legacy-project",
       });
+    }
+
+    const branchLabel = branch === "main" ? "Main" : "Develop";
+
+    let subject = "";
+    let heading = "";
+
+    if (event === "deployment.succeeded") {
+      subject = `✅ Deployed on ${branchLabel}`;
+      heading = `Deployment Succeeded on ${branchLabel}`;
+    } else if (event === "deployment.error") {
+      subject = `❌ Deployment Error on ${branchLabel}`;
+      heading = `Deployment Error on ${branchLabel}`;
+    } else if (event === "deployment.rollback") {
+      subject = `↩️ Deployment Rollback on ${branchLabel}`;
+      heading = `Deployment Rollback on ${branchLabel}`;
+    } else if (event === "firewall.attack") {
+      subject = `🚨 Firewall Attack on ${branchLabel}`;
+      heading = `Firewall Attack on ${branchLabel}`;
+    } else {
+      return Response.json({ ok: true, ignored: true, event });
     }
 
     const result = await resend.emails.send({
@@ -54,15 +72,14 @@ export async function POST(req: Request) {
         "stjosephdeoprojects@gmail.com",
         "coxlamar4@gmail.com",
       ],
-      subject: `Webhook: ${event} on develop`,
+      subject,
       html: `
-        <h2>Webhook Event on Develop</h2>
+        <h2>${heading}</h2>
         <p><strong>Project:</strong> ${projectName}</p>
         <p><strong>Branch:</strong> ${branch}</p>
-        <p><strong>Target:</strong> ${target || "N/A"}</p>
         <p><strong>Event:</strong> ${event}</p>
+        <p><strong>Commit:</strong> ${commitMessage}</p>
         <p><strong>URL:</strong> ${deploymentUrl}</p>
-        <pre>${JSON.stringify(body, null, 2)}</pre>
       `,
     });
 
