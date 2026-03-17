@@ -89,14 +89,17 @@ export const HeroSection = ({ content }: HeroProps) => {
             {availableMedia.map((media) => (
               <div
                 key={media.type}
-                className="bg-white/10 active:scale-[.98] backdrop-blur-[20px] w-fit h-fit rounded-full p-[2px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]"
+                className={`active:scale-[.98] backdrop-blur-[10px] w-fit h-fit rounded-full p-[2.5px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] ${activeMedia === media.type
+                      ? 'bg-[#007BFF]/50 text-white'
+                      : 'bg-white/10 text-white hover:bg-white/10'
+                  }`}
               >
                 <button
                   onClick={() => setActiveMedia(media.type as any)}
                   className={`flex items-center px-4 py-2 rounded-full cursor-pointer transition-colors ${
                     activeMedia === media.type
-                      ? 'bg-[#007BFF]/90 text-white'
-                      : 'bg-black/40 text-white hover:bg-black/60'
+                      ? 'bg-[#007BFF] text-white'
+                      : 'bg-black/40 text-white hover:bg-black/50'
                   }`}
                 >
                   <span className="text-sm font-bold capitalize">

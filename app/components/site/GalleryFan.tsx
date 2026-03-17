@@ -76,13 +76,13 @@ export const GalleryFan = ({ items }: { items: any[] }) => {
             )}
           </Portal>
 
-          <div className='absolute bottom-[-80px] cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
-            <div className='bg-white/10 active:scale-[.98] backdrop-blur-[3px] rounded-full p-[2.7px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)]'>
-              <button onClick={() => setGalleryOpen(true)} className="cursor-pointer flex items-center py-[10px] px-[20px] gap-[5px] justify-center rounded-full bg-black/40 backdrop-blur-[5px] active:bg-black/30 shadow-lg z-[10]">
+          <div className='absolute bottom-[-80px] whitespace-nowrap rounded-full p-[3px]'>
+            <div className='bg-white/10 active:scale-[.98] rounded-full p-[2.7px] shadow-[0px_0px_15px_rgba(0,0,0,0.1)]'>
+              <button onClick={() => setGalleryOpen(true)} className="cursor-pointer flex items-center py-[10px] px-[20px] gap-[5px] justify-center rounded-full bg-[#efefef]/30 active:bg-black/5 z-[10]">
                 {/* <span className='z-10 fill-[#E0E0E0]'>
                   <Image src={photoIcon} alt="" height={30} className=''/>
                 </span> */}
-                <p className='font-bold text-[#fff]'>Open Gallery</p>
+                <p className='font-bold text-slate-800'>Open Gallery</p>
               </button>
             </div>
           </div>

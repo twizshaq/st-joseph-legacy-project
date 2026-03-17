@@ -44,10 +44,10 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
     ];
 
     return (
-        <div className="w-full max-w-[450px] min-w-[450px] relative z-10">
-            <div className="absolute top-10 left-10 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+        <div className="w-full max-w-[450px] relative z-10">
+            {/* <div className="absolute top-10 left-10 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl -z-10 pointer-events-none"></div> */}
 
-            <div className="rounded-[40px] border border-amber-500/30 bg-white/95 backdrop-blur-sm overflow-hidden transition-all duration-300 shadow-[0_0px_20px_rgb(0,0,0,.1)]">
+            <div className="rounded-[40px] border border-amber-500/30 bg-white/95 overflow-hidden transition-all duration-300 shadow-[0_0px_20px_rgb(0,0,0,.1)]">
 
                 {/* Header Button */}
                 <button
@@ -56,7 +56,7 @@ export const SiteSafety = ({ data }: SiteSafetyProps) => {
                 >
                     {/* Background effects */}
                     <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(45deg,#f59e0b_25%,transparent_25%,transparent_50%,#f59e0b_50%,#f59e0b_75%,transparent_75%,transparent)] bg-[length:20px_20px] pointer-events-none"></div>
-                    <div className="absolute left-0 top-0 w-1/3 h-full blur-[20px] bg-gradient-to-r from-amber-50/80 to-transparent pointer-events-none"></div>
+                    <div className="absolute left-0 top-0 w-1/3 h-full bg-gradient-to-r from-amber-50/80 to-transparent pointer-events-none"></div>
 
                     <div className="flex items-center gap-4 relative z-10">
                         <div className="relative flex items-center justify-center w-10 h-10 rounded-full text-amber-600">

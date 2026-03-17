@@ -37,7 +37,8 @@ export const ReviewsSection = ({
     // Scroll State
     const scrollRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
-    const [canScrollRight, setCanScrollRight] = useState(true);
+    const [canScrollRight, setCanScrollRight] = useState(false);
+    const showScrollControls = !loading && reviews.length > 0;
 
     const scrollLeft = () => {
         scrollRef.current?.scrollBy({
@@ -55,13 +56,24 @@ export const ReviewsSection = ({
 
     const handleScroll = useCallback(() => {
         const element = scrollRef.current;
-        if (element) {
-            const atLeft = element.scrollLeft <= 2;
-            const atRight = Math.ceil(element.scrollLeft + element.clientWidth) >= element.scrollWidth - 2;
-
-            setCanScrollLeft(!atLeft);
-            setCanScrollRight(!atRight);
+        if (!element) {
+            setCanScrollLeft(false);
+            setCanScrollRight(false);
+            return;
         }
+
+        const hasOverflow = element.scrollWidth > element.clientWidth + 2;
+        if (!hasOverflow) {
+            setCanScrollLeft(false);
+            setCanScrollRight(false);
+            return;
+        }
+
+        const atLeft = element.scrollLeft <= 2;
+        const atRight = Math.ceil(element.scrollLeft + element.clientWidth) >= element.scrollWidth - 2;
+
+        setCanScrollLeft(!atLeft);
+        setCanScrollRight(!atRight);
     }, []);
 
     useEffect(() => {
@@ -95,7 +107,7 @@ export const ReviewsSection = ({
                     </h2>
                 </div>
 
-                <div className='rounded-full p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-95 transition-transform'>
+                <div className='rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-95 transition-transform'>
                     <button
                         onClick={() => user ? setReviewOpen(true) : setAuthOpen(true)}
                         className='cursor-pointer flex gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[10px]'
@@ -111,52 +123,56 @@ export const ReviewsSection = ({
                 {/* Background Blur Blob */}
                 {/* <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-100/30 blur-[100px] -z-10 rounded-full' /> */}
 
-                {/* Edge Blur Overlays */}
-                <div
-                    className={`pointer-events-none absolute -left-[1vw] top-[0px] z-50 h-[240px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
-                />
+                {showScrollControls && (
+                    <>
+                        {/* Edge Blur Overlays */}
+                        <div
+                            className={`pointer-events-none absolute -left-[1vw] top-[0px] z-50 h-[240px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
+                        />
 
-                <div
-                    className={`pointer-events-none absolute -right-[1vw] rotate-180 top-[0px] z-50 h-[240px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
-                />
+                        <div
+                            className={`pointer-events-none absolute -right-[1vw] rotate-180 top-[0px] z-50 h-[240px] w-[30px] max-sm:hidden bg-white [mask-image:linear-gradient(to_right,black_50%,transparent)] transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
+                        />
 
-                {/* Previous Button */}
-                <div className={`hidden md:flex absolute -left-[1.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <button
-                        type="button"
-                        onClick={scrollLeft}
-                        disabled={!canScrollLeft}
-                        aria-label="Scroll left"
-                        className='bg-black/40 rounded-full w-[50px] h-[50px] cursor-pointer hover:bg-black/50 transition-colors'
-                    >
-                        <span className='-rotate-90 flex mr-[2px] items-center scale-[1.1] justify-center text-white'>
-                            <ArrowIcon width={30} height={30} />
-                        </span>
-                    </button>
-                </div>
+                        {/* Previous Button */}
+                        <div className={`hidden md:flex absolute -left-[1.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <button
+                                type="button"
+                                onClick={scrollLeft}
+                                disabled={!canScrollLeft}
+                                aria-label="Scroll left"
+                                className='bg-black/40 rounded-full w-[50px] h-[50px] cursor-pointer hover:bg-black/50 transition-colors'
+                            >
+                                <span className='-rotate-90 flex mr-[2px] items-center scale-[1.1] justify-center text-white'>
+                                    <ArrowIcon width={30} height={30} />
+                                </span>
+                            </button>
+                        </div>
 
-                {/* Next Button */}
-                <div className={`hidden md:flex absolute -right-[1.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <button
-                        type="button"
-                        onClick={scrollRight}
-                        disabled={!canScrollRight}
-                        aria-label="Scroll right"
-                        className='bg-black/40 rounded-full w-[50px] h-[50px] cursor-pointer hover:bg-black/50 transition-colors'
-                    >
-                        <span className='rotate-90 flex ml-[2px] items-center scale-[1.1] justify-center text-white'>
-                            <ArrowIcon width={30} height={30} />
-                        </span>
-                    </button>
-                </div>
+                        {/* Next Button */}
+                        <div className={`hidden md:flex absolute -right-[1.5vw] top-1/2 -translate-y-1/2 z-50 items-center justify-center p-[2.5px] rounded-full bg-white/10 backdrop-blur-[5px] shadow-[0px_0px_15px_rgba(0,0,0,0.3)] transition-all duration-100 active:scale-[0.93] cursor-pointer ${canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <button
+                                type="button"
+                                onClick={scrollRight}
+                                disabled={!canScrollRight}
+                                aria-label="Scroll right"
+                                className='bg-black/40 rounded-full w-[50px] h-[50px] cursor-pointer hover:bg-black/50 transition-colors'
+                            >
+                                <span className='rotate-90 flex ml-[2px] items-center scale-[1.1] justify-center text-white'>
+                                    <ArrowIcon width={30} height={30} />
+                                </span>
+                            </button>
+                        </div>
+                    </>
+                )}
 
                 {loading ? (
                     <div className='flex pb-12 pt-4 gap-6 px-4 overflow-x-auto overflow-y-visible bg-green-500/0 hide-scrollbar'>
                         <ReviewSkeleton /><ReviewSkeleton /><ReviewSkeleton />
                     </div>
                 ) : reviews.length === 0 ? (
-                    <div className="text-center p-8 text-gray-500">
-                        <span className="text-4xl block mb-2">🧐</span>
+                    <div className="text-center font-bold p-8 text-gray-500">
+                        {/* <span className="text-4xl block mb-2">🧐</span> */}
                         <p>No Reviews Yet. Be the first!</p>
                     </div>
                 ) : (

@@ -18,7 +18,7 @@ export const InfoSection = ({ sections, sidebarSlot }: InfoSectionProps) => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:flex xl:justify-between">
                 
                 {/* Main Content Area: Spans 8 columns on large screens */}
-                <div className="lg:col-span-7 xl:col-span-7 flex flex-col gap-10">
+                <div className="lg:col-span-7 xl:col-span-7 max-w-[800px] flex flex-col gap-10">
                     {sections.map((section, index) => (
                         <div key={index} className="content-block">
                             {section.title && (

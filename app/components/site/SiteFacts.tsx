@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef, ReactNode } from 'react';
+import React, { useState, useEffect, useRef, ReactNode, useCallback, useLayoutEffect } from 'react';
 import Image from 'next/image';
-import { motion, Transition } from 'framer-motion'; 
+import { AnimatePresence, motion, Transition } from 'framer-motion';
 import { createPortal } from 'react-dom';
- import { FaEye, FaEyeSlash, FaTimes } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 
 // Placeholder imports - ensure these point to your actual assets
 import clockIcon from "@/public/icons/clock-icon.svg";
@@ -19,6 +19,22 @@ const transitionSpec: Transition = {
   stiffness: 260,
   damping: 28,
   mass: 0.75
+};
+
+const backdropTransition = {
+  duration: 0.18,
+  ease: "easeOut" as const,
+};
+
+const backdropExitTransition = {
+  duration: 0.14,
+  ease: "easeIn" as const,
+};
+
+const contentTransition = {
+  duration: 0.2,
+  ease: "easeOut" as const,
+  delay: 0.08,
 };
 
 interface FactData {
@@ -96,12 +112,10 @@ export const SiteFacts = ({ facts }: SiteFactsProps) => {
         ))}
       </div>
 
-      {selectedCard && (
-        <FullScreenOverlay
-          card={selectedCard}
-          onClose={() => setSelectedId(null)}
-        />
-      )}
+      <FullScreenOverlay
+        card={selectedCard}
+        onClose={() => setSelectedId(null)}
+      />
     </section>
   );
 };
@@ -115,17 +129,52 @@ interface FactCardProps extends FactData {
 
 const FactCard = ({ id, icon, label, value, theme, onClick, isSelected }: FactCardProps) => {
   const styles = getThemeStyles(theme);
-  const isLongContent = typeof value === 'object' || (typeof value === 'string' && value.length > 60);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  const measureTruncation = useCallback(() => {
+    const element = contentRef.current;
+    if (!element) {
+      setIsTruncated(false);
+      return;
+    }
+
+    const nextIsTruncated =
+      element.scrollHeight > element.clientHeight + 1 ||
+      element.scrollWidth > element.clientWidth + 1;
+
+    setIsTruncated(nextIsTruncated);
+  }, []);
+
+  useLayoutEffect(() => {
+    measureTruncation();
+  }, [measureTruncation, value]);
+
+  useEffect(() => {
+    const element = contentRef.current;
+    if (!element) return;
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measureTruncation);
+      return () => window.removeEventListener("resize", measureTruncation);
+    }
+
+    const observer = new ResizeObserver(() => {
+      measureTruncation();
+    });
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [measureTruncation]);
 
   return (
-    <div className={`h-full ${isSelected ? 'invisible' : 'visible'}`}>
+    <div className='h-full'>
       <motion.div
         layoutId={`card-container-${id}`}
         transition={transitionSpec}
-        onClick={isLongContent ? onClick : undefined}
-        className={`relative rounded-[42px] p-[2.7px] h-full ${styles.card} active:scale-[0.99] hover:scale-[1.02] duration-100 shadow-[0px_0px_20px_rgba(2,6,23,0.10)]`}
-        // whileHover={!isSelected && isLongContent ? { y: -5, scale: 1.012 } : {}}
-        // whileTap={!isSelected && isLongContent ? { scale: 0.995 } : {}}
+        onClick={isTruncated ? onClick : undefined}
+        className={`relative rounded-[42px] p-[2.7px] h-full transition-[opacity,transform] duration-150 ${styles.card} shadow-[0px_0px_20px_rgba(2,6,23,0.10)] ${isTruncated ? 'cursor-pointer active:scale-[0.99] hover:scale-[1.02]' : ''} ${isSelected ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       >
         <div className='group relative flex flex-row items-stretch gap-2 p-2 bg-white/80 h-full rounded-[40px] overflow-hidden'>
           <div
@@ -143,23 +192,28 @@ const FactCard = ({ id, icon, label, value, theme, onClick, isSelected }: FactCa
           </motion.div>
 
           <div className='relative z-10 flex flex-col justify-start py-1 w-full'>
-            <motion.p 
-              layoutId={`label-${id}`} 
-              transition={transitionSpec} 
+            <motion.p
+              layoutId={`label-${id}`}
+              transition={transitionSpec}
               className={`text-[1rem] font-bold mb-1 ${styles.labelColor}`}
             >
               {label}
             </motion.p>
-            
+
             <div className='relative text-[1rem] leading-[1.45] mr-[4px] font-[600] text-slate-800'>
-              <div className="line-clamp-2">
+              <div ref={contentRef} className="line-clamp-2">
                 {value}
               </div>
-              
-              {isLongContent && (
+
+              {isTruncated && (
                 <div className="absolute bottom-0 right-[-16px] pl-12 pr-2 py-0 h-[1.5em] flex items-center">
                   <motion.button
                     layoutId={`more-${id}`}
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onClick();
+                    }}
                     className={`flex items-center gap-1.5 pl-3 pr-2 py-1 mr-[10px] cursor-pointer rounded-full text-[0.75rem] font-bold shadow-[0px_0px_5px_rgba(0,0,0,0.1)] ring-1 ring-inset ring-black/5 ${styles.iconBg} ${styles.labelColor}`}
                     whileHover={{ scale: 1.05 }}
                   >
@@ -167,7 +221,7 @@ const FactCard = ({ id, icon, label, value, theme, onClick, isSelected }: FactCa
                     {/* Tiny Arrow Icon */}
                     <svg 
                       width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
-                      className="transition-transform duration-300 group-hover/card:translate-x-0.5"
+                      className="transition-transform duration-300 group-hover:translate-x-0.5"
                     >
                       <path d="M5 12h14" />
                       <path d="M12 5l7 7-7 7" />
@@ -185,66 +239,95 @@ const FactCard = ({ id, icon, label, value, theme, onClick, isSelected }: FactCa
 
 // --- Full Screen Overlay (Expanded) ---
 
-const FullScreenOverlay = ({ card, onClose }: { card: FactData, onClose: () => void }) => {
-  const styles = getThemeStyles(card.theme);
+const FullScreenOverlay = ({ card, onClose }: { card?: FactData, onClose: () => void }) => {
+  const styles = card ? getThemeStyles(card.theme) : null;
 
   useEffect(() => {
+    if (!card) return;
+
     const handleEsc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
+  }, [card, onClose]);
 
   return (
     <Portal>
-      {/* 
-         FIX: Added pointerEvents: 'none' to the exit variant.
-         This ensures that as soon as the close animation starts (fading out),
-         the overlay allows clicks to pass through to the page below immediately.
-      */}
-      <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] cursor-pointer"
-        onClick={onClose}
-      >
-        <div 
-          className={`relative w-full max-w-[640px] max-h-[85vh] flex flex-col rounded-[44px] p-[3px] ${styles.expandedcard} shadow-[0px_30px_90px_rgba(0,0,0,0.45)] cursor-default`}
-          onClick={(e) => e.stopPropagation()} 
-        >
-          <div className={`relative flex flex-col w-full h-full bg-white/90 rounded-[42px] overflow-hidden`}>
-            
-            {/* Pattern Background */}
-            <div className="absolute inset-0 opacity-[0.15] z-0 pointer-events-none" 
-                 style={{ backgroundImage: styles.gradient, backgroundSize: '14px 14px' }} />
+      <AnimatePresence>
+        {card && styles && (
+          <motion.div
+            key={card.id}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: backdropTransition }}
+            exit={{ opacity: 0, transition: backdropExitTransition }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/40 backdrop-blur-[2px] cursor-pointer"
+              onClick={onClose}
+            />
 
-            <div className="relative z-10 flex items-center justify-between p-6 pb-3 shrink-0">
-              <div className="flex items-center gap-4">
-                <div className={`flex items-center justify-center w-[60px] h-[60px] rounded-[20px] ${styles.iconBg}`}>
-                  <Image src={card.icon} alt={card.label} width={28} height={28} className='opacity-80' />
+            <motion.div
+              layoutId={`card-container-${card.id}`}
+              transition={transitionSpec}
+              className={`relative w-full max-w-[640px] max-h-[85vh] flex flex-col rounded-[44px] p-[3px] ${styles.expandedcard} shadow-[0px_30px_90px_rgba(0,0,0,0.45)] cursor-default`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative flex flex-col w-full h-full bg-white/90 rounded-[42px] overflow-hidden">
+
+                {/* Pattern Background */}
+                <div
+                  className="absolute inset-0 opacity-[0.15] z-0 pointer-events-none"
+                  style={{ backgroundImage: styles.gradient, backgroundSize: '14px 14px' }}
+                />
+
+                <div className="relative z-10 flex items-start justify-between gap-4 p-6 pb-3 shrink-0">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <motion.div
+                      layoutId={`icon-${card.id}`}
+                      transition={transitionSpec}
+                      className={`flex items-center justify-center w-[60px] h-[60px] rounded-[20px] shrink-0 ${styles.iconBg}`}
+                    >
+                      <Image src={card.icon} alt={card.label} width={28} height={28} className='opacity-80' />
+                    </motion.div>
+
+                    <motion.p
+                      layoutId={`label-${card.id}`}
+                      transition={transitionSpec}
+                      className={`text-[1rem] font-bold uppercase tracking-widest ${styles.labelColor}`}
+                    >
+                      {card.label}
+                    </motion.p>
+                  </div>
+
+                  <motion.button
+                    layoutId={`more-${card.id}`}
+                    type="button"
+                    onClick={onClose}
+                    initial={{ opacity: 0, y: -12 }}
+                    animate={{ opacity: 1, y: 0, transition: contentTransition }}
+                    exit={{ opacity: 0, y: -8, transition: backdropExitTransition }}
+                    className={`flex items-center gap-2 pl-3 pr-2 py-2 rounded-full text-[0.8rem] font-bold shadow-[0px_0px_12px_rgba(0,0,0,0.12)] ring-1 ring-inset ring-black/5 ${styles.iconBg} ${styles.labelColor}`}
+                  >
+                    <span>Close</span>
+                    <FaTimes size={14} />
+                  </motion.button>
                 </div>
-                
-                <p className={`text-[1rem] font-bold uppercase tracking-widest ${styles.labelColor}`}>
-                  {card.label}
-                </p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0, transition: contentTransition }}
+                  exit={{ opacity: 0, y: 8, transition: backdropExitTransition }}
+                  className="relative z-10 flex-1 overflow-y-auto p-6 pt-2"
+                >
+                  <div className='text-[1.15rem] md:text-[1.25rem] leading-[1.7] font-medium text-slate-800 whitespace-pre-line'>
+                    {card.value}
+                  </div>
+                </motion.div>
               </div>
-
-              <button 
-                onClick={onClose} 
-                className={`absolute top-6 right-6 flex items-center justify-center rounded-full ${styles.labelColor} hover:text-red-500 active:text-red-500 transition-colors cursor-pointer`}
-              >
-                <FaTimes size={24} />
-              </button>
-            </div>
-
-            <div className="relative z-10 flex-1 overflow-y-auto p-6 pt-2">
-              {/* <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-white/90 to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white/90 to-transparent" /> */}
-              <div className='text-[1.15rem] md:text-[1.25rem] leading-[1.7] font-medium text-slate-800 whitespace-pre-line'>
-                {card.value}
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Portal>
   );
 };

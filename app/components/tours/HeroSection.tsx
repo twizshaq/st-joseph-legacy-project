@@ -11,7 +11,7 @@ const HeroSection = () => {
                     <div className="flex-1 max-w-[700px] max-sm:mt-[-60px] flex flex-col">
                         <div className="w-full bg-red-500/0 flex flex-col order-2 lg:order-1 text-center lg:text-left">
                             <div className="inline-flex items-center self-center lg:self-start px-3 py-1 rounded-full bg-black/[0.03] border border-black/[0.03] mb-6">
-                                <span className="text-[12px] font-semibold font-sans up/percase tracking-[0.12em] text-black/40">Exclusive Experiences</span>
+                                <span className="text-[12px] font-semibold up/percase tracking-[0.12em] text-black/40">Exclusive Experiences</span>
                             </div>
                             <h1 className="text-[3.5rem] md:text-[3.3rem] font-bold leading-[0.95] tracking-tight text-black">
                                 St.Joseph&apos;s Hidden Wonders: <br /><span className="text-black/40">Resilience, Culture & History</span>
