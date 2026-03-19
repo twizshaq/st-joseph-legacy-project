@@ -2,8 +2,10 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
+import { useWebHaptics } from "web-haptics/react";
 import PenIcon from "@/public/icons/pen-icon";
 import ArrowIcon from '@/public/icons/arrow-icon';
+import { getAuthAlertErrorHapticPattern } from "@/lib/authAlertHaptics";
 
 // Components
 import { ReviewCard } from "@/app/components/ReviewCard";
@@ -33,6 +35,7 @@ export const ReviewsSection = ({
     // Local State for Modals
     const [isReviewOpen, setReviewOpen] = useState(false);
     const [isAuthOpen, setAuthOpen] = useState(false);
+    const { trigger } = useWebHaptics();
 
     // Scroll State
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -96,6 +99,16 @@ export const ReviewsSection = ({
         }
     };
 
+    const handleAddCommentClick = useCallback(() => {
+        if (user) {
+            setReviewOpen(true);
+            return;
+        }
+
+        void trigger(getAuthAlertErrorHapticPattern());
+        setAuthOpen(true);
+    }, [trigger, user]);
+
     return (
         <section className='relative flex flex-col items-center w-[1400px] max-w-[90vw] mb-[70px] mx-auto'>
 
@@ -107,10 +120,10 @@ export const ReviewsSection = ({
                     </h2>
                 </div>
 
-                <div className='rounded-full p-[3px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-95 transition-transform'>
+                <div className='rounded-full p-[2.5px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-95 transition-transform'>
                     <button
-                        onClick={() => user ? setReviewOpen(true) : setAuthOpen(true)}
-                        className='cursor-pointer flex gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[10px]'
+                        onClick={handleAddCommentClick}
+                        className='cursor-pointer flex gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[13px]'
                     >
                         <span><PenIcon color='#fff' /></span>
                         <p className='text-white font-bold'>Add Comment</p>

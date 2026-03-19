@@ -161,7 +161,9 @@ const ERIC_HOLDER_COMPLEX_DATA: SiteContent = {
             </>,
         Nearby_Must_See:
             <>
-                <li>Parris Hill Mural, Cotton Tower.</li>
+                <ul className="list-disc ml-5 space-y-2">
+                    <li>Parris Hill Mural, Cotton Tower.</li>
+                </ul>
             </>,
     },
     location: {

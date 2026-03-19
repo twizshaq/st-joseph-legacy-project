@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useWebHaptics } from "web-haptics/react";
 import PenIcon from "@/public/icons/pen-icon"; // Update path
 import { ReviewCard } from "@/app/components/ReviewCard";
 import { ReviewSkeleton } from "@/app/components/ReviewSkeleton";
@@ -7,6 +8,7 @@ import { ReviewModal } from "@/app/components/ReviewModal";
 import { AuthAlertModal } from "@/app/components/AuthAlertModal";
 import { ReportModal } from "@/app/components/ReportModal"; 
 import { Tour, Review } from '@/app/types/tours';
+import { getAuthAlertErrorHapticPattern } from "@/lib/authAlertHaptics";
 
 export default function TourReviewsSection({ tour, user }: { tour: Tour | null, user: any }) {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -14,6 +16,7 @@ export default function TourReviewsSection({ tour, user }: { tour: Tour | null, 
   const [isReviewOpen, setReviewOpen] = useState(false);
   const [isAuthOpen, setAuthOpen] = useState(false);
   const [reportState, setReportState] = useState<{isOpen: boolean, id: string | null}>({isOpen: false, id: null});
+  const { trigger } = useWebHaptics();
   
   const supabase = createClient();
 
@@ -38,6 +41,16 @@ export default function TourReviewsSection({ tour, user }: { tour: Tour | null, 
     await supabase.from('tour_reviews').delete().eq('id', id);
   };
 
+  const handleWriteReviewClick = useCallback(() => {
+    if (user) {
+      setReviewOpen(true);
+      return;
+    }
+
+    void trigger(getAuthAlertErrorHapticPattern());
+    setAuthOpen(true);
+  }, [trigger, user]);
+
   return (
     <div className="relative flex flex-col items-center w-[1500px] max-w-[90vw] mt-[100px]">
       <div className='w-full flex flex-col md:flex-row justify-between max-sm:items-center items-end md:items-center gap-6 mb-5 z-10'>
@@ -55,9 +68,9 @@ export default function TourReviewsSection({ tour, user }: { tour: Tour | null, 
         
         {/* Only show "Write a Review" if tour exists */}
         {tour && (
-          <div onClick={() => user ? setReviewOpen(true) : setAuthOpen(true)} className='cursor-pointer rounded-full p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-[.98]'>
+          <div onClick={handleWriteReviewClick} className='cursor-pointer rounded-full p-[2px] bg-[linear-gradient(to_right,#007BFF,#66B2FF)] shadow-md active:scale-[.98]'>
             <div className='flex gap-[10px] bg-[linear-gradient(to_left,#007BFF,#66B2FF)] rounded-full px-[20px] py-[10px]'>
-              <span><PenIcon color='#fff'/></span><p className='text-white font-bold'>Write a Review</p>
+              <span><PenIcon color='#fff'/></span><p className='text-white font-bold'>Add Comment</p>
             </div>
           </div>
         )}

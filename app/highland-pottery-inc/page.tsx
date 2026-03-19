@@ -70,15 +70,17 @@ const HIGHLAND_POTTERY_DATA: SiteContent = {
         subheading: "Your guide to staying safe and respecting the landscape.",
         description:
             <>
-                <li>
-                    <b>The Resilience Angle (Landslips):</b> The Scotland District is prone to soil movement. The pottery industry is a testament to living with the land, not just on it.
-                </li>
-                <li>
-                    <b>The Clay Trap:</b> When dry, the clay is like concrete; when wet, it is like grease. <b>Avoid the ridges during or immediately after heavy rain.</b>
-                </li>
-                <li>
-                    <b>Road Safety:</b> Be mindful of &quot;slipping&quot; roads in this area. Report any new cracks in the pavement to the District Emergency Organisation (DEO).
-                </li>
+                <ul className="list-decimal ml-3 space-y-3">
+                    <li>
+                        <b>The Resilience Angle (Landslips):</b> The Scotland District is prone to soil movement. The pottery industry is a testament to living with the land, not just on it.
+                    </li>
+                    <li>
+                        <b>The Clay Trap:</b> When dry, the clay is like concrete; when wet, it is like grease. <b>Avoid the ridges during or immediately after heavy rain.</b>
+                    </li>
+                    <li>
+                        <b>Road Safety:</b> Be mindful of &quot;slipping&quot; roads in this area. Report any new cracks in the pavement to the District Emergency Organisation (DEO).
+                    </li>
+                </ul>
             </>,
         guidelines: [
             "Use designated zones for photography.",
@@ -134,7 +136,9 @@ const HIGHLAND_POTTERY_DATA: SiteContent = {
             </>,
         Nearby_Must_See:
             <>
-                <li>Barclays Park (at the foot of the hill) Bathsheba.</li>
+                <ul className="list-disc ml-5 space-y-2">
+                    <li>Barclays Park (at the foot of the hill) Bathsheba.</li>
+                </ul>
             </>,
     },
     location: {

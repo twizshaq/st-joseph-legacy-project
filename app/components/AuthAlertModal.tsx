@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaTimes } from "react-icons/fa";
-import { IoWarningOutline } from "react-icons/io5";
 
 interface AuthAlertModalProps {
   isOpen: boolean;
@@ -12,14 +11,17 @@ interface AuthAlertModalProps {
 
 // All animation styles are now defined here, inside the component file.
 const animationStyles = `
-  @keyframes slideDownAndShake {
+  @keyframes slideDown {
     0% { transform: translateY(-150%); opacity: 0; }
-    50% { transform: translateY(0); opacity: 1; }
-    60% { transform: translateX(-8px); }
-    70% { transform: translateX(8px); }
-    80% { transform: translateX(-4px); }
-    90% { transform: translateX(4px); }
-    100% { transform: translateX(0); }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
   }
 
   @keyframes slideUp {
@@ -34,7 +36,9 @@ const animationStyles = `
   }
 
   .animate-slide-down-shake {
-    animation: slideDownAndShake 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation:
+      slideDown 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+      shake 0.28s ease-in-out 0.42s forwards;
   }
 
   .animate-slide-up {
@@ -78,22 +82,20 @@ export const AuthAlertModal = ({ isOpen, onClose }: AuthAlertModalProps) => {
       <style>{animationStyles}</style>
 
       <div className="fixed top-0 left-0 right-0 z-[60] flex justify-center pointer-events-none">
+        {/* <div className='bg-white/10 active:scale-[.98] rounded-full p-[2.5px] shadow-[0px_0px_15px_rgba(0,0,0,0.1)]'></div> */}
         <div
           className={`
             flex items-center gap-4 w-full max-w-md p-4 mt-[125px] max-sm:mt-[85px] mx-4
-            bg-red-600 text-white 
-            rounded-[30px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] border border-red-700/50
+            bg-[#E80000] text-white 
+            rounded-[30px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] border-[2.5px] border-[#FF0000]
             pointer-events-auto
             ${isClosing ? 'animate-slide-up' : 'animate-slide-down-shake'}
           `}
           role="alert"
         >
-          <div className="flex-shrink-0">
-            <IoWarningOutline size={28} />
-          </div>
           
           <p className="flex-grow font-semibold">
-            You must be signed in to write a review.
+            Log in to leave a comment.
           </p>
 
           <button 

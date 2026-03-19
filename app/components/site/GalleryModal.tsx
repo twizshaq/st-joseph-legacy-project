@@ -224,14 +224,16 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                 {/* <span className="text-white/90 font-medium text-sm md:text-base ml-2 drop-shadow-md pointer-events-auto font-sans tracking-wide">
           {items[currentIndex].type === `${currentIndex + 1} / ${items.length}`}
         </span> */}
-                <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="pointer-events-auto group rounded-full bg-white/10 hover:bg-white/20 p-2 transition-all backdrop-blur-md cursor-pointer border border-white/5">
-                    <svg className="h-6 w-6 text-white group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+                <div className='bg-white/10 active:scale-[.98] rounded-full p-[2.5px] shadow-[0px_0px_15px_rgba(0,0,0,0.1)]'>
+                    <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="pointer-events-auto group rounded-full bg-black/20 hover:bg-white/20 p-2 transition-all cursor-pointer">
+                        <svg className="h-6 w-6 text-white group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
             </div>
 
             {/* Main Content */}
             <div
-                className="flex-1 relative flex items-center justify-center w-full h-full overflow-hidden"
+                className="flex-1 relative flex items-center justify-center w-full mb-[-40px] h-full overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
@@ -276,7 +278,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                             className="w-full h-full flex items-center justify-center pt-[50px] p-0 md:p-10"
                         >
                             {items[currentIndex].type === 'image' && (
-                                <div className="relative w-[90vw] h-full md:max-h-[85vh]">
+                                <div className="relative w-[90vw] max-sm:h-[65vh] md:max-h-[85vh]">
                                     <Image
                                         src={items[currentIndex].src}
                                         alt="Gallery Item"
@@ -290,7 +292,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                             )}
 
                             {items[currentIndex].type === 'video' && (
-                                <div ref={videoContainerRef} className="video-fullscreen-wrapper max-sm:w-full min-h-0 relative max-w-[95vw] rounded-4xl max-h-[70vh] aspect-video group">
+                                <div ref={videoContainerRef} className="video-fullscreen-wrapper bg-black/50 max-sm:w-full min-h-0 relative max-w-[95vw] rounded-[25px] max-h-[70vh] aspect-video group">
                                     <video
                                         key={currentIndex}
                                         ref={videoRef}
@@ -299,7 +301,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                         playsInline
                                         loop
                                         muted={isMuted}
-                                        className="w-full h-full object-contain cursor-pointer rounded-4xl"
+                                        className="w-full h-full object-contain cursor-pointer rounded-[25px]"
                                         onClick={togglePlay}
                                         onLoadedMetadata={(e) => { e.currentTarget.currentTime = 0; }}
                                         onLoadedData={() => setIsContentLoading(false)}
@@ -310,7 +312,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                     {/* CUSTOM VIDEO CONTROLS LAYER */}
                                     {!isContentLoading && (
                                         <div
-                                            className="absolute bottom-12 w-full left-1/2 -translate-x-1/2 flex gap-3 z-10 p-4 rounded-full pointer-events-auto transition-opacity duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                                            className="absolute bottom-12 w-full left-1/2 -translate-x-1/2 flex gap-3 z-10 p-2 rounded-full pointer-events-auto transition-opacity duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100"
                                             onClick={(e) => e.stopPropagation()} // Stop click bubbling
                                         >
                                             {/* --- SCRUBBER BAR --- */}
@@ -354,7 +356,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                             </div>
 
                                             {/* Play/Pause */}
-                                            <div className='absolute left-4 whitespace-nowrap rounded-full p-[2px] -mr-[2px]'>
+                                            <div className='absolute left-2 whitespace-nowrap rounded-full p-[2px] -mr-[2px]'>
                                                 <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
                                                     <button
                                                         className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
@@ -366,7 +368,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                             </div>
 
                                             {/* Mute/Unmute */}
-                                            <div className='absolute left-19 cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+                                            <div className='absolute left-16 cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
                                                 <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
                                                     <button
                                                         className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
@@ -378,7 +380,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                             </div>
 
                                             {/* Fullscreen */}
-                                            <div className='absolute right-4 cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
+                                            <div className='absolute right-2 cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
                                                 <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
                                                     <button
                                                         className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
@@ -465,7 +467,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                             key={index}
                             onClick={() => setCurrentIndex(index)}
                             className={`
-                group relative flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-[20px] overflow-hidden snap-center cursor-pointer transition-all duration-300 border-[3px]
+                group relative flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-[20px] overflow-hidden snap-center cursor-pointer transition-all duration-300 border-[2px]
                 ${currentIndex === index ? 'border-blue-500 opacity-100 scale-110 shadow-lg' : 'border-transparent opacity-40 hover:opacity-100'}
               `}
                         >

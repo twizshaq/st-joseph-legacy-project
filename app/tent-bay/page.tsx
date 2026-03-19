@@ -65,11 +65,14 @@ const TENT_BAY_DATA: SiteContent = {
         subheading: "Your guide to staying safe and respecting the landscape.",
         description:
             <>
-                <li>
-                    <b>The Atlantic Power:</b> Unlike the calm West Coast, Tent Bay has <b>extremely strong currents.</b>  Swimming is not advised; instead, enjoy the &quot;natural pools&quot; that form at low tide between the inner reefs.</li>
-                <li>
-                    <b>Tsunami Ready:</b> Tent Bay is in a coastal inundation zone. In the event of an earthquake or rapidly receding water, <b>immediately head uphill toward Hillcrest Community Centre</b>, which is the designated high-ground safe zone.
-                </li>
+                <ul className="list-decimal ml-3 space-y-3">
+                    <li>
+                        <b>The Atlantic Power:</b> Unlike the calm West Coast, Tent Bay has <b>extremely strong currents.</b> Swimming is not advised; instead, enjoy the &quot;natural pools&quot; that form at low tide between the inner reefs.
+                    </li>
+                    <li>
+                        <b>Tsunami Ready:</b> Tent Bay is in a coastal inundation zone. In the event of an earthquake or rapidly receding water, <b>immediately head uphill toward Hillcrest Community Centre</b>, which is the designated high-ground safe zone.
+                    </li>
+                </ul>
             </>,
         guidelines: [
             "Use designated zones for photography.",
@@ -121,9 +124,11 @@ const TENT_BAY_DATA: SiteContent = {
             </>,
         Nearby_Must_See:
             <>
-                <li>Andromeda Botanic Gardens (approx. 400m uphill)</li>
-                <li>Soup Bowl (approx. 500m North)</li>
-                <li>Atlantis Historic Inn (formerly The Atlantis Hotel) and the ECO Lifestyle & Lodge.</li>
+                <ul className="list-disc ml-5 space-y-2">
+                    <li>Andromeda Botanic Gardens (approx. 400m uphill)</li>
+                    <li>Soup Bowl (approx. 500m North)</li>
+                    <li>Atlantis Historic Inn (formerly The Atlantis Hotel) and the ECO Lifestyle & Lodge.</li>
+                </ul>
             </>,
     },
     location: {
@@ -164,9 +169,9 @@ export default function SoupBowlPage() {
                 sidebarSlot={
                     <>
                         <SiteSafety data={TENT_BAY_DATA.safety} />
-                        {TENT_BAY_DATA.stories && (
+                        {/* {TENT_BAY_DATA.stories && (
                             <LocalStories data={TENT_BAY_DATA.stories} />
-                        )}
+                        )} */}
                         <SiteQuiz user={user} siteId={TENT_BAY_DATA.id} />
                     </>
                 }

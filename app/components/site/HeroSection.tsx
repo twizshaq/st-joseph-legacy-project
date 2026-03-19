@@ -89,7 +89,7 @@ export const HeroSection = ({ content }: HeroProps) => {
             {availableMedia.map((media) => (
               <div
                 key={media.type}
-                className={`active:scale-[.98] backdrop-blur-[10px] w-fit h-fit rounded-full p-[2.5px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] ${activeMedia === media.type
+                className={`active:scale-[.98] backdrop-blur-[5px] w-fit h-fit rounded-full p-[2.5px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] ${activeMedia === media.type
                       ? 'bg-[#007BFF]/50 text-white'
                       : 'bg-white/10 text-white hover:bg-white/10'
                   }`}

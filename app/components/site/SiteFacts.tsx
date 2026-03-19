@@ -16,25 +16,37 @@ import { SiteFactsData } from '@/app/types/site';
 
 const transitionSpec: Transition = {
   type: "spring",
-  stiffness: 260,
-  damping: 28,
-  mass: 0.75
+  stiffness: 200,
+  damping: 24,
+  mass: 0.9
 };
 
+const overlayEase = [0.22, 1, 0.36, 1] as const;
+
 const backdropTransition = {
-  duration: 0.18,
-  ease: "easeOut" as const,
+  duration: 0.26,
+  ease: overlayEase,
 };
 
 const backdropExitTransition = {
-  duration: 0.14,
-  ease: "easeIn" as const,
+  duration: 0.2,
+  ease: [0.4, 0, 1, 1] as const,
 };
 
 const contentTransition = {
-  duration: 0.2,
-  ease: "easeOut" as const,
-  delay: 0.08,
+  duration: 0.26,
+  ease: overlayEase,
+  delay: 0.05,
+};
+
+const panelEnterTransition = {
+  duration: 0.3,
+  ease: overlayEase,
+};
+
+const panelExitTransition = {
+  duration: 0.22,
+  ease: [0.4, 0, 1, 1] as const,
 };
 
 interface FactData {
@@ -82,7 +94,7 @@ export const SiteFacts = ({ facts }: SiteFactsProps) => {
   const selectedCard = cards.find(c => c.id === selectedId);
 
   return (
-    <section className='relative mt-[70px] w-full max-w-[1400px] px-6 mx-auto flex flex-col'>
+    <section className='relative mt-[70px] w-full max-w-[1400px] px-4 mx-auto flex flex-col'>
       {/* Soft ambient background (keeps your current aesthetic but feels more premium) */}
       <div className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 w-[1100px] max-w-[120vw] h-[520px] bg-gradient-to-b from-slate-200/70 via-white/60 to-transparent blur-3xl opacity-80" />
       <div className="pointer-events-none absolute -top-16 left-[-6%] w-[340px] h-[340px] rounded-full bg-orange-200/30 blur-[80px]" />
@@ -174,7 +186,7 @@ const FactCard = ({ id, icon, label, value, theme, onClick, isSelected }: FactCa
         layoutId={`card-container-${id}`}
         transition={transitionSpec}
         onClick={isTruncated ? onClick : undefined}
-        className={`relative rounded-[42px] p-[2.7px] h-full transition-[opacity,transform] duration-150 ${styles.card} shadow-[0px_0px_20px_rgba(2,6,23,0.10)] ${isTruncated ? 'cursor-pointer active:scale-[0.99] hover:scale-[1.02]' : ''} ${isSelected ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`relative rounded-[42px] p-[2.7px] h-full transform-gpu transition-[opacity,transform] duration-200 ease-out ${styles.card} shadow-[0px_0px_20px_rgba(2,6,23,0.10)] ${isTruncated ? 'cursor-pointer active:scale-[0.99] hover:scale-[1.02]' : ''} ${isSelected ? 'opacity-0 pointer-events-none scale-[0.985]' : 'opacity-100 scale-100'}`}
       >
         <div className='group relative flex flex-row items-stretch gap-2 p-2 bg-white/80 h-full rounded-[40px] overflow-hidden'>
           <div
@@ -252,7 +264,7 @@ const FullScreenOverlay = ({ card, onClose }: { card?: FactData, onClose: () => 
 
   return (
     <Portal>
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {card && styles && (
           <motion.div
             key={card.id}
@@ -262,14 +274,17 @@ const FullScreenOverlay = ({ card, onClose }: { card?: FactData, onClose: () => 
             exit={{ opacity: 0, transition: backdropExitTransition }}
           >
             <motion.div
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px] cursor-pointer"
+              className="absolute inset-0 bg-slate-950/38 backdrop-blur-md cursor-pointer"
               onClick={onClose}
             />
 
             <motion.div
               layoutId={`card-container-${card.id}`}
               transition={transitionSpec}
-              className={`relative w-full max-w-[640px] max-h-[85vh] flex flex-col rounded-[44px] p-[3px] ${styles.expandedcard} shadow-[0px_30px_90px_rgba(0,0,0,0.45)] cursor-default`}
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1, transition: panelEnterTransition }}
+              exit={{ opacity: 0, y: 14, scale: 0.98, transition: panelExitTransition }}
+              className={`relative w-full max-w-[640px] max-h-[85vh] flex flex-col rounded-[44px] p-[3px] origin-top transform-gpu ${styles.expandedcard} shadow-[0px_30px_90px_rgba(0,0,0,0.45)] cursor-default`}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative flex flex-col w-full h-full bg-white/90 rounded-[42px] overflow-hidden">

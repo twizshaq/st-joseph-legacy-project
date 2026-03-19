@@ -72,11 +72,10 @@ const SOUP_BOWL_DATA: SiteContent = {
         heading: "Harmony with the Elements",
         subheading: "Your guide to staying safe and respecting the landscape.",
         description: <>
-            <ul className="list-decimal ml-3">
+            <ul className="list-decimal ml-3 space-y-3">
                 <li>
                     <b>Swimming:</b> Because of powerful undertows, rip currents, and sharp coral reefs, swimming in the open ocean here is extremely dangerous and generally discouraged.
                 </li>
-                <br />
                 <li>
                     <b>Natural Warning Signs: Be Tsunami Smart</b>
                     <br />
