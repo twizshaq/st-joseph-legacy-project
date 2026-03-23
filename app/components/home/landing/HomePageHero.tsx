@@ -29,7 +29,7 @@ export default function HomePageHero({ waitlist, hero }: HomePageHeroProps) {
             stronger community-one story at a time.
           </p>
 
-          <HeroSiteCarousel hero={hero} />
+          {/* <HeroSiteCarousel hero={hero} /> */}
         </div>
       </div>
     </>
