@@ -11,7 +11,7 @@ import { Feature, Point, FeatureCollection } from 'geojson';
 
 export default function FullScreenMapPage() {
     const mapRef = useRef<Zoomable | null>(null);
-    const { sites, likedSiteIds, toggleLike, saveTrip } = useMapData();
+    const { sites, sitesLoading, likedSiteIds, toggleLike, saveTrip } = useMapData();
     const [selectedSite, setSelectedSite] = useState<Site | null>(null);
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
     const [mobileSearchReady, setMobileSearchReady] = useState(false);
@@ -166,6 +166,7 @@ export default function FullScreenMapPage() {
                             isLiked={isLiked}
                             onToggleLike={handleToggleLike}
                             onSaveTrip={saveTrip}
+                            isLoading={sitesLoading}
                             sortOption={sortOption}
                             setSortOption={setSortOption}
                         />
@@ -208,6 +209,7 @@ export default function FullScreenMapPage() {
                                 isLiked={isLiked}
                                 onToggleLike={handleToggleLike}
                                 onSaveTrip={saveTrip}
+                                isLoading={sitesLoading}
                                 sortOption={sortOption}
                                 setSortOption={setSortOption}
                             />

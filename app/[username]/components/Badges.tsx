@@ -1,11 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { BadgeItem } from "../types";
 
 const BADGE_BUCKET = "badges";
+type BadgeFile = {
+  name: string;
+};
 
 const formatBadgeName = (fileName: string) =>
   fileName
@@ -15,12 +18,11 @@ const formatBadgeName = (fileName: string) =>
 
 export const useBucketBadges = () => {
   const [bucketBadges, setBucketBadges] = useState<BadgeItem[]>([]);
+  const latestRequestRef = useRef(0);
+  const supabase = createClient();
 
-  useEffect(() => {
-    let isMounted = true;
-    const supabase = createClient();
-
-    const fetchBadges = async () => {
+  const fetchBadges = useCallback(async () => {
+      const requestId = ++latestRequestRef.current;
       const { data, error } = await supabase.storage.from(BADGE_BUCKET).list("", {
         limit: 100,
         offset: 0,
@@ -32,9 +34,11 @@ export const useBucketBadges = () => {
         return;
       }
 
-      const files = data.filter((item) => /\.(png|webp|jpg|jpeg)$/i.test(item.name));
+      const files = (data as BadgeFile[]).filter((item: BadgeFile) =>
+        /\.(png|webp|jpg|jpeg)$/i.test(item.name)
+      );
 
-      const mappedBadges = files.map((file, index) => {
+      const mappedBadges = files.map((file: BadgeFile, index: number) => {
         const {
           data: { publicUrl },
         } = supabase.storage.from(BADGE_BUCKET).getPublicUrl(file.name);
@@ -49,17 +53,40 @@ export const useBucketBadges = () => {
         } satisfies BadgeItem;
       });
 
-      if (isMounted) {
+      if (latestRequestRef.current === requestId) {
         setBucketBadges(mappedBadges);
+      }
+  }, [supabase]);
+
+  useEffect(() => {
+    const refreshBadges = () => {
+      void fetchBadges();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        refreshBadges();
       }
     };
 
-    fetchBadges();
+    const handleFocus = () => refreshBadges();
+    const handlePageShow = () => refreshBadges();
+    const handleOnline = () => refreshBadges();
+
+    refreshBadges();
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("online", handleOnline);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      isMounted = false;
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("online", handleOnline);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [fetchBadges]);
 
   return bucketBadges;
 };

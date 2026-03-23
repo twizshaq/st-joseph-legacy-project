@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Site, TripData } from '@/app/types/map';
 
 export function useMapData() {
   const [sites, setSites] = useState<Site[]>([]);
+  const [sitesLoading, setSitesLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [likedSiteIds, setLikedSiteIds] = useState<Set<number>>(new Set());
-  
+  const latestSitesRequestRef = useRef(0);
+
   const supabase = createClient();
 
   // 1. Fetch User & Likes
@@ -43,37 +45,66 @@ export function useMapData() {
 
   // 2. Fetch Sites
   const fetchSites = useCallback(async () => {
-    const { data, error } = await supabase.from('location_pins').select('*');
-    if (!error && data) {
-        const mapped: Site[] = data.map((entry: any) => ({
-            id: entry.id,
-            name: entry.name || 'Unnamed',
-            category: entry.category || '',
-            description: entry.description || '',
-            coordinates: [parseFloat(entry.longitude || 0), parseFloat(entry.latitude || 0)] as [number, number],
-            imageUrl: entry.pointimage || '',
-            colorhex: entry.colorhex || '#fff',
-            slug: entry.slug || '',
-            likes_count: Number(entry.likes_count || 0),
-        })).filter(s => s.coordinates.length === 2 && !isNaN(s.coordinates[0]));
+    const requestId = ++latestSitesRequestRef.current;
+    setSitesLoading(true);
+
+    try {
+      const { data, error } = await supabase.from('location_pins').select('*');
+      if (error) throw error;
+
+      const mapped: Site[] = (data ?? []).map((entry: any) => ({
+        id: entry.id,
+        name: entry.name || 'Unnamed',
+        category: entry.category || '',
+        description: entry.description || '',
+        coordinates: [parseFloat(entry.longitude || 0), parseFloat(entry.latitude || 0)] as [number, number],
+        imageUrl: entry.pointimage || '',
+        colorhex: entry.colorhex || '#fff',
+        slug: entry.slug || '',
+        likes_count: Number(entry.likes_count || 0),
+      })).filter((site) => site.coordinates.length === 2 && !isNaN(site.coordinates[0]) && !isNaN(site.coordinates[1]));
+
+      if (latestSitesRequestRef.current === requestId) {
         setSites(mapped);
+      }
+    } catch (error) {
+      console.error('Failed to fetch location pins', error);
+    } finally {
+      if (latestSitesRequestRef.current === requestId) {
+        setSitesLoading(false);
+      }
     }
-}, [supabase]);
+  }, [supabase]);
 
   // 2. Main Effect: Initial Load + Visibility Listener
   useEffect(() => {
-      // Run once on mount
-      fetchSites();
-
-      // Re-run whenever the tab is brought back to the foreground
-      const handleVisibilityChange = () => {
-          if (document.visibilityState === 'visible') {
-              fetchSites();
-          }
+      const refreshSites = () => {
+        void fetchSites();
       };
 
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          refreshSites();
+        }
+      };
+
+      const handleFocus = () => refreshSites();
+      const handlePageShow = () => refreshSites();
+      const handleOnline = () => refreshSites();
+
+      refreshSites();
+
+      window.addEventListener('focus', handleFocus);
+      window.addEventListener('pageshow', handlePageShow);
+      window.addEventListener('online', handleOnline);
       document.addEventListener('visibilitychange', handleVisibilityChange);
-      return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+      return () => {
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('pageshow', handlePageShow);
+        window.removeEventListener('online', handleOnline);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
   }, [fetchSites]);
 
   // 3. Actions
@@ -117,5 +148,5 @@ export function useMapData() {
     else alert("Trip saved!");
   };
 
-  return { sites, user, likedSiteIds, toggleLike, saveTrip };
+  return { sites, sitesLoading, user, likedSiteIds, toggleLike, saveTrip };
 }

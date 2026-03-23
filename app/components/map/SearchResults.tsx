@@ -28,6 +28,7 @@ interface SearchResultsProps {
     isLiked: boolean;
     onToggleLike: () => void;
     onSaveTrip: (data: TripData) => void;
+    isLoading?: boolean;
     searchQuery?: string;
     onSearchChange?: (val: string) => void;
     sortOption: SortOption;
@@ -54,6 +55,7 @@ export const SearchResults = memo(function SearchResults({
     isLiked,
     onToggleLike,
     onSaveTrip,
+    isLoading = false,
     searchQuery,
     onSearchChange,
     sortOption,
@@ -229,7 +231,11 @@ export const SearchResults = memo(function SearchResults({
                             {sites.map((site) => (
                                 <SiteListItem key={site.id} site={site} onClick={() => setSelectedSite(site)} />
                             ))}
-                            {sites.length === 0 && <li className="text-white text-center py-4 opacity-50">No results found</li>}
+                            {sites.length === 0 && (
+                                <li className="text-white text-center py-4 opacity-50">
+                                    {isLoading ? 'Loading places...' : 'No results found'}
+                                </li>
+                            )}
                         </ul>
                     </div>
                 )}
