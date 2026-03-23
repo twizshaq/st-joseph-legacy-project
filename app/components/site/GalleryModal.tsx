@@ -10,12 +10,14 @@ import { ZoomIn, ZoomOut, Maximize, Loader2, Play, Pause, Volume2, VolumeX } fro
 export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], initialIndex: number, onClose: () => void }) => {
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const thumbnailScrollRef = useRef<HTMLDivElement>(null);
+    const shouldUseUnoptimized = (src: string) => src.startsWith('blob:') || src.startsWith('data:');
 
     // --- VIDEO STATE ---
     const videoRef = useRef<HTMLVideoElement>(null);
     const videoContainerRef = useRef<HTMLDivElement>(null);
     const [isPlaying, setIsPlaying] = useState(true); // Default to true since we use autoPlay
     const [isMuted, setIsMuted] = useState(true);     // Default to true for autoPlay policy
+    const [videoDisplaySize, setVideoDisplaySize] = useState<{ width: number; height: number } | null>(null);
 
     // --- VIDEO SCRUBBER LOGIC ---
     const progressBarRef = useRef<HTMLDivElement>(null);
@@ -100,6 +102,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
     useEffect(() => {
         setIsPlaying(true);
         setIsMuted(true);
+        setVideoDisplaySize(null);
     }, [currentIndex]);
 
     const togglePlay = (e?: React.MouseEvent) => {
@@ -142,6 +145,31 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
             (videoRef.current as any).webkitEnterFullscreen();
         }
     };
+
+    const updateVideoDisplaySize = useCallback((videoWidth: number, videoHeight: number) => {
+        if (!videoWidth || !videoHeight || typeof window === 'undefined') return;
+
+        const isMobile = window.innerWidth < 768;
+        const maxViewportWidth = Math.max(window.innerWidth - (isMobile ? 24 : 140), 220);
+        const maxViewportHeight = Math.max(window.innerHeight * (isMobile ? 0.65 : 0.75), 260);
+        const scale = Math.min(maxViewportWidth / videoWidth, maxViewportHeight / videoHeight, 1);
+
+        setVideoDisplaySize({
+            width: Math.round(videoWidth * scale),
+            height: Math.round(videoHeight * scale),
+        });
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (videoRef.current?.videoWidth && videoRef.current?.videoHeight) {
+                updateVideoDisplaySize(videoRef.current.videoWidth, videoRef.current.videoHeight);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [updateVideoDisplaySize]);
 
 
 
@@ -278,7 +306,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                             className="w-full h-full flex items-center justify-center pt-[50px] p-0 md:p-10"
                         >
                             {items[currentIndex].type === 'image' && (
-                                <div className="relative w-[90vw] max-sm:h-[65vh] md:max-h-[85vh]">
+                                <div className="relative h-[75vh] w-[90vw] max-sm:h-[65vh] md:max-h-[85vh]">
                                     <Image
                                         src={items[currentIndex].src}
                                         alt="Gallery Item"
@@ -286,13 +314,18 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                         className="object-contain"
                                         priority
                                         sizes="100vw"
+                                        unoptimized={shouldUseUnoptimized(items[currentIndex].src)}
                                         onLoadingComplete={() => setIsContentLoading(false)} // Stop loading
                                     />
                                 </div>
                             )}
 
                             {items[currentIndex].type === 'video' && (
-                                <div ref={videoContainerRef} className="video-fullscreen-wrapper bg-black/50 max-sm:w-full min-h-0 relative max-w-[95vw] rounded-[25px] max-h-[70vh] aspect-video group">
+                                <div
+                                    ref={videoContainerRef}
+                                    className="video-fullscreen-wrapper group relative min-h-0 overflow-hidden rounded-[25px] bg-black/50 w-[min(95vw,420px)] aspect-video"
+                                    style={videoDisplaySize ? { width: `${videoDisplaySize.width}px`, height: `${videoDisplaySize.height}px` } : undefined}
+                                >
                                     <video
                                         key={currentIndex}
                                         ref={videoRef}
@@ -303,7 +336,10 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                         muted={isMuted}
                                         className="w-full h-full object-contain cursor-pointer rounded-[25px]"
                                         onClick={togglePlay}
-                                        onLoadedMetadata={(e) => { e.currentTarget.currentTime = 0; }}
+                                        onLoadedMetadata={(e) => {
+                                            e.currentTarget.currentTime = 0;
+                                            updateVideoDisplaySize(e.currentTarget.videoWidth, e.currentTarget.videoHeight);
+                                        }}
                                         onLoadedData={() => setIsContentLoading(false)}
                                         onPlay={() => setIsPlaying(true)}
                                         onPause={() => setIsPlaying(false)}
@@ -312,12 +348,12 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                     {/* CUSTOM VIDEO CONTROLS LAYER */}
                                     {!isContentLoading && (
                                         <div
-                                            className="absolute bottom-12 w-full left-1/2 -translate-x-1/2 flex gap-3 z-10 p-2 rounded-full pointer-events-auto transition-opacity duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                                            className="absolute inset-x-0 bottom-0 z-10 px-2 pb-2 pt-10 pointer-events-auto transition-opacity duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100"
                                             onClick={(e) => e.stopPropagation()} // Stop click bubbling
                                         >
                                             {/* --- SCRUBBER BAR --- */}
                                             <div
-                                                className="relative w-full h-[20px] flex items-center cursor-pointer touch-none group/scrubber mt-[-20px]"
+                                                className="relative bg-red-500/0 mb-[-15px] h-[20px] w-full cursor-pointer touch-none group/scrubber"
                                                 ref={progressBarRef}
                                                 onMouseDown={handleScrubStart}
                                                 onTouchStart={handleScrubStart}
@@ -345,7 +381,7 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
 
                                                 {/* 3. Draggable Circle Thumb */}
                                                 <div
-                                                    className={`absolute w-[14px] h-[14px] bg-[#007BFF] rounded-full shadow-[0px_0px_13px_rgba(0,0,0,.5)] transition-transform duration-100 ease-out
+                                                    className={`absolute w-[14px] h-[14px] bottom-[11px] bg-[#007BFF] rounded-full shadow-[0px_0px_13px_rgba(0,0,0,.5)] transition-transform duration-100 ease-out
                               ${isScrubbing ? 'scale-125' : 'scale-100 group-hover/scrubber:scale-125'}`}
                                                     style={{
                                                         left: `${progress}%`,
@@ -355,39 +391,40 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
                                                 ></div>
                                             </div>
 
-                                            {/* Play/Pause */}
-                                            <div className='absolute left-2 whitespace-nowrap rounded-full p-[2px] -mr-[2px]'>
-                                                <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
-                                                    <button
-                                                        className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
-                                                        onClick={togglePlay}
-                                                    >
-                                                        {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
-                                                    </button>
-                                                </div>
-                                            </div>
+                                            <div className="mt-2 flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-1">
+                                                    <div className='whitespace-nowrap rounded-full p-[2px]'>
+                                                        <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[2.3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
+                                                            <button
+                                                                className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
+                                                                onClick={togglePlay}
+                                                            >
+                                                                {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+                                                            </button>
+                                                        </div>
+                                                    </div>
 
-                                            {/* Mute/Unmute */}
-                                            <div className='absolute left-16 cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
-                                                <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
-                                                    <button
-                                                        className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
-                                                        onClick={toggleMute}
-                                                    >
-                                                        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-                                                    </button>
+                                                    <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
+                                                        <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[2.3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
+                                                            <button
+                                                                className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
+                                                                onClick={toggleMute}
+                                                            >
+                                                                {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {/* Fullscreen */}
-                                            <div className='absolute right-2 cursor-pointer whitespace-nowrap rounded-full p-[3px] -mr-[2px]'>
-                                                <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
-                                                    <button
-                                                        className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
-                                                        onClick={toggleVideoFullscreen}
-                                                    >
-                                                        <Maximize size={20} />
-                                                    </button>
+                                                <div className='cursor-pointer whitespace-nowrap rounded-full p-[3px]'>
+                                                    <div className='bg-white/10 backdrop-blur-[3px] flex justify-center rounded-full p-[2.3px] shadow-[0px_0px_10px_rgba(0,0,0,0.2)] active:scale-95'>
+                                                        <button
+                                                            className="p-2.5 bg-black/40 cursor-pointer text-white rounded-full hover:bg-black/30 transition"
+                                                            onClick={toggleVideoFullscreen}
+                                                        >
+                                                            <Maximize size={20} />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -472,7 +509,15 @@ export const GalleryModal = ({ items, initialIndex, onClose }: { items: any[], i
               `}
                         >
                             <div className="relative w-full h-full bg-zinc-800">
-                                <Image src={item.src} alt="thumb" fill className="object-cover" sizes="80px" />
+                                {item.type === 'video' ? (
+                                    item.poster ? (
+                                        <Image src={item.poster} alt="thumb" fill className="object-cover" sizes="80px" unoptimized={shouldUseUnoptimized(item.poster)} />
+                                    ) : (
+                                        <video src={item.src} className="h-full w-full object-cover" muted playsInline preload="metadata" />
+                                    )
+                                ) : (
+                                    <Image src={item.src} alt="thumb" fill className="object-cover" sizes="80px" unoptimized={shouldUseUnoptimized(item.src)} />
+                                )}
                             </div>
                             {/* Type Icons */}
                             {item.type === 'video' && <div className="absolute inset-0 flex items-center justify-center bg-black/30"><svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3.25v13.5l12-6.75L4 3.25z" /></svg></div>}

@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Image as ImageIcon, ChevronDown, MapPin, Trash2, Plus } from 'lucide-react';
+import { Image as ImageIcon, ChevronDown, MapPin, Trash2, Plus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { addProfileMediaFiles } from '@/app/[username]/mediaStore';
  import { FaTimes } from "react-icons/fa";
  import Image from 'next/image';
 
@@ -20,10 +21,27 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
   const [locations, setLocations] = useState<LocationPin[]>([]);
   const [selectedLocation, setSelectedLocation] = useState('');
   const [loadingLocations, setLoadingLocations] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
 
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const resetUploadState = () => {
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    setFiles([]);
+    setPreviewUrls([]);
+    setSelectedLocation('');
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleClose = () => {
+    resetUploadState();
+    onClose();
+  };
   
   // Update handleFileChange
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +73,26 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
 
     setFiles(newFiles);
     setPreviewUrls(newUrls);
+
+    if (fileInputRef.current && newFiles.length === 0) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handlePost = async () => {
+    if (files.length === 0) {
+      alert("Please select at least one image or video.");
+      return;
+    }
+
+    setIsPosting(true);
+
+    try {
+      await addProfileMediaFiles(files, selectedLocation || undefined);
+      handleClose();
+    } finally {
+      setIsPosting(false);
+    }
   };
 
 
@@ -104,7 +142,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
     
     <div 
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200"
-      onClick={onClose}
+      onClick={handleClose}
     >
         <div className='fixed top-[0px] bg-white/1 h-[50px] w-full z-[200] z-[-20]' />
        <div className='fixed bottom-[0px] bg-white/1 z-[200] h-[50px] w-full z-[-20]' />
@@ -116,7 +154,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
         {/* Header */}
         <div className="flex justify-between items-center m-6">
             <h3 className="text-xl font-bold">Upload Media</h3>
-            <button onClick={onClose} className="cursor-pointer absolute top-6 right-6 z-20 text-white hover:text-red-500 active:text-red-500 transition-colors">
+            <button onClick={handleClose} className="cursor-pointer absolute top-6 right-6 z-20 text-white hover:text-red-500 active:text-red-500 transition-colors">
                 <FaTimes size={24} />
             </button>
         </div>
@@ -193,7 +231,10 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
                     <Image
                         src={url} 
                         alt="preview" 
+                        width={400}
+                        height={400}
                         className="h-full w-auto object-contain" 
+                        unoptimized
                     />
                 ) : (
                     <video 
@@ -233,8 +274,8 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
 </div>
 
         {/* Footer Action */}
-        <button className="w-[90%] self-center mb-6 rounded-[20px] bg-[#007BFF] py-3 font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] transition-all cursor-pointer">
-            Post
+        <button disabled={isPosting} onClick={handlePost} className="w-[90%] self-center mb-6 rounded-[20px] bg-[#007BFF] py-3 font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] transition-all cursor-pointer">
+            {isPosting ? 'Processing...' : 'Post'}
         </button>
       </div>
       </div>
